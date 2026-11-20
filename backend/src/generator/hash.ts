@@ -5,8 +5,8 @@
  *   not depend on key order. Same definition as frontend/site/scripts/make-dev-data.ts.
  * - contentHash(): the `v` cache buster of data files (D3): first 16 hex chars of
  *   sha256(canonicalJson(body)), where `body` is the file without its own `v`.
- *   Timeline: manifest.timeline.v = contentHash({ trips, days }) (generatedAt and contractVersion
- *   are not part of it).
+ *   Timeline: manifest.timeline.v = contentHash({ trips, days }), plus `profile` only when the
+ *   timeline has one (generatedAt and contractVersion are not part of it).
  */
 import { createHash } from 'node:crypto';
 

@@ -185,7 +185,8 @@ test.describe('generated site', () => {
     await expect.poll(() => images.length).toBeGreaterThan(0);
     for (const img of images) {
       expect(img.status).toBe(200);
-      expect(img.url).toMatch(/_(?:poster_)?w\d+\.avif$/);
+      // Photo/poster variants, and the portrait's own round crop (pipeline/avatar.ts).
+      expect(img.url).toMatch(/_(?:(?:poster_)?w\d+|avatar_[0-9a-f]{8}_s\d+)\.avif$/);
       expect(img.type).toBe('image/avif');
     }
     // Each AVIF <source> has a WebP sibling that is served too.

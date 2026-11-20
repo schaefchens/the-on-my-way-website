@@ -20,7 +20,9 @@ use stdClass;
 
 /**
  *   GET   /admin/settings   Settings
- *   PATCH /admin/settings   SettingsPatch -> Settings (null clears alerts.email / alerts.ntfy_url;
+ *   PATCH /admin/settings   SettingsPatch -> Settings (null clears site.author / site.intro /
+ *                           site.avatar / alerts.email / alerts.ntfy_url; a newly picked
+ *                           site.avatar must be a captured, non-revoked photo, else 422;
  *                           publish.mode_since is maintained by the API: it moves only on
  *                           instant -> delayed/review, delayed -> review and a changed delay
  *                           while delayed, see Policy::nextModeSince(); time zones are stored

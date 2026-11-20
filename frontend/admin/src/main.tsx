@@ -13,6 +13,7 @@ import { App } from './app';
 import { authQueryKey, refreshCsrf, safeRedirect } from './auth';
 import { activateLocale, preferredLocale } from './i18n';
 import { draftSearch } from './lib/drafts';
+import { handleProfileWriteFailure } from './lib/profile';
 import { createPostRescue } from './lib/rescue';
 import { listenForInstallPrompt, registerServiceWorker } from './pwa';
 import { createAdminRouter } from './router';
@@ -21,12 +22,15 @@ import { setSessionPersister } from './session';
 async function start(): Promise<void> {
   applyThemePreference(readThemePreference());
   listenForInstallPrompt();
+  const rescuePost = createPostRescue((draft) => void router.navigate({ to: '/compose', search: draftSearch(draft) }));
   const queryClient = createAdminQueryClient({
     onConflict: (qc, name, vars) => void handleConflict(qc, name, vars),
     // The session expired while the write was queued: keep it and replay it after the next login.
     onUnauthorizedWrite: (_qc, name, vars) => addToOutbox(name, vars),
-    // A post the API rejected for good goes back into a draft instead of vanishing.
-    onFailedWrite: createPostRescue((draft) => void router.navigate({ to: '/compose', search: draftSearch(draft) })),
+    // A rejected profile setting is shown at its field (Settings → About you, when open); a post
+    // the API rejected for good goes back into a draft instead of vanishing.
+    onFailedWrite: (qc, name, vars, error, reason) =>
+      handleProfileWriteFailure(name, vars, error) || rescuePost(qc, name, vars, error, reason),
   });
   const persister = createIdbPersister();
   setSessionPersister(persister);

@@ -19,7 +19,7 @@ WaSource (helper | fixtures) ─▶ Ingest (inbox → archive → media pipeline
 | App / orchestrator | `src/app.ts` | Wires everything, debounced generate, single-flight publish with retry, delayed-publish timer, graceful shutdown, process lock |
 | CLI / entry | `src/cli.ts`, `src/main.ts` | `backend <command>`; `main.ts` = `backend start` |
 | Capture | `src/capture/` | WaSource (Go helper supervisor or fixture replay) and Ingest |
-| Pipeline | `src/pipeline/` | sharp / ffmpeg media variants |
+| Pipeline | `src/pipeline/` | sharp / ffmpeg media variants; the portrait's round crop (`avatar.ts`, made by the generator run) |
 | Store | `src/store/` | SQLite (WAL): captures, owner mirror, outbox, sync state, deploy manifests, events |
 | Generator | `src/generator/` | store → `OUT_DIR` (HTML per route, JSON, media links, site assets) |
 | Publisher | `src/publisher/` | incremental, crash-safe deploys to `local` and `sftp` targets |
@@ -49,17 +49,24 @@ Outside Docker nothing reads the repo's `.env`: pass variables on the command li
 [Dockerfile](Dockerfile) (build context = repository root) and [compose.yaml](compose.yaml);
 running it day to day: [docs/OPERATIONS.md](../docs/OPERATIONS.md).
 
-- Image `node:24-bookworm-slim` + Debian's ffmpeg 5.1 + tini, runs as `node` (uid 1000), keeps the
-  repository layout under `/app`, ships the Go helper (`/app/backend/wa-helper/bin/wa-helper`), the
-  built site and a `backend` CLI wrapper; HEALTHCHECK on `/healthz`. ~770 MB, cold build ~100 s
-  on an M-series Mac (linux/amd64 under QEMU ~150 s), dependencies from the frozen lockfile.
-- `scripts/docker-e2e.sh` (repo root): builds `omw-backend:dev` and runs the whole fixture flow in
-  the container (owner import, ingest, sharp/ffmpeg, generate, local publish to a bind mount),
-  the generated-site Playwright spec on the host, a graceful stop (SQLite `integrity_check`) and an
-  idempotent restart; compose project `omw-e2e`, no `.env`, ports 127.0.0.1:19180/19181.
-- Unit tests on Node 24 inside Linux: `docker build -f backend/Dockerfile --target test -t omw-backend:test .`
-  then `docker run --rm --tmpfs /app/.cache:exec omw-backend:test` (contracts + backend; the
-  browser test and the ffmpeg ≥ 6 edge-media test are left out, see the Dockerfile).
+- Image `node:24-trixie-slim` (Debian 13) + Debian's ffmpeg 7.1 + tini, runs as `node` (uid 1000),
+  keeps the repository layout under `/app`, ships the Go helper (`/app/backend/wa-helper/bin/wa-helper`,
+  built with `golang:1.26-trixie`), the built site and a `backend` CLI wrapper; HEALTHCHECK on
+  `/healthz`. ~785 MB on arm64, dependencies from the frozen lockfile.
+- Build with the project's own buildx builder (Docker Desktop's disk is shared with other
+  projects; this keeps our cache separate and prunable): `docker buildx create --name omw-builder
+  --driver docker-container` once, then `docker buildx build --builder omw-builder --load -f
+  backend/Dockerfile -t omw-backend:dev .`. A cold build needs ~6-7 GB free in Docker's VM at its
+  peak; afterwards `docker buildx prune --builder omw-builder --reserved-space 2gb -f`.
+- `scripts/docker-e2e.sh` (repo root): builds `omw-backend:dev` (with `omw-builder`) and runs the
+  whole fixture flow in the container (owner import, ingest, sharp/ffmpeg, generate, local publish
+  to a bind mount), the generated-site Playwright spec on the host, a graceful stop (SQLite
+  `integrity_check`) and an idempotent restart; compose project `omw-e2e`, no `.env`, ports
+  127.0.0.1:19180/19181.
+- Unit tests on Node 24 inside Linux: `docker buildx build --builder omw-builder --load -f backend/Dockerfile --target test -t omw-backend:test .`
+  then `docker run --rm --tmpfs /app/.cache:exec omw-backend:test` (contracts + backend incl. the
+  edge-media test; only the browser test is left out, see the Dockerfile). The test image is
+  ~1.2 GB: remove it afterwards (`docker rmi omw-backend:test`).
 - Bind mounts on macOS (Docker Desktop, VirtioFS): files the container writes appear as your
   user on the Mac and as uid 1000 inside; hard links between `media/` and `out/media/` work. On a
   Linux host: `sudo chown -R 1000:1000 backend/data`.
@@ -156,9 +163,10 @@ JSON API (`Authorization: Bearer $CONTROL_TOKEN`, or the cookie + `X-CSRF-Token`
   is not sent into the rate limit); 404 `capture_not_mirrored` retries after ~30 s; other 4xx
   retry hourly (never dropped); 401/403 pause all API traffic for 5 min and show in the UI.
 - **Change feed**: `GET …/changes?after=` every 15 s and right after own pushes, page by page;
-  items are validated one by one by the store (invalid → quarantine, unknown → ignored); a
-  409 `feed_reset` or a new `feedId` rebuilds the owner mirror from seq 0 and re-pushes every
-  capture (the API was restored).
+  items are validated one by one by the store (invalid → quarantine, unknown → ignored, their
+  kind remembered); a 409 `feed_reset` or a new `feedId` rebuilds the owner mirror from seq 0 and
+  re-pushes every capture (the API was restored). At startup, items an older version ignored
+  whose kind this version knows (e.g. new settings) replay the feed once the same way.
 - **Heartbeat** every 60 s (contracts `Heartbeat`), sent directly, never queued.
 - **Publish reports** carry the change-feed cursor and capture watermark of the generate that
   produced the deployed files (`sync_state.last_generate`), not of "now".

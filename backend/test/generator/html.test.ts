@@ -15,7 +15,7 @@ import {
   trustedHtml,
 } from '../../src/generator/html.js';
 import { renderMarkdown } from '../../src/generator/markdown.js';
-import { NOSCRIPT_CSS, needsVietnamese, THEME_BOOT_SCRIPT } from '../../src/generator/pages.js';
+import { handFontText, NOSCRIPT_CSS, needsVietnamese, THEME_BOOT_SCRIPT } from '../../src/generator/pages.js';
 import { inspectHtml } from '../../src/generator/verify.js';
 import { REPO_ROOT } from '../../src/paths.js';
 import { makeTempDir } from '../helpers.js';
@@ -211,16 +211,36 @@ describe.skipIf(!fixturesPresent())('generated pages: head, twin and article', (
     expect(first?.[2]).toBe('(min-width: 1024px) 384px, (min-width: 704px) 320px, 256px');
     // that image is the twin's one eager, high-priority image
     expect(twinOf(p).match(/fetchpriority="high"/g)?.length).toBe(1);
-    // fonts: Latin (LTR) and, for "Sài Gòn" / "Hội An", the Vietnamese subsets; never Playpen
+    // fonts: Latin (LTR) and, for "Sài Gòn" / "Hội An", the Vietnamese subsets; the hand font's
+    // Latin 400 file (greeting and month headings are on the first screen), its Vietnamese one
+    // only when that hand-font text needs it, never the 500 weight
     const fonts = preloads(p).filter((l) => l.includes('as="font"'));
-    expect(fonts.map((l) => /href="([^"]+)"/.exec(l)?.[1]).sort()).toEqual([
-      '/assets/fraunces-latin-soft-normal-Fl1.woff2',
-      '/assets/fraunces-vietnamese-soft-normal-Vf1.woff2',
-      '/assets/nunito-latin-wght-normal-Zz9.woff2',
-      '/assets/nunito-vietnamese-wght-normal-Vn1.woff2',
-    ]);
-    expect(headOf(p)).not.toContain('playpen');
-    expect(preloads(p).length).toBeLessThanOrEqual(6);
+    const hrefs = fonts.map((l) => /href="([^"]+)"/.exec(l)?.[1]).sort();
+    const hand = handFontText(twinOf(p));
+    expect(hand).toContain('Hallo ihr Lieben!');
+    expect(hrefs).toEqual(
+      [
+        '/assets/fraunces-latin-soft-normal-Fl1.woff2',
+        '/assets/fraunces-vietnamese-soft-normal-Vf1.woff2',
+        '/assets/nunito-latin-wght-normal-Zz9.woff2',
+        '/assets/nunito-vietnamese-wght-normal-Vn1.woff2',
+        '/assets/playpen-sans-latin-400-Pl1.woff2',
+        ...(/[\u1EA0-\u1EF9\u0110\u0111]/.test(hand) ? ['/assets/playpen-sans-vietnamese-400-Pv1.woff2'] : []),
+      ].sort(),
+    );
+    for (const f of fonts) expect(f).toMatch(/ as="font" type="font\/woff2" crossorigin>$/);
+    expect(headOf(p)).not.toContain('playpen-sans-latin-500');
+    expect(preloads(p).length).toBeLessThanOrEqual(8);
+    // Trip pages too (the same timeline first screen); RTL pages preload no Latin fonts.
+    expect(headOf(page('en/trip/vietnam-2026/index.html'))).toContain('playpen-sans-latin-400-Pl1.woff2');
+  });
+
+  it('hand-font text: what a reader sees in the handwriting face, nested markup included', () => {
+    expect(handFontText('<p class="font-hand text-lg">Momente ✈︎</p><p class="text-sm">nicht</p>')).toBe('Momente ✈︎');
+    expect(handFontText('<h2 class="font-hand"><span>Nov</span>ember</h2>')).toBe('Nov ember');
+    expect(handFontText('<span class="a font-hand b"><span>Hội</span> An</span><span>x</span>')).toBe('Hội An');
+    expect(handFontText('<p class="sm:font-hand">no</p><p class="font-handy">no</p>')).toBe('');
+    expect(needsVietnamese(handFontText('<p class="font-hand">Hội An</p>'))).toBe(true);
   });
 
   it('day and story pages: player chunks, the slide image at player sizes (L3-01)', () => {

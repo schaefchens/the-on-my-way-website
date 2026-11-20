@@ -1,9 +1,10 @@
 /**
  * The owner flow of plan "End-to-end verification" 3 + 4 on the real local stack (see
  * ../playwright.stack.config.ts): fixture statuses are captured by the backend and mirrored to
- * the PHP API; the owner edits in the admin PWA (German UI, phone viewport); the edits travel
- * through the change feed into the generated site; the admin reports "live"; with the API down a
- * new status is still published, and the sync catches up once the API is back.
+ * the PHP API; the owner edits in the admin PWA (German UI, phone viewport), "About you" (name,
+ * greeting, portrait) included; the edits travel through the change feed into the generated
+ * site; the admin reports "live"; with the API down a new status is still published, and the
+ * sync catches up once the API is back.
  *
  * The tests run in order and share the stack (serial mode).
  */
@@ -27,6 +28,7 @@ const stack = new Stack({
 // Fixture statuses (fixtures/generated/inbox) the flow works with.
 const DESCRIBED = 'wa:3EB0A95100B25384B95E'; // photo "Sài Gòn", 2026-11-17
 const HIDDEN = 'wa:3EB0B028C9D92EFF4C5B'; // photo "Hội An", 2026-11-15
+const PORTRAIT = 'wa:3EB0CCAE0F9B4D04143F'; // photo "Hà Nội", 2026-11-14
 const DAY = '2026-11-16';
 const TRIP_SLUG = 'vietnam-2026';
 
@@ -44,6 +46,9 @@ const T = {
   storyBody: `Um fünf Uhr klingelte der Wecker.\n\n## Auf dem Boot\n\nDer Fluss war **still** (${run}).`,
   tripDe: `Vietnam 2026 ${run}`,
   tripEn: `Vietnam 2026 (en) ${run}`,
+  author: `Lea ${run}`,
+  introDe: `Hallo ihr Lieben! (${run})`,
+  introEn: `Hello, lovely people! (${run})`,
   offline: `Status ohne API ${run}`,
 };
 
@@ -58,6 +63,13 @@ interface CaptureItem {
 }
 interface DayJson {
   entries: Array<Record<string, unknown> & { id: string; kind: string }>;
+}
+interface TimelineJson {
+  profile?: {
+    author?: string;
+    intro?: Record<string, string>;
+    avatar?: { sources: Record<string, Array<{ w: number; src: string }>> };
+  };
 }
 
 let api: APIRequestContext;
@@ -323,6 +335,34 @@ test('owner edits in the admin PWA against the real API', async ({ page }) => {
     await expect.poll(async () => (await admin<Record<string, unknown>>('/settings'))['publish.mode']).toBe('instant');
   });
 
+  await test.step('about you: name, greeting in German and English, a portrait', async () => {
+    const about = page.locator('#about-you');
+    await about.getByLabel('Dein Name').fill(`  ${T.author} `);
+    await about.getByRole('button', { name: 'Speichern', exact: true }).click();
+    await expect.poll(async () => (await admin<Record<string, unknown>>('/settings'))['site.author']).toBe(T.author);
+
+    const greeting = about.getByTestId('profile-greeting');
+    await about.getByRole('tab', { name: /Deutsch/ }).click();
+    await greeting.fill(T.introDe);
+    await about.getByRole('tab', { name: /English/ }).click();
+    await greeting.fill(T.introEn);
+    await about.getByRole('button', { name: 'Begrüßung speichern' }).click();
+    await expect
+      .poll(async () => (await admin<Record<string, unknown>>('/settings'))['site.intro'])
+      .toEqual({ de: T.introDe, en: T.introEn });
+
+    await about.getByRole('button', { name: 'Foto auswählen' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Dein Porträt auswählen' });
+    const tile = sheet.locator(`input[type="radio"][value="${PORTRAIT}"]`);
+    await tile.locator('xpath=..').click();
+    await expect(tile).toBeChecked();
+    await sheet.getByRole('button', { name: 'Als Porträt verwenden' }).click();
+    await expect(sheet).toBeHidden();
+    await expect
+      .poll(async () => (await admin<Record<string, unknown>>('/settings'))['site.avatar'])
+      .toEqual({ sourceKey: PORTRAIT });
+  });
+
   expect(failed, 'failed requests').toEqual([]);
   expect(httpErrors, 'HTTP errors').toEqual([]);
   expect(consoleErrors, 'console errors').toEqual([]);
@@ -357,6 +397,24 @@ test('the owner edits reach the generated site through the change feed', async (
       .poll(async () => JSON.stringify(await stack.siteJson('/data/days/2026-11-17.json')), { timeout: 60_000 })
       .toContain(T.descEn);
     expect(JSON.stringify(await stack.siteJson('/data/days/2026-11-17.json'))).toContain(T.descDe);
+  });
+  await test.step('the profile: name and greeting on the home page, the portrait in timeline.json', async () => {
+    await expect.poll(() => html('/de/'), { timeout: 60_000 }).toContain(T.introDe);
+    expect(await html('/de/')).toContain(T.author);
+    await expect.poll(() => html('/en/'), { timeout: 30_000 }).toContain(T.introEn);
+    const manifest = await stack.siteJson<{ timeline: { v: string } }>('/data/manifest.json');
+    const timeline = await stack.siteJson<TimelineJson>(`/data/timeline.json?v=${manifest?.timeline.v}`);
+    expect(timeline?.profile?.author).toBe(T.author);
+    expect(timeline?.profile?.intro).toEqual({ de: T.introDe, en: T.introEn });
+    // Only the portrait's own round crop (square files up to 288 px, never the photo's
+    // variants) is published, and its files are there.
+    const sources = Object.values(timeline?.profile?.avatar?.sources ?? {}).flat();
+    expect(sources.length).toBeGreaterThan(0);
+    for (const s of sources) {
+      expect(s.w).toBeLessThanOrEqual(288);
+      expect(s.src).toMatch(/_avatar_[0-9a-f]{8}_s\d+\.(?:avif|webp)$/);
+      expect(stack.publishedFileExists(s.src), s.src).toBe(true);
+    }
   });
   await test.step('the hidden capture and all of its media are gone from the static host', async () => {
     const id = shared.hiddenPublicId as string;

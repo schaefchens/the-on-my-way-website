@@ -106,6 +106,7 @@ function boot(partial: Partial<SiteBoot> = {}): SiteBoot {
     manifestVersion: null,
     timelineV: null,
     day: null,
+    profile: null,
     source: 'document',
     ...partial,
   };

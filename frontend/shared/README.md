@@ -57,16 +57,19 @@ The runtime values are CSS variables `--omw-*` on `:root` and on every `[data-th
 |---|---|---|
 | `font-display` | Fraunces Variable (wght + **SOFT** axes) → Vazirmatn / Rubik → serif | headings, day titles |
 | `font-body` (= `font-sans`) | Nunito Variable (+ italic) → Vazirmatn (Arabic/Persian) → Rubik (Hebrew) → system | UI and body text |
-| `font-hand` | Playpen Sans Variable + its Arabic and Hebrew cuts | handwritten notes |
+| `font-hand` | Playpen Sans (static 400/500 subsets, family name `Playpen Sans Variable`) + its Arabic and Hebrew cuts | tagline, month headings, notes, greeting, a few labels |
 
 Each stack ends with colour-emoji fonts. Use `font-variation-settings: "SOFT" 100` for the soft Fraunces look.
 
-Only the needed subsets are shipped: latin, latin-ext and vietnamese, plus the arabic and hebrew cuts. Playpen's monochrome emoji subsets are left out on purpose. `src/styles/fonts.css` is **generated** from the installed `@fontsource` packages:
+Only the needed subsets are shipped: latin, latin-ext and vietnamese, plus the arabic and hebrew cuts. Playpen's monochrome emoji subsets are left out on purpose. `src/styles/fonts.css` is **generated** from the installed `@fontsource` packages and, for the Latin Playpen faces, from the committed subsets in `fonts/playpen-sans/` (`subsets.json`):
 
 ```sh
+scripts/fonts/subset-playpen.sh     # (repo root) only after bumping @fontsource-variable/playpen-sans
 pnpm --filter @omw/ui fonts         # regenerate after bumping a @fontsource package
-pnpm --filter @omw/ui fonts:check   # CI: fails if out of date
+pnpm --filter @omw/ui fonts:check   # CI: fails if out of date or the Playpen subsets are stale
 ```
+
+The handwriting subsets are static instances at the two weights the UI uses (400; 500 for `FB_SCRIPT` text statuses) without Playpen's contextual handwriting alternates (`calt`), split into latin / vietnamese / latin-ext files: about 24 KiB on a German or English page, 31 KiB with Vietnamese place names (was 190–500 KiB). Use the hand font only at 400 or 500; any other weight falls back to the nearest file (bold is synthesized). Why and how: [scripts/fonts/README.md](../../scripts/fonts/README.md). License: `fonts/playpen-sans/OFL.txt`.
 
 **WhatsApp text statuses** (D10). Use `waFontStyle(font)` from `@omw/ui/fonts`, which sets the CSS variable and the weight:
 

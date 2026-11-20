@@ -127,6 +127,31 @@ describe('change feed pull', () => {
     expect(hb.sync).toMatchObject({ feedId: 'feed_aaaaaaaa', feedSeq: 5, quarantined: 2 });
   });
 
+  it('an upgraded backend replays items an older version skipped as unknown (profile saved first)', async () => {
+    // The admin and API were upgraded first: the owner set her name, the old backend skipped it
+    // as an unknown setting key (an event) and moved its cursor past it.
+    api.feed.push(settingItem('site.title', 'Unterwegs', 1), settingItem('site.author', 'Lea', 2));
+    resetSeq(2);
+    store.owner.applyChanges({ feedId: api.feedId, items: [api.feed[0]], nextSeq: 2, hasMore: false });
+    store.events.append('feed.item_ignored', { seq: 2, entity: 'setting', key: 'site.author' });
+    store.syncState.setOwnerSynced(new Date());
+    expect(store.syncState.feedCursor()).toBe(2);
+    expect(store.owner.settings()).not.toHaveProperty('site.author');
+
+    await sync.start();
+    expect(store.syncState.rebuildPending()).toBe(true);
+    await sync.pullNow();
+    expect(store.owner.settings()['site.author']).toBe('Lea');
+    expect(store.syncState.rebuildPending()).toBe(false);
+    expect(store.syncState.feedCursor()).toBe(2);
+    expect(changes.at(-1)?.full).toBe(true);
+    // Once is enough: a later start does not replay again.
+    await sync.stop();
+    sync = createSync({ config, log: silentLog(), store, options: FAST, random: () => 0.5 });
+    await sync.start();
+    expect(store.syncState.rebuildPending()).toBe(false);
+  });
+
   it('rebuilds the mirror on 409 feed_reset and re-pushes every capture', async () => {
     api.feed.push(postItem('p_keep', '2026-11-18'), postItem('p_gone', '2026-11-18'));
     await sync.pullNow();

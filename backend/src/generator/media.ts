@@ -5,9 +5,12 @@
  *   contract's ImageSet / VideoMedia / AudioMedia. Admin previews (role "preview") are never
  *   published. An entry whose required variants are missing (or whose files are not in
  *   MEDIA_DIR) is left out of the site with a warning instead of referencing missing files.
- * - OUT_DIR/media mirrors exactly the variants referenced by public entries (generate.ts links
- *   them from MEDIA_DIR with fsutil.linkOrCopy and removes unreferenced ones); scanMediaRoot()
- *   lists both directories.
+ * - The portrait (setting site.avatar) publishes only its own round crop (pipeline/avatar.ts,
+ *   "<sha16>_avatar_…" files in MEDIA_DIR), never the photo's variants, even when the photo
+ *   itself is public or hidden.
+ * - OUT_DIR/media mirrors exactly the variants referenced by public entries and the portrait
+ *   (generate.ts links them from MEDIA_DIR with fsutil.linkOrCopy and removes unreferenced ones);
+ *   scanMediaRoot() lists both directories.
  * - Referenced paths are read from the media fields only (imageSetPaths, entryMediaPaths, …),
  *   never by scanning strings: user text may start with "media/" too.
  */
@@ -19,6 +22,7 @@ import type {
   Entry,
   ImageSet,
   ImageSource,
+  SiteProfile,
   TimelineIndex,
   VideoMedia,
 } from '@omw/contracts/site';
@@ -137,11 +141,19 @@ export function dayMediaPaths(day: Pick<DayDetail, 'entries'>, out: Set<string>)
   return out;
 }
 
-/** Media paths of the timeline index (day and trip covers). */
-export function timelineMediaPaths(timeline: Pick<TimelineIndex, 'days' | 'trips'>, out: Set<string>): Set<string> {
+/** Media paths of the profile (the portrait's round crops). */
+export function profileMediaPaths(profile: SiteProfile | null | undefined, out: Set<string>): Set<string> {
+  return imageSetPaths(profile?.avatar, out);
+}
+
+/** Media paths of the timeline index (day and trip covers, the portrait). */
+export function timelineMediaPaths(
+  timeline: Pick<TimelineIndex, 'days' | 'trips' | 'profile'>,
+  out: Set<string>,
+): Set<string> {
   for (const d of timeline.days) imageSetPaths(d.cover, out);
   for (const t of timeline.trips) imageSetPaths(t.cover, out);
-  return out;
+  return profileMediaPaths(timeline.profile, out);
 }
 
 // ---------------------------------------------------------------------------------------------

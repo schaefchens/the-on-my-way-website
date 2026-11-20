@@ -172,7 +172,8 @@ export async function verifyOutDir(
   const media = new Set<string>();
   const expectedPages: string[] = ['index.html', '404.html'];
   if (manifest && timeline) {
-    if (contentHash({ trips: timeline.trips, days: timeline.days }) !== manifest.timeline.v) {
+    const { trips, days, profile } = timeline;
+    if (contentHash({ trips, days, ...(profile ? { profile } : {}) }) !== manifest.timeline.v) {
       problems.push('manifest.timeline.v does not match timeline.json');
     }
     const dates = timeline.days.map((d) => d.date);

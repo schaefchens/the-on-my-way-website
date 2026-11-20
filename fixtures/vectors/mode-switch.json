@@ -1,0 +1,5875 @@
+{
+  "description": "nextModeSince(before, after, now) -> modeSince; visibilityBefore/visibilityAfter[i] = effectiveCaptureVisibility(captures[i], no annotation, before | after + modeSince, now). Only -> instant, review -> delayed and a shorter delay while delayed release waiting captures, exactly those at least as old as the new delay; nothing that was public before the switch becomes pending. mode_since is inclusive: a capture at exactly the switch instant (\"t\") already falls under the new mode.",
+  "captures": [
+    {
+      "label": "before the earlier cut-off",
+      "occurredAt": "2026-11-17T09:59:59.999Z"
+    },
+    {
+      "label": "t-24h",
+      "occurredAt": "2026-11-19T10:00:00.000Z"
+    },
+    {
+      "label": "t-12h",
+      "occurredAt": "2026-11-19T22:00:00.000Z"
+    },
+    {
+      "label": "t-12h+1ms",
+      "occurredAt": "2026-11-19T22:00:00.001Z"
+    },
+    {
+      "label": "t-6h",
+      "occurredAt": "2026-11-20T04:00:00.000Z"
+    },
+    {
+      "label": "t-6h+1ms",
+      "occurredAt": "2026-11-20T04:00:00.001Z"
+    },
+    {
+      "label": "before the recent cut-off",
+      "occurredAt": "2026-11-20T05:59:59.999Z"
+    },
+    {
+      "label": "t-2h",
+      "occurredAt": "2026-11-20T08:00:00.000Z"
+    },
+    {
+      "label": "t",
+      "occurredAt": "2026-11-20T10:00:00.000Z"
+    }
+  ],
+  "cases": [
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T04:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-19T22:00:00.001Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "instant",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "delayed",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "1970-01-01T00:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "1970-01-01T00:00:00.000Z",
+      "visibilityBefore": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-17T10:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-17T10:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 0
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 360
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "before": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720,
+        "ingest.on_revoke": "hide",
+        "publish.mode_since": "2026-11-20T06:00:00.000Z"
+      },
+      "after": {
+        "publish.mode": "review",
+        "publish.delay_minutes": 720
+      },
+      "now": "2026-11-20T10:00:00.000Z",
+      "modeSince": "2026-11-20T06:00:00.000Z",
+      "visibilityBefore": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ],
+      "visibilityAfter": [
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "public",
+        "pending",
+        "pending"
+      ]
+    }
+  ]
+}

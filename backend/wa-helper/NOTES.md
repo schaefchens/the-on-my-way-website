@@ -82,7 +82,7 @@ The Linux binaries are static ELF files. A plain `go build` without `-s -w` give
 **Dependency check.** No package in the dependency graph has cgo files under `CGO_ENABLED=0`.
 `github.com/mattn/go-sqlite3` appears in `go.mau.fi/util`'s go.mod but is not imported by anything we build.
 
-**Dockerfile hint.** Use `golang:1.26-bookworm` as the build stage with `CGO_ENABLED=0`, and copy the
+**Dockerfile hint.** Use `golang:1.26-trixie` (the Dockerfile's `GO_IMAGE`) as the build stage with `CGO_ENABLED=0`, and copy the
 single binary into the node image. No libc or sqlite packages are needed at runtime.
 
 ## 3. Session store: `sqlstore` + modernc

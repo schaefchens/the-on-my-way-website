@@ -44,6 +44,46 @@
       "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
       "type": "string"
     },
+    "site.author": {
+      "maxLength": 60,
+      "minLength": 1,
+      "pattern": "^[^\\p{Cc}\\p{Z}](?:[^\\p{Cc}]*[^\\p{Cc}\\p{Z}])?$",
+      "type": "string"
+    },
+    "site.avatar": {
+      "additionalProperties": false,
+      "properties": {
+        "focus": {
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "y": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "type": "object"
+        },
+        "sourceKey": {
+          "maxLength": 160,
+          "pattern": "^[a-z]+:[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourceKey"
+      ],
+      "type": "object"
+    },
     "site.default_locale": {
       "enum": [
         "de",
@@ -54,6 +94,24 @@
     },
     "site.indexable": {
       "type": "boolean"
+    },
+    "site.intro": {
+      "additionalProperties": {
+        "maxLength": 160,
+        "minLength": 1,
+        "pattern": "^[^\\p{Cc}\\p{Z}](?:(?:[^\\p{Cc}]|\\n)*[^\\p{Cc}\\p{Z}])?$",
+        "type": "string"
+      },
+      "minProperties": 1,
+      "propertyNames": {
+        "enum": [
+          "de",
+          "en",
+          "ar"
+        ],
+        "type": "string"
+      },
+      "type": "object"
     },
     "site.locales": {
       "items": {

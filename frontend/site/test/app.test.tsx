@@ -5,6 +5,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { TimelineIndex } from '@omw/contracts/site';
 import { createMemoryHistory } from '@tanstack/react-router';
 import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -42,7 +43,13 @@ describe.skipIf(!HAVE_DATA)('app (rendered from dev-data)', () => {
 
   it('renders the German timeline (days level, newest first)', async () => {
     const { html } = await render('/de/');
-    expect(html).toContain('Momente von unterwegs');
+    // The hero: who travels (the fixtures' demo owner has a profile), else the tagline.
+    const timeline = JSON.parse(readFileSync(join(DIR, 'data/timeline.json'), 'utf8')) as TimelineIndex;
+    const profile = timeline.profile;
+    if (profile?.author) expect(html).toContain(profile.author);
+    if (profile?.intro?.de) expect(html).toContain(profile.intro.de);
+    if (profile?.avatar) expect(html).toContain('data-testid="hero-portrait"');
+    if (!profile?.intro) expect(html).toContain('Momente von unterwegs');
     expect(html).toContain('November 2026');
     expect(html).toContain('Vietnam 2026');
     expect(html).toContain('Sài Gòn');

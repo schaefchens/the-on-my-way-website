@@ -807,6 +807,9 @@
                 "site.locales",
                 "site.default_locale",
                 "site.indexable",
+                "site.author",
+                "site.intro",
+                "site.avatar",
                 "alerts.email",
                 "alerts.ntfy_url",
                 "alerts.heartbeat_stale_minutes"
@@ -850,6 +853,9 @@
                 "site.locales",
                 "site.default_locale",
                 "site.indexable",
+                "site.author",
+                "site.intro",
+                "site.avatar",
                 "alerts.email",
                 "alerts.ntfy_url",
                 "alerts.heartbeat_stale_minutes"

@@ -9,6 +9,7 @@ import { Hero, SiteHeader, siteTitleOf } from '../components/site-header';
 import { manifestQueryOptions } from '../data/queries';
 import { applyDocumentTitle, documentTitle, type TitleView } from '../document-title';
 import { MotionBoundary, preloadMotion } from '../motion';
+import { ProfileProvider } from '../profile';
 import { useSite } from '../site';
 import { HomeTimeline } from '../timeline/home-timeline';
 import { DEFAULT_ZOOM, type HomeSearch, homeSearch, sameHomeSearch, validateHomeSearch } from '../timeline/search';
@@ -139,16 +140,19 @@ export function LocaleLayout() {
     // filmstrips from widening the page, without creating a scroll container for sticky headers.
     <div className="relative min-h-dvh overflow-x-clip">
       <div aria-hidden="true" className="page-grain pointer-events-none fixed inset-0" />
-      <div className="relative" inert={overlayOpen}>
-        <SiteHeader locale={locale} />
-        <main>
-          <Hero locale={locale} level={search.z ?? DEFAULT_ZOOM} />
-          <HomeTimeline locale={locale} search={search} active={!overlayOpen} />
-        </main>
-      </div>
-      <MotionBoundary>
-        <Outlet />
-      </MotionBoundary>
+      {/* Whose journey it is: the hero, the player's avatar and the day-end card show it. */}
+      <ProfileProvider>
+        <div className="relative" inert={overlayOpen}>
+          <SiteHeader locale={locale} />
+          <main>
+            <Hero locale={locale} level={search.z ?? DEFAULT_ZOOM} />
+            <HomeTimeline locale={locale} search={search} active={!overlayOpen} />
+          </main>
+        </div>
+        <MotionBoundary>
+          <Outlet />
+        </MotionBoundary>
+      </ProfileProvider>
       <NewMomentsToast
         onAccepted={() => {
           // To the top of the new timeline (an open overlay stays where it is).

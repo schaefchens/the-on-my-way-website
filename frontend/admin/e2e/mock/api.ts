@@ -6,7 +6,9 @@
  * - request bodies validated with the contract schemas (422 "validation_failed"), responses
  *   validated against the contract output schemas (a mismatch is a 500, i.e. a mock bug);
  * - ifUpdatedAt -> 409 "conflict", idempotent POST /posts, 204 for deleting a missing post,
- *   trip overlap -> 422, settings cross-field rules, publish.mode_since on mode changes;
+ *   trip overlap -> 422, settings cross-field rules, publish.mode_since on mode changes, a newly
+ *   picked "site.avatar" must be a photo capture that is not revoked and not lost (422 with the
+ *   API's details.errors shape);
  * - effective visibility/date/zone and trips via the shared policy functions;
  * - a simulated backend: heartbeat and a publish report that catches up `publishAfterMs` after
  *   the last owner write (so the UI can show "publishing…" and then "Live").
@@ -224,6 +226,14 @@ export class MockAdminApi {
       caption: opts.caption ?? template.caption,
     });
     return sourceKey;
+  }
+
+  /** The backend mirrors a WhatsApp delete of `sourceKey` (sticky revokedAt). */
+  revokeCapture(sourceKey: string): boolean {
+    const c = this.#captures.get(sourceKey);
+    if (!c) return false;
+    c.revokedAt ??= new Date(this.now()).toISOString();
+    return true;
   }
 
   /** Overwrites settings as stored (tests: e.g. a publish.mode_since in the past). */
@@ -746,6 +756,16 @@ export class MockAdminApi {
     if (method !== 'PATCH') return ApiErr(405, 'method_not_allowed', 'GET or PATCH');
     const parsed = SettingsPatch.safeParse(body);
     if (!parsed.success) return this.#invalid(parsed.error);
+    // Like Settings::avatarProblem() (PHP): checked only when the patch picks another photo.
+    const avatar = parsed.data['site.avatar'];
+    if (avatar && avatar.sourceKey !== this.#settings['site.avatar']?.sourceKey) {
+      const problem = this.#avatarProblem(avatar.sourceKey);
+      if (problem) {
+        return ApiErr(422, 'validation_failed', `site.avatar: ${problem}`, {
+          errors: [`/site.avatar/sourceKey: ${problem}`],
+        });
+      }
+    }
     const next: Record<string, unknown> = { ...this.#settings };
     for (const [k, v] of Object.entries(parsed.data)) {
       if (v === undefined) continue;
@@ -761,6 +781,15 @@ export class MockAdminApi {
     this.#settings = merged.data;
     this.#bump();
     return this.#out(SettingsSchema, this.#settings);
+  }
+
+  #avatarProblem(sourceKey: string): string | null {
+    const c = this.#captures.get(sourceKey);
+    if (!c) return `no captured status ${sourceKey} (pick one of your photos)`;
+    if (c.kind !== 'photo') return `${sourceKey} is a ${c.kind} status, not a photo`;
+    if (c.revokedAt) return `${sourceKey} was deleted on WhatsApp`;
+    if (c.mediaState === 'lost') return `the photo of ${sourceKey} could not be downloaded`;
+    return null;
   }
 
   #tokensRoute(method: string, id: string | undefined, body: unknown): MockResponse {

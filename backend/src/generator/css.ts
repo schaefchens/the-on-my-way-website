@@ -182,6 +182,22 @@ export class PageStyles {
     return cls;
   }
 
+  /**
+   * object-position of a portrait's focus point (fractions 0..1 from the image's left and top
+   * edges, physical: never mirrored in RTL). Rounded to 0.1 % like the SPA (profile.tsx).
+   */
+  objectPosition(focus: { x: number; y: number }): string {
+    const pct = (v: number) => {
+      if (!Number.isFinite(v) || v < 0 || v > 1) throw new RangeError(`Invalid focus value: ${v}`);
+      return Math.round(v * 1000) / 10;
+    };
+    const x = pct(focus.x);
+    const y = pct(focus.y);
+    const cls = `omw-fp-${String(x).replace('.', '_')}-${String(y).replace('.', '_')}`;
+    this.rules.set(cls, `.${cls}{object-position:${x}% ${y}%}`);
+    return cls;
+  }
+
   /** Background image of a data: URL (ThumbHash placeholders; img-src allows data:). */
   backgroundData(url: string): string {
     if (!/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(url)) throw new RangeError('Invalid data URL');

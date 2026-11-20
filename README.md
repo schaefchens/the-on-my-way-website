@@ -10,7 +10,7 @@ Turns a traveler's WhatsApp status posts into a multilingual, zoomable travel ti
 | `frontend/` | React + TypeScript (Vite): the public timeline (`site/`) and the owner's admin PWA (`admin/`). |
 | `api/` | PHP 8.3 + Slim 4 + SQLite: owner content, admin backend, alerts. Not needed to view the site. |
 | `packages/contracts/` | zod schemas shared by all parts, exported as JSON Schema for PHP. |
-| `scripts/` | API deploy (`deploy-api.ts`), project-local Composer, the Docker fixture e2e (`docker-e2e.sh`). |
+| `scripts/` | API deploy (`deploy-api.ts`), project-local Composer, the Docker fixture e2e (`docker-e2e.sh`), the handwriting-font subsetting (`fonts/`). |
 | `docs/` | Plan and runbooks. |
 
 ## Getting started (Mac)
@@ -29,8 +29,10 @@ scripts/docker-e2e.sh              # build the backend image, run capture -> sit
 ```
 
 `scripts/docker-e2e.sh` needs no phone, no API and no `.env`; it cleans up after itself and
-keeps the image `omw-backend:dev` (~770 MB; the first build also needs about 3 GB of Docker disk
-for base images and build cache). Then, depending on what you want to do:
+keeps the image `omw-backend:dev` (~785 MB, Debian 13 trixie with ffmpeg 7.1). It builds with the
+project's own buildx builder `omw-builder`; a cold build needs about 6-7 GB of free Docker disk at
+its peak, and `docker buildx prune --builder omw-builder --reserved-space 2gb -f` trims the cache
+afterwards. Then, depending on what you want to do:
 
 | Goal | Read |
 |---|---|
@@ -74,7 +76,10 @@ shared host drops HTTPS from the development machine's IP (SFTP still works, see
 in [docs/HOSTING.md](docs/HOSTING.md)), so the live pages have not been checked since; once HTTPS
 answers again, run `scripts/deploy-api.ts --checks-only`.
 
-**Not verified yet:** the Docker image `omw-backend:dev` predates the latest backend changes. The
-rebuild and `scripts/docker-e2e.sh` are pending because Docker Desktop's disk is full (free space
-or enlarge the disk under Settings → Resources first). Nothing has been tested on a real device
-(iOS/Android PWA install, keyboard, notch).
+**Docker:** `omw-backend:dev` was rebuilt on 2026-11-20 on Debian 13 trixie (Node 24.22,
+ffmpeg 7.1.5; arm64 only, amd64 not rebuilt). The unit tests inside the image (contracts and
+backend, incl. the edge-media test) and `scripts/docker-e2e.sh` (Playwright 26/26, graceful stop,
+idempotent restart) pass.
+
+**Not verified yet:** nothing has been tested on a real device (iOS/Android PWA install,
+keyboard, notch).

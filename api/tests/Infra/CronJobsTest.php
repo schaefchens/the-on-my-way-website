@@ -66,7 +66,7 @@ final class CronJobsTest extends ApiTestCase
         $orphan = $this->tmpDir() . '/var/previews/zz/e_orphan_preview_00000000.webp';
         mkdir(dirname($orphan), 0775, true);
         file_put_contents($orphan, 'x');
-        touch($orphan, time() - 7200);
+        touch($orphan, Clock::now()->getTimestamp() - 7200); // two hours before the frozen clock
 
         $result = $this->service(Maintenance::class)->run(Clock::now());
         self::assertSame(1, $result['loginAttemptsPruned']);
@@ -155,5 +155,15 @@ final class CronJobsTest extends ApiTestCase
         self::assertTrue($body['ok']);
         self::assertSame(['alerts', 'backup', 'cleanup'], array_keys($body['jobs']));
         self::assertSame(200, $this->request('GET', '/api/v1/cron?key=' . self::KEY)->getStatusCode());
+
+        // Cron multiplexers (Enoch's scheduled requests) send only "Authorization: Bearer <key>",
+        // GET or an empty form-encoded POST.
+        $viaBearer = $this->request('GET', '/api/v1/cron', null, ['Authorization' => 'Bearer ' . self::KEY, 'Accept' => 'application/json']);
+        self::assertSame(200, $viaBearer->getStatusCode(), (string) $viaBearer->getBody());
+        self::assertTrue(self::json($viaBearer)['ok']);
+        $emptyPost = $this->request('POST', '/api/v1/cron', null, ['Authorization' => 'Bearer ' . self::KEY, 'Content-Type' => 'application/x-www-form-urlencoded']);
+        self::assertSame(200, $emptyPost->getStatusCode(), (string) $emptyPost->getBody());
+        self::assertError($this->request('GET', '/api/v1/cron', null, ['Authorization' => 'Bearer ' . substr(self::KEY, 0, -1) . 'x']), 403, 'forbidden');
+        self::assertError($this->request('GET', '/api/v1/cron', null, ['Authorization' => 'Basic ' . base64_encode('x:' . self::KEY)]), 403, 'forbidden');
     }
 }

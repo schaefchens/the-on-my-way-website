@@ -29,13 +29,16 @@ out to add targets in the control UI instead. Keys only host tools use (`API_SFT
 
 ```sh
 cd backend
-docker compose up -d --build        # build the image and start (first build ~2 min, image ~770 MB)
+docker compose up -d --build        # build the image and start (cold build ~5-7 min, image ~785 MB)
 docker compose ps                   # "healthy" within ~10 s
 open http://127.0.0.1:8787          # control UI, log in with CONTROL_TOKEN
 ```
 
-The control UI is published on 127.0.0.1 only. The image runs Node 24 as the unprivileged user
-`node` (uid 1000) under tini, with Debian's ffmpeg and the Go helper built in.
+The control UI is published on 127.0.0.1 only. The image (Debian 13 trixie) runs Node 24 as the
+unprivileged user `node` (uid 1000) under tini, with Debian's ffmpeg 7.1 and the Go helper built in.
+On a Docker Desktop shared with other projects, build with the project's own builder so its cache
+stays separate (`docker compose build --builder omw-builder`, then `docker compose up -d`; setup
+in [backend/README.md](../backend/README.md#docker)). A cold build needs ~6-7 GB free in Docker's VM.
 
 Mac settings: Docker Desktop/OrbStack "start at login"; keep the Mac awake on power
 (`sudo pmset -c sleep 0`, see OBSERVER.md); Docker's VM needs enough disk for the archive.
@@ -180,7 +183,11 @@ cd backend && docker compose up -d --build
 
 The store migrates itself (it refuses to open a database newer than the code). A new site build
 or generator version regenerates all pages on the next start. When the contracts version changes,
-deploy the API first (plan section D).
+deploy the API first (plan section D). The API and admin may also be ahead of the backend for a
+while (e.g. the owner saves new "About you" settings first): an older backend skips feed items it
+does not know yet and remembers their kinds; once upgraded, it replays the owner feed once at
+startup (log: "feed items an older version ignored are known now"), so nothing has to be saved
+again.
 
 ## Moving to a server
 

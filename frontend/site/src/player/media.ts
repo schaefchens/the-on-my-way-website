@@ -61,7 +61,9 @@ export function preloadFonts(entry: Entry, locale: LocaleCode): Promise<void> {
       return preloadWaFont(entry.text.font, entry.text.body);
     case 'note': {
       const text = pickText(entry.note, locale, entry.orig)?.text ?? 'Aa';
-      return loadFace('500 1em "Playpen Sans Variable"', text);
+      // The weight the note slide renders at: the hand font ships one static file per weight
+      // (@omw/ui fonts.css), so loading another weight would fetch a file nobody uses.
+      return loadFace('400 1em "Playpen Sans Variable"', text);
     }
     case 'story':
       return loadFace('600 1em "Fraunces Variable"', 'Aa');

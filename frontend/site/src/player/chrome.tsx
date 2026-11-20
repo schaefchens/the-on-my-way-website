@@ -11,6 +11,7 @@ import { REDUCED_TRANSITION, SPRINGS } from '@omw/ui/motion';
 import { Picture } from '@omw/ui/picture';
 import { type MotionValue, m } from 'motion/react';
 import { type ReactNode, type RefObject, useEffect, useId, useRef, useState } from 'react';
+import { Portrait, useProfile } from '../profile';
 import { CloseIcon, LeafIcon, MoreIcon, PauseIcon, PlayIcon, SoundOffIcon, SoundOnIcon } from './icons';
 
 // ---------------------------------------------------------------------------------------------
@@ -414,12 +415,16 @@ export function PlayerHeader({
   avatar: ImageSet | null;
   children: ReactNode;
 }) {
+  const portrait = useProfile()?.avatar ?? null;
   // Top-aligned: when the meta wraps to a second line, the avatar and the buttons stay put.
   return (
     <div className="flex items-start gap-2.5">
       <span className="grid size-10 shrink-0 place-items-center rounded-pill bg-linear-to-br from-rose-300 via-rose-600 to-violet-300 p-[2px] shadow-soft">
         <span className="block size-full overflow-hidden rounded-pill bg-plum-950 p-[2px] group-data-[tone=paper]/player:bg-surface">
-          {avatar ? (
+          {/* Who travels: the owner's portrait; without one, the day's first picture. */}
+          {portrait ? (
+            <Portrait image={portrait} sizes="40px" />
+          ) : avatar ? (
             <Picture image={avatar} alt="" sizes="40px" className="size-full rounded-pill object-cover" />
           ) : (
             <span className="block size-full rounded-pill bg-plum-850" />

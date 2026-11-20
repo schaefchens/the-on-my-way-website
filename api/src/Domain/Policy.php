@@ -6,7 +6,7 @@ namespace Omw\Api\Domain;
 
 /**
  * PHP port of packages/contracts/src/policy.ts (D11 publish policy, placement, trips), checked
- * against fixtures/vectors/{policy,placement,trips}.json.
+ * against fixtures/vectors/{policy,mode-switch,placement,trips}.json.
  *
  * Capture visibility:
  *   1. annotation.visibility if set (owner override always wins)
@@ -18,8 +18,9 @@ namespace Omw\Api\Domain;
  * publish.mode_since is maintained by the API ({@see nextModeSince()}, applied by
  * Settings::patch()) so that a mode or delay change never turns a public capture back to pending
  * and never releases what a holding mode keeps back; the only releases are the switch to
- * "instant" and review -> delayed (the review backlog older than the new delay; the admin asks
- * the owner first).
+ * "instant", review -> delayed (the review backlog older than the new delay; the admin asks
+ * the owner first) and a shorter delay while delayed (what is older than the new delay).
+ * mode_since is inclusive: a capture at exactly the switch instant falls under the new mode.
  *
  * Placement: annotation.localDateOverride > Day.tz of the STORED local date > stored values.
  * Trips: tripForDate() resolves overlaps by earliest start, then slug.

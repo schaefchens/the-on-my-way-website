@@ -4,14 +4,18 @@
  * Document shell (every page):
  *   <html lang dir> · charset · CSP <meta> (first, so it covers everything after it) · viewport ·
  *   colour scheme · robots (noindex unless site.indexable; 404 always) · title · description ·
+ *   author (the profile's name, when set) ·
  *   canonical + hreflang alternates + x-default (absolute, only with SITE_PUBLIC_URL) ·
  *   OG/Twitter (og:image = cover OG JPEG) · the theme boot script (THEME_BOOT_SCRIPT, L3-16:
  *   applies a stored dawn/dusk choice before the first paint) · inline critical CSS (hashed in
  *   the CSP) · <noscript><style> hiding the twin · preloads (L3-01: Latin and, for Vietnamese
- *   text, Vietnamese font subsets, the first-viewport image, timeline.json) · Vite tags
+ *   text, Vietnamese font subsets; the hand font's 400 file where hand-font text is on the first
+ *   screen; the first-viewport image, timeline.json) · Vite tags
  *   (stylesheet, modulepreload of the entry's imports, the locale's message catalog and the
  *   route's lazy chunks, module script; absolute basePath-prefixed URLs) · Boot JSON
- *   (<script id="omw-boot" type="application/json">, escaped) · <div id="omw-root"> holding the
+ *   (<script id="omw-boot" type="application/json">, escaped; day/story pages inline their day
+ *   and the profile, whose portrait their player shows before timeline.json has arrived) ·
+ *   <div id="omw-root"> holding the
  *   pre-rendered first screen, which React replaces with createRoot (no hydration).
  *
  * First screen (L3-02): a static twin of the SPA's first viewport (twin.ts: the timeline on
@@ -31,7 +35,7 @@
  * Each page is therefore returned as parts plus a content hash that excludes the stamp.
  */
 import type { LocaleCode } from '@omw/contracts/i18n';
-import { textDirection } from '@omw/contracts/i18n';
+import { pickText, textDirection } from '@omw/contracts/i18n';
 import type {
   Boot,
   DayDetail,
@@ -41,6 +45,7 @@ import type {
   RouteName,
   RouteRef,
   SiteInfo,
+  SiteProfile,
   TripDetail,
   TripSummary,
 } from '@omw/contracts/site';
@@ -85,6 +90,11 @@ const TIMELINE_PRELOAD_MARK = '\u0000omw-timeline-preload\u0000';
  * uses them preload those subsets (L3-03).
  */
 const VIETNAMESE = /[\u0102\u0103\u0110\u0111\u01A0-\u01B0\u1EA0-\u1EF9]/;
+/**
+ * Precomposed letters of the hand font's Vietnamese file (frontend/shared/fonts/playpen-sans,
+ * subsets.json unicodeRange; its combining marks are in the Latin file too).
+ */
+const HAND_VIETNAMESE = /[\u0102\u0103\u0110\u0111\u0128\u0129\u0168\u0169\u01A0\u01A1\u01AF\u01B0\u1EA0-\u1EF9\u20AB]/;
 /** Cookie the language picker honours (the SPA may set it when the visitor switches language). */
 export const LOCALE_COOKIE = 'omw_locale';
 /** How many days the home page lists. */
@@ -119,6 +129,11 @@ export interface SiteContext {
   summaryByDate: ReadonlyMap<string, DaySummary>;
   trips: ReadonlyMap<string, TripDetail>;
   tripSummaries: readonly TripSummary[];
+  /**
+   * Whose journey it is (timeline.json `profile`; null when unset). A change of it makes the
+   * next run full, so every page that shows it is re-rendered.
+   */
+  profile?: SiteProfile | null;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -339,6 +354,12 @@ interface HeadMeta {
   noindex: boolean;
 }
 
+/** <meta name="author"> with the traveler's name (setting site.author), when there is one. */
+function authorMeta(ctx: { profile?: SiteProfile | null }): Html | string {
+  const author = ctx.profile?.author;
+  return author ? html`<meta name="author" content="${author}">\n` : '';
+}
+
 function buildCsp(scriptHashes: readonly string[], styleHashes: string | readonly string[]): string {
   const styles = typeof styleHashes === 'string' ? [styleHashes] : styleHashes;
   return [
@@ -366,6 +387,12 @@ export interface HeadOptions {
   chunks?: readonly string[];
   /** The page shows Vietnamese text: preload the Vietnamese font subsets (L3-03). */
   vietnamese?: boolean;
+  /**
+   * Text in the handwriting face on the first screen (greeting, tagline, month headings, notes):
+   * preload its Latin file, and its Vietnamese one when that text needs it, so it does not show
+   * in the fallback face first on a slow first visit. Empty: no hand-font preload.
+   */
+  handText?: string;
   /** Preload data/timeline.json?v=<release timelineV> (pages whose first screen needs it). */
   timeline?: boolean;
   /** Hide the twin for no-JS readers (pages with a twin and a <noscript> article). */
@@ -386,9 +413,13 @@ function headTags(ctx: SiteContext, meta: HeadMeta, css: string, opts: HeadOptio
       : null;
   const og = meta.ogImage?.og ? absoluteUrl(ctx, meta.ogImage.og) : null;
   const build = ctx.build;
+  const ltr = textDirection(meta.locale) === 'ltr';
+  const hand = ltr && !!opts.handText?.trim();
   const fonts = [
-    ...(textDirection(meta.locale) === 'ltr' ? build.fontPreload : []),
+    ...(ltr ? build.fontPreload : []),
     ...(opts.vietnamese ? build.fontVietnamese : []),
+    ...(hand ? build.fontHand.latin : []),
+    ...(hand && HAND_VIETNAMESE.test(opts.handText ?? '') ? build.fontHand.vietnamese : []),
   ];
   const appTags = opts.app
     ? html`${fonts.map(
@@ -415,7 +446,7 @@ function headTags(ctx: SiteContext, meta: HeadMeta, css: string, opts: HeadOptio
 <meta name="theme-color" content="#1b1322" media="(prefers-color-scheme: dark)">
 ${meta.noindex ? html`<meta name="robots" content="noindex, nofollow">\n` : ''}<title>${meta.title}</title>
 <meta name="description" content="${meta.description}">
-${canonical ? html`<link rel="canonical" href="${canonical}">\n` : ''}${alternates}<meta property="og:site_name" content="${ctx.site.title}">
+${authorMeta(ctx)}${canonical ? html`<link rel="canonical" href="${canonical}">\n` : ''}${alternates}<meta property="og:site_name" content="${ctx.site.title}">
 <meta property="og:type" content="${meta.ogType}">
 <meta property="og:title" content="${meta.title}">
 <meta property="og:description" content="${meta.description}">
@@ -460,7 +491,7 @@ function finalizePage(
         `<link rel="preload" href="${safeHref(`${boot?.basePath ?? '/'}data/timeline.json?v=${stamp.timelineV}`)}" as="fetch" crossorigin>\n`,
       );
       if (!boot) return head + after;
-      const { basePath, locale: l, route: r, day } = boot;
+      const { basePath, locale: l, route: r, day, profile } = boot;
       const full: Boot = {
         basePath,
         locale: l,
@@ -468,6 +499,7 @@ function finalizePage(
         manifestVersion: stamp.manifestVersion,
         timelineV: stamp.timelineV,
         ...(day ? { day } : {}),
+        ...(profile ? { profile } : {}),
       };
       return head + jsonForScript(full).value + after;
     },
@@ -498,6 +530,7 @@ function twinContext(ctx: SiteContext): TwinContext {
     tripSummaries: ctx.tripSummaries,
     now: new Date(latest),
     url: (rel) => siteUrl(ctx, rel),
+    profile: ctx.profile ?? null,
   };
 }
 
@@ -509,6 +542,31 @@ export function needsVietnamese(markup: string): boolean {
   return VIETNAMESE.test(
     markup.replace(/<(?:script|style)[^>]*>[\s\S]*?<\/(?:script|style)>/g, ' ').replace(/<[^>]*>/g, ' '),
   );
+}
+
+/**
+ * Text inside the elements of `markup` that use the handwriting face (class "font-hand"),
+ * nested markup included; "" when there are none.
+ */
+export function handFontText(markup: string): string {
+  const out: string[] = [];
+  for (const m of markup.matchAll(/<([a-z][a-z0-9]*)\b[^>]*\sclass="(?:[^"]*\s)?font-hand(?:\s[^"]*)?"[^>]*>/g)) {
+    const tag = m[1] as string;
+    const start = m.index + m[0].length;
+    const tags = new RegExp(`<(/?)${tag}\\b[^>]*>`, 'g');
+    tags.lastIndex = start;
+    let depth = 1;
+    let end = markup.length;
+    for (let t = tags.exec(markup); t; t = tags.exec(markup)) {
+      depth += t[1] ? -1 : 1;
+      if (depth === 0) {
+        end = t.index;
+        break;
+      }
+    }
+    out.push(markup.slice(start, end).replace(/<[^>]*>/g, ' '));
+  }
+  return out.join(' ').replace(/\s+/g, ' ').trim();
 }
 
 function appPage(
@@ -535,6 +593,7 @@ function appPage(
     image: rendered.firstImage,
     chunks: [...new Set([...(ctx.build.localeChunks[meta.locale] ?? []), ...(twin.chunks ?? [])])],
     vietnamese: needsVietnamese(rendered.html.value),
+    handText: handFontText(rendered.html.value),
     timeline: true,
     noscriptCss: true,
   });
@@ -547,6 +606,26 @@ function pageTitle(ctx: SiteContext, ...parts: (string | null | undefined)[]): s
 
 // ---------------------------------------------------------------------------------------------
 // Pages
+
+/**
+ * The no-JS article's lead on the home page: who travels and their greeting (in the visitor's
+ * language, else in the one it was written in), else the tagline.
+ */
+function profileArticle(ctx: SiteContext, locale: LocaleCode): Html {
+  const t = stringsFor(locale);
+  const profile = ctx.profile;
+  const greeting = pickText(profile?.intro, locale);
+  return html`${profile?.author ? html`<p class="omw-fs-kicker" dir="auto">${profile.author}</p>` : ''}${
+    greeting
+      ? html`<p class="omw-fs-lead omw-fs-user" dir="auto" lang="${greeting.locale}">${greeting.text}</p>`
+      : html`<p class="omw-fs-lead">${t.tagline}</p>`
+  }`;
+}
+
+/** Boot members of a day/story page: its day, plus the profile (shown before the timeline loads). */
+function dayBoot(ctx: SiteContext, day: DayDetail): Pick<BootBase, 'day' | 'profile'> {
+  return { day, ...(ctx.profile ? { profile: ctx.profile } : {}) };
+}
 
 export function renderHome(ctx: SiteContext, locale: LocaleCode): RenderedPage {
   const t = stringsFor(locale);
@@ -565,7 +644,7 @@ export function renderHome(ctx: SiteContext, locale: LocaleCode): RenderedPage {
     const place = placeLine(locale, day.place, day.country);
     return html`<li><a class="omw-fs-row" href="${siteUrl(ctx, routePath(locale, { name: 'day', date: day.date }))}">${thumb(ctx, styles, day.cover, '', eager-- > 0)}<span><span class="omw-fs-meta"><time datetime="${day.date}">${formatDate(day.date, locale, 'header')}</time>${place ? html` · ${place}` : ''}</span><strong dir="auto"${title ? html` lang="${title.locale}"` : ''}>${title?.text ?? formatDate(day.date, locale, 'long')}</strong><span class="omw-fs-meta">${t.moments(total)}</span></span></a></li>`;
   });
-  const main = html`<h1>${ctx.site.title}</h1><p class="omw-fs-lead">${t.tagline}</p>${
+  const main = html`<h1>${ctx.site.title}</h1>${profileArticle(ctx, locale)}${
     tripRows.length > 0 ? html`<h2>${t.trips}</h2><ul class="omw-fs-list">${tripRows}</ul>` : ''
   }<h2>${t.latestDays}</h2>${dayRows.length > 0 ? html`<ul class="omw-fs-list">${dayRows}</ul>` : html`<p>${t.noMoments}</p>`}`;
   const latestWithOg = recent.find((d) => d.cover?.og);
@@ -657,7 +736,7 @@ export function renderDay(ctx: SiteContext, locale: LocaleCode, day: DayDetail):
       noindex: !ctx.site.indexable,
     },
     styles,
-    { basePath: ctx.site.basePath, locale, route: bootRoute(route), day },
+    { basePath: ctx.site.basePath, locale, route: bootRoute(route), ...dayBoot(ctx, day) },
     main,
     false,
     { kind: 'player', day, chunks: ctx.build.playerChunks },
@@ -690,7 +769,7 @@ export function renderStory(ctx: SiteContext, locale: LocaleCode, day: DayDetail
       noindex: !ctx.site.indexable,
     },
     styles,
-    { basePath: ctx.site.basePath, locale, route: bootRoute(route), day },
+    { basePath: ctx.site.basePath, locale, route: bootRoute(route), ...dayBoot(ctx, day) },
     main,
     false,
     { kind: 'player', day, chunks: [...ctx.build.playerChunks, ...ctx.build.storySheetChunks] },
@@ -821,7 +900,7 @@ export function renderPicker(ctx: SiteContext): RenderedPage {
 <meta name="color-scheme" content="light dark">
 ${ctx.site.indexable ? '' : html`<meta name="robots" content="noindex, nofollow">\n`}<title>${ctx.site.title}</title>
 <meta name="description" content="${t.homeDescription(ctx.site.title)}">
-${alternates}<noscript><meta http-equiv="refresh" content="0; url=${fallbackUrl}"></noscript>
+${authorMeta(ctx)}${alternates}<noscript><meta http-equiv="refresh" content="0; url=${fallbackUrl}"></noscript>
 <style>${inlineCode(css)}</style>
 <script>${inlineCode(script)}</script>
 `;

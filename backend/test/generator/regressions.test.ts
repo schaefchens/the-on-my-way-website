@@ -299,9 +299,16 @@ describe.skipIf(!present)('generator regressions: configuration and housekeeping
     }
     for (const p of h.store.owner.listPosts()) h.store.owner.upsertPost({ ...p, visibility: 'hidden' });
     const r = await h.generator.generate();
-    expect(r.stats).toMatchObject({ days: 0, entries: 0, media: 0 });
+    // Only the owner's portrait (site.avatar of the demo owner) stays: its round crop, 3 sizes x 2 formats.
+    expect(r.stats).toMatchObject({ days: 0, entries: 0, media: 6 });
     expect(readOut(h, 'de/index.html')).toContain('Noch keine Momente.');
-    expect(readJson<{ days: unknown[] }>(h, 'data/timeline.json').days).toEqual([]);
+    const timeline = readJson<{ days: unknown[]; trips: unknown[]; profile?: { avatar?: unknown } }>(
+      h,
+      'data/timeline.json',
+    );
+    expect(timeline.days).toEqual([]);
+    expect(timeline.trips).toEqual([]);
+    expect(timeline.profile?.avatar).toBeDefined();
     expect((await verifyOutDir(h.outDir)).problems).toEqual([]);
   });
 });

@@ -15,13 +15,23 @@
  * - Day tz = most common entry zone (ties: alphabetical). Cover: Day.coverSourceKey when that
  *   capture is public, has an image and is placed on that day (its effective local date), else
  *   the first entry with an image (photo or poster).
- * - Trips: every mirrored trip is published; membership from date ranges (tripForDate). Trip
- *   cover: Trip.coverSourceKey, else the first trip day with a cover.
- * - `v` = contentHash(file without v); timeline v = contentHash({ trips, days }).
+ * - Trips: membership from date ranges (tripForDate); a trip is published only once at least one
+ *   of its days is public (publishedTrips): a planned trip without a public day has no timeline
+ *   entry, trip file, page or sitemap entry, and one whose days all become hidden disappears again.
+ *   Trip cover: Trip.coverSourceKey, else the first trip day with a cover.
+ * - Profile (timeline.json `profile`, only when the owner set something): site.author, site.intro
+ *   and the portrait site.avatar. The owner's choice of portrait wins over the photo's own
+ *   visibility (a hidden photo can be the portrait), but only its round crop is published
+ *   (`portraitCrop`, made by the generator run with pipeline/avatar.ts before the model is
+ *   built), never the photo's own variants, OG image, caption or other facts. No portrait (and
+ *   one warning, logged when the warnings change) when the capture is not a ready photo, was
+ *   revoked while ingest.on_revoke = hide, or its crop could not be made or its files are missing.
+ * - `v` = contentHash(file without v); timeline v = contentHash({ trips, days }), plus `profile`
+ *   when there is one (so a site without a profile keeps its hashes).
  */
 
 import { CONTRACT_VERSION } from '@omw/contracts';
-import type { Annotation, Day, Post, Settings, Trip } from '@omw/contracts/api';
+import type { Annotation, Day, Post, Settings, SiteAvatarSetting, Trip } from '@omw/contracts/api';
 import { type I18nText, type LocaleCode, pickText } from '@omw/contracts/i18n';
 import {
   capturePublishAt,
@@ -29,21 +39,25 @@ import {
   effectiveLocalDate,
   effectivePostVisibility,
   effectiveTz,
+  publishedTrips,
   tripForDate,
 } from '@omw/contracts/policy';
 import {
+  AvatarImage,
   type DayCounts,
   type DayDetail,
   type DaySummary,
   Entry,
   type ImageSet,
+  SiteProfile,
   type TimelineIndex,
   type TripDetail,
   type TripSummary,
 } from '@omw/contracts/site';
 import { toIsoUtc } from '@omw/contracts/time';
 import { argbToRgbaHex } from '@omw/contracts/wa';
-import type { CaptureRow, Store } from '../store/index.js';
+import { avatarSourceVariant } from '../pipeline/avatar.js';
+import type { CaptureRow, ProcessedVariant, Store } from '../store/index.js';
 import { contentHash } from './hash.js';
 import {
   audioFrom,
@@ -70,7 +84,17 @@ export interface ModelInputs {
   now: Date;
   /** Whether a "media/…" variant exists in MEDIA_DIR. */
   mediaExists: (relPath: string) => boolean;
+  /**
+   * The round crop of the portrait photo (setting site.avatar), made before the model is built
+   * (generate.ts preparePortrait): its files, or why there are none. Absent: no portrait.
+   */
+  portraitCrop?: PortraitCrop | undefined;
 }
+
+/** The portrait's own files for the photo `sourceKey` (see ModelInputs.portraitCrop). */
+export type PortraitCrop =
+  | { sourceKey: string; image: Omit<AvatarImage, 'focus'> }
+  | { sourceKey: string; problem: string };
 
 export interface PlacedEntry {
   date: string;
@@ -86,9 +110,11 @@ export interface SiteModel {
   /** Ascending by start date, then slug. */
   trips: TripDetail[];
   tripSummaries: TripSummary[];
-  timeline: Pick<TimelineIndex, 'trips' | 'days'>;
+  /** Whose journey it is (timeline.json `profile`); null when the owner set nothing usable. */
+  profile: SiteProfile | null;
+  timeline: Pick<TimelineIndex, 'trips' | 'days' | 'profile'>;
   timelineV: string;
-  /** Sorted media paths referenced by public entries. */
+  /** Sorted media paths referenced by public entries and the portrait. */
   media: string[];
   /** Earliest future instant at which a pending capture becomes public (delayed mode). */
   nextPublishAt: string | null;
@@ -232,6 +258,74 @@ export function entryProblem(entry: Entry): string | null {
   return r.error.issues.map((i) => `${i.path.join('.') || '(entry)'}: ${i.message}`).join('; ');
 }
 
+/**
+ * The photo of setting site.avatar the portrait is cropped from, or why there is none. The
+ * owner's explicit choice wins over the photo's own visibility, but a revoke under
+ * ingest.on_revoke = hide still removes it.
+ */
+export function portraitSourceFor(
+  setting: SiteAvatarSetting,
+  inputs: Pick<ModelInputs, 'captures' | 'settings'>,
+): { capture: CaptureRow; source: ProcessedVariant; sha256: string } | string {
+  const c = inputs.captures.find((row) => row.sourceKey === setting.sourceKey);
+  if (c?.state !== 'ready') return 'not a ready capture (not captured, media not downloaded or not processed)';
+  if (c.kind !== 'photo') return `a ${c.kind} status, not a photo`;
+  if (c.revokedAt && inputs.settings['ingest.on_revoke'] === 'hide')
+    return 'deleted on WhatsApp (ingest.on_revoke = hide)';
+  const source = avatarSourceVariant(c.variants ?? [], c.processedMeta);
+  if (!source) return 'no image variants in webp to crop from';
+  if (!c.originalSha256) return 'no original media hash';
+  return { capture: c, source, sha256: c.originalSha256 };
+}
+
+/** The portrait of setting site.avatar (its round crop), or why there is none. */
+export function avatarFor(
+  setting: SiteAvatarSetting,
+  inputs: Pick<ModelInputs, 'captures' | 'settings' | 'mediaExists' | 'portraitCrop'>,
+): AvatarImage | string {
+  const found = portraitSourceFor(setting, inputs);
+  if (typeof found === 'string') return found;
+  const crop = inputs.portraitCrop;
+  if (crop?.sourceKey !== setting.sourceKey) return 'no round crop made';
+  if ('problem' in crop) return crop.problem;
+  const avatar: AvatarImage = crop.image;
+  const missing = [...imageSetPaths(avatar, new Set())].filter((p) => !inputs.mediaExists(p));
+  if (missing.length > 0) return `missing in MEDIA_DIR: ${missing.join(', ')}`;
+  const r = AvatarImage.safeParse(avatar);
+  if (!r.success) return `violates the site contract: ${r.error.issues.map((i) => i.message).join('; ')}`;
+  return avatar;
+}
+
+/** timeline.json `profile` from the site.* profile settings (null when nothing is set or usable). */
+export function profileFor(
+  inputs: Pick<ModelInputs, 'captures' | 'settings' | 'mediaExists' | 'portraitCrop'>,
+  warnings: string[],
+): SiteProfile | null {
+  const { settings } = inputs;
+  const author = settings['site.author'];
+  const intro = cleanText(settings['site.intro']);
+  const setting = settings['site.avatar'];
+  let avatar: AvatarImage | undefined;
+  if (setting) {
+    const found = avatarFor(setting, inputs);
+    if (typeof found === 'string') warnings.push(`site.avatar ${setting.sourceKey}: no portrait published: ${found}`);
+    else avatar = found;
+  }
+  const profile: SiteProfile = {
+    ...(nonBlank(author) ? { author } : {}),
+    ...(intro ? { intro } : {}),
+    ...(avatar ? { avatar } : {}),
+  };
+  if (Object.keys(profile).length === 0) return null;
+  const r = SiteProfile.safeParse(profile);
+  if (!r.success) {
+    const problem = r.error.issues.map((i) => `${i.path.map(String).join('.') || '(profile)'}: ${i.message}`);
+    warnings.push(`profile left out: violates the site contract: ${problem.join('; ')}`);
+    return null;
+  }
+  return profile;
+}
+
 function emptyCounts(): DayCounts {
   return { photo: 0, video: 0, gif: 0, voice: 0, text: 0, note: 0, story: 0 };
 }
@@ -321,6 +415,8 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
     else byDate.set(p.date, [p]);
   }
   const dates = [...byDate.keys()].sort();
+  // Every mirrored trip decides membership (tripForDate resolves overlaps over all of them); only
+  // the trips with at least one public day are published (see the header).
   const trips = [...inputs.trips].sort((a, b) =>
     a.startDate !== b.startDate ? (a.startDate < b.startDate ? -1 : 1) : a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0,
   );
@@ -388,7 +484,7 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
 
   const tripDetails: TripDetail[] = [];
   const tripSummaries: TripSummary[] = [];
-  for (const t of trips) {
+  for (const t of publishedTrips(trips, dates)) {
     const tripDays = summaries.filter((d) => d.trip === t.slug);
     const cover =
       (t.coverSourceKey ? coverBySourceKey.get(t.coverSourceKey) : undefined) ?? tripDays.find((d) => d.cover)?.cover;
@@ -423,10 +519,12 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
     });
   }
 
-  const timeline = { trips: tripSummaries, days: summaries };
+  const profile = profileFor(inputs, warnings);
+  const timeline = { trips: tripSummaries, days: summaries, ...(profile ? { profile } : {}) };
   const media = new Set<string>();
   for (const day of days) dayMediaPaths(day, media);
-  // Covers come from public entries, so they add no new paths; collected anyway for safety.
+  // Covers come from public entries, so they add no new paths; collected anyway for safety. The
+  // portrait (timeline profile) adds its round crop, also of a photo that is not public itself.
   timelineMediaPaths(timeline, media);
   for (const t of tripDetails) imageSetPaths(t.cover, media);
 
@@ -435,6 +533,7 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
     summaries,
     trips: tripDetails,
     tripSummaries,
+    profile,
     timeline,
     timelineV: contentHash(timeline),
     media: [...media].sort(),

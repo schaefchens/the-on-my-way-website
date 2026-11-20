@@ -9,7 +9,17 @@
  *   fixtures/generated/owner.json                                 owner content as API entities
  *                                                                 + the same as a change feed page
  *   fixtures/generated/index.json                                 what was generated (tz, dates, …)
- *   fixtures/vectors/{ids,time,policy,placement,trips}.json       cross-runtime test vectors (PHP)
+ *   fixtures/vectors/{ids,time,policy,mode-switch,placement,trips}.json
+ *                                                                 cross-runtime test vectors (PHP)
+ *
+ *   pnpm fixtures --owner-only
+ *
+ * rewrites only owner.json and the vectors from the existing fixtures/generated/index.json (no
+ * media work, nothing else in fixtures/generated is touched), e.g. after changing the demo owner
+ * content below.
+ *
+ * The owner content is the demo/preview owner: a trip, day titles, notes, a story, descriptions
+ * and the profile (site.author "Lea", a greeting per locale, a portrait from a fixture photo).
  *
  * Besides the happy path the statuses cover: a photo whose download is still pending (no
  * original), a video whose media is permanently lost, a colourless text status (Conversation),
@@ -21,7 +31,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -43,6 +53,7 @@ import {
   effectiveLocalDate,
   effectiveTz,
   MODE_SINCE_EPOCH,
+  nextModeSince,
   type PolicySettings,
   tripForDate,
 } from '@omw/contracts/policy';
@@ -613,7 +624,17 @@ function ownerContent(byKey: Map<string, IndexEntry>) {
     if (!e) throw new Error(`unknown status ${key}`);
     return e.sourceKey;
   };
-  const settings = Settings.parse({ ...SETTINGS_DEFAULTS, 'timezone.current': HCM });
+  const settings = Settings.parse({
+    ...SETTINGS_DEFAULTS,
+    'timezone.current': HCM,
+    // The profile: whose journey it is (plain text; the greeting is shown handwritten).
+    'site.author': 'Lea',
+    'site.intro': {
+      de: 'Hallo ihr Lieben! Schön, dass ihr mit mir unterwegs seid.',
+      en: 'Hello, lovely people! So glad you’re coming along with me.',
+    },
+    'site.avatar': { sourceKey: sk('hanoi-photo'), focus: { x: 0.5, y: 0.4 } },
+  });
 
   const trips: Trip[] = [
     TripSchema.parse({
@@ -880,6 +901,67 @@ async function writeVectors(entries: IndexEntry[]): Promise<void> {
     }),
   );
 
+  // Mode switches: publish.mode_since after a settings change (nextModeSince, PHP
+  // Policy::nextModeSince) and what it does to the captures waiting at that moment, judged at the
+  // switch. Covers every mode pair, delay changes and earlier cut-offs; in particular review ->
+  // delayed, which releases exactly the waiting statuses older than the NEW delay.
+  const switchAt = '2026-11-20T10:00:00.000Z';
+  const switchCaptures = [
+    { label: 'before the earlier cut-off', occurredAt: '2026-11-17T09:59:59.999Z' },
+    { label: 't-24h', occurredAt: '2026-11-19T10:00:00.000Z' },
+    { label: 't-12h', occurredAt: '2026-11-19T22:00:00.000Z' },
+    { label: 't-12h+1ms', occurredAt: '2026-11-19T22:00:00.001Z' },
+    { label: 't-6h', occurredAt: '2026-11-20T04:00:00.000Z' },
+    { label: 't-6h+1ms', occurredAt: '2026-11-20T04:00:00.001Z' },
+    { label: 'before the recent cut-off', occurredAt: '2026-11-20T05:59:59.999Z' },
+    { label: 't-2h', occurredAt: '2026-11-20T08:00:00.000Z' },
+    { label: 't', occurredAt: switchAt },
+  ];
+  const switches = [];
+  for (const from of ['instant', 'delayed', 'review'] as const) {
+    for (const to of ['instant', 'delayed', 'review'] as const) {
+      for (const modeSince of [MODE_SINCE_EPOCH, '2026-11-17T10:00:00.000Z', '2026-11-20T06:00:00.000Z']) {
+        for (const d0 of [360, 720]) {
+          for (const d1 of [0, 360, 720]) {
+            const before: PolicySettings = {
+              'publish.mode': from,
+              'publish.delay_minutes': d0,
+              'ingest.on_revoke': 'hide',
+              'publish.mode_since': modeSince,
+            };
+            const after = { 'publish.mode': to, 'publish.delay_minutes': d1 };
+            const since = nextModeSince(before, after, switchAt);
+            const settingsAfter: PolicySettings = { ...before, ...after, 'publish.mode_since': since };
+            const vis = (st: PolicySettings) =>
+              switchCaptures.map((c) => effectiveCaptureVisibility({ occurredAt: c.occurredAt }, null, st, switchAt));
+            switches.push({
+              before,
+              after,
+              now: switchAt,
+              modeSince: since,
+              visibilityBefore: vis(before),
+              visibilityAfter: vis(settingsAfter),
+            });
+          }
+        }
+      }
+    }
+  }
+  writeFileSync(
+    join(VECTORS, 'mode-switch.json'),
+    json({
+      description:
+        'nextModeSince(before, after, now) -> modeSince; visibilityBefore/visibilityAfter[i] = ' +
+        'effectiveCaptureVisibility(captures[i], no annotation, before | after + modeSince, now). Only ' +
+        '-> instant, review -> delayed and a shorter delay while delayed release waiting captures, ' +
+        'exactly those at least as old as the new delay; nothing that was public before the switch ' +
+        'becomes pending. mode_since is inclusive: a capture at exactly the switch instant ("t") ' +
+        'already falls under the new mode.',
+      captures: switchCaptures,
+      cases: switches,
+    }),
+  );
+
   // Placement: localDateOverride > Day.tz fix of the stored local date > stored localDate/tz.
   const placementItems = [
     { occurredAt: '2026-11-15T18:30:00Z', tz: HCM, localDate: '2026-11-16' },
@@ -952,6 +1034,22 @@ function dirSize(dir: string): number {
     total += st.isDirectory() ? dirSize(p) : st.size;
   }
   return total;
+}
+
+/** Writes via a temp file + rename, so readers never see a half-written file. */
+function writeFileAtomic(path: string, data: string): void {
+  const tmp = `${path}.tmp-${process.pid}`;
+  writeFileSync(tmp, data);
+  renameSync(tmp, path);
+}
+
+if (process.argv.includes('--owner-only')) {
+  const index = JSON.parse(readFileSync(join(OUT, 'index.json'), 'utf8')) as { statuses: IndexEntry[] };
+  const owner = ownerContent(new Map(index.statuses.map((e) => [e.key, e])));
+  writeFileAtomic(join(OUT, 'owner.json'), json(owner));
+  await writeVectors(index.statuses);
+  console.log(`Rewrote ${relative(ROOT, join(OUT, 'owner.json'))} and ${relative(ROOT, VECTORS)} (media untouched)`);
+  process.exit(0);
 }
 
 rmSync(OUT, { recursive: true, force: true });

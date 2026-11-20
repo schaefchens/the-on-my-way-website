@@ -20,6 +20,14 @@ export const FEED_CATCHUP_KEY = 'feed_catching_up_since';
  * rebuilt (L2-02 first-sync gate). Cleared when a feed reset or a new feed id starts a rebuild.
  */
 export const OWNER_SYNCED_KEY = 'owner_synced_at';
+/**
+ * Kinds of change-feed items this backend ignored (unknown entity or setting key of a newer
+ * API), JSON [{ entity, key? }]: once a newer backend knows them it replays the feed
+ * (OwnerRepo.replayIgnoredIfKnown), because the cursor has moved past them.
+ */
+export const FEED_IGNORED_KEY = 'feed_ignored';
+/** Highest "feed.item_ignored" event id replayIgnoredIfKnown() has already looked at. */
+export const FEED_IGNORED_EVENTS_KEY = 'feed_ignored_events_seen';
 
 export class SyncStateRepo {
   private readonly db: Db;

@@ -38,6 +38,7 @@ Design screenshots (not a test; needs the mock on 51750 and `vite --port 51752 -
 | Feedback | `src/lib/notices.ts`, `lib/errors.ts` | One status toast + one undo offer + two errors at most; toasts older than 1.5 s go on navigation; a queued write says "Gespeichert – wird gesendet" until confirmed. Errors map status/code to warm copy, the technical text sits behind "Details". |
 | Visibility | `src/lib/captures.ts`, `lib/mode-since.ts` | Un-hiding returns to the publish setting (`visibility: null`; explicit `public` only when the policy itself hides it), "Jetzt veröffentlichen" is the explicit release. Settings mirror the API's `publish.mode_since` rule and ask before a switch publishes waiting statuses. |
 | Screens | `src/screens/*` | Login, Home, Inbox (+ item sheet), Days (+ editor), Composer, Trips (+ editor), Settings. Editors are lazy chunks. |
+| About you | `src/screens/settings-profile.tsx`, `components/portrait.tsx`, `lib/profile.ts` | Name, greeting (de/en tabs, counter in code points like the contract) and portrait (`site.author`, `site.intro`, `site.avatar`), cleaned before sending; empty removes (null). The portrait picker pages through `GET /captures?kind=photo` (private previews, newest first; deleted, lost and processing photos are left out). The item sheet of a photo has "Use as portrait" (undo toast); a portrait hidden in the timeline gets a hint. A 422 on a profile write shows at its field while the section is open (`handleProfileWriteFailure`), else as the usual toast. Trips without a public day say they are not on the site yet. |
 | UI kit | `src/components/ui.tsx`, `icons.tsx` | Tokens from `@omw/ui` (dawn/dusk), Fraunces SOFT headings, Playpen notes, native `<dialog>` sheets, native radios/checkboxes behind the pills and switches. Motion springs via `LazyMotion` (`reducedMotion: 'user'`). |
 
 ## Mock API (`e2e/mock/`)
@@ -45,9 +46,9 @@ Design screenshots (not a test; needs the mock on 51750 and `vite --port 51752 -
 `MockAdminApi` implements every admin route in memory and validates request bodies and its own
 responses with the contract schemas (a response that drifts from the contract is a 500). It
 enforces the session cookie, CSRF, `ifUpdatedAt` (409), idempotent post creates, trip overlap
-(422), settings cross-field rules and `publish.mode_since`, and simulates the backend: a publish
+(422), settings cross-field rules, the portrait rule of `site.avatar` (422 like the PHP API) and `publish.mode_since`, and simulates the backend: a publish
 report that catches up `--publish-after` ms after the last write. Control endpoints for tests:
-`POST /__mock/reset | publish | day/<date> | alerts | capture ({minutesAgo, caption}) | settings (stored as is)`,
+`POST /__mock/reset | publish | day/<date> | alerts | capture ({minutesAgo, caption}) | settings (stored as is) | revoke/<sourceKey>`,
 `GET /__mock/state | log`. `e2e/owner-ux.spec.ts` covers the phone UX (save bars, drafts, toasts,
 time-zone nudge, focus, delayed un-hiding, mode switches, error home).
 

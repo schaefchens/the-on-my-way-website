@@ -64,8 +64,8 @@ describe('pipeline edge media', () => {
       '-shortest',
       src('plain.mp4'),
     ]);
-    // A 90° display matrix: `-display_rotation` exists since ffmpeg 6; ffmpeg 5.1 (Debian
-    // bookworm, the Docker image) only knows the legacy "rotate" stream tag (degrees clockwise,
+    // A 90° display matrix: `-display_rotation` exists since ffmpeg 6 (the Docker image: trixie's 7.1);
+    // ffmpeg 5.1 (e.g. Debian bookworm) only knows the legacy "rotate" stream tag (degrees clockwise,
     // which ffmpeg >= 6 no longer writes). Either way the result is verified below.
     const major = await ffmpegMajor();
     await ff(

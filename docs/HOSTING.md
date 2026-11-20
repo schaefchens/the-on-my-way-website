@@ -103,6 +103,7 @@ Every 5 minutes one of:
 
 - **Hetzner Cronjob-Manager** (konsoleH, *Services > Cronjob manager*): type *PHP script*, script `bin/cron.php` of the API's folder, PHP version as above, interval every 5 minutes.
 - **Any web-cron service** (cron-job.org, an uptime monitor, …) calling `GET https://<api>/api/v1/cron` with the header `X-Cron-Key: <CRON_KEY>` (preferred), or `GET https://<api>/api/v1/cron?key=<CRON_KEY>` when the service cannot send headers (the key then appears in access logs). `CRON_KEY` is in `.secrets/api-cron-key` and the remote `.env` (at least 24 characters; the endpoint is 404 without it, 403 for a wrong key; compared in constant time).
+- **Enoch** (the Schaefchens cron multiplexer, *Scheduled maintenance*): add a request with URL `https://<api>/api/v1/cron`, method `GET`, interval 5 minutes, and the contents of `.secrets/api-cron-key` as its **Bearer token**. Enoch sends `Authorization: Bearer <CRON_KEY>`, which the endpoint accepts like `X-Cron-Key`. It allows about 8 s per call, doesn't follow redirects, and counts only HTTP 2xx as success. A normal run takes well under a second; if Enoch gives up early, the run still finishes on the server.
 - A real crontab where available: `*/5 * * * * php /path/to/api/bin/cron.php`.
 
 Both entry points run the same jobs (a non-blocking `flock` on `var/cache/cron.lock` skips overlapping runs; while `/.maintenance` exists, a deploy or a restore is in progress and both skip everything):

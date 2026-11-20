@@ -1,22 +1,30 @@
 # syntax=docker/dockerfile:1.7
 #
 # On My Way backend: wa-helper (Go) + Node orchestrator + the built public site, one image.
-# Build context is the REPOSITORY ROOT (the image needs packages/, frontend/ and the lockfile):
+# Base: Debian 13 "trixie" (node:24-trixie-slim with Debian's ffmpeg 7.1; Go stage golang:1.26-trixie).
+# Build context is the REPOSITORY ROOT (the image needs packages/, frontend/ and the lockfile).
+# Build with the project's own buildx builder: Docker Desktop's disk is shared with other projects,
+# and a dedicated builder keeps this cache separate (`docker buildx prune --builder omw-builder`).
 #
-#   docker build -f backend/Dockerfile -t omw-backend .                       # this machine's arch
-#   docker buildx build -f backend/Dockerfile --platform linux/amd64 -t omw-backend .  # other arch (QEMU)
-#   docker build -f backend/Dockerfile --target demo -t omw-backend:demo .     # + fixtures (WA_MODE=fixture)
-#   docker build -f backend/Dockerfile --target test -t omw-backend:test .     # unit tests on Node 24
+#   docker buildx create --name omw-builder --driver docker-container      # once
+#   B="docker buildx build --builder omw-builder --load -f backend/Dockerfile"
+#   $B -t omw-backend .                                    # this machine's arch
+#   $B --platform linux/amd64 -t omw-backend .             # other arch (QEMU)
+#   $B --target demo -t omw-backend:demo .                 # + fixtures (WA_MODE=fixture)
+#   $B --target test -t omw-backend:test .                 # unit tests on Node 24
 #
 # Stages: go (wa-helper, CGO_ENABLED=0, cross-compiled) · prod-deps (production node_modules only)
 # · web (full install; builds contracts, site, backend) · fixtures · test · runtime · demo.
-# Measured 2026-11 on an M-series Mac (Docker Desktop): arm64 cold build ~100 s, ~770 MB image
-# (ffmpeg + its libraries ~400 MB); amd64 under QEMU ~150 s. scripts/docker-e2e.sh runs the image.
+# Measured 2026-11-20 on an M-series Mac (Docker Desktop, arm64): ~785 MB image (ffmpeg 7.1 + its
+# libraries ~415 MB); a cold test + runtime build took ~7 min, mostly downloads. Disk: a cold build
+# of both targets peaks at ~6-7 GB in Docker's VM (omw-builder cache ~4 GB + the loaded image);
+# `docker buildx prune --builder omw-builder --reserved-space 2gb -f` trims the cache afterwards.
+# amd64 under QEMU was ~150 s on bookworm (not re-measured on trixie). scripts/docker-e2e.sh runs it.
 # The runtime keeps the repository layout (/app/backend, /app/packages/contracts,
 # /app/frontend/site/dist), so every default path in backend/src/config.ts and paths.ts applies.
 
-ARG NODE_IMAGE=node:24-bookworm-slim
-ARG GO_IMAGE=golang:1.26-bookworm
+ARG NODE_IMAGE=node:24-trixie-slim
+ARG GO_IMAGE=golang:1.26-trixie
 
 # ------------------------------------------------------------------------------------------------
 FROM --platform=$BUILDPLATFORM ${GO_IMAGE} AS go
@@ -76,16 +84,17 @@ RUN pnpm fixtures && test -f fixtures/generated/index.json
 # ------------------------------------------------------------------------------------------------
 # Contracts + backend unit tests on the image's Node version (24), Linux and the image's ffmpeg.
 # Not part of any runtime image. Runs as root (tests write below /app/.cache/tmp):
-#   docker build -f backend/Dockerfile --target test -t omw-backend:test . && docker run --rm omw-backend:test
-# Left out here: test/generator/e2e.test.ts (needs Playwright's Chromium; scripts/docker-e2e.sh
-# checks the image's generated site with Playwright on the host instead) and
-# test/pipeline/edge-media.test.ts (builds its rotated input with `-display_rotation`, ffmpeg >= 6;
-# Debian bookworm ships 5.1). --testTimeout: the in-process SSH server test needs > 5 s here.
+#   $B --target test -t omw-backend:test . && docker run --rm omw-backend:test     ($B: see the top)
+# The test image is ~1.2 GB; `docker rmi omw-backend:test` afterwards.
+# Left out here: only test/generator/e2e.test.ts (needs Playwright's Chromium; scripts/docker-e2e.sh
+# checks the image's generated site with Playwright on the host instead). The edge-media test runs:
+# trixie's ffmpeg 7.1 has `-display_rotation` (ffmpeg >= 6) for its rotated input.
+# --testTimeout: the in-process SSH server test needs > 5 s here.
 # Scratch files go to /app/.cache: `docker run --rm --tmpfs /app/.cache:exec omw-backend:test`.
 FROM fixtures AS test
 # The contracts test compares the JSON Schema export with the committed api/schemas.
 COPY api/schemas/ api/schemas/
-CMD ["sh", "-c", "node --version && pnpm --filter @omw/contracts test && pnpm --filter @omw/backend exec vitest run --exclude test/generator/e2e.test.ts --exclude test/pipeline/edge-media.test.ts --testTimeout=30000"]
+CMD ["sh", "-c", "node --version && ffmpeg -version | head -n 1 && pnpm --filter @omw/contracts test && pnpm --filter @omw/backend exec vitest run --exclude test/generator/e2e.test.ts --testTimeout=30000"]
 
 # ------------------------------------------------------------------------------------------------
 FROM ${NODE_IMAGE} AS runtime

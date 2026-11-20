@@ -38,7 +38,7 @@ use Slim\Interfaces\RouteCollectorProxyInterface;
  *   failure (unknown or malformed e-mail, wrong password, malformed body) is a generic 401 and is
  *   recorded in login_attempts.
  *   Mutating admin requests must send JSON bodies (RequireJsonBody, 415 otherwise).
- *   /api/v1/cron       CRON_KEY (X-Cron-Key header or ?key=), see CronController
+ *   /api/v1/cron       CRON_KEY (X-Cron-Key header, Authorization: Bearer, or ?key=), see CronController
  *
  * Bodies and responses follow packages/contracts (api/schemas/<Name>.json); the comment after
  * each route names them. Conventions from contracts api.ts: 422 "validation_failed", 409

@@ -7,6 +7,10 @@
  *   ignored with an event; invalid items are quarantined (feed_quarantine + event) and the last
  *   good value stays. Each item is applied in its own savepoint. The cursor always advances to
  *   the page's nextSeq, so no single item can block the feed.
+ * - Ignored items are remembered by kind (sync_state FEED_IGNORED_KEY, besides the
+ *   "feed.item_ignored" events of older versions). A newer backend that knows such a kind
+ *   replays the feed once at startup (replayIgnoredIfKnown -> beginRebuild): e.g. profile
+ *   settings saved in a newer admin before the backend was upgraded are not lost.
  * - Feed identity: the first page stores the API's feedId. A different feedId (API restored or
  *   reinstalled) or a 409 "feed_reset" starts a REBUILD: the cursor goes back to 0 and every
  *   mirrored row is marked unconfirmed (seq = NULL) but kept, so hidden overrides and
@@ -16,11 +20,13 @@
 import {
   type Annotation,
   Annotation as AnnotationSchema,
+  CHANGE_ENTITIES,
   type ChangeEntity,
   type ChangeItem,
   ChangesPage,
   type Day,
   Day as DaySchema,
+  isSettingKey,
   type Post,
   Post as PostSchema,
   parseChangeItem,
@@ -35,7 +41,7 @@ import { effectiveLocalDate, tripForDate } from '@omw/contracts/policy';
 import { addDays, dateRange } from '@omw/contracts/time';
 import type { Db } from './db.js';
 import type { EventRepo } from './events.js';
-import type { SyncStateRepo } from './syncState.js';
+import { FEED_IGNORED_EVENTS_KEY, FEED_IGNORED_KEY, type SyncStateRepo } from './syncState.js';
 import type { Clock } from './types.js';
 
 export interface ChangeSummary {
@@ -73,6 +79,21 @@ export interface QuarantinedItem {
   raw: unknown;
   error: string;
   receivedAt: string;
+}
+
+/** Kind of an ignored change-feed item (FEED_IGNORED_KEY). */
+interface IgnoredKind {
+  entity: string;
+  key?: string;
+}
+
+/** At most this many distinct ignored kinds are remembered. */
+const IGNORED_KINDS_MAX = 200;
+
+/** Whether this version applies items of that kind (a known entity; for settings a known key). */
+function isKnownKind(kind: IgnoredKind): boolean {
+  if (!(CHANGE_ENTITIES as readonly string[]).includes(kind.entity)) return false;
+  return kind.entity !== 'setting' || kind.key === undefined || isSettingKey(kind.key);
 }
 
 const MIRROR_TABLES: Readonly<Record<ChangeEntity, { table: string; key: string }>> = {
@@ -338,6 +359,7 @@ export class OwnerRepo {
             case 'unknown_entity':
             case 'unknown_key':
               summary.ignored++;
+              if (parsed.entity) this.noteIgnored(parsed.entity, parsed.status === 'unknown_key' ? parsed.key : null);
               this.events?.append('feed.item_ignored', {
                 seq,
                 entity: parsed.entity,
@@ -363,6 +385,47 @@ export class OwnerRepo {
           summary.settingsChanged = true;
         }
         return { ...summary, cursor: next, localDates: [...dates].sort(), trips: [...trips].sort() };
+      })
+      .immediate();
+  }
+
+  /** Remembers the kind of an ignored item (deduplicated, bounded). */
+  private noteIgnored(entity: string, key: string | null): void {
+    const list = this.syncState.getJson<IgnoredKind[]>(FEED_IGNORED_KEY) ?? [];
+    if (list.some((i) => i.entity === entity && (i.key ?? null) === key)) return;
+    if (list.length >= IGNORED_KINDS_MAX) return;
+    list.push(key === null ? { entity } : { entity, key });
+    this.syncState.setJson(FEED_IGNORED_KEY, list);
+  }
+
+  /**
+   * Feed items an older version of this backend ignored (unknown entity or setting key) whose
+   * kind this version knows: the cursor moved past them, so only a replay brings them in. Starts
+   * a rebuild (replay from seq 0, rows kept until it completes) when there are any. Sources: the
+   * remembered kinds, and the "feed.item_ignored" events (all a version before that wrote) not
+   * looked at before. Call at startup, before the first pull. Returns the now-known kinds.
+   */
+  replayIgnoredIfKnown(): string[] {
+    return this.db
+      .transaction((): string[] => {
+        const kinds = this.syncState.getJson<IgnoredKind[]>(FEED_IGNORED_KEY) ?? [];
+        const seenEvents = Number(this.syncState.get(FEED_IGNORED_EVENTS_KEY) ?? 0);
+        let lastEvent = seenEvents;
+        for (const e of this.events?.recent({ type: 'feed.item_ignored', limit: 10_000 }) ?? []) {
+          lastEvent = Math.max(lastEvent, e.id);
+          if (e.id <= seenEvents) continue;
+          const data = e.data as { entity?: unknown; key?: unknown } | null;
+          if (typeof data?.entity !== 'string') continue;
+          kinds.push(typeof data.key === 'string' ? { entity: data.entity, key: data.key } : { entity: data.entity });
+        }
+        if (lastEvent > seenEvents) this.syncState.set(FEED_IGNORED_EVENTS_KEY, String(lastEvent));
+        const known = [...new Set(kinds.filter(isKnownKind).map((k) => k.key ?? k.entity))].sort();
+        if (known.length === 0) return [];
+        // The replay records again whatever is still unknown to this version.
+        this.syncState.delete(FEED_IGNORED_KEY);
+        if (this.syncState.feedCursor() === 0 && !this.syncState.rebuildPending()) return known; // nothing pulled yet
+        this.beginRebuild(null, `feed items an older version ignored are known now: ${known.join(', ')}`);
+        return known;
       })
       .immediate();
   }

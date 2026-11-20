@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AuthorName,
+  AVATAR_MAX_WIDTH,
+  AVATAR_SIZES,
   Boot,
   DayDetail,
   dayDataPath,
   Entry,
   ImageSet,
+  IntroI18n,
+  IntroText,
   Manifest,
   resolveSitePath,
   routePath,
+  SiteProfile,
   TimelineIndex,
   TripDetail,
   tripDataPath,
@@ -82,6 +88,103 @@ describe('static data files reject invalid samples', () => {
     expect(Manifest.safeParse({ ...manifest(), site: { ...manifest().site, locales: [] } }).success).toBe(false);
     const t = timeline();
     expect(TimelineIndex.safeParse({ ...t, trips: [{ ...t.trips[0], slug: 'Vietnam 2026' }] }).success).toBe(false);
+  });
+});
+
+describe('profile (site.author / site.intro / site.avatar)', () => {
+  /** Like the generator's: the round crop's own square files at 96/192/288 px. */
+  const avatar = () => {
+    const { og: _og, ...image } = imageSet();
+    const files = (ext: string) =>
+      AVATAR_SIZES.map((w) => ({ w, src: `media/ab/ab12cd34ef56ab78_avatar_0123abcd_s${w}.${ext}` }));
+    return {
+      ...image,
+      w: 288,
+      h: 288,
+      sources: { avif: files('avif'), webp: files('webp') },
+      focus: { x: 0.5, y: 0.3 },
+    };
+  };
+
+  it('timeline.json carries an optional profile; without one it is unchanged', () => {
+    const profile = {
+      author: 'Lea',
+      intro: { de: 'Schön, dass du da bist!', en: 'Glad you are here!' },
+      avatar: avatar(),
+    };
+    expect(TimelineIndex.parse({ ...timeline(), profile })).toEqual({ ...timeline(), profile });
+    expect(TimelineIndex.parse(timeline())).not.toHaveProperty('profile');
+    expect(SiteProfile.parse({})).toEqual({});
+    expect(SiteProfile.parse({ author: 'Lea' })).toEqual({ author: 'Lea' });
+  });
+
+  it('author: one trimmed line of 1..60 characters', () => {
+    for (const ok of ['Lea', 'L', 'Léa & Tom 🌸', 'a'.repeat(60), 'مرحبا'])
+      expect(AuthorName.safeParse(ok).success, ok).toBe(true);
+    for (const bad of [
+      '',
+      ' ',
+      ' Lea',
+      'Lea ',
+      'Lea\n',
+      'Le\na',
+      'Le\ta',
+      '\u00a0Lea',
+      'Lea\u3000',
+      'a'.repeat(61),
+      'x\u0000',
+    ]) {
+      expect(AuthorName.safeParse(bad).success, JSON.stringify(bad)).toBe(false);
+    }
+  });
+
+  it('intro: trimmed plain text of 1..160 characters per locale, line feeds allowed', () => {
+    for (const ok of ['Hallo!', 'Hallo ihr Lieben!\nSchön, dass ihr mitreist.', '**not markdown**', 'x'.repeat(160)]) {
+      expect(IntroText.safeParse(ok).success, ok).toBe(true);
+    }
+    for (const bad of ['', ' Hallo', 'Hallo\n', 'Hal\r\nlo', 'x'.repeat(161)]) {
+      expect(IntroText.safeParse(bad).success, JSON.stringify(bad)).toBe(false);
+    }
+    expect(IntroI18n.safeParse({ de: 'Hallo', en: 'Hello' }).success).toBe(true);
+    expect(IntroI18n.safeParse({}).success).toBe(false);
+    expect(IntroI18n.safeParse({ fr: 'Salut' }).success).toBe(false);
+    expect(IntroI18n.safeParse({ de: '' }).success).toBe(false);
+  });
+
+  it('avatar: small files only (at most AVATAR_MAX_WIDTH), no OG image, focus within 0..1', () => {
+    expect(AVATAR_MAX_WIDTH).toBe(Math.max(...AVATAR_SIZES));
+    const photo = imageSet(); // a photo's own variants (320/640 px) are too large for a portrait
+    expect(SiteProfile.safeParse({ avatar: { ...avatar(), sources: photo.sources } }).success).toBe(false);
+    expect(SiteProfile.safeParse({ avatar: avatar() }).success).toBe(true);
+    const { focus: _focus, ...noFocus } = avatar();
+    expect(SiteProfile.safeParse({ avatar: noFocus }).success).toBe(true);
+    const big = {
+      ...avatar(),
+      sources: { ...avatar().sources, webp: [{ w: AVATAR_MAX_WIDTH + 1, src: 'media/ab/x_w1080.webp' }] },
+    };
+    expect(SiteProfile.safeParse({ avatar: big }).success).toBe(false);
+    expect(
+      SiteProfile.parse({ avatar: { ...avatar(), og: 'media/ab/ab12cd34ef56ab78_og.jpg' } }).avatar,
+    ).not.toHaveProperty('og');
+    for (const focus of [{ x: -0.1, y: 0.5 }, { x: 0.5, y: 1.01 }, { x: 0.5 }]) {
+      expect(SiteProfile.safeParse({ avatar: { ...avatar(), focus } }).success, JSON.stringify(focus)).toBe(false);
+    }
+    // An avatar is structurally an ImageSet (components that render ImageSets take it as is).
+    expect(ImageSet.safeParse(avatar()).success).toBe(true);
+  });
+
+  it('Boot of a day page may inline the profile next to the day', () => {
+    const boot = {
+      basePath: '/',
+      locale: 'de',
+      route: { name: 'day', params: { date: '2026-11-15' } },
+      manifestVersion: 42,
+      timelineV: 'abcdef12',
+      day: dayDetail(),
+      profile: { author: 'Lea', avatar: avatar() },
+    };
+    expect(Boot.parse(boot)).toEqual(boot);
+    expect(Boot.safeParse({ ...boot, profile: { author: ' Lea' } }).success).toBe(false);
   });
 });
 

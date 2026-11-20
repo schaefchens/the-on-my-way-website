@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DURATIONS } from '../../src/player/durations';
 import {
+  backLeavesDay,
   initialState,
   isRunning,
   type PlayerEvent,
@@ -125,6 +126,41 @@ describe('player machine', () => {
     s = reducer(s, { type: 'prev' });
     expect(s.index).toBe(2);
     expect(s.ended).toBe(false);
+  });
+
+  it('back on the first moment leaves the day (to the last moment of the day before); elsewhere it stays', () => {
+    let s = initialState({ count: 3 });
+    expect(backLeavesDay(s)).toBe(true); // first moment, still loading
+    s = reducer(s, loaded(s));
+    expect(backLeavesDay(s)).toBe(true); // first moment, playing
+    s = run(s, { type: 'next' });
+    expect(backLeavesDay(s)).toBe(false);
+    s = run(s, loaded(s), { type: 'prev' });
+    expect(s.index).toBe(0);
+    expect(backLeavesDay(s)).toBe(true);
+    // Paused or failed, the first moment is still the first moment.
+    expect(backLeavesDay(reducer(s, { type: 'toggle' }))).toBe(true);
+    expect(backLeavesDay(reducer(s, { type: 'failed', seq: s.seq }))).toBe(true);
+    // From the day-end card, back returns to the last moment of this day first.
+    s = run(s, { type: 'goto', index: 2 }, loaded(s), { type: 'next' });
+    expect(statusOf(s)).toBe('dayEnd');
+    expect(backLeavesDay(s)).toBe(false);
+    // A one-moment day: its day-end card goes back to that moment, the moment to the day before.
+    let one = initialState({ count: 1 });
+    one = run(one, loaded(one), { type: 'next' });
+    expect(backLeavesDay(one)).toBe(false);
+    expect(backLeavesDay(reducer(one, { type: 'prev' }))).toBe(true);
+    // An empty day has nothing to go back to inside it.
+    expect(backLeavesDay(initialState({ count: 0 }))).toBe(true);
+  });
+
+  it('a day entered from the next one starts at its last moment', () => {
+    const s = initialState({ count: 4, index: 4 - 1 });
+    expect(s.index).toBe(3);
+    expect(backLeavesDay(s)).toBe(false);
+    // The start index is clamped (an index past the end, e.g. from a stale count, is the last).
+    expect(initialState({ count: 4, index: 99 }).index).toBe(3);
+    expect(initialState({ count: 0, index: -1 }).ended).toBe(true);
   });
 
   it('clamps goto, ignores next at day end, replays from 0', () => {

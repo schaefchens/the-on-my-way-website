@@ -1,6 +1,7 @@
 /**
  * Day-end card (plan C): a 3 s countdown to the next day, cancelable; replay; back to the
- * timeline. The countdown only runs while nothing pauses the player.
+ * timeline. The countdown only runs while nothing pauses the player. When the owner set a name
+ * (profile), the card ends the day with a handwritten sign-off from them.
  */
 import { Plural, Trans } from '@lingui/react/macro';
 import type { LocaleCode } from '@omw/contracts/i18n';
@@ -9,6 +10,7 @@ import type { DaySummary } from '@omw/contracts/site';
 import { countryFlag, formatLocalDate } from '@omw/ui/locale';
 import { Picture } from '@omw/ui/picture';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { useProfile } from '../profile';
 import { MetaParts } from './chrome';
 import { DURATIONS } from './durations';
 import { ChevronIcon, ReplayIcon } from './icons';
@@ -54,6 +56,24 @@ export function useCountdown(totalMs: number, running: boolean, onDone: () => vo
 
 const RING = 2 * Math.PI * 21;
 
+/** A warm handwritten line from the traveler, signed with their name ("— Lea"). */
+export function SignOff({ author }: { author: string }) {
+  return (
+    <p
+      data-testid="day-end-signoff"
+      className="mt-[4cqi] w-fit -rotate-2 font-hand text-[4.6cqi] leading-snug text-rose-200"
+    >
+      <Trans>Thanks for coming along!</Trans>
+      <span className="mt-[0.6cqi] block ps-[12cqi] text-[5.2cqi] text-rose-300">
+        —{' '}
+        <bdi dir="auto" data-user-text>
+          {author}
+        </bdi>
+      </span>
+    </p>
+  );
+}
+
 export function DayEndCard({
   locale,
   title,
@@ -66,6 +86,7 @@ export function DayEndCard({
   onClose,
 }: DayEndProps) {
   const [cancelled, setCancelled] = useState(false);
+  const author = useProfile()?.author;
   const counting = next !== null && canCountDown && !cancelled;
   const remaining = useCountdown(DURATIONS.dayEndCountdownMs, counting, onNextDay);
   const seconds = Math.max(1, Math.ceil(remaining / 1000));
@@ -109,6 +130,7 @@ export function DayEndCard({
           <p className="mt-2 text-[3.9cqi] text-white/75">
             <Plural value={momentCount} one="# moment" other="# moments" />
           </p>
+          {author && <SignOff author={author} />}
         </div>
 
         {next ? (

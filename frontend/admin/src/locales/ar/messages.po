@@ -57,16 +57,24 @@ msgstr ""
 msgid "{autoMerged, plural, one {# other change of yours does not collide and is kept.} other {# other changes of yours do not collide and are kept.}}"
 msgstr ""
 
+#: src/screens/settings.tsx
+msgid "{count, plural, =0 {No waiting status is older than the delay any more.} one {# waiting status is older than the delay and will be published now.} other {# waiting statuses are older than the delay and will be published now.}}"
+msgstr ""
+
+#: src/screens/settings.tsx
+msgid "{count, plural, =0 {Nothing is waiting any more.} one {# waiting status will be published now.} other {# waiting statuses will be published now.}}"
+msgstr ""
+
 #: src/screens/home.tsx
 msgid "{count, plural, one {# moment} other {# moments}}"
 msgstr ""
 
 #: src/screens/settings.tsx
-msgid "{count, plural, one {# waiting status is older than the delay and will be published now.} other {# waiting statuses are older than the delay and will be published now.}}"
+msgid "{count, plural, one {At least # waiting status is older than the delay and will be published now. Not all waiting statuses could be loaded (offline or a slow connection).} other {At least # waiting statuses are older than the delay and will be published now. Not all waiting statuses could be loaded (offline or a slow connection).}}"
 msgstr ""
 
 #: src/screens/settings.tsx
-msgid "{count, plural, one {# waiting status will be published now.} other {# waiting statuses will be published now.}}"
+msgid "{count, plural, one {At least # waiting status will be published now. Not all waiting statuses could be loaded (offline or a slow connection).} other {At least # waiting statuses will be published now. Not all waiting statuses could be loaded (offline or a slow connection).}}"
 msgstr ""
 
 #: src/screens/trips.tsx
@@ -89,7 +97,11 @@ msgstr ""
 msgid "{issues, plural, one {# problem} other {# problems}}"
 msgstr ""
 
-#: src/screens/composer.tsx
+#: src/components/portrait.tsx
+msgid "{label} (not shown in the timeline)"
+msgstr ""
+
+#: src/components/char-ring.tsx
 msgid "{left} left"
 msgstr ""
 
@@ -103,6 +115,10 @@ msgstr ""
 
 #: src/components/conflict-dialog.tsx
 msgid "{more, plural, one {# more conflict after this one.} other {# more conflicts after this one.}}"
+msgstr ""
+
+#: src/components/portrait.tsx
+msgid "{notOffered, plural, one {# photo is not offered: deleted on WhatsApp, lost or still processing.} other {# photos are not offered: deleted on WhatsApp, lost or still processing.}}"
 msgstr ""
 
 #: src/screens/layout.tsx
@@ -158,8 +174,16 @@ msgstr ""
 msgid "A sentence or two for the day page."
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "A small round copy of the photo, never the full picture."
+msgstr ""
+
 #: src/screens/trips.tsx
 msgid "A trip bundles days into a chapter of the timeline, with its own page."
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "About you"
 msgstr ""
 
 #: src/screens/settings.tsx
@@ -251,6 +275,10 @@ msgstr ""
 msgid "As soon as your computer at home publishes, you will see it here."
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "At most {max} characters"
+msgstr ""
+
 #: src/screens/days.tsx
 #: src/screens/item.tsx
 msgid "Automatic"
@@ -280,8 +308,13 @@ msgstr ""
 msgid "Between -90 and 90"
 msgstr ""
 
+#: src/components/portrait.tsx
 #: src/screens/trips.tsx
 msgid "Cancel"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Change"
 msgstr ""
 
 #: src/api/conflicts.ts
@@ -313,6 +346,10 @@ msgstr ""
 msgid "Check the coordinates."
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "Choose a photo"
+msgstr ""
+
 #: src/screens/trips.tsx
 msgid "Choose a start and an end."
 msgstr ""
@@ -321,12 +358,17 @@ msgstr ""
 msgid "Choose another zone"
 msgstr ""
 
+#: src/components/portrait.tsx
+msgid "Choose your portrait"
+msgstr ""
+
 #: src/screens/trips.tsx
 msgid "Chosen from the day covers of the trip."
 msgstr ""
 
 #: src/components/conflict-dialog.tsx
 #: src/components/install.tsx
+#: src/components/portrait.tsx
 #: src/components/unsaved.tsx
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
@@ -374,6 +416,14 @@ msgstr ""
 
 #: src/api/writes.ts
 msgid "Could not save: {reason}"
+msgstr ""
+
+#: src/screens/settings.tsx
+msgid "Count again"
+msgstr ""
+
+#: src/screens/settings.tsx
+msgid "Counting…"
 msgstr ""
 
 #: src/components/labels.ts
@@ -520,6 +570,7 @@ msgstr ""
 #: src/components/unsaved.tsx
 #: src/screens/days.tsx
 #: src/screens/item.tsx
+#: src/screens/settings-profile.tsx
 msgid "Discard"
 msgstr ""
 
@@ -583,6 +634,10 @@ msgstr ""
 
 #: src/screens/days.tsx
 msgid "e.g. Lanterns in Hội An"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "e.g. Lea"
 msgstr ""
 
 #: src/screens/trips.tsx
@@ -707,8 +762,28 @@ msgstr ""
 msgid "Got it"
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "Greeting"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Greeting ({tab})"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Greeting removed"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Greeting saved"
+msgstr ""
+
 #: src/screens/home.tsx
 msgid "Hello, <0>{name}</0>"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Hello, lovely people! So glad you are coming along."
 msgstr ""
 
 #: src/components/labels.ts
@@ -821,6 +896,10 @@ msgstr ""
 #: src/screens/item.tsx
 #: src/screens/trips.tsx
 msgid "Language"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Language of the greeting"
 msgstr ""
 
 #: src/screens/settings.tsx
@@ -938,6 +1017,14 @@ msgstr ""
 msgid "Name & story"
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "Name removed"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Name saved"
+msgstr ""
+
 #: src/screens/home.tsx
 msgid "Never checked in"
 msgstr ""
@@ -1030,8 +1117,16 @@ msgstr ""
 msgid "No news from your computer at home yet"
 msgstr ""
 
+#: src/components/portrait.tsx
+msgid "No photos yet"
+msgstr ""
+
 #: src/screens/days.tsx
 msgid "no place"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "No portrait yet. Pick one of your photos."
 msgstr ""
 
 #: src/screens/home.tsx
@@ -1086,6 +1181,14 @@ msgstr ""
 msgid "Not set"
 msgstr ""
 
+#: src/screens/item.tsx
+msgid "Not shown in your timeline, but still your portrait on the site."
+msgstr ""
+
+#: src/screens/trips.tsx
+msgid "Not shown on the site until its first public day"
+msgstr ""
+
 #: src/components/capture.tsx
 msgid "Not supported"
 msgstr ""
@@ -1112,6 +1215,10 @@ msgstr ""
 msgid "Nothing to preview yet."
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "Nothing yet: the site shows its usual line."
+msgstr ""
+
 #: src/components/feedback.tsx
 msgid "Notifications"
 msgstr ""
@@ -1121,12 +1228,20 @@ msgstr ""
 msgid "now"
 msgstr ""
 
+#: src/components/portrait.tsx
+msgid "Now your portrait"
+msgstr ""
+
 #: src/screens/settings.tsx
 msgid "Off: only people with the link find the site."
 msgstr ""
 
 #: src/screens/days.tsx
 msgid "On this day"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "On your site"
 msgstr ""
 
 #: src/components/install.tsx
@@ -1197,9 +1312,17 @@ msgstr ""
 msgid "Photo"
 msgstr ""
 
+#: src/components/portrait.tsx
+msgid "Pick one of your photos. Only a small round copy of it appears on the site."
+msgstr ""
+
 #: src/components/labels.ts
 #: src/screens/days.tsx
 msgid "Place"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Plain text, shown handwritten under your name. Write it in one language or both."
 msgstr ""
 
 #: src/screens/trips.tsx
@@ -1212,6 +1335,15 @@ msgstr ""
 
 #: src/lib/errors.ts
 msgid "Please log in again"
+msgstr ""
+
+#: src/screens/item.tsx
+#: src/screens/settings-profile.tsx
+msgid "Portrait"
+msgstr ""
+
+#: src/components/portrait.tsx
+msgid "Portrait removed"
 msgstr ""
 
 #: src/screens/composer.tsx
@@ -1304,8 +1436,16 @@ msgstr ""
 msgid "Reload"
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "Remove"
+msgstr ""
+
 #: src/screens/item.tsx
 msgid "Remove as cover"
+msgstr ""
+
+#: src/screens/item.tsx
+msgid "Remove as portrait"
 msgstr ""
 
 #: src/screens/inbox.tsx
@@ -1314,6 +1454,10 @@ msgstr ""
 
 #: src/screens/days.tsx
 msgid "Remove correction"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Remove greeting"
 msgstr ""
 
 #: src/components/labels.ts
@@ -1351,6 +1495,7 @@ msgstr ""
 
 #: src/components/unsaved.tsx
 #: src/screens/item.tsx
+#: src/screens/settings-profile.tsx
 #: src/screens/settings.tsx
 msgid "Save"
 msgstr ""
@@ -1365,6 +1510,10 @@ msgstr ""
 
 #: src/screens/days.tsx
 msgid "Save day"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Save greeting"
 msgstr ""
 
 #: src/screens/composer.tsx
@@ -1434,12 +1583,20 @@ msgstr ""
 msgid "Show"
 msgstr ""
 
+#: src/components/portrait.tsx
+msgid "Show more photos"
+msgstr ""
+
 #: src/screens/item.tsx
 msgid "Show on"
 msgstr ""
 
 #: src/screens/login.tsx
 msgid "Show password"
+msgstr ""
+
+#: src/screens/item.tsx
+msgid "Show this photo as your portrait on the site, as a small circle next to your name."
 msgstr ""
 
 #. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
@@ -1656,6 +1813,18 @@ msgstr ""
 msgid "This page does not exist. Maybe it moved, like you."
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "This photo is gone (deleted on WhatsApp or lost), so the site shows no portrait. Pick another one."
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "This photo is not shown in your timeline, but it is still your portrait."
+msgstr ""
+
+#: src/screens/item.tsx
+msgid "This photo is your portrait on the site."
+msgstr ""
+
 #: src/components/conflict-dialog.tsx
 msgid "this post"
 msgstr ""
@@ -1726,6 +1895,10 @@ msgstr ""
 msgid "Token revoked"
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "Too long in another language: {otherLocales}"
+msgstr ""
+
 #: src/screens/login.tsx
 msgid "Too many attempts. Please wait a few minutes."
 msgstr ""
@@ -1761,6 +1934,7 @@ msgstr ""
 msgid "Try again"
 msgstr ""
 
+#: src/components/portrait.tsx
 #: src/screens/inbox.tsx
 #: src/screens/item.tsx
 msgid "Undo"
@@ -1788,6 +1962,11 @@ msgstr ""
 
 #: src/screens/settings.tsx
 msgid "Use an http(s) address."
+msgstr ""
+
+#: src/components/portrait.tsx
+#: src/screens/item.tsx
+msgid "Use as portrait"
 msgstr ""
 
 #. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
@@ -1957,12 +2136,24 @@ msgstr ""
 msgid "Your latest edits are on their way to the site."
 msgstr ""
 
+#: src/screens/settings-profile.tsx
+msgid "Your name"
+msgstr ""
+
+#: src/screens/settings-profile.tsx
+msgid "Your name, a few warm words and a portrait: visitors see who is on the road. All optional."
+msgstr ""
+
 #: src/screens/settings.tsx
 msgid "Your new token — copy it now, it will not be shown again:"
 msgstr ""
 
 #: src/components/conflict-dialog.tsx
 msgid "your photo"
+msgstr ""
+
+#: src/components/portrait.tsx
+msgid "Your photos"
 msgstr ""
 
 #: src/components/conflict-dialog.tsx
@@ -1985,8 +2176,20 @@ msgstr ""
 msgid "your voice message"
 msgstr ""
 
+#: src/screens/settings.tsx
+msgid "Your waiting statuses could not be loaded just now (offline or a slow connection), so it is unclear how many are older than the delay. Those will be published now."
+msgstr ""
+
+#: src/screens/settings.tsx
+msgid "Your waiting statuses could not be loaded just now (offline or a slow connection), so it is unclear how many there are. All of them will be published now."
+msgstr ""
+
 #: src/screens/home.tsx
 msgid "Your website"
+msgstr ""
+
+#: src/components/portrait.tsx
+msgid "Your WhatsApp photo statuses show up here."
 msgstr ""
 
 #: src/screens/item.tsx

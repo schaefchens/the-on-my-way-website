@@ -77,7 +77,12 @@ export type ImageWidth = (typeof IMAGE_WIDTHS)[number];
 
 export type ImageVariant = `w${ImageWidth}`;
 export type PosterVariant = `poster_w${ImageWidth}`;
-export type MediaVariant = ImageVariant | PosterVariant | 'video' | 'voice' | 'og';
+/**
+ * The owner's portrait (pipeline/avatar.ts): a round crop of a photo, "avatar_<key>_s<edge>" with
+ * key = 8 hex digits of the crop's source and focus point, edge = its size in px.
+ */
+export type AvatarVariant = `avatar_${string}_s${number}`;
+export type MediaVariant = ImageVariant | PosterVariant | AvatarVariant | 'video' | 'voice' | 'og';
 export type MediaExt = 'avif' | 'webp' | 'mp4' | 'm4a' | 'jpg';
 
 const ALLOWED_EXT: Record<string, readonly MediaExt[]> = {
@@ -88,7 +93,7 @@ const ALLOWED_EXT: Record<string, readonly MediaExt[]> = {
 };
 
 export function isMediaVariant(value: string): value is MediaVariant {
-  return /^(?:(?:poster_)?w(?:320|640|1080|1600)|video|voice|og)$/.test(value);
+  return /^(?:(?:poster_)?w(?:320|640|1080|1600)|avatar_[0-9a-f]{8}_s[1-9][0-9]{0,3}|video|voice|og)$/.test(value);
 }
 
 function allowedExtFor(variant: MediaVariant): readonly MediaExt[] {

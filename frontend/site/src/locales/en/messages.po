@@ -135,6 +135,10 @@ msgstr "In between: {range}"
 msgid "Journey of {title}"
 msgstr "Journey of {title}"
 
+#: src/player/journey-player.tsx
+msgid "Keys: arrows for the moments, Page Up and Page Down for the days, Escape to close."
+msgstr "Keys: arrows for the moments, Page Up and Page Down for the days, Escape to close."
+
 #: src/components/site-header.tsx
 msgid "Language"
 msgstr "Language"
@@ -332,9 +336,21 @@ msgid "Tap for sound"
 msgstr "Tap for sound"
 
 #: src/player/journey-player.tsx
+msgid "Tap on the left for the next moment, on the right to go back. Swipe up for the next day, swipe down to close."
+msgstr "Tap on the left for the next moment, on the right to go back. Swipe up for the next day, swipe down to close."
+
+#: src/player/journey-player.tsx
+msgid "Tap on the right for the next moment, on the left to go back. Swipe up for the next day, swipe down to close."
+msgstr "Tap on the right for the next moment, on the left to go back. Swipe up for the next day, swipe down to close."
+
+#: src/player/journey-player.tsx
 #: src/timeline/filmstrip.tsx
 msgid "Text status"
 msgstr "Text status"
+
+#: src/player/day-end.tsx
+msgid "Thanks for coming along!"
+msgstr "Thanks for coming along!"
 
 #: src/player/day-end.tsx
 msgid "That’s all for now. New moments will appear here as the journey continues ✨"

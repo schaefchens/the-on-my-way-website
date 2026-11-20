@@ -17,7 +17,7 @@ import { API_BASE } from '../api/client';
 import { sameValue } from '../api/conflicts';
 import { daysQuery, settingsQuery, tripsQuery } from '../api/queries';
 import { writeBase } from '../api/types';
-import { ImageIcon, PlaneIcon, PlusIcon, SuitcaseIcon, TrashIcon } from '../components/icons';
+import { EyeOffIcon, ImageIcon, PlaneIcon, PlusIcon, SuitcaseIcon, TrashIcon } from '../components/icons';
 import {
   Badge,
   Button,
@@ -77,6 +77,14 @@ function CoverImage({ src, className }: { src: string | null; className?: string
   );
 }
 
+/**
+ * Whether the site shows the trip: at least one of its days has a public item (the generator's
+ * publishedTrips rule; `trip` of a day is already its tripForDate).
+ */
+export function tripIsPublished(slug: string, days: readonly AdminDaySummary[]): boolean {
+  return days.some((d) => d.trip === slug && d.counts.public > 0);
+}
+
 export function TripsScreen() {
   const locale = useLocale();
   const q = useQuery(tripsQuery());
@@ -122,6 +130,8 @@ export function TripsScreen() {
         {trips.map((trip, i) => {
           const daysIn = dayList.filter((d) => d.trip === trip.slug).length;
           const now = trip.startDate <= today && today <= trip.endDate;
+          // The site shows a trip once one of its days has something public (planned trips wait).
+          const onSite = !days.data || tripIsPublished(trip.slug, dayList);
           return (
             <li key={trip.slug}>
               <Link
@@ -148,6 +158,15 @@ export function TripsScreen() {
                   <p className="mt-1 text-xs text-muted">
                     <Plural value={daysIn} one="# day with moments" other="# days with moments" />
                   </p>
+                  {!onSite && (
+                    <p
+                      data-testid="trip-not-on-site"
+                      className="mt-2 flex items-start gap-1.5 text-xs font-semibold text-violet"
+                    >
+                      <EyeOffIcon className="size-4" />
+                      <Trans>Not shown on the site until its first public day</Trans>
+                    </p>
+                  )}
                 </div>
               </Link>
             </li>

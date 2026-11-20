@@ -48,6 +48,7 @@ import { type Direction, keyAction, type SwipeAction } from './gestures';
 import { ChevronIcon, ChevronUpIcon, SoundOffIcon, SoundOnIcon, Spinner } from './icons';
 import { buildItems, firstImage, type PlayerItem } from './items';
 import {
+  backLeavesDay,
   initialState,
   isRunning,
   type PlayerEvent,
@@ -120,8 +121,15 @@ export function JourneyPlayer({ day, locale, sheetOpen }: JourneyPlayerProps) {
   const { data: timeline } = useTimeline();
   const rootRef = useRef<HTMLDivElement>(null);
   const [announcement, setAnnouncement] = useState('');
-  /** Direction of the last day change (for the enter animation) and whether to keep playing. */
-  const dayChange = useRef<{ dir: Direction | 0; autoplay: boolean }>({ dir: 0, autoplay: !reducedMotion });
+  /**
+   * The last day change: its direction (for the enter animation), whether to keep playing and
+   * whether to start at the day's last moment (back from the first moment of the next day).
+   */
+  const dayChange = useRef<{ dir: Direction | 0; autoplay: boolean; atEnd: boolean }>({
+    dir: 0,
+    autoplay: !reducedMotion,
+    atEnd: false,
+  });
 
   useScrollLock();
   useFocusTrap(rootRef, { active: !sheetOpen, restoreFocus: false });
@@ -140,10 +148,10 @@ export function JourneyPlayer({ day, locale, sheetOpen }: JourneyPlayerProps) {
   const headingId = useId();
 
   const goToDay = useCallback(
-    (dir: Direction, autoplay: boolean) => {
+    (dir: Direction, autoplay: boolean, atEnd = false) => {
       const target = dir === 1 ? day.next : day.prev;
       if (!target) return false;
-      dayChange.current = { dir, autoplay };
+      dayChange.current = { dir, autoplay, atEnd };
       nav.goToDay(target);
       return true;
     },
@@ -159,8 +167,11 @@ export function JourneyPlayer({ day, locale, sheetOpen }: JourneyPlayerProps) {
       tabIndex={-1}
       inert={sheetOpen}
       data-testid="journey-player"
-      className="fixed inset-0 z-40 overflow-hidden bg-bg text-ink outline-none"
+      data-lift-scope
+      className="fixed inset-0 z-40 overflow-hidden text-ink outline-none"
     >
+      {/* The page behind the player; it fades while the stage is pulled down to close. */}
+      <div aria-hidden="true" data-lift-fade className="pointer-events-none absolute inset-0 bg-bg" />
       {/* The page's one h1 while the player is open (the timeline below is inert). */}
       <h1 id={headingId} className="sr-only">
         {t`Journey of ${title}`}
@@ -178,6 +189,7 @@ export function JourneyPlayer({ day, locale, sheetOpen }: JourneyPlayerProps) {
         sheetOpen={sheetOpen}
         nav={nav}
         startIndex={startIndex}
+        startAtEnd={dayChange.current.atEnd}
         enterDir={dayChange.current.dir}
         autoplay={dayChange.current.autoplay && !(reducedMotion && dayChange.current.dir === 0)}
         prevSummary={prevSummary}
@@ -209,11 +221,13 @@ interface SessionProps {
   nav: PlayerNavigation;
   /** First moment to show (from the URL hash). */
   startIndex: number;
+  /** Start at the last moment instead (back from the first moment of the next day). */
+  startAtEnd: boolean;
   enterDir: Direction | 0;
   autoplay: boolean;
   prevSummary: DaySummary | undefined;
   nextSummary: DaySummary | undefined;
-  goToDay: (dir: Direction, autoplay: boolean) => boolean;
+  goToDay: (dir: Direction, autoplay: boolean, atEnd?: boolean) => boolean;
   announce: (text: string) => void;
   basePath: string;
 }
@@ -229,6 +243,7 @@ function PlayerSession({
   sheetOpen,
   nav,
   startIndex,
+  startAtEnd,
   enterDir,
   autoplay,
   prevSummary,
@@ -243,7 +258,11 @@ function PlayerSession({
   const items = useMemo(() => buildItems(day, locale, { dataSaver: prefs.dataSaver }), [day, locale, prefs.dataSaver]);
   const [stored, dispatch] = useReducer(
     reducer,
-    { count: items.length, index: startIndex, paused: autoplay ? [] : (['user'] as const) },
+    {
+      count: items.length,
+      index: startAtEnd ? items.length - 1 : startIndex,
+      paused: autoplay ? [] : (['user'] as const),
+    },
     initialState,
   );
   const storedItem: PlayerItem | undefined = stored.ended ? undefined : items[stored.index];
@@ -381,6 +400,20 @@ function PlayerSession({
     }
   }, [items, state.index, state.ended, basePath, sizes, locale, pool, prefs.dataSaver]);
 
+  // ---- navigation ----------------------------------------------------------------------------------
+  // A day change keeps playing unless the visitor paused on purpose.
+  const nextDay = useCallback(() => goToDay(1, !state.paused.has('user')), [goToDay, state.paused]);
+  const prevDay = useCallback(() => goToDay(-1, !state.paused.has('user')), [goToDay, state.paused]);
+  /**
+   * Back one moment (tap in the back zone, ←, a swipe back, the previous-moment buttons). On the
+   * first moment it continues into the previous day at its last moment, so going back feels
+   * continuous; without a previous day it restarts the moment.
+   */
+  const back = useCallback(() => {
+    if (backLeavesDay(state) && goToDay(-1, !state.paused.has('user'), true)) return;
+    dispatch({ type: 'prev' });
+  }, [goToDay, state]);
+
   // ---- platform ----------------------------------------------------------------------------------
   useWakeLock(status === 'playing' || status === 'buffering');
   const sessionInfo = useMemo(
@@ -396,7 +429,7 @@ function PlayerSession({
     play: () => dispatch({ type: 'resume', reason: 'user' }),
     pause: () => dispatch({ type: 'pause', reason: 'user' }),
     next: () => dispatch({ type: 'next' }),
-    previous: () => dispatch({ type: 'prev' }),
+    previous: back,
   });
 
   // ---- actions --------------------------------------------------------------------------------------
@@ -435,17 +468,11 @@ function PlayerSession({
   const [menuOpen, setMenuOpen] = useState(false);
   const [holding, setHolding] = useState(false);
 
-  const nextDay = useCallback(() => goToDay(1, !state.paused.has('user')), [goToDay, state.paused]);
-  const prevDay = useCallback(() => goToDay(-1, !state.paused.has('user')), [goToDay, state.paused]);
-
   const onSwipe = useCallback(
     (action: SwipeAction) => {
       switch (action) {
         case 'nextDay':
           nextDay();
-          break;
-        case 'prevDay':
-          prevDay();
           break;
         case 'close':
           nav.close();
@@ -454,20 +481,22 @@ function PlayerSession({
           dispatch({ type: 'next' });
           break;
         case 'prevItem':
-          dispatch({ type: 'prev' });
+          back();
           break;
       }
     },
-    [nextDay, prevDay, nav],
+    [nextDay, back, nav],
   );
 
   // ---- gestures ---------------------------------------------------------------------------------------
   const frameRef = useRef<HTMLElement>(null);
+  /** How to get around (touch and keys), the frame's accessible description. */
+  const helpId = useId();
   useStageGestures(
     frameRef,
     {
       // A tap anywhere on a voice note held for its sound plays it (with sound).
-      onTap: (action) => (heldForSound ? listen() : dispatch({ type: action === 'back' ? 'prev' : 'next' })),
+      onTap: (action) => (heldForSound ? listen() : action === 'back' ? back() : dispatch({ type: 'next' })),
       onHoldStart: () => {
         setHolding(true);
         dispatch({ type: 'pause', reason: 'hold' });
@@ -478,8 +507,9 @@ function PlayerSession({
       },
       onSwipe,
     },
-    // While the options menu is open, a tap outside only closes it.
-    { fwd, hasPrevDay: !!day.prev, hasNextDay: !!day.next, enabled: !sheetOpen && !menuOpen, reducedMotion },
+    // While the options menu is open, a tap outside only closes it. While the story sheet is open
+    // the player is inert: a pull on the sheet closes the sheet, never the player.
+    { fwd, hasNextDay: !!day.next, enabled: !sheetOpen && !menuOpen, reducedMotion },
   );
 
   // ---- keyboard -------------------------------------------------------------------------------------
@@ -498,7 +528,7 @@ function PlayerSession({
           else dispatch({ type: 'toggle' });
           break;
         case 'back':
-          dispatch({ type: 'prev' });
+          back();
           break;
         case 'forward':
           dispatch({ type: 'next' });
@@ -519,7 +549,7 @@ function PlayerSession({
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [sheetOpen, menuOpen, fwd, prevDay, nextDay, nav, toggleMute, heldForSound, listen]);
+  }, [sheetOpen, menuOpen, fwd, back, prevDay, nextDay, nav, toggleMute, heldForSound, listen]);
 
   // ---- slide context ------------------------------------------------------------------------------------
   const seq = state.seq;
@@ -624,7 +654,7 @@ function PlayerSession({
         {day.prev && (
           <DayPreview label={t`Previous day`} date={day.prev} summary={prevSummary} locale={locale} onClick={prevDay} />
         )}
-        <RailButton label={t`Previous moment`} onClick={() => dispatch({ type: 'prev' })} disabled={state.count === 0}>
+        <RailButton label={t`Previous moment`} onClick={back} disabled={state.count === 0 && !day.prev}>
           <ChevronIcon size={26} className="-scale-x-100 rtl:scale-x-100" />
         </RailButton>
       </SideRail>
@@ -635,7 +665,14 @@ function PlayerSession({
         data-testid="player-frame"
         aria-roledescription={t`slideshow`}
         aria-label={title}
+        aria-describedby={helpId}
       >
+        <p id={helpId} hidden>
+          {fwd === 1
+            ? t`Tap on the right for the next moment, on the left to go back. Swipe up for the next day, swipe down to close.`
+            : t`Tap on the left for the next moment, on the right to go back. Swipe up for the next day, swipe down to close.`}{' '}
+          {t`Keys: arrows for the moments, Page Up and Page Down for the days, Escape to close.`}
+        </p>
         <VideoPoolProvider pool={pool}>
           <div className="absolute inset-0 z-0">
             {state.ended || !item ? (
@@ -744,7 +781,7 @@ function PlayerSession({
 
         {/* Narrow screens: keyboard/screen-reader access to item and day navigation */}
         <div className="sm:hidden">
-          <EdgeButton side="start" label={t`Previous moment`} onClick={() => dispatch({ type: 'prev' })} />
+          <EdgeButton side="start" label={t`Previous moment`} onClick={back} />
           <EdgeButton side="end" label={t`Next moment`} onClick={() => dispatch({ type: 'next' })} />
           {day.prev && <EdgeButton side="top" label={t`Previous day`} onClick={prevDay} />}
           {day.next && <EdgeButton side="bottom" label={t`Next day`} onClick={nextDay} />}
@@ -815,7 +852,7 @@ function CaptionLayer({ item, locale }: { item: PlayerItem; locale: LocaleCode }
 
 function Backdrop({ color }: { color: string | null }) {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden sm:block">
+    <div aria-hidden="true" data-lift-fade className="pointer-events-none absolute inset-0 hidden sm:block">
       <div
         className="absolute inset-0 transition-[background] duration-700 ease-soft"
         style={{
@@ -830,6 +867,7 @@ function Backdrop({ color }: { color: string | null }) {
 function SideRail({ side, children }: { side: 'start' | 'end'; children: ReactNode }) {
   return (
     <div
+      data-lift-fade="rail"
       className={`relative hidden h-full flex-1 items-center gap-6 px-6 sm:flex ${side === 'start' ? 'justify-end' : 'justify-start'}`}
     >
       {children}

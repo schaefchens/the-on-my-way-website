@@ -13,6 +13,7 @@ import {
   Store,
 } from '../src/store/index.js';
 import { migrate } from '../src/store/migrations.js';
+import { FEED_IGNORED_KEY } from '../src/store/syncState.js';
 import { fakeClock, makeTempDir } from './helpers.js';
 
 const SHA = 'ab12cd34ef56ab78901234567890abcdef1234567890abcdef1234567890abcd';
@@ -428,6 +429,14 @@ describe('Store (in-memory)', () => {
         [6, 'setting', 'publish.delay_minutes'],
       ]);
       expect(store.events.recent({ type: 'feed.item_ignored' })).toHaveLength(2);
+      // The kinds are remembered for a newer version of this backend (replayIgnoredIfKnown).
+      expect(store.syncState.getJson(FEED_IGNORED_KEY)).toEqual([
+        { entity: 'setting', key: 'site.description' },
+        { entity: 'comment' },
+      ]);
+      // This version still does not know them: no replay.
+      expect(store.owner.replayIgnoredIfKnown()).toEqual([]);
+      expect(store.syncState.rebuildPending()).toBe(false);
       // null for nullable columns is fine (PHP may emit NULL as null)
       const nulls = store.owner.applyChanges({
         feedId: FEED,
@@ -525,6 +534,57 @@ describe('Store (in-memory)', () => {
       expect(capturesForEffectiveDate(store, '2026-11-19')).toEqual([]);
       const placed = capturesForEffectiveDate(store, '2026-11-17');
       expect(placed.map((p) => [p.capture.msgId, p.tz])).toEqual([['DL1', 'Pacific/Pago_Pago']]);
+    });
+
+    it('replays the feed once when items an older version ignored are known now', () => {
+      const set = (seq: number, key: string, value: unknown) => ({
+        seq,
+        entity: 'setting',
+        key,
+        op: 'upsert',
+        data: { value },
+      });
+      store.owner.applyChanges({
+        feedId: FEED,
+        items: [set(1, 'site.title', 'Unterwegs')],
+        nextSeq: 3,
+        hasMore: false,
+      });
+      // What a backend before the profile settings left behind: events only, the cursor past them.
+      store.events.append('feed.item_ignored', { seq: 2, entity: 'setting', key: 'site.author' });
+      store.events.append('feed.item_ignored', { seq: 3, entity: 'setting', key: 'site.from_the_future' });
+      expect(store.owner.settings()).not.toHaveProperty('site.author');
+
+      expect(store.owner.replayIgnoredIfKnown()).toEqual(['site.author']);
+      expect(store.syncState.rebuildPending()).toBe(true);
+      expect(store.syncState.feedCursor()).toBe(0);
+      expect(store.owner.settings()['site.title']).toBe('Unterwegs'); // rows stay during the replay
+      // The replay brings the item in; what is still unknown is remembered again.
+      store.owner.applyChanges({
+        feedId: FEED,
+        items: [set(1, 'site.title', 'Unterwegs'), set(2, 'site.author', 'Lea'), set(3, 'site.from_the_future', true)],
+        nextSeq: 3,
+        hasMore: false,
+      });
+      expect(store.syncState.rebuildPending()).toBe(false);
+      expect(store.owner.settings()['site.author']).toBe('Lea');
+      expect(store.syncState.getJson(FEED_IGNORED_KEY)).toEqual([{ entity: 'setting', key: 'site.from_the_future' }]);
+      // Events already looked at and kinds still unknown never start another replay.
+      expect(store.owner.replayIgnoredIfKnown()).toEqual([]);
+      expect(store.syncState.rebuildPending()).toBe(false);
+      expect(store.syncState.feedCursor()).toBe(3);
+
+      // Remembered kinds (a version that already noted them) work the same way.
+      store.syncState.setJson(FEED_IGNORED_KEY, [{ entity: 'setting', key: 'site.intro' }, { entity: 'comment' }]);
+      expect(store.owner.replayIgnoredIfKnown()).toEqual(['site.intro']);
+      expect(store.syncState.rebuildPending()).toBe(true);
+    });
+
+    it('does not replay before anything was pulled (the first pull reads everything anyway)', () => {
+      store.events.append('feed.item_ignored', { seq: 1, entity: 'setting', key: 'site.avatar' });
+      expect(store.owner.replayIgnoredIfKnown()).toEqual(['site.avatar']);
+      expect(store.syncState.rebuildPending()).toBe(false);
+      expect(store.syncState.feedCursor()).toBe(0);
     });
 
     it('stores settings with validation', () => {

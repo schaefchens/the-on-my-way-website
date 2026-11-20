@@ -1,7 +1,8 @@
 /**
  * Settings: one-tap time zone from this device, publish mode and delay (with what each means),
- * site title, languages and search-engine visibility, alert targets, this app's language and
- * theme, API tokens (shown once) and logout.
+ * about you (name, greeting, portrait: settings-profile.tsx), site title, languages and
+ * search-engine visibility, alert targets, this app's language and theme, API tokens (shown
+ * once) and logout.
  */
 import { msg } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -57,6 +58,7 @@ import { switchReleases, waitingToPublish } from '../lib/mode-since';
 import { notify } from '../lib/notices';
 import { deviceTimeZone, zoneChoices, zoneLabel, zoneOffset } from '../lib/places';
 import { logout } from '../session';
+import { AboutYouSection } from './settings-profile';
 
 /**
  * Locales the site may be published in: dev builds also offer the RTL pseudo-locale, and a
@@ -160,15 +162,33 @@ function useWaitingToPublish(settings: Settings, next: PublishMode | null): numb
   const qc = useQueryClient();
   const pending = useInfiniteQuery({ ...capturesQuery({ visibility: 'pending' }), enabled: next !== null });
   // biome-ignore lint/correctness/useExhaustiveDependencies: recount when the pending list arrives
-  return useMemo(() => {
-    if (!next) return 0;
-    const now = Date.now();
-    const current = cachedCaptures(qc).map((c) => ({
-      ...c,
-      effectiveVisibility: effectiveCaptureVisibility(c, c.annotation, settings, now),
-    }));
-    return waitingToPublish(current, settings, next, now).length;
-  }, [qc, settings, next, pending.data]);
+  return useMemo(() => (next ? waitingCountNow(qc, settings, next) : 0), [qc, settings, next, pending.data]);
+}
+
+/** A switch is counted on the whole waiting list: up to this many pages (CAPTURE_PAGE_SIZE each). */
+const WAITING_PAGES_MAX = 50;
+/** How long a switch waits for the waiting list before it asks without a full count. */
+const WAITING_LIST_WAIT_MS = 3000;
+
+/**
+ * Loads the waiting list in full. It comes newest first, one page at a time, so what review ->
+ * delayed publishes (the oldest) is on the last pages: counting only the first page could say
+ * "nothing to publish" and switch without asking. True only when this load succeeded and reached
+ * the last page (within WAITING_PAGES_MAX): only then may a count of 0 switch without asking.
+ */
+async function loadWaitingList(qc: QueryClient): Promise<boolean> {
+  const options = capturesQuery({ visibility: 'pending' });
+  const cached = qc.getQueryData(options.queryKey);
+  const complete = !!cached && cached.pages.length > 0 && !cached.pages.at(-1)?.nextCursor;
+  const data = await qc.fetchInfiniteQuery({ ...options, pages: WAITING_PAGES_MAX, staleTime: complete ? 10_000 : 0 });
+  return data.pages.length > 0 && !data.pages.at(-1)?.nextCursor;
+}
+
+/** loadWaitingList, but never longer than `ms` and never throwing: false = not counted in full. */
+function waitingListLoaded(qc: QueryClient, ms: number): { done: Promise<boolean>; within: Promise<boolean> } {
+  const done = loadWaitingList(qc).catch(() => false);
+  const within = Promise.race([done, new Promise<boolean>((resolve) => setTimeout(() => resolve(false), ms))]);
+  return { done, within };
 }
 
 function waitingCountNow(qc: QueryClient, settings: Settings, next: PublishMode): number {
@@ -180,41 +200,85 @@ function waitingCountNow(qc: QueryClient, settings: Settings, next: PublishMode)
   return waitingToPublish(current, settings, next, now).length;
 }
 
+/** The open question: which mode, and whether the whole waiting list could be counted. */
+interface ModeSwitch {
+  mode: PublishMode;
+  counted: boolean;
+}
+
 function ModeSwitchSheet({
   settings,
-  next,
+  pending,
   onCancel,
   onConfirm,
+  onRecount,
 }: {
   settings: Settings;
-  next: PublishMode | null;
+  pending: ModeSwitch | null;
   onCancel: () => void;
   onConfirm: (mode: PublishMode) => void;
+  onRecount: () => Promise<void>;
 }) {
   const { t } = useLingui();
+  const next = pending?.mode ?? null;
   const count = useWaitingToPublish(settings, next);
+  const [recounting, setRecounting] = useState(false);
   const all = next === 'instant';
+  const counted = pending?.counted ?? true;
+  let description: ReactNode;
+  if (counted && all) {
+    description = (
+      <Plural
+        value={count}
+        _0="Nothing is waiting any more."
+        one="# waiting status will be published now."
+        other="# waiting statuses will be published now."
+      />
+    );
+  } else if (counted) {
+    description = (
+      <Plural
+        value={count}
+        _0="No waiting status is older than the delay any more."
+        one="# waiting status is older than the delay and will be published now."
+        other="# waiting statuses are older than the delay and will be published now."
+      />
+    );
+  } else if (count === 0) {
+    // The list did not load (offline, a slow connection): never switch as if nothing waited.
+    description = all ? (
+      <Trans>
+        Your waiting statuses could not be loaded just now (offline or a slow connection), so it is unclear how many
+        there are. All of them will be published now.
+      </Trans>
+    ) : (
+      <Trans>
+        Your waiting statuses could not be loaded just now (offline or a slow connection), so it is unclear how many are
+        older than the delay. Those will be published now.
+      </Trans>
+    );
+  } else {
+    description = all ? (
+      <Plural
+        value={count}
+        one="At least # waiting status will be published now. Not all waiting statuses could be loaded (offline or a slow connection)."
+        other="At least # waiting statuses will be published now. Not all waiting statuses could be loaded (offline or a slow connection)."
+      />
+    ) : (
+      <Plural
+        value={count}
+        one="At least # waiting status is older than the delay and will be published now. Not all waiting statuses could be loaded (offline or a slow connection)."
+        other="At least # waiting statuses are older than the delay and will be published now. Not all waiting statuses could be loaded (offline or a slow connection)."
+      />
+    );
+  }
   return (
     <Dialog
       open={next !== null}
       onClose={onCancel}
       closeLabel={t`Close`}
       title={all ? <Trans>Publish what is waiting?</Trans> : <Trans>Publish the older waiting statuses?</Trans>}
-      description={
-        all ? (
-          <Plural
-            value={count}
-            one="# waiting status will be published now."
-            other="# waiting statuses will be published now."
-          />
-        ) : (
-          <Plural
-            value={count}
-            one="# waiting status is older than the delay and will be published now."
-            other="# waiting statuses are older than the delay and will be published now."
-          />
-        )
-      }
+      description={<span data-testid="mode-switch-count">{description}</span>}
       footer={
         <>
           <Button variant="secondary" onClick={onCancel}>
@@ -229,6 +293,19 @@ function ModeSwitchSheet({
       <p className="rounded-tile bg-bg px-4 py-3 text-sm">
         <Trans>Statuses you hid stay hidden. Everything newer follows the new mode.</Trans>
       </p>
+      {!counted && (
+        <Button
+          variant="secondary"
+          className="mt-3"
+          disabled={recounting}
+          onClick={() => {
+            setRecounting(true);
+            void onRecount().finally(() => setRecounting(false));
+          }}
+        >
+          {recounting ? <Trans>Counting…</Trans> : <Trans>Count again</Trans>}
+        </Button>
+      )}
     </Dialog>
   );
 }
@@ -238,23 +315,29 @@ function PublishSection({ settings }: { settings: Settings }) {
   const locale = useLocale();
   const save = usePatchSettings();
   const qc = useQueryClient();
-  const [switchTo, setSwitchTo] = useState<PublishMode | null>(null);
+  const [switchTo, setSwitchTo] = useState<ModeSwitch | null>(null);
   const mode = settings['publish.mode'];
+  /** Marks the open question as counted once a load of the waiting list completes. */
+  function countedWhen(done: Promise<boolean>, next: PublishMode) {
+    void done.then((complete) => {
+      if (complete) setSwitchTo((open) => (open?.mode === next ? { mode: next, counted: true } : open));
+    });
+  }
   async function chooseMode(next: PublishMode) {
     if (next === mode) return;
     // Releasing what waits is not undoable: ask first (review -> delayed, anything -> instant).
-    // The waiting list is loaded first when this device has not seen it (bounded: offline the
-    // cached statuses decide).
+    // The waiting list is loaded first (bounded). Only a complete count of 0 switches without
+    // asking; offline or on a slow connection the question comes with an "unclear" count.
     if (switchReleases(settings, next)) {
-      await Promise.race([
-        qc
-          .fetchInfiniteQuery({ ...capturesQuery({ visibility: 'pending' }), staleTime: 10_000 })
-          .catch(() => undefined),
-        new Promise((resolve) => setTimeout(resolve, 3000)),
-      ]);
+      const { done, within } = waitingListLoaded(qc, WAITING_LIST_WAIT_MS);
+      const counted = await within;
+      if (!counted || waitingCountNow(qc, settings, next) > 0) {
+        setSwitchTo({ mode: next, counted });
+        if (!counted) countedWhen(done, next);
+        return;
+      }
     }
-    if (waitingCountNow(qc, settings, next) > 0) setSwitchTo(next);
-    else save({ 'publish.mode': next }, msg`Publish mode changed`);
+    save({ 'publish.mode': next }, msg`Publish mode changed`);
   }
   const delay = settings['publish.delay_minutes'];
   const [hours, setHours] = useState(String(Math.round((delay / 60) * 10) / 10));
@@ -347,11 +430,20 @@ function PublishSection({ settings }: { settings: Settings }) {
       )}
       <ModeSwitchSheet
         settings={settings}
-        next={switchTo}
+        pending={switchTo}
         onCancel={() => setSwitchTo(null)}
         onConfirm={(next) => {
           setSwitchTo(null);
           save({ 'publish.mode': next }, msg`Publish mode changed`);
+        }}
+        onRecount={async () => {
+          const next = switchTo?.mode;
+          if (!next) return;
+          // A load that is still retrying (backing off after network errors) starts over now.
+          await qc.cancelQueries({ queryKey: capturesQuery({ visibility: 'pending' }).queryKey });
+          const { done, within } = waitingListLoaded(qc, WAITING_LIST_WAIT_MS * 2);
+          countedWhen(done, next);
+          await within;
         }}
       />
       <div className="mt-5 border-t border-line pt-4">
@@ -837,6 +929,7 @@ export function SettingsScreen() {
               <AlertsSection settings={q.data} />
             </div>
             <div className="space-y-5">
+              <AboutYouSection settings={q.data} />
               <SiteSection settings={q.data} />
               <AppSection />
               <TokensSection />

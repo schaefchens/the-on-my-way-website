@@ -76,6 +76,43 @@ final class VectorsTest extends TestCase
         }
     }
 
+    /**
+     * publish.mode_since across settings changes and what a switch releases (in particular
+     * review -> delayed: exactly the waiting statuses at least as old as the new delay).
+     */
+    public function testModeSwitchVectors(): void
+    {
+        $data = self::vectors('mode-switch');
+        /** @var list<array{label: string, occurredAt: string}> $captures */
+        $captures = $data['captures'];
+        $releasedByReviewToDelayed = 0;
+        foreach (self::cases('mode-switch') as $i => $c) {
+            /** @var array<string, mixed> $before */
+            $before = $c['before'];
+            /** @var array<string, mixed> $after */
+            $after = $c['after'];
+            $now = (string) $c['now'];
+            $since = Policy::nextModeSince($before, $after, $now);
+            $name = sprintf('mode-switch #%d %s -> %s', $i, (string) $before['publish.mode'], (string) $after['publish.mode']);
+            self::assertSame($c['modeSince'], $since, $name);
+            $afterSettings = array_merge($before, $after, ['publish.mode_since' => $since]);
+            /** @var list<string> $visBefore */
+            $visBefore = $c['visibilityBefore'];
+            /** @var list<string> $visAfter */
+            $visAfter = $c['visibilityAfter'];
+            foreach ($captures as $j => $capture) {
+                $was = Policy::effectiveCaptureVisibility($capture['occurredAt'], null, null, $before, $now);
+                $is = Policy::effectiveCaptureVisibility($capture['occurredAt'], null, null, $afterSettings, $now);
+                self::assertSame($visBefore[$j], $was, "$name {$capture['label']} before");
+                self::assertSame($visAfter[$j], $is, "$name {$capture['label']} after");
+                if ($before['publish.mode'] === 'review' && $after['publish.mode'] === 'delayed' && $was === 'pending' && $is === 'public') {
+                    ++$releasedByReviewToDelayed;
+                }
+            }
+        }
+        self::assertGreaterThan(0, $releasedByReviewToDelayed);
+    }
+
     public function testPlacementVectors(): void
     {
         foreach (self::cases('placement') as $i => $c) {

@@ -4,22 +4,33 @@
  * paint.
  *
  * - Home and trip pages: the timeline as the SPA shows it on a phone and a desktop: SiteHeader
- *   (paper-plane brand, language pill, theme button), the Hero (tagline, place and stats chips,
- *   collage) and the first rows of the days level (month divider, trip head, two day rows with
- *   their filmstrips), plus the floating zoom pill.
+ *   (paper-plane brand, language pill, theme button), the Hero (the owner's profile: portrait,
+ *   name and greeting, else the tagline; place and stats chips, collage) and the first rows of
+ *   the days level (month divider, trip head, two day rows with their filmstrips), plus the
+ *   floating zoom pill.
  * - Day and story pages: the journey player frame (dark stage with the first slide's picture,
- *   progress bars, the top bar with avatar, title and meta, the buttons). No spinner.
+ *   progress bars, the top bar with avatar (the owner's portrait, else the day's first picture),
+ *   title and meta, the buttons). No spinner.
  *
  * Markup and Tailwind classes are copied from frontend/site/src (components/site-header.tsx,
- * timeline/rows.tsx, timeline/filmstrip.tsx, timeline/strip-layout.ts, player/journey-player.tsx,
- * player/chrome.tsx, player/slides.tsx); the site's app.css @source's this directory, and the
+ * profile.tsx, timeline/rows.tsx, timeline/filmstrip.tsx, timeline/strip-layout.ts,
+ * player/journey-player.tsx, player/chrome.tsx, player/slides.tsx); the site's app.css @source's this directory, and the
  * classes are the SPA's own, so they exist in its stylesheet. What the SPA sets with inline
  * styles (row heights, strip cells, rotations, colours) becomes hashed per-page CSS (PageStyles),
  * with media queries at the viewport widths where the SPA's metrics switch (compact < 704 px <=
  * regular < 1024 px <= wide). Keep this file in step with those components.
  */
 import { LOCALES, type LocaleCode, pickText } from '@omw/contracts/i18n';
-import type { DayDetail, DaySummary, Entry, ImageSet, RouteRef, TripSummary } from '@omw/contracts/site';
+import type {
+  AvatarImage,
+  DayDetail,
+  DaySummary,
+  Entry,
+  ImageSet,
+  RouteRef,
+  SiteProfile,
+  TripSummary,
+} from '@omw/contracts/site';
 import { routePath } from '@omw/contracts/site';
 import { thumbHashToDataURL } from 'thumbhash';
 import { BREAKPOINTS, type PageStyles } from './css.js';
@@ -44,6 +55,8 @@ export interface TwinContext {
   /** Generation time (relative times, "here now"). */
   now: Date;
   url(rel: string): string;
+  /** Whose journey it is (timeline.json `profile`), null when the owner set none. */
+  profile?: SiteProfile | null;
 }
 
 /** The first-viewport image: the twin's <picture> AVIF source, mirrored by a preload (L3-01). */
@@ -87,7 +100,7 @@ function srcset(ctx: TwinContext, sources: readonly { w: number; src: string }[]
     .join(', ');
 }
 
-function fallback(ctx: TwinContext, image: ImageSet, min = 640): string {
+function fallback(ctx: TwinContext, image: ImageSet, min: number): string {
   const sorted = [...image.sources.webp].sort((a, b) => a.w - b.w);
   const hit = sorted.find((s) => s.w >= min) ?? sorted.at(-1);
   if (!hit) throw new Error('ImageSet without sources');
@@ -99,11 +112,41 @@ function picture(
   ctx: TwinContext,
   styles: PageStyles,
   image: ImageSet,
-  o: { sizes: string; pictureClass: string; imgClass: string; alt?: string; eager?: boolean; high?: boolean },
+  o: {
+    sizes: string;
+    pictureClass: string;
+    imgClass: string;
+    alt?: string;
+    eager?: boolean;
+    high?: boolean;
+    /** Width the <img src> fallback should have at least (<Picture fallbackWidth>, default 640). */
+    fallbackWidth?: number;
+  },
 ): Html {
   const imgClass = `${o.imgClass} ${styles.imageColor(image.color)}`;
-  return html`<picture class="${o.pictureClass}"><source type="image/avif" srcset="${srcset(ctx, image.sources.avif)}" sizes="${o.sizes}"><source type="image/webp" srcset="${srcset(ctx, image.sources.webp)}" sizes="${o.sizes}"><img src="${fallback(ctx, image)}" width="${image.w}" height="${image.h}" alt="${o.alt ?? ''}" loading="${o.eager ? 'eager' : 'lazy'}" decoding="async"${o.high ? html` fetchpriority="high"` : ''} class="${imgClass}"></picture>`;
+  return html`<picture class="${o.pictureClass}"><source type="image/avif" srcset="${srcset(ctx, image.sources.avif)}" sizes="${o.sizes}"><source type="image/webp" srcset="${srcset(ctx, image.sources.webp)}" sizes="${o.sizes}"><img src="${fallback(ctx, image, o.fallbackWidth ?? 640)}" width="${image.w}" height="${image.h}" alt="${o.alt ?? ''}" loading="${o.eager ? 'eager' : 'lazy'}" decoding="async"${o.high ? html` fetchpriority="high"` : ''} class="${imgClass}"></picture>`;
 }
+
+/**
+ * profile.tsx <Portrait>: the owner's portrait as a round crop at its focus point, with the
+ * ThumbHash placeholder behind it (the SPA sets both as inline styles; here they are classes).
+ */
+function portrait(ctx: TwinContext, styles: PageStyles, image: AvatarImage, sizes: string): Html {
+  const thumb = thumbDataUrl(image.thumbhash);
+  const extra = [image.focus ? styles.objectPosition(image.focus) : '', thumb ? styles.backgroundData(thumb) : '']
+    .filter(Boolean)
+    .join(' ');
+  return picture(ctx, styles, image, {
+    sizes,
+    pictureClass: '',
+    imgClass: `size-full rounded-full object-cover${extra ? ` ${extra}` : ''}`,
+    eager: true,
+    fallbackWidth: 320,
+  });
+}
+
+/** profile.tsx HERO_PORTRAIT_SIZES. */
+export const HERO_PORTRAIT_SIZES = '(min-width: 40rem) 96px, 72px';
 
 const ICON_ATTRS =
   'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
@@ -179,8 +222,12 @@ function headerBar(ctx: TwinContext, locale: LocaleCode, route: RouteRef, titleT
 function heroCovers(ctx: TwinContext, max = 3): ImageSet[] {
   const days = [...ctx.summaries].reverse();
   const trips = new Map(ctx.tripSummaries.map((t) => [t.slug, t]));
-  const key = (image: ImageSet | undefined) => image?.sources.webp[0]?.src ?? null;
+  // By original (the "media/aa/<sha16>" before the variant name): the portrait's round crop is
+  // its own file, but the same photo.
+  const key = (image: ImageSet | undefined) => image?.sources.webp[0]?.src.split('_')[0] ?? null;
   const shown = new Set<string>();
+  const portraitKey = key(ctx.profile?.avatar);
+  if (portraitKey) shown.add(portraitKey);
   for (const d of days.slice(0, 2)) {
     for (const image of [d.cover, d.trip ? trips.get(d.trip)?.cover : undefined]) {
       const k = key(image);
@@ -233,7 +280,30 @@ function hero(ctx: TwinContext, styles: PageStyles, locale: LocaleCode): Html {
           },
         )}<span class="tape absolute end-[7rem] top-0 z-[4] rotate-[-10deg]"></span></div>`
       : '';
-  return html`<div class="relative mx-auto max-w-[68rem] px-gutter pt-3 pb-6 sm:px-gutter-wide sm:pb-8"><p class="font-hand text-lg text-accent sm:text-2xl">${t.tagline} ✈︎</p>${chips}${collage}</div>`;
+  const tagline = html`<p class="font-hand text-lg text-accent sm:text-2xl">${t.tagline} ✈︎</p>`;
+  const intro = ctx.profile ? profileIntro(ctx, styles, locale, ctx.profile, tagline) : tagline;
+  return html`<div class="relative mx-auto max-w-[68rem] px-gutter pt-3 pb-6 sm:px-gutter-wide sm:pb-8">${intro}${chips}${collage}</div>`;
+}
+
+/** components/site-header.tsx ProfileIntro + profile.tsx HeroPortrait. */
+function profileIntro(
+  ctx: TwinContext,
+  styles: PageStyles,
+  locale: LocaleCode,
+  profile: SiteProfile,
+  tagline: Html,
+): Html {
+  const greeting = pickText(profile.intro, locale);
+  const ring = profile.avatar
+    ? html`<span aria-hidden="true" data-testid="hero-portrait" class="grid size-[4.5rem] shrink-0 place-items-center rounded-full bg-linear-to-br from-rose-300 via-lilac-300 to-violet-300 p-[3px] shadow-soft sm:size-24"><span class="block size-full overflow-hidden rounded-full bg-bg p-[3px]">${portrait(ctx, styles, profile.avatar, HERO_PORTRAIT_SIZES)}</span></span>`
+    : '';
+  const name = profile.author
+    ? html`<p dir="auto" data-user-text class="line-clamp-2 font-display text-[1.6rem] leading-tight font-semibold tracking-tight break-words text-ink soft sm:text-[2rem]">${profile.author}</p>`
+    : '';
+  const line = greeting
+    ? html`<p lang="${greeting.locale}" dir="auto" data-user-text class="mt-0.5 font-hand text-[1.05rem] leading-snug break-words whitespace-pre-line text-accent sm:text-xl">${greeting.text}</p>`
+    : tagline;
+  return html`<div data-testid="profile-intro" class="flex items-center gap-3.5 sm:gap-5 md:max-w-[calc(100%-18rem)]">${ring}<div class="min-w-0">${name}${line}</div></div>`;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -745,13 +815,16 @@ export function playerTwin(ctx: TwinContext, styles: PageStyles, locale: LocaleC
       html`${day.place ? html`<bdi>${day.place}</bdi>` : ''}${day.country ? `${day.place ? ' ' : ''}${countryFlag(day.country)}` : ''}`,
     );
   }
-  const avatar = avatarImage
-    ? picture(ctx, styles, avatarImage, {
-        sizes: '40px',
-        pictureClass: '',
-        imgClass: 'size-full rounded-pill object-cover',
-      })
-    : html`<span class="block size-full rounded-pill bg-plum-850"></span>`;
+  // chrome.tsx PlayerHeader: the owner's portrait, else the day's first picture.
+  const avatar = ctx.profile?.avatar
+    ? portrait(ctx, styles, ctx.profile.avatar, '40px')
+    : avatarImage
+      ? picture(ctx, styles, avatarImage, {
+          sizes: '40px',
+          pictureClass: '',
+          imgClass: 'size-full rounded-pill object-cover',
+        })
+      : html`<span class="block size-full rounded-pill bg-plum-850"></span>`;
   const button = (label: string, svg: string) =>
     html`<button type="button" aria-label="${label}" title="${label}" class="grid size-10 shrink-0 place-items-center rounded-pill text-white transition-[transform,background-color,color] duration-150 ease-snappy hover:bg-white/15 active:scale-90 focus-visible:outline-white group-data-[tone=paper]/player:text-ink group-data-[tone=paper]/player:hover:bg-ink/10 group-data-[tone=paper]/player:focus-visible:outline-ring"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${trusted(svg)}</svg></button>`;
   const tone = first && (first.kind === 'note' || first.kind === 'story') ? 'paper' : 'media';

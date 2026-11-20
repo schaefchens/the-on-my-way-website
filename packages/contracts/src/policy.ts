@@ -1,6 +1,7 @@
 /**
  * Publish policy (D11) and placement rules — pure functions, duplicated in PHP. Shared vectors:
- * fixtures/vectors/policy.json (visibility), placement.json (local date / tz), trips.json.
+ * fixtures/vectors/policy.json (visibility), mode-switch.json (publish.mode_since across settings
+ * changes), placement.json (local date / tz), trips.json.
  *
  * Capture visibility:
  *   1. annotation.visibility if set (owner override always wins)
@@ -10,8 +11,9 @@
  *   4. else publish.mode instant                -> public
  *           publish.mode delayed                -> public iff now >= occurredAt + delay, else pending
  *           publish.mode review                 -> pending
- * The API maintains "publish.mode_since" (default 1970-01-01T00:00:00.000Z; PHP
- * Policy::nextModeSince). With t = now, s0 = the old mode_since and d0 = the old delay:
+ * The API maintains "publish.mode_since" (default 1970-01-01T00:00:00.000Z; nextModeSince() here,
+ * PHP Policy::nextModeSince; shared vectors fixtures/vectors/mode-switch.json). With t = now,
+ * s0 = the old mode_since and d0 = the old delay:
  *   - instant -> delayed | review                    t
  *   - delayed -> review, and a changed delay while
  *     staying delayed                                 max(s0, t - d0 + 1 ms): exactly the captures
@@ -20,9 +22,12 @@
  *                                                     new delay is released, which the admin asks the
  *                                                     owner to confirm first
  *   - anything else (-> instant, no mode change)      s0 unchanged
- * So apart from that confirmed review -> delayed release, a settings change never flips a capture
- * between public and pending. Switching back to "instant" publishes everything still pending
- * without an override (turning review off means "stop holding things back"). The API writes
+ * So a settings change never turns a public capture back to pending, and it releases waiting
+ * captures only in three cases: that confirmed review -> delayed release, a shorter delay while
+ * delayed (what is now older than the new delay), and switching back to "instant", which
+ * publishes everything still pending without an override (turning review off means "stop
+ * holding things back"). mode_since is inclusive: a capture at exactly the switch instant falls
+ * under the new mode. fixtures/vectors/mode-switch.json pins all of this down. The API writes
  * mode_since before delay_minutes before mode into the change feed, so a backend that applied only
  * a prefix of one change never judges the new mode with the old cut-off.
  * Posts carry their own visibility.
@@ -38,6 +43,12 @@
  * Trip membership: trip date ranges are the only source (there is no per-day trip field). The
  * API rejects overlapping ranges; tripForDate() still resolves overlaps deterministically
  * (earliest start, then slug) so a bad mirror never makes runtimes disagree.
+ *
+ * Published trips: a trip is on the public site only once at least one of its days is public,
+ * i.e. has at least one public entry (capture or post) after this policy, counted through
+ * tripForDate() (publishedTrips()). A planned trip (dates, no public day yet) appears nowhere:
+ * no timeline entry, trip page, data file, sitemap entry or card; a trip whose days all become
+ * hidden again disappears the same way.
  *
  * Note: kind "unsupported" is not special-cased here; the generator never renders it.
  */
@@ -75,7 +86,7 @@ function toMillis(value: Instant, what: string): number {
   return ms;
 }
 
-function delayMillis(settings: PolicySettings): number {
+function delayMillis(settings: Pick<PolicySettings, 'publish.delay_minutes'>): number {
   const minutes = settings['publish.delay_minutes'];
   return Number.isFinite(minutes) && minutes > 0 ? minutes * 60_000 : 0;
 }
@@ -139,6 +150,43 @@ export function effectivePostVisibility(post: { visibility: Visibility }): Visib
   return post.visibility;
 }
 
+/** Settings nextModeSince() reads (contract keys). */
+export interface ModeSinceSettings {
+  'publish.mode': PublishMode;
+  'publish.delay_minutes': number;
+  'publish.mode_since'?: string | undefined;
+}
+
+/**
+ * publish.mode_since after a settings change from `before` to `after` at `now` (see the header;
+ * PHP Policy::nextModeSince, which the API applies). With t = now, s0 = the old mode_since,
+ * d0 = the old delay:
+ *   instant          -> delayed | review   t
+ *   delayed          -> review             max(s0, t - d0 + 1 ms)
+ *   delayed (d0)     -> delayed (d1 ≠ d0)  max(s0, t - d0 + 1 ms)
+ *   review           -> delayed            s0 (the backlog older than the new delay is released)
+ *   anything else (-> instant, no change)  s0
+ * Returns a canonical ISO instant ("…T…:…:….mmmZ").
+ */
+export function nextModeSince(
+  before: ModeSinceSettings,
+  after: Pick<ModeSinceSettings, 'publish.mode' | 'publish.delay_minutes'>,
+  now: Instant,
+): string {
+  // An unreadable stored value counts as the default, like in PHP.
+  const stored = new Date(before['publish.mode_since'] ?? MODE_SINCE_EPOCH).getTime();
+  const s0 = Number.isNaN(stored) ? 0 : stored;
+  const from = before['publish.mode'];
+  const to = after['publish.mode'];
+  const t = toMillis(now, 'now');
+  if (from === 'instant' && to !== 'instant') return new Date(t).toISOString();
+  const d0 = delayMillis(before);
+  if (from === 'delayed' && (to === 'review' || (to === 'delayed' && d0 !== delayMillis(after)))) {
+    return new Date(Math.max(s0, t - d0 + 1)).toISOString();
+  }
+  return new Date(s0).toISOString();
+}
+
 // ---------------------------------------------------------------------------------------------
 // Placement
 
@@ -197,6 +245,19 @@ export function tripForDate(date: string, trips: readonly TripRange[]): string |
 /** True when two inclusive date ranges share at least one day. */
 export function tripRangesOverlap(a: TripRange, b: TripRange): boolean {
   return a.startDate <= b.endDate && b.startDate <= a.endDate;
+}
+
+/**
+ * The trips that are published (see "Published trips" above): those that tripForDate() assigns
+ * at least one of `publicDates` to (dates with at least one public entry). Input order is kept.
+ */
+export function publishedTrips<T extends TripRange>(trips: readonly T[], publicDates: Iterable<string>): T[] {
+  const slugs = new Set<string>();
+  for (const date of publicDates) {
+    const slug = tripForDate(date, trips);
+    if (slug !== null) slugs.add(slug);
+  }
+  return trips.filter((t) => slugs.has(t.slug));
 }
 
 /** Slugs of existing trips that `candidate` would overlap (the API answers 422 when non-empty). */

@@ -3,13 +3,16 @@
  *
  * 1. Read the site build, settings and the previous state; decide full vs incremental.
  *    Full when requested, on the first run, after an interrupted run, or when the generator
- *    version, the site build (Vite manifest hash), the site.* settings or the public URL
- *    changed (publish.*, ingest.* and timezone.current act through the model diff below).
- * 2. Build the complete site model (cheap: one pass over the store). Comparing each day's and
- *    trip's change key (hash of its DaySummary/TripSummary: the file's `v` plus the cover and
- *    other summary-only facts its pages show) with the previous state finds every changed day —
- *    also those changed by time alone (publish.mode "delayed") — so `dates` is only an extra
- *    "re-render these".
+ *    version, the site build (Vite manifest hash), the site.* settings, the resolved profile
+ *    (timeline.json `profile`: also changes when the portrait's photo becomes (un)available) or
+ *    the public URL changed (publish.*, ingest.* and timezone.current act through the model diff
+ *    below).
+ * 2. Make (or find) the portrait's round crop in MEDIA_DIR (pipeline/avatar.ts: the only files a
+ *    portrait publishes; stale crops are removed), then build the complete site model (cheap:
+ *    one pass over the store). Comparing each day's and trip's change key (hash of its
+ *    DaySummary/TripSummary: the file's `v` plus the cover and other summary-only facts its pages
+ *    show) with the previous state finds every changed day — also those changed by time alone
+ *    (publish.mode "delayed") — so `dates` is only an extra "re-render these".
  * 3. Dependency map: a changed day D re-renders days/D.json, D's day page and story pages per
  *    locale, the pages of D's previous and next day (their player twin previews D), and the trip
  *    (JSON + pages) D belongs/belonged to; a changed trip re-renders its files and the day pages
@@ -50,12 +53,20 @@ import type { Config } from '../config.js';
 import { linkOrCopy } from '../fsutil.js';
 import type { Logger } from '../log.js';
 import { mediaFilePath, REPO_ROOT } from '../paths.js';
+import { makeAvatarCrop, removeStaleAvatarCrops } from '../pipeline/avatar.js';
 import { mkdirWithMode } from '../pipeline/files.js';
 import type { Store } from '../store/index.js';
 import { htaccess, robotsTxt, sitemapXml } from './extras.js';
 import { contentHash, shortSha } from './hash.js';
 import { scanMediaRoot } from './media.js';
-import { buildSiteModel, loadModelInputs, type SiteModel } from './model.js';
+import {
+  buildSiteModel,
+  loadModelInputs,
+  type ModelInputs,
+  type PortraitCrop,
+  portraitSourceFor,
+  type SiteModel,
+} from './model.js';
 import {
   assertSafeOutDir,
   copyAtomic,
@@ -81,7 +92,7 @@ import { readSiteBuild, scanAssets } from './site-build.js';
 import { type GeneratorState, isDirty, loadState, markDirty, saveState } from './state.js';
 
 /** Bump when templates, CSS or strings change: the next run is full and re-stamps every page. */
-export const GENERATOR_VERSION = 4;
+export const GENERATOR_VERSION = 5;
 
 export interface GenerateOptions {
   /** Re-render and re-check everything (also removes stray files from OUT_DIR). */
@@ -154,6 +165,52 @@ function outputSettings(settings: Settings): Record<string, unknown> {
   return Object.fromEntries(Object.entries(settings).filter(([k]) => k.startsWith('site.')));
 }
 
+/**
+ * The portrait's round crop (pipeline/avatar.ts) for the model: made once per photo and focus
+ * point, found again on later runs. Crops nothing references any more (another focus point or
+ * photo, no portrait) are removed from MEDIA_DIR; `present` (a scan of MEDIA_DIR) is updated.
+ * Problems are returned for the model to warn about, never thrown.
+ */
+async function preparePortrait(
+  inputs: ModelInputs,
+  mediaDir: string,
+  present: Set<string>,
+  log: Logger,
+): Promise<PortraitCrop | undefined> {
+  const setting = inputs.settings['site.avatar'];
+  const keep = new Set<string>();
+  let crop: PortraitCrop | undefined;
+  const found = setting ? portraitSourceFor(setting, inputs) : null;
+  if (setting && found && typeof found !== 'string') {
+    const { sourceKey } = setting;
+    if (!present.has(found.source.relPath)) {
+      crop = { sourceKey, problem: `missing in MEDIA_DIR: ${found.source.relPath}` };
+    } else {
+      try {
+        const made = await makeAvatarCrop({
+          sha256: found.sha256,
+          mediaDir,
+          source: found.source,
+          focus: setting.focus,
+        });
+        for (const s of [...made.sources.avif, ...made.sources.webp]) {
+          keep.add(s.src);
+          present.add(s.src);
+        }
+        if (made.written.length > 0) log.info({ files: made.written.length }, 'portrait: round crop made');
+        crop = {
+          sourceKey,
+          image: { w: made.size, h: made.size, color: made.color, thumbhash: made.thumbhash, sources: made.sources },
+        };
+      } catch (err) {
+        crop = { sourceKey, problem: `round crop failed: ${err instanceof Error ? err.message : String(err)}` };
+      }
+    }
+  }
+  for (const rel of await removeStaleAvatarCrops(mediaDir, [...present], keep)) present.delete(rel);
+  return crop;
+}
+
 function publicBaseOf(config: Config): string | null {
   const url = config.site.publicUrl;
   if (!url) return null;
@@ -202,7 +259,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
   // capture in the snapshot finds its files (scanning first could miss a capture that became
   // ready in between and leave it out as "missing media").
   const build = await readSiteBuild(ctx.siteDistDir);
-  let mediaAvailable: ReadonlySet<string> = new Set();
+  let mediaAvailable: Set<string> = new Set();
   const { state, dirty, inputs, versionFloor } = store.db
     .transaction(() => {
       const since = opts.holdWhileFeedCatchingUp ? store.syncState.catchingUpSince() : null;
@@ -216,6 +273,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     })
     .deferred();
   mediaAvailable = await scanMediaRoot(ctx.mediaDir);
+  inputs.portraitCrop = await preparePortrait(inputs, ctx.mediaDir, mediaAvailable, log);
   const settings = inputs.settings;
   const site: SiteInfo = {
     title: settings['site.title'],
@@ -225,7 +283,17 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     indexable: settings['site.indexable'],
   };
   const publicBase = publicBaseOf(config);
-  const settingsHash = contentHash({ s: outputSettings(settings), site, publicBase, htaccess: ctx.htaccess });
+  // The model is built before the full/incremental decision: the resolved profile (who travels,
+  // the portrait) may be shown on every page, so a change of it re-renders everything like a
+  // site.* setting does (undefined members drop out of the hash: no profile = the old hash).
+  const model: SiteModel = buildSiteModel(inputs);
+  const settingsHash = contentHash({
+    s: outputSettings(settings),
+    site,
+    publicBase,
+    htaccess: ctx.htaccess,
+    profile: model.profile ?? undefined,
+  });
 
   const fullReason = opts.full
     ? 'requested'
@@ -244,7 +312,6 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
   markDirty(store);
 
   // ------------------------------------------------------------------------- model
-  const model: SiteModel = buildSiteModel(inputs);
   const days = new Map(model.days.map((d) => [d.date, d]));
   const trips = new Map(model.trips.map((t) => [t.slug, t]));
   const summaryByDate = new Map(model.summaries.map((s) => [s.date, s]));
@@ -318,6 +385,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     generatedAt: timelineGeneratedAt,
     trips: model.tripSummaries,
     days: model.summaries,
+    ...(model.profile ? { profile: model.profile } : {}),
   };
   plan(TIMELINE_PATH, json(timeline));
 
@@ -330,6 +398,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     summaryByDate,
     trips,
     tripSummaries: model.tripSummaries,
+    profile: model.profile,
   };
   const pages: RenderedPage[] = [];
   for (const locale of site.locales) {

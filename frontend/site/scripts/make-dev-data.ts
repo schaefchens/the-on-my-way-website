@@ -12,7 +12,10 @@
  *   +faststart, anything else transcoded to H.264/AAC (GIFs muted);
  * - voice: AAC m4a 64 kbps mono, 64 peaks from the WhatsApp waveform (or computed);
  * - visibility, placement (overrides, Day.tz fixes) and trip membership via @omw/contracts/policy
- *   (D11), owner content from owner.json.
+ *   (D11), owner content from owner.json; only trips with a public day are published
+ *   (publishedTrips), like the generator;
+ * - the profile (site.author / site.intro / site.avatar) as timeline.json `profile`: the portrait
+ *   is only a round crop of its photo at AVATAR_SIZES, also when the photo is not public itself.
  * Media names follow D8. Every written JSON file is re-read and validated with zod.
  *
  * Usage (from the repo root):
@@ -32,8 +35,16 @@ import { parseArgs, promisify } from 'node:util';
 import { Annotation, Day, Post, Trip, withSettingsDefaults } from '@omw/contracts/api';
 import type { LocaleCode } from '@omw/contracts/i18n';
 import { publicIdForSourceKey, waSourceKey } from '@omw/contracts/ids';
-import { effectiveCaptureVisibility, effectiveLocalDate, effectiveTz, tripForDate } from '@omw/contracts/policy';
 import {
+  effectiveCaptureVisibility,
+  effectiveLocalDate,
+  effectiveTz,
+  publishedTrips,
+  tripForDate,
+} from '@omw/contracts/policy';
+import {
+  AVATAR_SIZES,
+  type AvatarImage,
   DayDetail,
   type DaySummary,
   dayDataPath,
@@ -41,6 +52,7 @@ import {
   type ImageSet,
   MANIFEST_PATH,
   Manifest,
+  SiteProfile,
   TIMELINE_PATH,
   TimelineIndex,
   TripDetail,
@@ -159,11 +171,16 @@ const written = new Set<string>(); // media rel paths referenced by this run
 // ---------------------------------------------------------------------------------------------
 // Media processing
 
-async function processImage(input: Buffer, sha: string, prefix: 'w' | 'poster_w'): Promise<ImageSet> {
+async function processImage(
+  input: Buffer,
+  sha: string,
+  prefix: 'w' | 'poster_w',
+  nominalWidths: readonly number[] = IMAGE_WIDTHS,
+): Promise<ImageSet> {
   const meta = await sharp(input).metadata();
   const W = meta.autoOrient.width;
   const H = meta.autoOrient.height;
-  const widths = IMAGE_WIDTHS.filter((w) => w <= W);
+  const widths = nominalWidths.filter((w) => w <= W);
   const plan = widths.length > 0 ? widths.map((w) => ({ nominal: w, w })) : [{ nominal: 320, w: W }];
 
   const sources: ImageSet['sources'] = { avif: [], webp: [] };
@@ -411,6 +428,71 @@ function postEntry(post: Post, tz: string): Entry | null {
   return { id: post.publicId, kind: 'story', at: post.occurredAt, tz, story, orig: post.origLocale };
 }
 
+/**
+ * The portrait of setting site.avatar (generator rule: the owner's choice wins over the photo's
+ * own visibility, but a revoke under on_revoke = hide removes it): like the backend's
+ * pipeline/avatar.ts, only a round crop of the photo (the circle `object-fit: cover` shows at the
+ * focus point, transparent corners) at AVATAR_SIZES, never the photo's own variants.
+ */
+async function avatarFor(
+  setting: { sourceKey: string; focus?: { x: number; y: number } } | undefined,
+  captures: readonly Capture[],
+  onRevoke: string,
+): Promise<AvatarImage | undefined> {
+  if (!setting) return undefined;
+  const c = captures.find((x) => x.sourceKey === setting.sourceKey);
+  if (c?.meta.kind !== 'photo' || c.meta.download.state !== 'ok' || !c.meta.download.file) {
+    console.warn(`dev-data: site.avatar ${setting.sourceKey} is not a downloaded photo: no portrait`);
+    return undefined;
+  }
+  if (c.revokedAt && onRevoke === 'hide') return undefined;
+  const bytes = await readFile(join(c.dir, c.meta.download.file));
+  const oriented = await sharp(bytes).autoOrient().toBuffer();
+  const meta = await sharp(oriented).metadata();
+  const size = Math.min(meta.width, meta.height);
+  const fx = setting.focus?.x ?? 0.5;
+  const fy = setting.focus?.y ?? 0.5;
+  const left = Math.round((meta.width - size) * fx);
+  const top = Math.round((meta.height - size) * fy);
+  const key = sha256(JSON.stringify({ dev: 1, x: fx, y: fy })).slice(0, 8);
+  const sha = sha256(bytes);
+  const sizes = AVATAR_SIZES.filter((s) => s <= size);
+  const sources: AvatarImage['sources'] = { avif: [], webp: [] };
+  for (const edge of sizes.length > 0 ? sizes : [size]) {
+    const mask = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${edge}" height="${edge}"><circle cx="${edge / 2}" cy="${edge / 2}" r="${edge / 2}"/></svg>`,
+    );
+    for (const ext of ['avif', 'webp'] as const) {
+      const rel = mediaRel(sha, `avatar_${key}_s${edge}`, ext);
+      written.add(rel);
+      const file = join(OUT, rel);
+      if (!existsSync(file)) {
+        await mkdir(dirname(file), { recursive: true });
+        // The circle is applied to the resized square (two steps: sharp extracts before resizing).
+        const square = await sharp(oriented)
+          .extract({ left, top, width: size, height: size })
+          .resize(edge, edge)
+          .ensureAlpha()
+          .png()
+          .toBuffer();
+        const round = sharp(square).composite([{ input: mask, blend: 'dest-in' }]);
+        await (ext === 'avif' ? round.avif({ quality: 50, effort: 4 }) : round.webp({ quality: 75 })).toFile(
+          `${file}.tmp`,
+        );
+        await rename(`${file}.tmp`, file);
+      }
+      sources[ext].push({ w: edge, src: rel });
+    }
+  }
+  const smallest = sources.webp[0]?.src;
+  if (!smallest) return undefined;
+  const small = await sharp(join(OUT, smallest)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const thumbhash = Buffer.from(rgbaToThumbHash(small.info.width, small.info.height, small.data)).toString('base64');
+  const { dominant } = await sharp(oriented).extract({ left, top, width: size, height: size }).stats();
+  const edge = sources.webp.at(-1)?.w ?? size;
+  return { w: edge, h: edge, color: hexColor(dominant), thumbhash, sources };
+}
+
 function coverOf(entry: Entry): ImageSet | undefined {
   if (entry.kind === 'photo') return entry.image;
   if (entry.kind === 'video' || entry.kind === 'gif') return entry.video.poster;
@@ -530,10 +612,10 @@ async function build(): Promise<void> {
     });
   });
 
-  // Trips
+  // Trips: only those with at least one public day (planned trips stay off the site).
   const tripSummaries: TripSummary[] = [];
   const tripFiles = new Map<string, TripDetail>();
-  for (const t of owner.trips) {
+  for (const t of publishedTrips(owner.trips, dates)) {
     const tripDays = summaries.filter((d) => d.trip === t.slug);
     const cover =
       (t.coverSourceKey ? coverBySourceKey.get(t.coverSourceKey) : undefined) ?? tripDays.find((d) => d.cover)?.cover;
@@ -563,8 +645,19 @@ async function build(): Promise<void> {
     });
   }
 
+  // Profile (only when the owner set something usable)
+  const author = typeof settings['site.author'] === 'string' ? settings['site.author'] : undefined;
+  const intro = settings['site.intro'];
+  const avatar = await avatarFor(settings['site.avatar'], captures, settings['ingest.on_revoke']);
+  const profileValue = SiteProfile.parse({
+    ...(author ? { author } : {}),
+    ...(intro && Object.keys(intro).length > 0 ? { intro } : {}),
+    ...(avatar ? { avatar } : {}),
+  });
+  const profile = Object.keys(profileValue).length > 0 ? profileValue : undefined;
+
   // Timeline + manifest (generatedAt/version only move when the content changes)
-  const timelineV = contentHash({ trips: tripSummaries, days: summaries });
+  const timelineV = contentHash({ trips: tripSummaries, days: summaries, ...(profile ? { profile } : {}) });
   const prevManifest = Manifest.safeParse(
     existsSync(join(OUT, MANIFEST_PATH)) ? await readJson(join(OUT, MANIFEST_PATH)) : null,
   );
@@ -579,7 +672,13 @@ async function build(): Promise<void> {
   };
   const siteUnchanged = prevManifest.success && JSON.stringify(prevManifest.data.site) === JSON.stringify(site);
   const version = prevManifest.success ? prevManifest.data.version + (unchanged && siteUnchanged ? 0 : 1) : 1;
-  const timeline = TimelineIndex.parse({ contractVersion: 1, generatedAt, trips: tripSummaries, days: summaries });
+  const timeline = TimelineIndex.parse({
+    contractVersion: 1,
+    generatedAt,
+    trips: tripSummaries,
+    days: summaries,
+    ...(profile ? { profile } : {}),
+  });
   const manifest = Manifest.parse({ contractVersion: 1, version, generatedAt, site, timeline: { v: timelineV } });
 
   // Write: day/trip files first, timeline, manifest last (like the publisher).
@@ -607,6 +706,7 @@ async function build(): Promise<void> {
 
   console.log(
     `dev-data: ${dates.length} days, ${tripFiles.size} trips, ${placed.length} entries, ` +
+      `${profile ? `profile (${Object.keys(profile).join(', ')}), ` : ''}` +
       `${written.size} media files (${removed} removed), manifest v${version}${unchanged ? ' (unchanged)' : ''}`,
   );
   for (const s of skipped) console.log(`  skipped ${s}`);

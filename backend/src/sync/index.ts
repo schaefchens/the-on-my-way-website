@@ -388,6 +388,12 @@ class SyncEngine implements Sync {
       ss.setOwnerSynced(at ? new Date(at) : this.now());
       this.log.info({ feedSeq: ss.feedCursor() }, 'existing owner mirror treated as synced');
     }
+    // Items an older version skipped as unknown (e.g. profile settings saved in a newer admin
+    // before this backend was upgraded): the cursor is past them, so replay the feed once.
+    const known = this.store.owner.replayIgnoredIfKnown();
+    if (known.length > 0) {
+      this.log.warn({ kinds: known }, 'feed items an older version ignored are known now: replaying the owner feed');
+    }
     if (this.store.syncState.get(MIRROR_INIT_KEY) !== this.client.baseUrl) {
       const n = this.resyncAllCaptures();
       this.store.syncState.set(MIRROR_INIT_KEY, this.client.baseUrl);

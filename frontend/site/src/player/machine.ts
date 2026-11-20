@@ -241,6 +241,16 @@ export function pendingTimer(s: PlayerState): PendingTimer | null {
   }
 }
 
+/**
+ * Whether "back" (tap in the back zone, ←, a swipe back, the previous-moment buttons) leaves the
+ * day: on its first moment, or on an empty day, it goes to the previous day's last moment (the
+ * component decides whether there is one, else "prev" restarts the moment). Everywhere else
+ * "prev" stays inside the day; from the day-end card it returns to the last moment.
+ */
+export function backLeavesDay(s: PlayerState): boolean {
+  return s.count === 0 || (!s.ended && s.index === 0);
+}
+
 /** Space-separated pause reasons in a stable order (for data attributes and tests). */
 export function pauseReasonsAttr(s: PlayerState): string {
   return PAUSE_REASONS.filter((r) => s.paused.has(r)).join(' ');

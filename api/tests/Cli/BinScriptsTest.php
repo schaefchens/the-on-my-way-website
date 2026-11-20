@@ -97,7 +97,11 @@ final class BinScriptsTest extends TestCase
         self::assertIsArray($data);
         self::assertTrue($data['ok']);
         self::assertSame(['backup'], array_keys($data['jobs']));
-        self::assertCount(1, glob($this->tmpDir() . '/var/backups/app-*.sqlite') ?: []);
+        // The forced backup exists. (The first run above may have made one too: it is due once the
+        // local hour passed BACKUP_HOUR, and a second-precision name may or may not differ.)
+        $created = $data['jobs']['backup']['created'] ?? null;
+        self::assertIsString($created);
+        self::assertFileExists($this->tmpDir() . '/var/backups/' . $created);
 
         $lock = fopen($this->tmpDir() . '/var/cache/cron.lock', 'c');
         self::assertNotFalse($lock);

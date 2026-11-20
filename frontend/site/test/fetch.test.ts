@@ -88,6 +88,7 @@ describe('request deadline', () => {
         manifestVersion: 1,
         timelineV: 'tl000001',
         day: null,
+        profile: null,
         source: 'document',
       };
       const ctx = createSiteContext(boot, createQueryClient());

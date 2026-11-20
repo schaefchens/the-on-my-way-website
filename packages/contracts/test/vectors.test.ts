@@ -13,6 +13,7 @@ import {
   effectiveCaptureVisibility,
   effectiveLocalDate,
   effectiveTz,
+  nextModeSince,
   type PlacementInput,
   type PolicySettings,
   type TripRange,
@@ -52,6 +53,58 @@ describe('cross-runtime vectors', () => {
     for (const c of cases) {
       expect(effectiveCaptureVisibility(c.capture, c.annotation, c.settings, c.now)).toBe(c.expected);
     }
+  });
+
+  it('mode-switch.json: publish.mode_since and what a switch releases', () => {
+    const { captures, cases } = JSON.parse(readFileSync(resolve(dir, 'mode-switch.json'), 'utf8')) as {
+      captures: { label: string; occurredAt: string }[];
+      cases: {
+        before: PolicySettings;
+        after: Pick<PolicySettings, 'publish.mode' | 'publish.delay_minutes'>;
+        now: string;
+        modeSince: string;
+        visibilityBefore: Visibility[];
+        visibilityAfter: Visibility[];
+      }[];
+    };
+    expect(cases.length).toBe(162);
+    let releasedByReviewToDelayed = 0;
+    for (const c of cases) {
+      const name = `${c.before['publish.mode']}(${c.before['publish.delay_minutes']}, ${c.before['publish.mode_since']}) -> ${c.after['publish.mode']}(${c.after['publish.delay_minutes']})`;
+      expect(nextModeSince(c.before, c.after, c.now), name).toBe(c.modeSince);
+      const after: PolicySettings = { ...c.before, ...c.after, 'publish.mode_since': c.modeSince };
+      captures.forEach((capture, i) => {
+        const label = `${name}: ${capture.label}`;
+        const was = effectiveCaptureVisibility(capture, null, c.before, c.now);
+        const is = effectiveCaptureVisibility(capture, null, after, c.now);
+        expect(was, label).toBe(c.visibilityBefore[i]);
+        expect(is, label).toBe(c.visibilityAfter[i]);
+        // A capture at exactly the switch instant already falls under the new mode (mode_since
+        // is inclusive): it counts as arriving with the switch, not before it.
+        if (Date.parse(capture.occurredAt) >= Date.parse(c.now)) return;
+        // The policy's promises: nothing public becomes pending; waiting statuses are released
+        // only by -> instant, review -> delayed and a shorter delay, and only once they are at
+        // least as old as the new delay.
+        expect(was === 'public' && is === 'pending', label).toBe(false);
+        if (was === 'pending' && is === 'public') {
+          const from = c.before['publish.mode'];
+          const to = c.after['publish.mode'];
+          const age = Date.parse(c.now) - Date.parse(capture.occurredAt);
+          const oldEnough = age >= c.after['publish.delay_minutes'] * 60_000;
+          const shorter = from === 'delayed' && c.after['publish.delay_minutes'] < c.before['publish.delay_minutes'];
+          expect(to === 'instant' || (to === 'delayed' && (from === 'review' || shorter) && oldEnough), label).toBe(
+            true,
+          );
+          if (from === 'review' && to === 'delayed') releasedByReviewToDelayed++;
+        }
+        // review -> delayed releases EXACTLY the waiting statuses at least as old as the new delay.
+        if (c.before['publish.mode'] === 'review' && c.after['publish.mode'] === 'delayed' && was === 'pending') {
+          const age = Date.parse(c.now) - Date.parse(capture.occurredAt);
+          expect(is, label).toBe(age >= c.after['publish.delay_minutes'] * 60_000 ? 'public' : 'pending');
+        }
+      });
+    }
+    expect(releasedByReviewToDelayed).toBeGreaterThan(0);
   });
 
   it('placement.json', () => {

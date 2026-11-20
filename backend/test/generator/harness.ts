@@ -60,14 +60,18 @@ export function writeFakeSiteBuild(dir: string, opts: FakeBuildOptions = {}): vo
       'assets/nunito-vietnamese-wght-normal-Vn1.woff2': 'woff2',
       'assets/fraunces-vietnamese-soft-normal-Vf1.woff2': 'woff2',
       'assets/fraunces-latin-soft-normal-Fl1.woff2': 'woff2',
-      'assets/playpen-sans-vietnamese-wght-normal-Pv1.woff2': 'woff2',
+      'assets/playpen-sans-vietnamese-400-Pv1.woff2': 'woff2',
+      'assets/playpen-sans-latin-400-Pl1.woff2': 'woff2',
+      'assets/playpen-sans-latin-500-Pl5.woff2': 'woff2',
     });
     const entry = manifest['index.html'] as { assets: string[]; dynamicImports?: string[] };
     entry.assets.push(
       'assets/fraunces-latin-soft-normal-Fl1.woff2',
       'assets/nunito-vietnamese-wght-normal-Vn1.woff2',
       'assets/fraunces-vietnamese-soft-normal-Vf1.woff2',
-      'assets/playpen-sans-vietnamese-wght-normal-Pv1.woff2',
+      'assets/playpen-sans-vietnamese-400-Pv1.woff2',
+      'assets/playpen-sans-latin-400-Pl1.woff2',
+      'assets/playpen-sans-latin-500-Pl5.woff2',
     );
     entry.dynamicImports = ['src/locales/de/messages.po', 'src/player/index.ts'];
     Object.assign(manifest, {

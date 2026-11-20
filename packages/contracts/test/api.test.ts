@@ -10,6 +10,7 @@ import {
   ChangeItem,
   ChangesPage,
   ChangesResponse,
+  CLEARABLE_SETTING_KEYS,
   Day,
   DayPatch,
   Heartbeat,
@@ -150,6 +151,62 @@ describe('settings', () => {
     expect(SettingsPatch.safeParse({ 'alerts.ntfy_url': 'ftp://ntfy.sh/x' }).success).toBe(false);
     expect(SettingsPatch.safeParse({ 'alerts.ntfy_url': 'https://ntfy.sh/x' }).success).toBe(true);
     expect(SettingsPatch.shape).not.toHaveProperty('publish.mode_since');
+  });
+
+  it('null clears exactly the optional keys without a default', () => {
+    for (const key of SETTING_KEYS) {
+      const clearable = (CLEARABLE_SETTING_KEYS as readonly string[]).includes(key);
+      if (key === 'publish.mode_since') continue;
+      expect(SettingsPatch.safeParse({ [key]: null }).success, key).toBe(clearable);
+      expect(key in SETTINGS_DEFAULTS, key).toBe(!clearable);
+    }
+  });
+
+  it('profile settings: site.author, site.intro, site.avatar', () => {
+    const profile = {
+      'site.author': 'Lea',
+      'site.intro': { de: 'Schön, dass du mitreist!', en: 'So glad you are coming along!' },
+      'site.avatar': { sourceKey: 'wa:3EB0ABC', focus: { x: 0.5, y: 0.35 } },
+    };
+    expect(SettingsPatch.parse(profile)).toEqual(profile);
+    expect(Settings.parse({ ...SETTINGS_DEFAULTS, ...profile })).toEqual({ ...SETTINGS_DEFAULTS, ...profile });
+    expect(SETTINGS_DEFAULTS).not.toHaveProperty('site.author');
+    expect(SettingsPatch.safeParse({ 'site.avatar': { sourceKey: 'wa:3EB0ABC' } }).success).toBe(true);
+    const bad: Record<string, unknown>[] = [
+      { 'site.author': '' },
+      { 'site.author': ' Lea' },
+      { 'site.author': 'x'.repeat(61) },
+      { 'site.author': 'Lea\nB' },
+      { 'site.intro': {} },
+      { 'site.intro': { de: '' } },
+      { 'site.intro': { de: 'x'.repeat(161) } },
+      { 'site.intro': { fr: 'Salut' } },
+      { 'site.intro': 'Hallo' },
+      { 'site.avatar': { sourceKey: 'not a key' } },
+      { 'site.avatar': { sourceKey: 'wa:X', focus: { x: 2, y: 0 } } },
+      { 'site.avatar': 'wa:X' },
+    ];
+    for (const patch of bad) expect(SettingsPatch.safeParse(patch).success, JSON.stringify(patch)).toBe(false);
+    // Mirrored values merge like any other key; invalid ones fall back to "unset".
+    expect(withSettingsDefaults(profile)).toEqual({ ...SETTINGS_DEFAULTS, ...profile });
+    expect(withSettingsDefaults({ 'site.author': ' x ' })).not.toHaveProperty('site.author');
+    expect(parseSettingValue('site.intro', { en: 'Hi' })).toEqual({ en: 'Hi' });
+  });
+
+  it('feed items of the profile keys parse like any other setting', () => {
+    const avatar = { sourceKey: 'wa:3EB0ABC', focus: { x: 0, y: 1 } };
+    expect(
+      parseChangeItem({ seq: 3, entity: 'setting', key: 'site.avatar', op: 'upsert', data: { value: avatar } }),
+    ).toEqual({
+      status: 'ok',
+      item: { seq: 3, entity: 'setting', key: 'site.avatar', op: 'upsert', data: { value: avatar } },
+    });
+    expect(parseChangeItem({ seq: 4, entity: 'setting', key: 'site.author', op: 'delete' })).toMatchObject({
+      status: 'ok',
+    });
+    expect(
+      parseChangeItem({ seq: 5, entity: 'setting', key: 'site.intro', op: 'upsert', data: { value: { de: ' x' } } }),
+    ).toMatchObject({ status: 'invalid', key: 'site.intro' });
   });
 });
 

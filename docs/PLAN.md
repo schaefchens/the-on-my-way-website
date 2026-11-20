@@ -93,7 +93,7 @@ the-on-my-way-website/
 ├─ backend/
 │  ├─ wa-helper/        Go module (whatsmeow pinned to a master commit ≥ 06b1c29)
 │  ├─ src/              capture/ · pipeline/ · store/ · sync/ · generator/ · publisher/ · ui/
-│  ├─ Dockerfile        multi-stage: go build → Vite site build → node:24-bookworm-slim + ffmpeg
+│  ├─ Dockerfile        multi-stage: go build → Vite site build → node:24-trixie-slim + ffmpeg 7.1
 │  ├─ compose.yaml
 │  └─ data/             (git-ignored bind mount) archive/ · out/ (generated site) · config/ (publish targets, SSH keys)
 ├─ frontend/            site/ (public timeline SPA, built into the backend image) · admin/ (admin PWA, deployed with the API) · shared/
@@ -376,7 +376,7 @@ the-on-my-way-website/
   - Preload the next two items (`decode()`) and the WhatsApp fonts.
   - Pool of two `<video muted playsinline>` elements; tap to unmute.
   - Data-saver toggle, Wake Lock, Media Session, pause when the tab is hidden.
-- **Gestures:** tapping the start 30 % goes back, the end 70 % goes forward; hold pauses; vertical swipe goes to the previous/next day; swipe down closes.
+- **Gestures (Instagram-like):** tapping the start 30 % goes back, the end 70 % goes forward; back on a day's first moment goes to the previous day's last moment; hold pauses; swipe up goes to the next day; swipe down anywhere closes (the stage lifts with the finger, a short pull snaps back); keys: arrows, PageUp/PageDown, Esc.
 - **Day end:** a card with a 3 s countdown to the next day.
 - **Accessibility:** an always-visible pause button (WCAG 2.2.2), a dialog with focus trap, live-region announcements, and alt text from the description, falling back to the caption.
 

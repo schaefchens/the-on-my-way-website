@@ -25,6 +25,12 @@ use stdClass;
  * old cut-off, which could unpublish the archive.
  *
  * Time-zone names are stored canonically ("asia/saigon" -> "Asia/Saigon", {@see Time::canonicalTimeZone()}).
+ *
+ * The profile keys (site.author, site.intro, site.avatar) are optional and cleared with null like
+ * the alert targets. A patch that picks a (new) "site.avatar" photo must name a mirrored capture
+ * of kind photo that is not revoked and whose media is not lost ({@see avatarProblem()}); a later
+ * revoke leaves the setting alone (the backend's generator then publishes no portrait). Text
+ * values are validated as sent (the contract requires them trimmed); nothing is rewritten.
  */
 final class Settings
 {
@@ -45,8 +51,8 @@ final class Settings
     /** Every key of the contract's Settings object, in contract order. */
     public const KEYS = [
         'publish.mode', 'publish.mode_since', 'publish.delay_minutes', 'ingest.on_revoke', 'timezone.current',
-        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'alerts.email', 'alerts.ntfy_url',
-        'alerts.heartbeat_stale_minutes',
+        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'site.author', 'site.intro',
+        'site.avatar', 'alerts.email', 'alerts.ntfy_url', 'alerts.heartbeat_stale_minutes',
     ];
 
     /**
@@ -55,12 +61,12 @@ final class Settings
      */
     public const WRITE_ORDER = [
         'publish.mode_since', 'publish.delay_minutes', 'publish.mode', 'ingest.on_revoke', 'timezone.current',
-        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'alerts.email', 'alerts.ntfy_url',
-        'alerts.heartbeat_stale_minutes',
+        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'site.author', 'site.intro',
+        'site.avatar', 'alerts.email', 'alerts.ntfy_url', 'alerts.heartbeat_stale_minutes',
     ];
 
-    /** Keys a PATCH may clear with null (optional in the contract). */
-    public const CLEARABLE = ['alerts.email', 'alerts.ntfy_url'];
+    /** Keys a PATCH may clear with null (optional in the contract: CLEARABLE_SETTING_KEYS). */
+    public const CLEARABLE = ['site.author', 'site.intro', 'site.avatar', 'alerts.email', 'alerts.ntfy_url'];
 
     public function __construct(
         private readonly Db $db,
@@ -126,7 +132,8 @@ final class Settings
      *
      * @return array<string, mixed>
      *
-     * @throws ApiException 422 for schema violations, unknown time zones and inconsistent locales
+     * @throws ApiException 422 for schema violations, unknown time zones, inconsistent locales and
+     *                      a site.avatar that is not a usable captured photo
      */
     public function patch(stdClass $patch): array
     {
@@ -153,6 +160,18 @@ final class Settings
             $problems = self::problems($next);
             if ($problems !== []) {
                 throw ApiException::validation(implode('; ', $problems), ['errors' => $problems]);
+            }
+            // Checked in the write transaction (the capture cannot change in between), and only
+            // when the patch picks another photo: re-sending the stored choice, or moving its focus,
+            // never fails because that capture was revoked since.
+            $avatar = $values['site.avatar'] ?? null;
+            $stored = $current['site.avatar'] ?? null;
+            $storedKey = $stored instanceof stdClass ? ($stored->sourceKey ?? null) : null;
+            if ($avatar instanceof stdClass && is_string($avatar->sourceKey ?? null) && $avatar->sourceKey !== $storedKey) {
+                $problem = $this->avatarProblem($avatar->sourceKey);
+                if ($problem !== null) {
+                    throw ApiException::validation('site.avatar: ' . $problem, ['errors' => ['/site.avatar/sourceKey: ' . $problem]]);
+                }
             }
             $now = Clock::nowIso();
             $next['publish.mode_since'] = Policy::nextModeSince($current, $next, $now);
@@ -197,8 +216,54 @@ final class Settings
         return $problems;
     }
 
+    /**
+     * Why $sourceKey cannot be the portrait, or null when it can: it must be a mirrored capture of
+     * kind photo, not revoked on WhatsApp, whose media is not lost.
+     */
+    private function avatarProblem(string $sourceKey): ?string
+    {
+        $row = $this->db->one('SELECT kind, revoked_at, media_state FROM captures WHERE source_key = ?', [$sourceKey]);
+        if ($row === null) {
+            return "no captured status $sourceKey (pick one of your photos)";
+        }
+        $kind = is_string($row['kind'] ?? null) ? $row['kind'] : 'unknown';
+        if ($kind !== 'photo') {
+            return "$sourceKey is a $kind status, not a photo";
+        }
+        if ($row['revoked_at'] !== null && $row['revoked_at'] !== '') {
+            return "$sourceKey was deleted on WhatsApp";
+        }
+        if ($row['media_state'] === 'lost') {
+            return "the photo of $sourceKey could not be downloaded";
+        }
+
+        return null;
+    }
+
+    /** Same JSON value (object key order does not matter, so re-sending a value is no change). */
     private static function same(mixed $a, mixed $b): bool
     {
-        return json_encode($a) === json_encode($b);
+        return json_encode(self::canonical($a)) === json_encode(self::canonical($b));
+    }
+
+    private static function canonical(mixed $value): mixed
+    {
+        if ($value instanceof stdClass) {
+            $value = get_object_vars($value);
+            ksort($value, SORT_STRING);
+
+            return (object) array_map(self::canonical(...), $value);
+        }
+        if (is_array($value)) {
+            if (!array_is_list($value)) {
+                ksort($value, SORT_STRING);
+
+                return (object) array_map(self::canonical(...), $value);
+            }
+
+            return array_map(self::canonical(...), $value);
+        }
+
+        return $value;
     }
 }

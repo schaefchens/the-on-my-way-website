@@ -3,7 +3,9 @@
 #
 #   scripts/docker-e2e.sh [--no-build] [--keep] [--skip-playwright] [--skip-restart]
 #
-# 1. builds omw-backend:dev (backend/Dockerfile, this machine's architecture) unless --no-build;
+# 1. builds omw-backend:dev (backend/Dockerfile, this machine's architecture) unless --no-build,
+#    with the project's own buildx builder (OMW_DOCKER_BUILDER, default omw-builder, created on
+#    first use) so the build cache stays apart from other projects' on Docker Desktop's shared disk;
 # 2. starts it with backend/compose.yaml + a generated override (.cache/docker/e2e/compose.yaml):
 #    compose project "omw-e2e" (never the real "omw" project, its container or its state volume),
 #    WA_MODE=fixture with fixtures/generated mounted read-only, NO env file (the repo .env is not
@@ -62,12 +64,20 @@ cleanup() {
 
 # ------------------------------------------------------------------------------------- setup
 if [ "$BUILD" = 1 ]; then
-  log "building $IMAGE"
+  BUILDER="${OMW_DOCKER_BUILDER:-omw-builder}"
+  docker buildx inspect "$BUILDER" >/dev/null 2>&1 ||
+    docker buildx create --name "$BUILDER" --driver docker-container >/dev/null ||
+    fail "could not create the buildx builder $BUILDER"
+  log "building $IMAGE (buildx builder $BUILDER)"
   t0=$(date +%s)
-  docker build -f "$ROOT/backend/Dockerfile" -t "$IMAGE" "$ROOT"
+  docker buildx build --builder "$BUILDER" --load -f "$ROOT/backend/Dockerfile" -t "$IMAGE" "$ROOT"
   log "build took $(($(date +%s) - t0)) s"
 fi
 docker image inspect "$IMAGE" >/dev/null 2>&1 || fail "image $IMAGE not found (build it or drop --no-build)"
+log "image $IMAGE: $(docker image inspect -f '{{.Os}}/{{.Architecture}}, {{.Size}} B' "$IMAGE"), $(
+  docker run --rm --network none --label omw.project=omw --entrypoint sh "$IMAGE" -c \
+    'printf "node %s, " "$(node --version)"; ffmpeg -version | sed -n "1s/ Copyright.*//p"'
+)"
 
 # A previous --keep run: remove its containers and volume first (fresh state every run).
 if [ -f "$W/compose.yaml" ]; then dc down -v --remove-orphans >/dev/null 2>&1 || true; fi

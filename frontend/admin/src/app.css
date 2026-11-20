@@ -132,6 +132,16 @@
   }
 }
 
+/*
+ * User text that keeps its own direction (dir="auto") but aligns with the layout, as the public
+ * site does it (frontend/site app.css): a German greeting on an RTL page sits at the right edge.
+ * Chromium and WebKit only know the prefixed keyword; Firefox takes the standard one.
+ */
+@utility align-match-parent {
+  text-align: -webkit-match-parent;
+  text-align: match-parent;
+}
+
 /* Space for the floating tab bar on phones (and the iOS home indicator). */
 @utility pb-tabbar {
   padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));

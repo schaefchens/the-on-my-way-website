@@ -9,7 +9,8 @@
  *
  * Media modes:
  * - "dummy": tiny placeholder files with the right names (fast; for unit tests that never decode
- *   media);
+ *   media), except the photos' WebP variants up to 640 px: small solid-colour images of the
+ *   declared size, so the portrait's round crop (pipeline/avatar.ts) can be made from them;
  * - "real":  sharp (AVIF/WebP at 320/640/1080/1600 without upscaling, OG JPEG 1200x630,
  *   ThumbHash, dominant colour) and ffmpeg (poster frame, H.264 mp4 +faststart, AAC m4a,
  *   waveform peaks), like frontend/site/scripts/make-dev-data.ts. Outputs are content-addressed
@@ -148,7 +149,14 @@ async function dummyVariants(
 ): Promise<{ variants: ProcessedVariant[]; processedMeta: ProcessedMeta }> {
   const variants: ProcessedVariant[] = [];
   const put = async (role: ProcessedVariant['role'], variant: MediaVariant, ext: MediaExt, w?: number, h?: number) => {
-    const out = await writeVariant(mediaDir, sha, variant, ext, (t) => fsp.writeFile(t, `dummy ${variant}.${ext}\n`));
+    const decodable = role === 'image' && ext === 'webp' && w && h && w <= 640;
+    const out = await writeVariant(mediaDir, sha, variant, ext, async (t) => {
+      if (!decodable) return fsp.writeFile(t, `dummy ${variant}.${ext}\n`);
+      const { default: sharp } = await import('sharp');
+      await sharp({ create: { width: w, height: h, channels: 3, background: fakeColor(sha) } })
+        .webp({ quality: 50, effort: 0 })
+        .toFile(t);
+    });
     variants.push({ role, variant, format: ext, ...(w ? { w } : {}), ...(h ? { h } : {}), ...out });
   };
   const image = async (role: 'image' | 'poster', prefix: 'w' | 'poster_w') => {

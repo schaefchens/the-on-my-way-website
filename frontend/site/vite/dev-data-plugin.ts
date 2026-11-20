@@ -152,6 +152,10 @@ export function devBootFor(url: string, dir: string, locales: readonly string[])
   if (date) {
     const day = readJsonFile(join(dir, 'data/days', `${date}.json`));
     if (day) boot.day = day;
+    // Like the generator: day/story pages carry the profile, so the player shows the portrait
+    // before timeline.json has arrived.
+    const profile = day ? readJsonFile(join(dir, 'data/timeline.json'))?.profile : undefined;
+    if (profile && typeof profile === 'object') boot.profile = profile;
   }
   return boot;
 }

@@ -1,6 +1,6 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { LOCALES, type LocaleCode, pickText } from '@omw/contracts/i18n';
-import type { DaySummary, ImageSet, TimelineIndex } from '@omw/contracts/site';
+import type { DaySummary, ImageSet, SiteProfile, TimelineIndex } from '@omw/contracts/site';
 import { countryFlag, formatRelative } from '@omw/ui/locale';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from '@tanstack/react-router';
@@ -9,6 +9,7 @@ import { useTimeline } from '../data/hooks';
 import { manifestQueryOptions } from '../data/queries';
 import { siteUrl } from '../data/urls';
 import { siteLocales } from '../locales';
+import { greetingFor, HeroPortrait, useProfile } from '../profile';
 import { useSite } from '../site';
 import { daysNewestFirst, momentCount, monthOf, type ZoomLevel } from '../timeline/model';
 import { distinctCovers, Polaroid } from '../timeline/rows-common';
@@ -155,9 +156,12 @@ export function timelineStats(timeline: TimelineIndex): Stats {
   return { days: timeline.days.length, countries: countries.size, moments };
 }
 
-/** Key of an image (its first source path); covers are compared by it. */
+/**
+ * Key of an image: its original photo ("media/aa/<sha16>", the source path before the variant
+ * name). Covers are compared by it; the portrait's round crop is its own file of the same photo.
+ */
 function imageKey(image: ImageSet | undefined): string | null {
-  return image?.sources.webp[0]?.src ?? null;
+  return image?.sources.webp[0]?.src.split('_')[0] ?? null;
 }
 
 /**
@@ -166,6 +170,7 @@ function imageKey(image: ImageSet | undefined): string | null {
  *   days    not the two newest days' covers, nor their trip's (avatar, filmstrip, trip card)
  *   years   not what the first two cards show (the trip card's collage, the "in between" faces)
  *   months  not the two newest months' days (their tiles)
+ * nor the owner's portrait (the profile shows it right beside the collage).
  * Then: the other days' covers (newest first), then trip covers; distinct, at most `max`.
  * Few days: fewer photos, or none.
  */
@@ -179,6 +184,7 @@ export function heroCovers(timeline: TimelineIndex, level: ZoomLevel, max = 3): 
       if (key) shown.add(key);
     }
   };
+  show([timeline.profile?.avatar]);
   if (level === 'days') {
     const first = days.slice(0, 2);
     show(first.map((d) => d.cover));
@@ -211,9 +217,59 @@ export function heroCovers(timeline: TimelineIndex, level: ZoomLevel, max = 3): 
   return out;
 }
 
-/** Intro under the header: a handwritten line, the latest place and a few numbers. */
+/** The handwritten line of the hero when the owner wrote no greeting. */
+function Tagline() {
+  return (
+    <p className="font-hand text-lg text-accent sm:text-2xl">
+      <Trans>Moments from the road</Trans> ✈︎
+    </p>
+  );
+}
+
+/**
+ * Who travels (owner profile): the portrait in a soft ring, the name in the display face and the
+ * greeting in the handwritten one, in the visitor's language or else in the one it was written
+ * in (marked with lang, its own direction). Calm and personal: no counts, no buttons.
+ */
+export function ProfileIntro({ profile, locale }: { profile: SiteProfile; locale: LocaleCode }) {
+  const greeting = greetingFor(profile, locale);
+  return (
+    <div data-testid="profile-intro" className="flex items-center gap-3.5 sm:gap-5 md:max-w-[calc(100%-18rem)]">
+      {profile.avatar && <HeroPortrait image={profile.avatar} />}
+      <div className="min-w-0">
+        {profile.author && (
+          <p
+            dir="auto"
+            data-user-text
+            className="line-clamp-2 font-display text-[1.6rem] leading-tight font-semibold tracking-tight break-words text-ink soft sm:text-[2rem]"
+          >
+            {profile.author}
+          </p>
+        )}
+        {greeting ? (
+          <p
+            lang={greeting.locale}
+            dir="auto"
+            data-user-text
+            className="mt-0.5 font-hand text-[1.05rem] leading-snug break-words whitespace-pre-line text-accent sm:text-xl"
+          >
+            {greeting.text}
+          </p>
+        ) : (
+          <Tagline />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Intro under the header: who travels (when the owner set a profile) or a handwritten line, the
+ * latest place and a few numbers.
+ */
 export function Hero({ locale, level }: { locale: LocaleCode; level: ZoomLevel }) {
   const { data: timeline } = useTimeline();
+  const profile = useProfile();
   const now = useNow();
   const stats = useMemo(() => (timeline ? timelineStats(timeline) : null), [timeline]);
   const latest = timeline?.days.at(-1);
@@ -222,9 +278,7 @@ export function Hero({ locale, level }: { locale: LocaleCode; level: ZoomLevel }
   const covers = useMemo(() => (timeline ? heroCovers(timeline, level) : []), [timeline, level]);
   return (
     <div className="relative mx-auto max-w-[68rem] px-gutter pt-3 pb-6 sm:px-gutter-wide sm:pb-8">
-      <p className="font-hand text-lg text-accent sm:text-2xl">
-        <Trans>Moments from the road</Trans> ✈︎
-      </p>
+      {profile ? <ProfileIntro profile={profile} locale={locale} /> : <Tagline />}
       {stats && stats.days > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-2 text-sm md:max-w-[calc(100%-18rem)]">
           {latest && (latest.place || latestTitle) && (

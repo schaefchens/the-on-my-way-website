@@ -12,10 +12,13 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * GET|POST /api/v1/cron — web-cron for hosts without a CLI cron. Runs the same jobs as
  * bin/cron.php. The secret CRON_KEY (.env, at least 24 characters) is sent as the X-Cron-Key
- * header (preferred) or as ?key=… for web-cron services that cannot set headers; it is compared
- * in constant time. Without CRON_KEY the endpoint does not exist (404).
+ * header (preferred), as "Authorization: Bearer <CRON_KEY>" (cron multiplexers such as Enoch's
+ * scheduled requests, which send only a Bearer token and allow about 8 s per call), or as ?key=…
+ * for web-cron services that cannot set headers; it is compared in constant time. Without
+ * CRON_KEY the endpoint does not exist (404).
  *
- * Answers 200 {ok, at, skipped, jobs, durationMs}; 403 for a wrong key.
+ * Answers 200 {ok, at, skipped, jobs, durationMs}; 403 for a wrong key. A run normally takes well
+ * under a second; if the caller gives up early, ignore_user_abort lets the run finish.
  */
 final class CronController
 {
@@ -32,6 +35,9 @@ final class CronController
             throw ApiException::notFound();
         }
         $key = $request->getHeaderLine('X-Cron-Key');
+        if ($key === '') {
+            $key = Input::bearer($request) ?? '';
+        }
         if ($key === '') {
             $query = $request->getQueryParams()['key'] ?? '';
             $key = is_string($query) ? $query : '';

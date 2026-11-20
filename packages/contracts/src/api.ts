@@ -20,6 +20,9 @@
  * - IANA time zones: same rule as isValidTimeZone() in ./time (name syntax + known to the zone
  *   database). PHP: preg_match + in_array($tz, DateTimeZone::listIdentifiers()) or 'UTC'.
  * - Settings: site.default_locale ∈ site.locales; site.locales unique (see settingsProblems()).
+ * - Settings: "site.avatar".sourceKey names a mirrored capture of kind "photo" that is not revoked
+ *   and whose media is not lost (checked when a patch sets it; a later revoke does not clear the
+ *   setting: the generator then leaves the portrait out).
  * - TripUpsert: endDate >= startDate; ranges of different trips must not overlap
  *   (overlappingTrips() in ./policy).
  * - PostCreate: content has at least one locale and contains origLocale.
@@ -48,7 +51,7 @@ import {
   Visibility,
 } from './common.js';
 import { I18nText, LocaleCode } from './i18n.js';
-import { TextStyle } from './site.js';
+import { AuthorName, FocusPoint, IntroI18n, TextStyle } from './site.js';
 import { WaState } from './wa.js';
 
 /** change_log seq of an entity's latest write (0 = never written). */
@@ -271,6 +274,15 @@ export type OnRevoke = z.infer<typeof OnRevoke>;
 
 const uniqueStrings = (values: readonly string[]) => new Set(values).size === values.length;
 
+/**
+ * Setting "site.avatar": the owner's portrait, picked from the captured photos. Only a small
+ * round crop of that photo (AvatarImage in ./site: at most AVATAR_MAX_WIDTH px, transparent
+ * corners) is published for it, also when the capture itself is hidden; focus = where the circle
+ * sits, as object-position of `object-fit: cover` in a square (FocusPoint).
+ */
+export const SiteAvatarSetting = z.object({ sourceKey: SourceKey, focus: FocusPoint.optional() });
+export type SiteAvatarSetting = z.infer<typeof SiteAvatarSetting>;
+
 /** http(s) URL with a host; exported as a JSON Schema pattern so PHP enforces the scheme too. */
 const HTTP_URL_RE = /^https?:\/\/[^\s/?#]+(?:[/?#]\S*)?$/;
 
@@ -290,6 +302,12 @@ const SettingsShape = {
     .meta({ uniqueItems: true }),
   'site.default_locale': LocaleCode,
   'site.indexable': z.boolean(),
+  /** Display name of the traveler ("Lea"): one trimmed line (AuthorName in ./site). */
+  'site.author': AuthorName.optional(),
+  /** Short greeting per locale, plain text (IntroI18n in ./site). */
+  'site.intro': IntroI18n.optional(),
+  /** Portrait from a captured photo (SiteAvatarSetting). */
+  'site.avatar': SiteAvatarSetting.optional(),
   'alerts.email': z.email().max(254).optional(),
   'alerts.ntfy_url': z
     .url({ protocol: /^https?$/ })
@@ -307,6 +325,16 @@ export const SettingKeySchema = z.enum(SETTING_KEYS as [SettingKey, ...SettingKe
 export function isSettingKey(value: unknown): value is SettingKey {
   return typeof value === 'string' && (SETTING_KEYS as readonly string[]).includes(value);
 }
+
+/** Optional keys without a default: a SettingsPatch value null removes them (feed: "delete"). */
+export const CLEARABLE_SETTING_KEYS = [
+  'site.author',
+  'site.intro',
+  'site.avatar',
+  'alerts.email',
+  'alerts.ntfy_url',
+] as const satisfies readonly SettingKey[];
+export type ClearableSettingKey = (typeof CLEARABLE_SETTING_KEYS)[number];
 
 const DEFAULTS: Settings = {
   'publish.mode': 'instant',
@@ -666,10 +694,16 @@ export type AdminTrip = z.infer<typeof AdminTrip>;
 export const TripListResponse = z.object({ items: z.array(AdminTrip) });
 export type TripListResponse = z.infer<typeof TripListResponse>;
 
-/** PATCH /api/v1/admin/settings -> Settings. "publish.mode_since" is maintained by the API. */
+/**
+ * PATCH /api/v1/admin/settings -> Settings. "publish.mode_since" is maintained by the API; null
+ * clears a CLEARABLE_SETTING_KEYS key. Text values must already be trimmed (the API does not trim).
+ */
 export const SettingsPatch = Settings.omit({ 'publish.mode_since': true })
   .partial()
   .extend({
+    'site.author': AuthorName.nullable().optional(),
+    'site.intro': IntroI18n.nullable().optional(),
+    'site.avatar': SiteAvatarSetting.nullable().optional(),
     'alerts.email': z.email().max(254).nullable().optional(),
     'alerts.ntfy_url': z
       .url({ protocol: /^https?$/ })

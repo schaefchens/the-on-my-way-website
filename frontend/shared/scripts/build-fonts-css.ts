@@ -1,5 +1,6 @@
 /**
- * Generates src/styles/fonts.css from the installed @fontsource packages.
+ * Generates src/styles/fonts.css from the installed @fontsource packages and the committed
+ * Playpen Sans subsets.
  *
  * Why not just `@import "@fontsource-variable/…/wght.css"`?
  * - The upstream files declare every subset (cyrillic, greek, math, …) and, for Playpen Sans,
@@ -8,11 +9,19 @@
  *   and the arabic/hebrew cuts for RTL locales.
  *
  * The output keeps the upstream @font-face blocks (unicode-range, weights, axes), drops the
- * legacy .woff fallbacks (every supported browser has WOFF2) and rewrites url(./files/x.woff2) to a path relative to src/styles/, so Vite resolves and hashes
- * the files at build time. Re-run after bumping a @fontsource package:
+ * legacy .woff fallbacks (every supported browser has WOFF2) and rewrites url(./files/x.woff2) to
+ * a path relative to src/styles/, so Vite resolves and hashes the files at build time.
  *
+ * The Latin handwriting font is the exception: fonts/playpen-sans holds static, feature-trimmed
+ * subsets of @fontsource-variable/playpen-sans (scripts/fonts/subset-playpen.sh, about 31 KiB
+ * instead of 241 KiB on a German page with Vietnamese place names). Their faces come from that
+ * folder's subsets.json, and this script refuses to run when the installed package is not the
+ * one the subsets were built from. Re-run after bumping a @fontsource package:
+ *
+ *   scripts/fonts/subset-playpen.sh      # only when @fontsource-variable/playpen-sans changed
  *   pnpm --filter @omw/ui fonts
  */
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,9 +40,16 @@ interface FontSource {
   role: string;
 }
 
+/** Faces from a folder written by scripts/fonts/subset-playpen.sh (subsets.json). */
+interface LocalSubsets {
+  /** Folder relative to the package root. */
+  dir: string;
+  role: string;
+}
+
 const LATIN = ['latin', 'latin-ext', 'vietnamese'] as const;
 
-const SOURCES: readonly FontSource[] = [
+const SOURCES: readonly (FontSource | LocalSubsets)[] = [
   {
     pkg: '@fontsource-variable/fraunces',
     file: 'soft.css',
@@ -42,7 +58,7 @@ const SOURCES: readonly FontSource[] = [
   },
   { pkg: '@fontsource-variable/nunito', file: 'wght.css', subsets: LATIN, role: 'body' },
   { pkg: '@fontsource-variable/nunito', file: 'wght-italic.css', subsets: LATIN, role: 'body italic (stories)' },
-  { pkg: '@fontsource-variable/playpen-sans', file: 'wght.css', subsets: LATIN, role: 'hand (notes)' },
+  { dir: 'fonts/playpen-sans', role: 'hand (notes): static 400/500 subsets, no calt' },
   {
     pkg: '@fontsource-variable/playpen-sans-arabic',
     file: 'wght.css',
@@ -78,36 +94,103 @@ function subsetOf(blockName: string, pkgId: string): string | null {
   return rest.join('-');
 }
 
+function renderFontsource(source: FontSource, outDir: string): string[] {
+  const pkgDir = join(PKG_ROOT, 'node_modules', source.pkg);
+  const css = readFileSync(join(pkgDir, source.file), 'utf8');
+  const pkgId = source.pkg.split('/')[1] ?? source.pkg;
+  const kept: string[] = [];
+  const found = new Set<string>();
+  for (const match of css.matchAll(BLOCK_RE)) {
+    const [, name = '', block = ''] = match;
+    const subset = subsetOf(name, pkgId);
+    if (subset === null) continue;
+    found.add(subset);
+    if (!source.subsets.includes(subset)) continue;
+    const rel = relative(outDir, pkgDir).split('\\').join('/');
+    const woff2Only = block.replace(/,\s*url\([^)]*\.woff\)\s*format\('woff'\)/g, '');
+    kept.push(`/* ${name} */\n${woff2Only.replace(/url\(\.\/files\//g, `url(${rel}/files/`)}`);
+  }
+  const missing = source.subsets.filter((s) => !found.has(s));
+  if (missing.length > 0) {
+    throw new Error(`${source.pkg}/${source.file}: missing subsets ${missing.join(', ')}`);
+  }
+  return ['', `/* ---- ${source.pkg}/${source.file}: ${source.role} ---- */`, '', kept.join('\n\n')];
+}
+
+/** The subsets.json written by scripts/fonts/subset-playpen.py. */
+interface SubsetManifest {
+  family: string;
+  source: { package: string; version: string; files: Record<string, string> };
+  files: { file: string; subset: string; weight: number; sha256: string; unicodeRange: string }[];
+}
+
+const sha256 = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
+
+function readManifest(dir: string): SubsetManifest {
+  const manifest = JSON.parse(readFileSync(join(dir, 'subsets.json'), 'utf8')) as SubsetManifest;
+  const ok =
+    typeof manifest.family === 'string' &&
+    typeof manifest.source?.package === 'string' &&
+    Array.isArray(manifest.files) &&
+    manifest.files.every(
+      (f) =>
+        /^[a-z0-9-]+\.woff2$/.test(f.file) &&
+        Number.isInteger(f.weight) &&
+        /^U\+[0-9A-F]{4,6}(?:-[0-9A-F]{4,6})?(?:,U\+[0-9A-F]{4,6}(?:-[0-9A-F]{4,6})?)*$/.test(f.unicodeRange),
+    );
+  if (!ok) throw new Error(`${dir}/subsets.json: unexpected shape`);
+  return manifest;
+}
+
+function renderLocal(source: LocalSubsets, outDir: string): string[] {
+  const dir = join(PKG_ROOT, source.dir);
+  const manifest = readManifest(dir);
+  // The subsets must come from the installed package: a bump needs scripts/fonts/subset-playpen.sh.
+  const pkgDir = join(PKG_ROOT, 'node_modules', manifest.source.package);
+  for (const [file, hash] of Object.entries(manifest.source.files)) {
+    if (sha256(join(pkgDir, 'files', file)) !== hash) {
+      throw new Error(
+        `${source.dir} was built from another ${manifest.source.package} (${file} changed): run scripts/fonts/subset-playpen.sh`,
+      );
+    }
+  }
+  const rel = relative(outDir, dir).split('\\').join('/');
+  const blocks = manifest.files.map((f) => {
+    if (sha256(join(dir, f.file)) !== f.sha256) {
+      throw new Error(`${source.dir}/${f.file} does not match subsets.json: run scripts/fonts/subset-playpen.sh`);
+    }
+    return [
+      `/* ${f.file.replace(/\.woff2$/, '')} */`,
+      '@font-face {',
+      `  font-family: '${manifest.family}';`,
+      '  font-style: normal;',
+      '  font-display: swap;',
+      `  font-weight: ${f.weight};`,
+      `  src: url(${rel}/${f.file}) format('woff2');`,
+      `  unicode-range: ${f.unicodeRange};`,
+      '}',
+    ].join('\n');
+  });
+  return [
+    '',
+    `/* ---- ${source.dir} (${manifest.source.package} ${manifest.source.version}, scripts/fonts/subset-playpen.sh): ${source.role} ---- */`,
+    '',
+    blocks.join('\n\n'),
+  ];
+}
+
 function render(): string {
   const outDir = dirname(OUT_FILE);
   const parts: string[] = [
     '/*',
-    ' * GENERATED by scripts/build-fonts-css.ts from the installed @fontsource packages. Do not edit.',
+    ' * GENERATED by scripts/build-fonts-css.ts from the installed @fontsource packages and the',
+    ' * Playpen Sans subsets in fonts/playpen-sans. Do not edit.',
     ' * Only the subsets the site needs are declared; browsers download a file only when a',
-    ' * character in its unicode-range is rendered with that family.',
+    ' * character in its unicode-range is rendered with that family and weight.',
     ' */',
   ];
   for (const source of SOURCES) {
-    const pkgDir = join(PKG_ROOT, 'node_modules', source.pkg);
-    const css = readFileSync(join(pkgDir, source.file), 'utf8');
-    const pkgId = source.pkg.split('/')[1] ?? source.pkg;
-    const kept: string[] = [];
-    const found = new Set<string>();
-    for (const match of css.matchAll(BLOCK_RE)) {
-      const [, name = '', block = ''] = match;
-      const subset = subsetOf(name, pkgId);
-      if (subset === null) continue;
-      found.add(subset);
-      if (!source.subsets.includes(subset)) continue;
-      const rel = relative(outDir, pkgDir).split('\\').join('/');
-      const woff2Only = block.replace(/,\s*url\([^)]*\.woff\)\s*format\('woff'\)/g, '');
-      kept.push(`/* ${name} */\n${woff2Only.replace(/url\(\.\/files\//g, `url(${rel}/files/`)}`);
-    }
-    const missing = source.subsets.filter((s) => !found.has(s));
-    if (missing.length > 0) {
-      throw new Error(`${source.pkg}/${source.file}: missing subsets ${missing.join(', ')}`);
-    }
-    parts.push('', `/* ---- ${source.pkg}/${source.file}: ${source.role} ---- */`, '', kept.join('\n\n'));
+    parts.push(...('dir' in source ? renderLocal(source, outDir) : renderFontsource(source, outDir)));
   }
   return `${parts.join('\n')}\n`;
 }

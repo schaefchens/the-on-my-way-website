@@ -111,8 +111,9 @@ describe.skipIf(!present)('generator: full run on the fixtures', () => {
   it('links exactly the referenced media into OUT_DIR (hard links), never hidden or revoked ones', () => {
     const outMedia = Object.keys(snapshot(h.outDir)).filter((p) => p.startsWith('media/'));
     const referenced = new Set<string>();
-    for (const f of readdirSync(join(h.outDir, 'data/days'))) {
-      const text = readOut(h, `data/days/${f}`);
+    // Day files reference the entries' media; timeline.json also the portrait's round crop.
+    for (const f of [...readdirSync(join(h.outDir, 'data/days')).map((d) => `data/days/${d}`), 'data/timeline.json']) {
+      const text = readOut(h, f);
       for (const m of text.matchAll(/"(media\/[^"]+)"/g)) if (m[1]) referenced.add(m[1]);
     }
     expect(outMedia).toEqual([...referenced].sort());

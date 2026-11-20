@@ -53,6 +53,60 @@
       ],
       "type": "string"
     },
+    "site.author": {
+      "anyOf": [
+        {
+          "maxLength": 60,
+          "minLength": 1,
+          "pattern": "^[^\\p{Cc}\\p{Z}](?:[^\\p{Cc}]*[^\\p{Cc}\\p{Z}])?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "site.avatar": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "focus": {
+              "additionalProperties": false,
+              "properties": {
+                "x": {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "y": {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "y"
+              ],
+              "type": "object"
+            },
+            "sourceKey": {
+              "maxLength": 160,
+              "pattern": "^[a-z]+:[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "sourceKey"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "site.default_locale": {
       "enum": [
         "de",
@@ -63,6 +117,31 @@
     },
     "site.indexable": {
       "type": "boolean"
+    },
+    "site.intro": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[^\\p{Cc}\\p{Z}](?:(?:[^\\p{Cc}]|\\n)*[^\\p{Cc}\\p{Z}])?$",
+            "type": "string"
+          },
+          "minProperties": 1,
+          "propertyNames": {
+            "enum": [
+              "de",
+              "en",
+              "ar"
+            ],
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "site.locales": {
       "items": {

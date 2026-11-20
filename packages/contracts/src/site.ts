@@ -16,6 +16,9 @@
  *   site under that same URL (a target with a different path needs its own OUT_DIR).
  * - Owner text fields (title/summary/description) carry `orig`, the locale they were written in
  *   (fallback label "Original: …", see i18n.ts).
+ * - timeline.json optionally carries the owner's profile (SiteProfile: author, intro per locale,
+ *   portrait); timeline v = contentHash({ trips, days }) plus `profile` only when present, so a
+ *   site without a profile keeps its hashes.
  */
 import { z } from 'zod';
 import {
@@ -81,6 +84,81 @@ export const AudioMedia = z.object({
   peaks: z.array(z.number().min(0).max(1)),
 });
 export type AudioMedia = z.infer<typeof AudioMedia>;
+
+// ---------------------------------------------------------------------------------------------
+// Profile: whose journey it is (owner settings site.author / site.intro / site.avatar)
+
+/**
+ * Edge lengths of the portrait's own files: a round crop of the chosen photo (the circle the site
+ * and the admin show), never the photo's frame. 96 CSS px is the largest portrait box (the hero),
+ * so 288 covers it at DPR 3.
+ */
+export const AVATAR_SIZES = [96, 192, 288] as const;
+/** Widest file a portrait publishes (AVATAR_SIZES; never the photo's own variants or OG image). */
+export const AVATAR_MAX_WIDTH = 288;
+
+/** One line of plain text: no control characters, no leading/trailing whitespace. */
+const TRIMMED_LINE_RE = /^[^\p{Cc}\p{Z}](?:[^\p{Cc}]*[^\p{Cc}\p{Z}])?$/u;
+/** Like TRIMMED_LINE_RE, but line feeds ("\n") may separate lines. */
+const TRIMMED_TEXT_RE = /^[^\p{Cc}\p{Z}](?:(?:[^\p{Cc}]|\n)*[^\p{Cc}\p{Z}])?$/u;
+
+/** Display name of the traveler, e.g. "Lea": one trimmed line, 1..60 characters. */
+export const AuthorName = z.string().min(1).max(60).regex(TRIMMED_LINE_RE, {
+  message: 'Expected one line without leading/trailing spaces or control characters',
+});
+
+/** A short greeting in one locale: plain text (never markdown), trimmed, 1..160 characters. */
+export const IntroText = z.string().min(1).max(160).regex(TRIMMED_TEXT_RE, {
+  message: 'Expected plain text without leading/trailing spaces or control characters (line feeds allowed)',
+});
+
+/** The greeting per locale (I18nText shape); at least one locale. */
+export const IntroI18n = z
+  .partialRecord(LocaleCode, IntroText)
+  .refine((value) => Object.keys(value).length > 0, { message: 'At least one locale' })
+  .meta({ minProperties: 1 });
+export type IntroI18n = z.infer<typeof IntroI18n>;
+
+/**
+ * Focus point of a portrait as fractions of the image (x from the left edge, y from the top),
+ * for CSS `object-position: <x·100>% <y·100>%`. Physical image coordinates: never mirrored in RTL.
+ */
+export const FocusPoint = z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) });
+export type FocusPoint = z.infer<typeof FocusPoint>;
+
+const AvatarSource = ImageSource.extend({ w: z.int().positive().max(AVATAR_MAX_WIDTH) });
+
+/**
+ * The published portrait: an ImageSet of its own small square files (the backend crops the
+ * chosen photo around the owner's focus point and makes the corners transparent), at most
+ * AVATAR_MAX_WIDTH wide, without an OG image; w/h are those of the widest file. `focus` is for
+ * portraits that are not pre-cropped (object-position); the generator's crops need none.
+ */
+export const AvatarImage = z.object({
+  w: z.int().positive(),
+  h: z.int().positive(),
+  color: HexColor,
+  thumbhash: Base64,
+  /** Ascending by width. */
+  sources: z.object({
+    avif: z.array(AvatarSource).min(1),
+    webp: z.array(AvatarSource).min(1),
+  }),
+  focus: FocusPoint.optional(),
+});
+export type AvatarImage = z.infer<typeof AvatarImage>;
+
+/**
+ * Who travels: present in timeline.json only when the owner set at least one part. Every part is
+ * optional on its own (a portrait whose photo is unavailable is simply left out).
+ */
+export const SiteProfile = z.object({
+  author: AuthorName.optional(),
+  /** Greeting per locale (plain text, shown in the handwritten face). */
+  intro: IntroI18n.optional(),
+  avatar: AvatarImage.optional(),
+});
+export type SiteProfile = z.infer<typeof SiteProfile>;
 
 /** Rendered WhatsApp text status (shared with the API capture mirror). */
 export const TextStyle = z.object({
@@ -197,9 +275,15 @@ export type TripSummary = z.infer<typeof TripSummary>;
 export const TimelineIndex = z.object({
   contractVersion: ContractVersion,
   generatedAt: IsoUtc,
+  /**
+   * Published trips only: a trip appears once at least one of its days has a public entry
+   * (publishedTrips() in ./policy); planned trips without a public day are left out everywhere.
+   */
   trips: z.array(TripSummary),
   /** Ascending by date. */
   days: z.array(DaySummary),
+  /** Whose journey it is; absent when the owner set none of site.author/intro/avatar. */
+  profile: SiteProfile.optional(),
 });
 export type TimelineIndex = z.infer<typeof TimelineIndex>;
 
@@ -283,6 +367,11 @@ export const Boot = z.object({
   timelineV: ContentHash,
   /** Inlined day data for day/story pages (saves a request for the first screen). */
   day: DayDetail.optional(),
+  /**
+   * The timeline's profile, inlined next to `day` on day/story pages: their player mounts before
+   * timeline.json has arrived and shows the portrait at once (absent when there is no profile).
+   */
+  profile: SiteProfile.optional(),
 });
 export type Boot = z.infer<typeof Boot>;
 

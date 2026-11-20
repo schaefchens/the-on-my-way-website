@@ -8,8 +8,10 @@ import {
   effectiveTz,
   MODE_SINCE_EPOCH,
   modeForCapture,
+  nextModeSince,
   overlappingTrips,
   type PolicySettings,
+  publishedTrips,
   tripForDate,
   tripRangesOverlap,
 } from '../src/policy.js';
@@ -129,6 +131,57 @@ describe('publish.mode_since: mode switches only affect newer captures', () => {
   });
 });
 
+describe('nextModeSince (PHP Policy::nextModeSince)', () => {
+  const s = (mode: PolicySettings['publish.mode'], delay: number, since: string = MODE_SINCE_EPOCH) => ({
+    'publish.mode': mode,
+    'publish.delay_minutes': delay,
+    'publish.mode_since': since,
+  });
+  const t = '2026-11-20T10:00:00.000Z';
+
+  it('moves the cut-off only where a switch could otherwise unpublish or release', () => {
+    expect(nextModeSince(s('instant', 60), s('delayed', 60), t)).toBe(t);
+    expect(nextModeSince(s('instant', 60), s('review', 60), t)).toBe(t);
+    expect(nextModeSince(s('instant', 60), s('instant', 120), t)).toBe(MODE_SINCE_EPOCH);
+    expect(nextModeSince(s('delayed', 60), s('review', 60), t)).toBe('2026-11-20T09:00:00.001Z');
+    expect(nextModeSince(s('delayed', 60, '2026-11-20T09:30:00Z'), s('review', 60), t)).toBe(
+      '2026-11-20T09:30:00.000Z',
+    );
+    expect(nextModeSince(s('delayed', 0), s('review', 0), t)).toBe('2026-11-20T10:00:00.001Z');
+    expect(nextModeSince(s('delayed', 60), s('delayed', 120), t)).toBe('2026-11-20T09:00:00.001Z');
+    expect(nextModeSince(s('delayed', 60), s('delayed', 60), t)).toBe(MODE_SINCE_EPOCH);
+    expect(nextModeSince(s('delayed', 60), s('instant', 60), t)).toBe(MODE_SINCE_EPOCH);
+    expect(nextModeSince(s('review', 60, '2026-11-17T10:00:00Z'), s('delayed', 30), t)).toBe(
+      '2026-11-17T10:00:00.000Z',
+    );
+    expect(nextModeSince({ 'publish.mode': 'review', 'publish.delay_minutes': 60 }, s('delayed', 60), t)).toBe(
+      MODE_SINCE_EPOCH,
+    );
+  });
+
+  it('review -> delayed releases exactly the waiting statuses older than the new delay', () => {
+    const before = { ...s('review', 720, '2026-11-17T10:00:00.000Z'), 'ingest.on_revoke': 'hide' as const };
+    const patch = { 'publish.mode': 'delayed' as const, 'publish.delay_minutes': 360 };
+    const after = { ...before, ...patch, 'publish.mode_since': nextModeSince(before, patch, t) };
+    const vis = (at: string, st: PolicySettings) => effectiveCaptureVisibility({ occurredAt: at }, null, st, t);
+    const cases: [string, Visibility, Visibility][] = [
+      ['2026-11-17T09:59:59.999Z', 'public', 'public'], // before review began: instant
+      ['2026-11-19T22:00:00.000Z', 'pending', 'public'], // 12 h old
+      ['2026-11-20T04:00:00.000Z', 'pending', 'public'], // exactly the new delay
+      ['2026-11-20T04:00:00.001Z', 'pending', 'pending'], // 1 ms younger than the delay
+      ['2026-11-20T09:59:00.000Z', 'pending', 'pending'],
+    ];
+    for (const [at, was, is] of cases) {
+      expect(vis(at, before), at).toBe(was);
+      expect(vis(at, after), at).toBe(is);
+    }
+    // ...and the younger ones follow the delay from then on.
+    expect(
+      effectiveCaptureVisibility({ occurredAt: '2026-11-20T09:59:00.000Z' }, null, after, '2026-11-20T15:59:00Z'),
+    ).toBe('public');
+  });
+});
+
 describe('posts and placement', () => {
   it('posts carry their own visibility', () => {
     expect(effectivePostVisibility({ visibility: 'hidden' })).toBe('hidden');
@@ -177,5 +230,16 @@ describe('trips', () => {
       'vietnam-2026',
     ]);
     expect(overlappingTrips({ ...vietnam, endDate: '2026-11-18' }, trips)).toEqual([]);
+  });
+
+  it('publishedTrips: only trips with at least one public day (planned trips stay off the site)', () => {
+    const planned = { slug: 'japan-2027', startDate: '2027-03-01', endDate: '2027-03-20' };
+    const all = [berlin, vietnam, planned];
+    expect(publishedTrips(all, ['2026-11-15', '2026-11-20'])).toEqual([vietnam]);
+    expect(publishedTrips(all, ['2026-11-01', '2027-03-20'])).toEqual([berlin, planned]);
+    expect(publishedTrips(all, [])).toEqual([]);
+    // A day of overlapping (forbidden) ranges counts for the trip tripForDate() picks.
+    const overlap = { slug: 'a-hoi-an', startDate: '2026-11-15', endDate: '2026-11-16' };
+    expect(publishedTrips([...all, overlap], ['2026-11-15'])).toEqual([vietnam]);
   });
 });

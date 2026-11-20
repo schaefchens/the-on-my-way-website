@@ -1,11 +1,12 @@
 /**
  * Item sheet of a captured status: the WhatsApp caption (read-only), the owner's description per
- * language, visibility, moving it to another day, the day cover and its live status.
+ * language, visibility, moving it to another day, the day cover, the owner's portrait (photos)
+ * and its live status.
  */
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { Visibility } from '@omw/contracts';
-import type { Annotation, CaptureListItem } from '@omw/contracts/api';
+import type { Annotation, CaptureListItem, Settings } from '@omw/contracts/api';
 import { LOCALES, type LocaleCode } from '@omw/contracts/i18n';
 import { isValidLocalDate, localDateFor } from '@omw/contracts/time';
 import { formatDateTime, formatLocalDate, formatTime } from '@omw/ui/locale';
@@ -18,8 +19,18 @@ import { cachedDayTz } from '../api/cache';
 import { captureQuery, daysQuery, settingsQuery } from '../api/queries';
 import { type AnnotationFields, writeBase } from '../api/types';
 import { CaptureVisual } from '../components/capture';
-import { CalendarIcon, EyeIcon, InfoIcon, MoveIcon, StarIcon, UndoIcon } from '../components/icons';
+import {
+  CalendarIcon,
+  EyeIcon,
+  EyeOffIcon,
+  HeartIcon,
+  InfoIcon,
+  MoveIcon,
+  StarIcon,
+  UndoIcon,
+} from '../components/icons';
 import { KIND_LABEL } from '../components/labels';
+import { PortraitPreview, useSetPortrait } from '../components/portrait';
 import { CapturePublishChip, VisibilityBadge } from '../components/status';
 import {
   Badge,
@@ -45,6 +56,7 @@ import { cleanText, dirtyPatch, filledLocales } from '../lib/forms';
 import { useLocale, useNotifyWrite, usePendingEntities, useWrite } from '../lib/hooks';
 import { notify } from '../lib/notices';
 import { deviceTimeZone } from '../lib/places';
+import { portraitProblem } from '../lib/profile';
 import { publishable, useSetCover, useToggleVisibility } from './inbox';
 
 const itemApi = getRouteApi('/authed/inbox/$sourceKey');
@@ -283,6 +295,53 @@ function MoveForm({ capture: c }: { capture: CaptureListItem }) {
   );
 }
 
+/**
+ * "Use as portrait" for a photo (owner profile, site.avatar), with an undo offer. A photo can be
+ * the portrait while it is hidden in the timeline: then a hint says so.
+ */
+function PortraitSection({ capture: c, settings }: { capture: CaptureListItem; settings: Settings | undefined }) {
+  const setPortrait = useSetPortrait();
+  const current = settings?.['site.avatar'] ?? null;
+  const isPortrait = current?.sourceKey === c.sourceKey;
+  // Deleted on WhatsApp, lost or still processing: not offered (the API would refuse it).
+  if (portraitProblem(c) && !isPortrait) return null;
+  return (
+    <Section icon={HeartIcon} title={<Trans>Portrait</Trans>}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {isPortrait && <PortraitPreview setting={current} capture={c} size="sm" />}
+          <p className="text-sm text-muted">
+            {isPortrait ? (
+              <Trans>This photo is your portrait on the site.</Trans>
+            ) : (
+              <Trans>Show this photo as your portrait on the site, as a small circle next to your name.</Trans>
+            )}
+          </p>
+        </div>
+        {/* A plain button whose label names the action (no aria-pressed: a toggle would keep
+            one label, and "Remove as portrait, pressed" contradicts itself). */}
+        <Button
+          variant={isPortrait ? 'soft' : 'secondary'}
+          icon={HeartIcon}
+          data-testid="use-as-portrait"
+          onClick={() => setPortrait(isPortrait ? null : { sourceKey: c.sourceKey })}
+        >
+          {isPortrait ? <Trans>Remove as portrait</Trans> : <Trans>Use as portrait</Trans>}
+        </Button>
+      </div>
+      {isPortrait && c.effectiveVisibility !== 'public' && (
+        <p
+          data-testid="portrait-hidden-hint"
+          className="mt-3 flex items-start gap-2 rounded-tile bg-lilac px-3 py-2 text-sm text-ink"
+        >
+          <EyeOffIcon className="size-4 translate-y-0.5 text-violet" />
+          <Trans>Not shown in your timeline, but still your portrait on the site.</Trans>
+        </p>
+      )}
+    </Section>
+  );
+}
+
 export function ItemSheetScreen() {
   const { sourceKey } = itemApi.useParams();
   const { focus } = itemApi.useSearch();
@@ -428,6 +487,7 @@ export function ItemSheetScreen() {
               </div>
             </Section>
           )}
+          {c.kind === 'photo' && <PortraitSection capture={c} settings={settings.data} />}
           <p className="px-1 text-xs text-muted">
             <Link
               to="/days/$date"

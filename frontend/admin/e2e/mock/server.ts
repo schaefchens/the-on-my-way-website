@@ -5,8 +5,8 @@
  *   /admin/*       static admin build (--dist), SPA fallback to index.html; sw.js and index.html
  *                  with Cache-Control: no-cache, hashed assets immutable
  *   /__mock/*      test control: POST reset | publish | day/<date> (edit elsewhere) | alerts |
- *                  capture ({minutesAgo, caption}: a fresh status) | settings (stored as is),
- *                  GET state | log
+ *                  capture ({minutesAgo, caption}: a fresh status) | settings (stored as is) |
+ *                  revoke/<sourceKey> (deleted on WhatsApp), GET state | log
  *
  *   node --conditions=@omw/source --import tsx e2e/mock/server.ts --port 51750 [--dist <dir>]
  * Without --dist only the API is served (use it as OMW_API_DEV_URL for `vite` dev).
@@ -119,7 +119,11 @@ export async function startMockServer(opts: {
           const sourceKey = api.addCapture(parsed as { minutesAgo?: number; caption?: string; id?: string });
           return send(res, { status: 200, json: { sourceKey } });
         } else if (action === 'settings') api.setSettings(parsed as never);
-        else if (action === 'state') return send(res, { status: 200, json: api.snapshot() });
+        else if (action.startsWith('revoke/')) {
+          if (!api.revokeCapture(decodeURIComponent(action.slice('revoke/'.length)))) {
+            return send(res, { status: 404, json: { error: 'unknown capture' } });
+          }
+        } else if (action === 'state') return send(res, { status: 200, json: api.snapshot() });
         else if (action === 'log') return send(res, { status: 200, json: api.log });
         else return send(res, { status: 404, json: { error: 'unknown control' } });
         return send(res, { status: 200, json: { ok: true } });

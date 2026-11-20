@@ -127,7 +127,8 @@ final class ChannelNotifierTest extends TestCase
         $config = $this->config(['APP_ENV' => 'production']);
         $db = $this->migratedDb($config);
         $db->exec("INSERT INTO settings (key, value, updated_at) VALUES ('alerts.ntfy_url', '\"http://127.0.0.1:19103/topic\"', '2026-11-20T10:00:00.000Z')");
-        $db->exec("INSERT INTO backend_status (id, heartbeat, wa_state, backend_version, received_at) VALUES (1, '{}', 'logged_out', 'x', '2026-11-20T10:00:00.000Z')");
+        // A fresh heartbeat (the cron below reads the real clock), so only wa_logged_out fires.
+        $db->exec('INSERT INTO backend_status (id, heartbeat, wa_state, backend_version, received_at) VALUES (1, \'{}\', \'logged_out\', \'x\', ?)', [\Omw\Api\Infra\Clock::nowIso()]);
         $container = \Omw\Api\App::buildContainer($config, 'cron');
 
         $result = $container->get(\Omw\Api\Infra\CronRunner::class);

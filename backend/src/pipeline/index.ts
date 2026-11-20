@@ -16,6 +16,14 @@ import { type ImageEncodeOptions, processImage } from './image.js';
 import { processVideo } from './video.js';
 import { processVoice } from './voice.js';
 
+export {
+  AVATAR_FILE_RE,
+  type AvatarCrop,
+  avatarCropRegion,
+  avatarSourceVariant,
+  makeAvatarCrop,
+  removeStaleAvatarCrops,
+} from './avatar.js';
 export { AbortedError, isAbortError, ToolError, type ToolPaths, toolPathsFromEnv } from './exec.js';
 export { sha256File, writeFileDurable } from './files.js';
 export { DEFAULT_IMAGE_OPTIONS, type ImageEncodeOptions, processImage, widthTargets } from './image.js';

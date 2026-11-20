@@ -46,6 +46,11 @@ export interface SiteBuild {
   /** Vietnamese subsets of the body/display fonts (preloaded only on pages with Vietnamese text). */
   fontVietnamese: string[];
   /**
+   * The handwriting face (Playpen Sans, weight 400): its Latin and its Vietnamese subset,
+   * preloaded only where hand-font text is on the first screen (pages.ts handFontText).
+   */
+  fontHand: { latin: string[]; vietnamese: string[] };
+  /**
    * Lazy chunks a page knows it needs right away (L3-01), each with its static imports minus what
    * the entry already loads: the Lingui catalog per locale ("de" -> [messages-….js]), the journey
    * player (day and story pages) and the story sheet (story pages).
@@ -138,6 +143,16 @@ export async function readSiteBuild(dir: string, entryKey = DEFAULT_ENTRY): Prom
     .filter((a) => /^assets\/(?:nunito-vietnamese-wght-normal|fraunces-vietnamese-soft-normal)-[\w-]+\.woff2$/.test(a))
     .map(checkRel)
     .sort();
+  const fontHand = {
+    latin: (entry.assets ?? [])
+      .filter((a) => /^assets\/playpen-sans-latin-400-[\w-]+\.woff2$/.test(a))
+      .map(checkRel)
+      .sort(),
+    vietnamese: (entry.assets ?? [])
+      .filter((a) => /^assets\/playpen-sans-vietnamese-400-[\w-]+\.woff2$/.test(a))
+      .map(checkRel)
+      .sort(),
+  };
   // A lazy chunk plus its static imports, without what the entry loads anyway.
   const loaded = new Set([entry.file, ...preload]);
   const lazyChunk = (key: string): string[] => {
@@ -168,6 +183,7 @@ export async function readSiteBuild(dir: string, entryKey = DEFAULT_ENTRY): Prom
     modulepreload: preload,
     fontPreload,
     fontVietnamese,
+    fontHand,
     localeChunks,
     playerChunks: manifest['src/player/index.ts'] ? lazyChunk('src/player/index.ts') : [],
     storySheetChunks: manifest['src/player/story-sheet.tsx'] ? lazyChunk('src/player/story-sheet.tsx') : [],
