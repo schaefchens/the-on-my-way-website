@@ -1,0 +1,144 @@
+# On My Way backend (plan A7). Run from backend/:
+#
+#   docker compose up -d --build                 # build + start (control UI: http://127.0.0.1:8787)
+#   docker compose logs -f backend               # logs (JSON lines)
+#   docker compose exec backend backend status   # CLI inside the container
+#   docker compose --profile demo up --build backend-demo   # fixtures, no phone (see below)
+#   ../scripts/docker-e2e.sh                     # automated fixture run of the image + Playwright
+#
+# Configuration comes from ../.env (repository root, optional, read literally: `format: raw`, so
+# passwords with $ or quotes are safe, but a `# comment` after a value becomes part of the value:
+# comments only on their own lines). Put at least these there (see backend/README.md):
+#   CONTROL_TOKEN=<random, >= 16 chars>        required in production
+#   TRAVELER_PHONE=<digits, e.g. 4915112345678> required for WA_MODE=observer (the default)
+#   SITE_PUBLIC_URL=https://example.org/       public URL of the static site
+#   API_BASE_URL=… / API_TOKEN=omw_…           optional: owner content via the PHP API
+#   NTFY_URL, LOG_LEVEL, DEFAULT_TIMEZONE, SEND_READ_RECEIPT, TRAVELER_LID, CONTROL_ALLOWED_HOSTS
+# NOTE: SFTP_HOST/SFTP_USER/SFTP_PASSWORD(/SFTP_PORT/SITE_BASE_URL) in that file make the
+# publisher create an SFTP publish target on the first start (when data/config/targets.json does
+# not exist yet) — the site is then deployed there automatically. Leave them out to configure
+# targets in the control UI instead.
+# Keys of that file the backend never uses (API_SFTP_*, OPENAI_KEY, …: they belong to
+# scripts/deploy-api.ts and other host tools) are blanked below (x-host-only-env), so they never
+# reach the container environment. Add new host-only secrets there.
+#
+# Paths inside the container are pinned below (environment wins over the env file):
+#   /data                  named volume: store.db (SQLite WAL), WhatsApp session, inbox
+#   /app/backend/data      bind mount ./data: archive/ (home backup!), out/ (generated site),
+#                          config/ (publish targets, SSH keys), media/ (processed variants;
+#                          same filesystem as out/ so public media are hard links, not copies)
+# On Linux hosts the container user is uid 1000 (node): `sudo chown -R 1000:1000 data`.
+
+name: omw
+
+x-host-only-env: &host-only-env
+  API_SFTP_HOST: ""
+  API_SFTP_PORT: ""
+  API_SFTP_USER: ""
+  API_SFTP_PASSWORD: ""
+  API_SFTP_REMOTE_ROOT: ""
+  API_SITE_BASE_URL: ""
+  OMW_ADMIN_EMAIL: ""
+  OPENAI_KEY: ""
+
+x-backend: &backend
+  restart: unless-stopped
+  init: true
+  stop_grace_period: 60s
+  env_file:
+    - path: ../.env
+      required: false
+      format: raw
+  healthcheck:
+    test:
+      [
+        "CMD",
+        "node",
+        "-e",
+        "fetch('http://127.0.0.1:8787/healthz',{signal:AbortSignal.timeout(4000)}).then(r=>process.exit(r.ok?0:1),()=>process.exit(1))",
+      ]
+    interval: 30s
+    timeout: 5s
+    start_period: 60s
+    retries: 3
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+
+services:
+  backend:
+    <<: *backend
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      target: runtime
+      args:
+        OMW_VERSION: ${OMW_VERSION:-0.1.0-docker}
+    image: omw-backend:${OMW_IMAGE_TAG:-latest}
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      <<: *host-only-env
+      NODE_ENV: production
+      CONTROL_HOST: 0.0.0.0
+      CONTROL_PORT: "8787"
+      DATA_DIR: /data
+      ARCHIVE_DIR: /app/backend/data/archive
+      OUT_DIR: /app/backend/data/out
+      CONFIG_DIR: /app/backend/data/config
+      MEDIA_DIR: /app/backend/data/media
+      WA_HELPER_BIN: /app/backend/wa-helper/bin/wa-helper
+      SITE_DIST_DIR: /app/frontend/site/dist
+    volumes:
+      - omw-state:/data
+      - ./data:/app/backend/data
+
+  # Fixture replay instead of WhatsApp (plan "End-to-end verification" 1). Separate state and
+  # output (./data/demo), same port: stop `backend` first. Token: omw-demo-control-token.
+  # No publish target: view ./data/demo/out with the generator's static server (docs/OPERATIONS.md).
+  backend-demo:
+    <<: *backend
+    profiles: [demo]
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      target: demo
+      args:
+        OMW_VERSION: ${OMW_VERSION:-0.1.0-demo}
+    image: omw-backend:demo
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      <<: *host-only-env
+      NODE_ENV: production
+      WA_MODE: fixture
+      CONTROL_TOKEN: omw-demo-control-token
+      CONTROL_HOST: 0.0.0.0
+      CONTROL_PORT: "8787"
+      DATA_DIR: /data
+      ARCHIVE_DIR: /app/backend/data/archive
+      OUT_DIR: /app/backend/data/out
+      CONFIG_DIR: /app/backend/data/config
+      MEDIA_DIR: /app/backend/data/media
+      SITE_DIST_DIR: /app/frontend/site/dist
+      # The demo never publishes anywhere by itself and never talks to an API: no SFTP_* value
+      # (incl. the live site's password) reaches it.
+      SFTP_HOST: ""
+      SFTP_PORT: ""
+      SFTP_USER: ""
+      SFTP_PASSWORD: ""
+      SFTP_PRIVATE_KEY_PATH: ""
+      SFTP_REMOTE_ROOT: ""
+      SITE_BASE_URL: ""
+      API_BASE_URL: ""
+      API_TOKEN: ""
+      SITE_PUBLIC_URL: http://127.0.0.1:4173/
+    volumes:
+      - omw-demo-state:/data
+      - ./data/demo:/app/backend/data
+
+volumes:
+  omw-state:
+  omw-demo-state:

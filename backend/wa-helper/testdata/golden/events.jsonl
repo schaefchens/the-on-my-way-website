@@ -1,0 +1,31 @@
+{"mode":"observer","paired":false,"type":"ready","version":"0.2.0"}
+{"at":"2026-11-15T02:12:03.000Z","state":"connecting","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","state":"qr","type":"state"}
+{"code":"2@abc,def","expiresAt":"2026-11-15T02:13:03.000Z","type":"qr"}
+{"code":"ABCD-EFGH","type":"pair_code"}
+{"at":"2026-11-15T02:12:03.000Z","jid":"4915100000002@s.whatsapp.net","reason":"pair_success","state":"pairing","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","jid":"4915100000002@s.whatsapp.net","state":"open","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","reason":"disconnected","state":"closed","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","code":3,"reason":"keepalive_timeout","state":"closed","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","reason":"keepalive_restored","state":"open","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","reason":"pair_timeout","state":"closed","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","detail":"stream_replaced cooldown: not connecting before 2026-11-15T02:17:03.000Z","state":"closed","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","code":101,"detail":"ban","reason":"temporary_ban","state":"banned","type":"state","until":"2026-11-15T03:12:03.000Z"}
+{"at":"2026-11-15T02:12:03.000Z","code":401,"detail":"logged out","state":"logged_out","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","detail":"another client took over this session","state":"stream_replaced","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","detail":"boom","reason":"pair_error","state":"error","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","reason":"client_outdated","state":"error","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","code":500,"detail":"boom","reason":"connect_failure","state":"error","type":"state"}
+{"at":"2026-11-15T02:12:03.000Z","detail":"boom","reason":"fatal","state":"error","type":"state"}
+{"msgId":"3EB0GOLDENphoto","source":"live","type":"status"}
+{"msgId":"3EB0GOLDENvideo","source":"history","type":"status"}
+{"at":"2026-11-15T02:12:03.000Z","msgId":"3EB0GOLDENphoto","type":"revoke"}
+{"lid":"100000000000001","pn":"4915100000001","type":"traveler"}
+{"pn":"4915100000001","type":"traveler"}
+{"counters":{"captured":2,"handler_panics":0,"history_statuses":0,"invalid_commands":0,"invalid_id":0,"media_active":1,"media_failed":0,"media_ok":0,"media_retry":0,"media_retry_answers":0,"other_senders":0,"persist_failed":0,"revokes":0,"status_stanzas":0,"undecryptable":0,"unmatched_lid":0},"type":"stats"}
+{"code":"invalid_command","detail":"not a JSON object","type":"warning"}
+{"code":"command_rejected","command":"redownload","detail":"download state is \"ok\"","msgId":"3EB0GOLDENphoto","type":"warning"}
+{"code":"command_failed","command":"pair_code","detail":"phone number too short","type":"warning"}
+{"msgId":"3EB0GOLDENok","state":"ok","type":"media"}
+{"error":"download failed: download failed with status code 404","msgId":"3EB0GOLDENretry","state":"retrying","type":"media"}
+{"error":"the phone answered NOT_FOUND","msgId":"3EB0GOLDENretry","permanent":true,"reason":"expired","state":"failed","type":"media"}

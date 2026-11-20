@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/SettingsPatch.json",
+  "title": "SettingsPatch",
+  "additionalProperties": false,
+  "properties": {
+    "alerts.email": {
+      "anyOf": [
+        {
+          "format": "email",
+          "maxLength": 254,
+          "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "alerts.heartbeat_stale_minutes": {
+      "maximum": 10080,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "alerts.ntfy_url": {
+      "anyOf": [
+        {
+          "pattern": "^https?:\\/\\/[^\\s/?#]+(?:[/?#]\\S*)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ingest.on_revoke": {
+      "enum": [
+        "hide",
+        "keep"
+      ],
+      "type": "string"
+    },
+    "publish.delay_minutes": {
+      "maximum": 525600,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "publish.mode": {
+      "enum": [
+        "instant",
+        "delayed",
+        "review"
+      ],
+      "type": "string"
+    },
+    "site.default_locale": {
+      "enum": [
+        "de",
+        "en",
+        "ar"
+      ],
+      "type": "string"
+    },
+    "site.indexable": {
+      "type": "boolean"
+    },
+    "site.locales": {
+      "items": {
+        "enum": [
+          "de",
+          "en",
+          "ar"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "site.title": {
+      "maxLength": 120,
+      "minLength": 1,
+      "type": "string"
+    },
+    "timezone.current": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_+\\-/]*$",
+      "type": "string"
+    }
+  },
+  "type": "object"
+}

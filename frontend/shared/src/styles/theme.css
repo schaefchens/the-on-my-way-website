@@ -1,0 +1,236 @@
+/*
+ * @omw/ui theme (Tailwind CSS v4, CSS-first). Import it right after Tailwind:
+ *
+ *   @import "tailwindcss";
+ *   @import "@omw/ui/theme.css";
+ *
+ * and load the font faces once from JS: `import '@omw/ui/fonts.css'`.
+ *
+ * Themes: light "dawn" and night "dusk" (docs/PLAN.md, section C, "Design system").
+ * - Default: follows prefers-color-scheme.
+ * - <html data-theme="night"> forces dusk, <html data-theme="dawn"> forces dawn
+ *   (works on any subtree too, because the tokens resolve through `color-scheme`).
+ * - Semantic tokens (bg, surface, ink, accent, …) switch automatically; raw palette tokens
+ *   (cream, plum-*, rose-*, …) do not.
+ * See frontend/shared/README.md for the token table.
+ */
+
+/* Scan this package's components for class names. */
+@source "../";
+
+/* `dark:` = the night theme: forced via data-theme, or the OS setting unless dawn is forced. */
+@custom-variant dark {
+  &:where([data-theme="night"], [data-theme="night"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:not([data-theme="dawn"], [data-theme="dawn"] *)) {
+      @slot;
+    }
+  }
+}
+
+/* Only our palette exists, so every colour on the site comes from these tokens. */
+@theme {
+  --color-*: initial;
+
+  /* ---- raw palette (static) ---- */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-cream: #fff8f6;
+
+  --color-plum-50: #f7ecf2; /* dusk ink */
+  --color-plum-300: #c9b6cc; /* dusk muted */
+  --color-plum-600: #6a4e6f; /* dawn muted */
+  --color-plum-800: #3b2341; /* dawn ink, 13.3:1 on cream */
+  --color-plum-850: #30243b; /* dusk surface 2 */
+  --color-plum-900: #251a2e; /* dusk surface */
+  --color-plum-950: #1b1322; /* dusk background */
+
+  --color-rose-100: #fce7ee; /* blush */
+  --color-rose-200: #f7d0dd; /* blush, stronger */
+  --color-rose-300: #f4a3bc; /* dusk accent */
+  --color-rose-600: #be4a74; /* dawn buttons, white text 4.75:1 */
+  --color-rose-700: #9c3a5e;
+
+  --color-lilac-100: #eee6fa;
+  --color-lilac-300: #cdb8f0;
+  --color-violet-300: #bca4f2; /* dusk violet */
+  --color-violet-500: #8e6bd6; /* dawn focus ring */
+  --color-violet-700: #5d3fa0;
+
+  /* ---- type ---- */
+  --font-display:
+    "Fraunces Variable", "Vazirmatn Variable", "Rubik Variable", ui-serif, Georgia, "Times New Roman", serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  --font-body:
+    "Nunito Variable", "Vazirmatn Variable", "Rubik Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  --font-hand:
+    "Playpen Sans Variable", "Playpen Sans Arabic Variable", "Playpen Sans Hebrew Variable", "Nunito Variable",
+    ui-rounded, cursive, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+
+  /* WhatsApp text-status fonts (D10); weights live in fonts.ts (WA_FONTS). */
+  --font-wa-system: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Noto Color Emoji";
+  --font-wa-system-text: ui-serif, Georgia, "Times New Roman", serif, "Apple Color Emoji", "Noto Color Emoji";
+  --font-wa-script: var(--font-hand);
+  --font-wa-morningbreeze:
+    "Nunito Variable", ui-rounded, system-ui, sans-serif, "Apple Color Emoji", "Noto Color Emoji";
+  --font-wa-calistoga: "Calistoga", ui-serif, Georgia, serif, "Apple Color Emoji", "Noto Color Emoji";
+  --font-wa-exo2: "Exo 2 Variable", system-ui, sans-serif, "Apple Color Emoji", "Noto Color Emoji";
+  --font-wa-courierprime:
+    "Courier Prime", ui-monospace, "Courier New", monospace, "Apple Color Emoji", "Noto Color Emoji";
+
+  /* ---- shape ---- */
+  --radius-tile: 1rem;
+  --radius-card: 1.5rem;
+  --radius-sheet: 2rem;
+  --radius-pill: 9999px;
+
+  --spacing-gutter: 1rem;
+  --spacing-gutter-wide: 2rem;
+  --spacing-section: 3rem;
+
+  /* ---- motion (CSS side; JS springs live in motion.ts) ---- */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snappy: cubic-bezier(0.3, 0.7, 0.4, 1);
+  --ease-float: cubic-bezier(0.45, 0, 0.2, 1);
+
+  --animate-here-now: here-now 2.4s var(--ease-float) infinite;
+
+  @keyframes here-now {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--omw-accent) 45%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 0.5rem color-mix(in oklab, var(--omw-accent) 0%, transparent);
+    }
+  }
+}
+
+/*
+ * Semantic tokens. `inline` makes utilities reference the runtime variables directly, so a
+ * data-theme on any element re-themes its subtree. light-dark() picks a value by the computed
+ * `color-scheme` (Lightning CSS lowers it for older browsers in production builds).
+ */
+@theme inline {
+  --color-bg: var(--omw-bg);
+  --color-surface: var(--omw-surface);
+  --color-surface-2: var(--omw-surface-2);
+  --color-ink: var(--omw-ink);
+  --color-muted: var(--omw-muted);
+  --color-line: var(--omw-line);
+  --color-accent: var(--omw-accent);
+  --color-accent-strong: var(--omw-accent-strong);
+  --color-on-accent: var(--omw-on-accent);
+  --color-blush: var(--omw-blush);
+  --color-blush-strong: var(--omw-blush-strong);
+  --color-violet: var(--omw-violet);
+  --color-lilac: var(--omw-lilac);
+  --color-lilac-strong: var(--omw-lilac-strong);
+  --color-ring: var(--omw-ring);
+  --color-danger: var(--omw-danger);
+  --color-success: var(--omw-success);
+
+  --shadow-soft: 0 1px 2px var(--omw-shadow-near), 0 6px 20px -6px var(--omw-shadow-far);
+  --shadow-lift: 0 2px 4px var(--omw-shadow-near), 0 14px 36px -10px var(--omw-shadow-far);
+  --shadow-float: 0 4px 10px var(--omw-shadow-near), 0 24px 56px -16px var(--omw-shadow-far);
+}
+
+@layer base {
+  /* Declared on every [data-theme] element too, so lowered builds (Lightning CSS polyfills
+     light-dark() with per-element variables) re-theme subtrees as well. */
+  :root,
+  [data-theme] {
+    color-scheme: light dark;
+
+    /*            dawn (light)   dusk (night) */
+    --omw-bg: light-dark(#fff8f6, #1b1322);
+    --omw-surface: light-dark(#ffffff, #251a2e);
+    --omw-surface-2: light-dark(#fce7ee, #30243b);
+    --omw-ink: light-dark(#3b2341, #f7ecf2);
+    --omw-muted: light-dark(#6a4e6f, #c9b6cc);
+    --omw-line: light-dark(#f7d0dd, #3f2f4b);
+    --omw-accent: light-dark(#be4a74, #f4a3bc);
+    --omw-accent-strong: light-dark(#9c3a5e, #f8c1d2);
+    --omw-on-accent: light-dark(#ffffff, #1b1322);
+    --omw-blush: light-dark(#fce7ee, #3a2235);
+    --omw-blush-strong: light-dark(#f7d0dd, #4d2b45);
+    --omw-violet: light-dark(#5d3fa0, #bca4f2);
+    --omw-lilac: light-dark(#eee6fa, #2d2442);
+    --omw-lilac-strong: light-dark(#cdb8f0, #46386b);
+    --omw-ring: light-dark(#8e6bd6, #bca4f2);
+    --omw-danger: light-dark(#b42318, #ffa39e);
+    --omw-success: light-dark(#1f7a4d, #8fdcb4);
+    /* Soft, rose-tinted shadows by day; deep, neutral ones at night. */
+    --omw-shadow-near: light-dark(rgb(156 58 94 / 0.07), rgb(0 0 0 / 0.35));
+    --omw-shadow-far: light-dark(rgb(190 74 116 / 0.2), rgb(0 0 0 / 0.55));
+  }
+
+  [data-theme="dawn"] {
+    color-scheme: light;
+  }
+
+  [data-theme="night"] {
+    color-scheme: dark;
+  }
+
+  html {
+    background-color: var(--omw-bg);
+    color: var(--omw-ink);
+    font-family: var(--font-body);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--omw-bg);
+    color: var(--omw-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--omw-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--omw-blush-strong);
+    color: var(--omw-ink);
+  }
+
+  /* Owner/WhatsApp text: direction from content, isolated from surrounding text (plan C, RTL). */
+  [data-user-text] {
+    unicode-bidi: plaintext;
+  }
+}
+
+/* Subtle paper grain (signature touch). Put it on a full-bleed background layer. */
+@utility paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .23 0 0 0 0 .14 0 0 0 0 .25 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Washi-tape strip for note cards (signature touch). */
+@utility washi-tape {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block-start: -0.6rem;
+    inset-inline: 0;
+    margin-inline: auto;
+    inline-size: 5.5rem;
+    block-size: 1.4rem;
+    rotate: -3deg;
+    border-radius: 2px;
+    background: repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--omw-lilac-strong) 85%, transparent) 0 6px,
+      color-mix(in oklab, var(--omw-blush-strong) 85%, transparent) 6px 12px
+    );
+    opacity: 0.9;
+  }
+}

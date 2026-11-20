@@ -1,0 +1,31 @@
+{
+  "name": "on-my-way",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r typecheck && tsc -p fixtures/tsconfig.json",
+    "test": "pnpm -r test",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "build": "pnpm -r build",
+    "fixtures": "TSX_DISABLE_CACHE=1 node --conditions=@omw/source --import tsx fixtures/generate.ts",
+    "schemas": "pnpm --filter @omw/contracts schemas",
+    "schemas:check": "pnpm --filter @omw/contracts schemas:check"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@omw/contracts": "workspace:*",
+    "@playwright/test": "1.65.1",
+    "@types/node": "26.6.6",
+    "@types/ssh2-sftp-client": "9.0.6",
+    "sharp": "0.35.5",
+    "ssh2-sftp-client": "12.1.1",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "zod": "4.6.7"
+  }
+}

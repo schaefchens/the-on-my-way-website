@@ -1,0 +1,3 @@
+# build output (`make build|cross` writes to bin/, a bare `go build` writes ./wa-helper)
+/bin/
+/wa-helper

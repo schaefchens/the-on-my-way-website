@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/Me.json",
+  "title": "Me",
+  "additionalProperties": false,
+  "properties": {
+    "csrfToken": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "displayName": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "email": {
+      "format": "email",
+      "maxLength": 254,
+      "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "email",
+    "displayName",
+    "csrfToken"
+  ],
+  "type": "object"
+}

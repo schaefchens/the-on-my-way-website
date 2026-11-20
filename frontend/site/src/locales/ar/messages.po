@@ -1,0 +1,471 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-11-19 23:30+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ar\n"
+
+#. placeholder {0}: row.tripCount
+#: src/timeline/rows-overview.tsx
+msgid "{0, plural, =0 {no trips} one {# trip} other {# trips}}"
+msgstr ""
+
+#. placeholder {0}: stats.countries
+#: src/components/site-header.tsx
+msgid "{0, plural, one {# country} other {# countries}}"
+msgstr ""
+
+#. placeholder {0}: days.length
+#. placeholder {0}: row.dayCount
+#. placeholder {0}: row.days.length
+#: src/components/site-header.tsx
+#: src/routes/trip.tsx
+#: src/timeline/rows-overview.tsx
+msgid "{0, plural, one {# day} other {# days}}"
+msgstr ""
+
+#. placeholder {0}: momentCount(day)
+#. placeholder {0}: row.moments
+#. placeholder {0}: stats.moments
+#: src/components/site-header.tsx
+#: src/routes/trip.tsx
+#: src/timeline/rows-overview.tsx
+msgid "{0, plural, one {# moment} other {# moments}}"
+msgstr ""
+
+#: src/timeline/rows-overview.tsx
+#: src/timeline/rows.tsx
+msgid "{count, plural, one {# moment} other {# moments}}"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "{kind} {position} of {total}, {time}"
+msgstr ""
+
+#: src/player/slides.tsx
+#: src/player/story-sheet.tsx
+msgid "{minutes} min read"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "{momentCount, plural, one {# moment} other {# moments}}"
+msgstr ""
+
+#: src/routes/trip.tsx
+msgid "{moments, plural, one {# moment} other {# moments}}"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "{nextCount, plural, one {# moment} other {# moments}}"
+msgstr ""
+
+#: src/player/story-sheet.tsx
+msgid "Back to the day"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "Back to the timeline"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Buffering…"
+msgstr ""
+
+#: src/player/chrome.tsx
+#: src/routes/day.tsx
+#: src/routes/trip.tsx
+msgid "Close"
+msgstr ""
+
+#: src/player/story-sheet.tsx
+msgid "Close story"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Data saver"
+msgstr ""
+
+#: src/routes/trip.tsx
+#: src/timeline/timeline.tsx
+#: src/timeline/zoom-pill.tsx
+msgid "Days"
+msgstr ""
+
+#: src/routes/not-found.tsx
+msgid "Details"
+msgstr ""
+
+#: src/components/new-moments.tsx
+msgid "Dismiss"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "End of the day"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "End of the day."
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "End of the day. The next day starts in 3 seconds."
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/timeline/filmstrip.tsx
+msgid "GIF"
+msgstr ""
+
+#: src/components/decor.tsx
+msgid "Here now"
+msgstr ""
+
+#: src/timeline/rows-overview.tsx
+msgid "In between"
+msgstr ""
+
+#: src/timeline/rows-overview.tsx
+msgid "In between: {range}"
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/routes/day.tsx
+msgid "Journey of {title}"
+msgstr ""
+
+#: src/components/site-header.tsx
+msgid "Language"
+msgstr ""
+
+#: src/components/site-header.tsx
+msgid "Last in"
+msgstr ""
+
+#: src/components/decor.tsx
+msgid "Last seen here"
+msgstr ""
+
+#: src/player/slides.tsx
+msgid "Listen to the voice note"
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/routes/day.tsx
+#: src/timeline/timeline.tsx
+msgid "Loading…"
+msgstr ""
+
+#: src/timeline/home-timeline.tsx
+msgid "Maybe the connection dropped for a moment."
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "moment"
+msgstr ""
+
+#: src/components/site-header.tsx
+msgid "Moments from the road"
+msgstr ""
+
+#: src/timeline/filmstrip.tsx
+msgid "Moments of this day"
+msgstr ""
+
+#: src/timeline/timeline.tsx
+#: src/timeline/zoom-pill.tsx
+msgid "Months"
+msgstr ""
+
+#: src/components/new-moments.tsx
+msgid "New moments"
+msgstr ""
+
+#: src/player/day-end.tsx
+#: src/player/journey-player.tsx
+msgid "Next day"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Next moment"
+msgstr ""
+
+#: src/timeline/home-timeline.tsx
+msgid "No moments yet"
+msgstr ""
+
+#: src/routes/trip.tsx
+msgid "No moments yet."
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/timeline/filmstrip.tsx
+msgid "Note"
+msgstr ""
+
+#: src/routes/not-found.tsx
+msgid "Nothing here"
+msgstr ""
+
+#: src/components/site-header.tsx
+msgid "Now in"
+msgstr ""
+
+#. placeholder {0}: languageName(description.locale, locale)
+#: src/routes/trip.tsx
+msgid "Original: {0}"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Original: {language}"
+msgstr ""
+
+#: src/player/story-sheet.tsx
+msgid "Original: {shownLanguage}"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Pause"
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/timeline/filmstrip.tsx
+msgid "Photo"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Play"
+msgstr ""
+
+#: src/player/slides.tsx
+msgid "Play animation"
+msgstr ""
+
+#: src/player/slides.tsx
+msgid "Play video"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Player options"
+msgstr ""
+
+#: src/routes/not-found.tsx
+msgid "Please try again in a moment."
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Previous day"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Previous moment"
+msgstr ""
+
+#: src/player/slides.tsx
+#: src/timeline/filmstrip.tsx
+msgid "Read the story"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "Replay day"
+msgstr ""
+
+#: src/timeline/rows.tsx
+msgid "See the trip"
+msgstr ""
+
+#: src/player/story-sheet.tsx
+msgid "Show in {alternativeLanguage}"
+msgstr ""
+
+#: src/routes/trip.tsx
+msgid "Show in the timeline"
+msgstr ""
+
+#: src/player/story-sheet.tsx
+msgid "Show original"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Skip now"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Skipping to the next one…"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "slideshow"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Smaller images, videos only on tap"
+msgstr ""
+
+#: src/routes/not-found.tsx
+msgid "Something went wrong"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Sound"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Sound on"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "Stay here"
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/player/slides.tsx
+#: src/player/story-sheet.tsx
+#: src/routes/story.tsx
+#: src/timeline/filmstrip.tsx
+msgid "Story"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "Tap for sound"
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/timeline/filmstrip.tsx
+msgid "Text status"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "That’s all for now. New moments will appear here as the journey continues ✨"
+msgstr ""
+
+#: src/timeline/home-timeline.tsx
+msgid "The journey is about to begin. Come back soon ✨"
+msgstr ""
+
+#: src/timeline/home-timeline.tsx
+msgid "The timeline could not be loaded"
+msgstr ""
+
+#: src/timeline/rows.tsx
+msgid "The trip began here"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "The video could not be loaded."
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "The voice message could not be loaded."
+msgstr ""
+
+#: src/components/theme-toggle.tsx
+msgid "Theme: dawn (light)"
+msgstr ""
+
+#: src/components/theme-toggle.tsx
+msgid "Theme: dusk (dark)"
+msgstr ""
+
+#: src/components/theme-toggle.tsx
+msgid "Theme: like the device"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Then tap on the left to go on"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgid "Then tap on the right to go on"
+msgstr ""
+
+#: src/timeline/filmstrip.tsx
+msgid "This day could not be loaded."
+msgstr ""
+
+#: src/timeline/rows.tsx
+msgid "This is where it all began"
+msgstr ""
+
+#: src/player/journey-player.tsx
+msgid "This moment could not be loaded."
+msgstr ""
+
+#: src/routes/not-found.tsx
+msgid "This page does not exist (any more)."
+msgstr ""
+
+#. placeholder {0}: levelLabels[level]
+#: src/timeline/timeline.tsx
+msgid "Timeline: {0}"
+msgstr ""
+
+#: src/routes/not-found.tsx
+msgid "To the timeline"
+msgstr ""
+
+#: src/player/story-sheet.tsx
+msgid "Translated from {origLanguage}"
+msgstr ""
+
+#: src/routes/trip.tsx
+#: src/timeline/rows.tsx
+msgid "Trip"
+msgstr ""
+
+#: src/routes/not-found.tsx
+#: src/timeline/filmstrip.tsx
+#: src/timeline/home-timeline.tsx
+msgid "Try again"
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/timeline/filmstrip.tsx
+msgid "Video"
+msgstr ""
+
+#: src/player/journey-player.tsx
+#: src/player/slides.tsx
+#: src/timeline/filmstrip.tsx
+msgid "Voice message"
+msgstr ""
+
+#: src/routes/trip.tsx
+msgid "Watch from the first day"
+msgstr ""
+
+#: src/player/day-end.tsx
+msgid "Watch next day"
+msgstr ""
+
+#: src/timeline/rows.tsx
+msgid "Watch the day"
+msgstr ""
+
+#: src/player/chrome.tsx
+msgctxt "player start button"
+msgid "Watch the day"
+msgstr ""
+
+#: src/timeline/rows-overview.tsx
+msgid "Year"
+msgstr ""
+
+#: src/timeline/timeline.tsx
+#: src/timeline/zoom-pill.tsx
+msgid "Years"
+msgstr ""
+
+#: src/timeline/timeline.tsx
+msgid "Years and trips"
+msgstr ""
+
+#: src/timeline/zoom-pill.tsx
+msgid "Zoom (keys + and −, 1 to 3)"
+msgstr ""
+
+#. placeholder {0}: labels[level]
+#: src/timeline/timeline.tsx
+msgid "Zoom: {0}"
+msgstr ""

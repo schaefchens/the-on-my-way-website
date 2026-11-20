@@ -1,0 +1,40 @@
+# Build context = repository root (backend/Dockerfile). Keep it small and secret-free.
+
+# Secrets and local state: never in an image (also nested: patterns are relative to the context
+# root, so a plain ".env" would only match /.env, not backend/.env or frontend/site/.env.local)
+**/.env
+**/.env.*
+!**/.env.example
+**/.secrets
+**/.secrets/
+**/*.pem
+**/*.key
+# SQLite databases (store.db, API app databases) and WhatsApp sessions (session.db, -wal, -shm)
+**/*.db
+**/session.db*
+backend/data/
+api/var/
+
+# VCS, caches, dependencies and build output (rebuilt inside the image)
+.git/
+.cache/
+**/node_modules/
+**/dist/
+**/.vite/
+**/*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+backend/wa-helper/bin/
+
+# Not needed by the backend image (api/schemas: JSON Schemas, only for the `test` stage's contracts test)
+api/
+!api/schemas/
+docs/
+fixtures/generated/
+frontend/site/dev-data/
+frontend/site/dev-data-large/
+**/.DS_Store
+.idea/
+.vscode/
+*.log

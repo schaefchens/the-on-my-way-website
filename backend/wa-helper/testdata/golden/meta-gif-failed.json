@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "msgId": "3EB0GOLDENretry",
+  "source": "history",
+  "receivedAt": "2026-11-15T02:12:03.000Z",
+  "sender": {
+    "pn": "4915100000001",
+    "lid": "100000000000001",
+    "jid": "100000000000001@lid",
+    "pushName": "Reisende"
+  },
+  "timestamp": "2026-11-15T02:12:00Z",
+  "kind": "gif",
+  "media": {
+    "mimetype": "video/mp4",
+    "fileSha256B64": "iE/VNYuHzseCT/5NDEcxls3+HpR/NEPOjUeNIeJDJBg=",
+    "fileLength": 4096,
+    "seconds": 5,
+    "gifPlayback": true
+  },
+  "download": {
+    "state": "failed",
+    "attempts": 1,
+    "reason": "expired",
+    "permanent": true,
+    "retryRequestedAt": "2026-11-15T02:12:03.000Z",
+    "error": "the phone answered NOT_FOUND"
+  },
+  "rawProtoB64": "SpABEgl2aWRlby9tcDQaIIhP1TWLh87Hgk/+TQxHMZbN/h6UfzRDzo1HjSHiQyQYIIAgKAUyIEJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQAFaIAkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJahYvdi90NjIvM0VCMEdPTERFTnJldHJ5"
+}

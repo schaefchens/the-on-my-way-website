@@ -1,0 +1,18 @@
+packages:
+  - packages/*
+  - backend
+  - frontend/*
+
+# pnpm 10 blocks dependency lifecycle scripts by default: allow only the ones we need.
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+
+# Not built on purpose:
+# - better-sqlite3 >= 13 ships prebuilt N-API binaries in prebuilds/ (no node-gyp needed);
+#   pnpm would otherwise run an implicit `node-gyp rebuild` because binding.gyp exists.
+# - cpu-features / ssh2: optional native speed-ups that would need node-gyp and a header download.
+ignoredBuiltDependencies:
+  - better-sqlite3
+  - cpu-features
+  - ssh2

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "msgId": "3EB0GOLDENvoice",
+  "source": "live",
+  "receivedAt": "2026-11-15T02:12:03.000Z",
+  "sender": {
+    "pn": "4915100000001",
+    "lid": "100000000000001",
+    "jid": "100000000000001@lid",
+    "pushName": "Reisende"
+  },
+  "timestamp": "2026-11-15T02:12:00Z",
+  "kind": "voice",
+  "media": {
+    "mimetype": "audio/ogg; codecs=opus",
+    "fileSha256B64": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s=",
+    "fileLength": 9000,
+    "seconds": 3,
+    "ptt": true,
+    "waveformB64": "ADJk"
+  },
+  "download": {
+    "state": "pending",
+    "attempts": 0
+  },
+  "rawProtoB64": "QkcSFmF1ZGlvL29nZzsgY29kZWNzPW9wdXMaIKurq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urIKhGKAMwAZoBAwAyZA==",
+  "addressingMode": "lid",
+  "stanzaTag": "status"
+}

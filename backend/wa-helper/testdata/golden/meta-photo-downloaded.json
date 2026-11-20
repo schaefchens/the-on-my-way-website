@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "msgId": "3EB0GOLDENok",
+  "source": "live",
+  "receivedAt": "2026-11-15T02:12:03.000Z",
+  "sender": {
+    "pn": "4915100000001",
+    "lid": "100000000000001",
+    "jid": "100000000000001@lid",
+    "pushName": "Reisende"
+  },
+  "timestamp": "2026-11-15T02:12:00Z",
+  "kind": "photo",
+  "media": {
+    "mimetype": "image/jpeg",
+    "fileSha256B64": "TZB0m7PuuY/xtkmH+4jmeUWLPzG0fycilGvk/s5CCwg=",
+    "fileLength": 29,
+    "width": 1080,
+    "height": 1920
+  },
+  "download": {
+    "state": "ok",
+    "file": "original.jpg",
+    "sha256Hex": "4d90749bb3eeb98ff1b64987fb88e679458b3f31b47f2722946be4fece420b08",
+    "attempts": 1
+  },
+  "rawProtoB64": "Go0BEgppbWFnZS9qcGVnIiBNkHSbs+65j/G2SYf7iOZ5RYs/MbR/JyKUa+T+zkILCDCADzi4CEIgQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJKIAkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJWhMvdi90NjIvM0VCMEdPTERFTm9r",
+  "addressingMode": "lid",
+  "stanzaTag": "status"
+}

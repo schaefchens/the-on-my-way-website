@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/Annotation.json",
+  "title": "Annotation",
+  "additionalProperties": false,
+  "properties": {
+    "description": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "maxLength": 20000,
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "de",
+              "en",
+              "ar"
+            ],
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "localDateOverride": {
+      "anyOf": [
+        {
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "origLocale": {
+      "anyOf": [
+        {
+          "enum": [
+            "de",
+            "en",
+            "ar"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sourceKey": {
+      "maxLength": 160,
+      "pattern": "^[a-z]+:[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "updatedAt": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+      "type": "string"
+    },
+    "visibility": {
+      "anyOf": [
+        {
+          "enum": [
+            "public",
+            "hidden",
+            "pending"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "sourceKey",
+    "updatedAt"
+  ],
+  "type": "object"
+}

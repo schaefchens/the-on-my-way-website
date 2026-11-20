@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.node.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": [
+    "playwright.config.ts",
+    "global-setup.ts",
+    "timeline.spec.ts",
+    "shots.ts",
+    "generated.spec.ts",
+    "player.spec.ts",
+    "player-boot.spec.ts",
+    "player-server.ts",
+    "../playwright.generated.config.ts",
+    "../playwright.player.config.ts"
+  ]
+}

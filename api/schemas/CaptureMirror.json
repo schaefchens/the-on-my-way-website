@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/CaptureMirror.json",
+  "title": "CaptureMirror",
+  "additionalProperties": false,
+  "properties": {
+    "caption": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contractVersion": {
+      "const": 1,
+      "type": "number"
+    },
+    "kind": {
+      "enum": [
+        "photo",
+        "video",
+        "gif",
+        "voice",
+        "text",
+        "unsupported"
+      ],
+      "type": "string"
+    },
+    "localDate": {
+      "format": "date",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+      "type": "string"
+    },
+    "media": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "color": {
+              "pattern": "^#[0-9a-f]{6}$",
+              "type": "string"
+            },
+            "duration": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "h": {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "thumbhash": {
+              "contentEncoding": "base64",
+              "format": "base64",
+              "pattern": "^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$",
+              "type": "string"
+            },
+            "w": {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mediaState": {
+      "enum": [
+        "none",
+        "pending",
+        "ok",
+        "lost"
+      ],
+      "type": "string"
+    },
+    "occurredAt": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+      "type": "string"
+    },
+    "publicId": {
+      "pattern": "^e_[a-z2-7]{12}$",
+      "type": "string"
+    },
+    "revokedAt": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sourceKey": {
+      "maxLength": 160,
+      "pattern": "^[a-z]+:[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "text": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "bg": {
+              "pattern": "^#[0-9a-f]{8}$",
+              "type": "string"
+            },
+            "body": {
+              "type": "string"
+            },
+            "fg": {
+              "pattern": "^#[0-9a-f]{8}$",
+              "type": "string"
+            },
+            "font": {
+              "enum": [
+                "SYSTEM",
+                "SYSTEM_TEXT",
+                "FB_SCRIPT",
+                "SYSTEM_BOLD",
+                "MORNINGBREEZE_REGULAR",
+                "CALISTOGA_REGULAR",
+                "EXO2_EXTRABOLD",
+                "COURIERPRIME_BOLD"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "body",
+            "bg",
+            "fg",
+            "font"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tz": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_+\\-/]*$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contractVersion",
+    "sourceKey",
+    "publicId",
+    "kind",
+    "occurredAt",
+    "tz",
+    "localDate",
+    "mediaState"
+  ],
+  "type": "object"
+}

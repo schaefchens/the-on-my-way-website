@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Runs the project-local Composer (.cache/bin/composer.phar) with every Composer
+# cache/home directory kept inside the repo's git-ignored .cache/ folder.
+#
+#   scripts/composer install             # runs in api/ by default
+#   scripts/composer -d api test
+#
+# If no --working-dir/-d is given, the command runs in api/.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PHAR="$ROOT/.cache/bin/composer.phar"
+
+export COMPOSER_HOME="$ROOT/.cache/composer"
+export COMPOSER_CACHE_DIR="$ROOT/.cache/composer/cache"
+
+if [[ ! -f "$PHAR" ]]; then
+  cat >&2 <<EOF
+composer.phar not found at $PHAR
+Install it (installer signature verified as documented on getcomposer.org/download):
+  mkdir -p "$ROOT/.cache/bin" "$ROOT/.cache/dl" && cd "$ROOT/.cache/dl"
+  curl -fsSL https://getcomposer.org/installer -o installer.php
+  [ "\$(curl -fsSL https://composer.github.io/installer.sig)" = "\$(php -r "echo hash_file('sha384','installer.php');")" ] \\
+    && COMPOSER_HOME="$COMPOSER_HOME" php installer.php --install-dir="$ROOT/.cache/bin" --filename=composer.phar
+  rm -f installer.php
+EOF
+  exit 1
+fi
+
+has_dir=0
+for arg in "$@"; do
+  case "$arg" in
+    -d|-d*|--working-dir|--working-dir=*) has_dir=1 ;;
+  esac
+done
+
+if [[ $has_dir -eq 1 ]]; then
+  exec php "$PHAR" "$@"
+else
+  exec php "$PHAR" --working-dir="$ROOT/api" "$@"
+fi

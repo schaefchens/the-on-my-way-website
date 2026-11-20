@@ -1,0 +1,1994 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-11-19 23:40+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: de\n"
+
+#. placeholder {0}: form.slug || 'my-trip'
+#: src/screens/trips.tsx
+msgid "…/trip/{0}/"
+msgstr "…/trip/{0}/"
+
+#: src/components/status.tsx
+msgid "(by the publish setting)"
+msgstr "(durch die Veröffentlichungs-Einstellung)"
+
+#: src/components/conflict-dialog.tsx
+msgid "(empty)"
+msgstr "(leer)"
+
+#. placeholder {0}: active.length
+#: src/screens/home.tsx
+msgid "{0, plural, one {# alert} other {# alerts}}"
+msgstr "{0, plural, one {# Warnung} other {# Warnungen}}"
+
+#. placeholder {0}: drafts.length
+#: src/screens/home.tsx
+msgid "{0, plural, one {# draft on this device} other {# drafts on this device}}"
+msgstr "{0, plural, one {# Entwurf auf diesem Gerät} other {# Entwürfe auf diesem Gerät}}"
+
+#. placeholder {0}: summary.counts.hidden
+#: src/screens/days.tsx
+msgid "{0, plural, one {# hidden} other {# hidden}}"
+msgstr "{0, plural, one {# versteckt} other {# versteckt}}"
+
+#. placeholder {0}: g.items.length
+#: src/screens/inbox.tsx
+msgid "{0, plural, one {# status} other {# statuses}}"
+msgstr "{0, plural, one {# Status} other {# Status}}"
+
+#. placeholder {0}: backend.queue.pending
+#. placeholder {0}: summary.counts.pending
+#: src/screens/days.tsx
+#: src/screens/home.tsx
+msgid "{0, plural, one {# waiting} other {# waiting}}"
+msgstr "{0, plural, one {# wartet} other {# warten}}"
+
+#. placeholder {0}: zoneOffset(current)
+#. placeholder {1}: formatTime(new Date(), current, locale)
+#: src/screens/settings.tsx
+msgid "{0} · it is {1} there"
+msgstr "{0} · dort ist es {1}"
+
+#: src/components/conflict-dialog.tsx
+msgid "{autoMerged, plural, one {# other change of yours does not collide and is kept.} other {# other changes of yours do not collide and are kept.}}"
+msgstr "{autoMerged, plural, one {# weitere Änderung von dir kollidiert nicht und bleibt erhalten.} other {# weitere Änderungen von dir kollidieren nicht und bleiben erhalten.}}"
+
+#: src/screens/home.tsx
+msgid "{count, plural, one {# moment} other {# moments}}"
+msgstr "{count, plural, one {# Moment} other {# Momente}}"
+
+#: src/screens/settings.tsx
+msgid "{count, plural, one {# waiting status is older than the delay and will be published now.} other {# waiting statuses are older than the delay and will be published now.}}"
+msgstr "{count, plural, one {# wartender Status ist älter als die Verzögerung und wird jetzt veröffentlicht.} other {# wartende Status sind älter als die Verzögerung und werden jetzt veröffentlicht.}}"
+
+#: src/screens/settings.tsx
+msgid "{count, plural, one {# waiting status will be published now.} other {# waiting statuses will be published now.}}"
+msgstr "{count, plural, one {# wartender Status wird jetzt veröffentlicht.} other {# wartende Status werden jetzt veröffentlicht.}}"
+
+#: src/screens/trips.tsx
+msgid "{daysIn, plural, one {# day with moments} other {# days with moments}}"
+msgstr "{daysIn, plural, one {# Tag mit Momenten} other {# Tage mit Momenten}}"
+
+#: src/screens/home.tsx
+msgid "{failed, plural, one {# status could not be processed.} other {# statuses could not be processed.}}"
+msgstr "{failed, plural, one {# Status konnte nicht verarbeitet werden.} other {# Status konnten nicht verarbeitet werden.}}"
+
+#: src/screens/settings.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# Stunde} other {# Stunden}}"
+
+#: src/screens/days.tsx
+msgid "{incomplete, plural, one {# day has no title or place yet.} other {# days have no title or place yet.}}"
+msgstr "{incomplete, plural, one {# Tag hat noch keinen Titel oder Ort.} other {# Tage haben noch keinen Titel oder Ort.}}"
+
+#: src/screens/home.tsx
+msgid "{issues, plural, one {# problem} other {# problems}}"
+msgstr "{issues, plural, one {# Problem} other {# Probleme}}"
+
+#: src/screens/composer.tsx
+msgid "{left} left"
+msgstr "noch {left}"
+
+#: src/screens/home.tsx
+msgid "{lost, plural, one {# status could not be downloaded from WhatsApp.} other {# statuses could not be downloaded from WhatsApp.}}"
+msgstr "{lost, plural, one {# Status konnte nicht von WhatsApp geladen werden.} other {# Status konnten nicht von WhatsApp geladen werden.}}"
+
+#: src/screens/days.tsx
+msgid "{moments, plural, one {# moment} other {# moments}}"
+msgstr "{moments, plural, one {# Moment} other {# Momente}}"
+
+#: src/components/conflict-dialog.tsx
+msgid "{more, plural, one {# more conflict after this one.} other {# more conflicts after this one.}}"
+msgstr "{more, plural, one {Danach folgt noch # Konflikt.} other {Danach folgen noch # Konflikte.}}"
+
+#: src/screens/layout.tsx
+#: src/screens/settings.tsx
+msgid "{pending, plural, one {# change has not reached the server. Logging out deletes it from this device.} other {# changes have not reached the server. Logging out deletes them from this device.}}"
+msgstr "{pending, plural, one {# Änderung hat den Server noch nicht erreicht. Beim Abmelden wird sie von diesem Gerät gelöscht.} other {# Änderungen haben den Server noch nicht erreicht. Beim Abmelden werden sie von diesem Gerät gelöscht.}}"
+
+#: src/components/feedback.tsx
+msgid "{pending, plural, one {# change is saved on this device and will be sent automatically.} other {# changes are saved on this device and will be sent automatically.}}"
+msgstr "{pending, plural, one {# Änderung ist auf diesem Gerät gespeichert und wird automatisch gesendet.} other {# Änderungen sind auf diesem Gerät gespeichert und werden automatisch gesendet.}}"
+
+#: src/components/feedback.tsx
+msgid "{pending, plural, one {Sending # change…} other {Sending # changes…}}"
+msgstr "{pending, plural, one {Sende # Änderung…} other {Sende # Änderungen…}}"
+
+#: src/screens/home.tsx
+msgid "{unsent, plural, one {# update could not be sent to the server yet; it keeps trying.} other {# updates could not be sent to the server yet; it keeps trying.}}"
+msgstr "{unsent, plural, one {# Änderung ging noch nicht an den Server; es wird weiter versucht.} other {# Änderungen gingen noch nicht an den Server; es wird weiter versucht.}}"
+
+#: src/components/conflict-dialog.tsx
+msgid "{your} “<0>{short}</0>” from {when}"
+msgstr "{your} „<0>{short}</0>“ vom {when}"
+
+#: src/components/conflict-dialog.tsx
+msgid "{your} from {when}"
+msgstr "{your} vom {when}"
+
+#: src/screens/settings.tsx
+msgid "0 to 8760 hours"
+msgstr "0 bis 8760 Stunden"
+
+#: src/screens/settings.tsx
+msgid "1 to 10080 minutes"
+msgstr "1 bis 10080 Minuten"
+
+#: src/screens/trips.tsx
+msgid "a new chapter"
+msgstr "ein neues Kapitel"
+
+#: src/components/feedback.tsx
+msgid "A new version is ready. Reload now?"
+msgstr "Es gibt eine neue Version. Neu laden?"
+
+#: src/screens/composer.tsx
+msgid "a page for your journal"
+msgstr "eine Seite für dein Tagebuch"
+
+#: src/screens/composer.tsx
+msgid "a page of your journal"
+msgstr "eine Seite deines Tagebuchs"
+
+#: src/screens/days.tsx
+msgid "A sentence or two for the day page."
+msgstr "Ein, zwei Sätze für die Tagesseite."
+
+#: src/screens/trips.tsx
+msgid "A trip bundles days into a chapter of the timeline, with its own page."
+msgstr "Eine Reise fasst Tage zu einem Kapitel der Zeitleiste zusammen – mit eigener Seite."
+
+#: src/screens/settings.tsx
+msgid "Account"
+msgstr "Konto"
+
+#: src/screens/days.tsx
+msgid "Add a note to this day"
+msgstr "Notiz zu diesem Tag schreiben"
+
+#: src/screens/home.tsx
+msgid "Add a title and the place."
+msgstr "Gib ihm einen Titel und den Ort."
+
+#: src/components/install.tsx
+msgid "Add to your home screen"
+msgstr "Zum Home-Bildschirm hinzufügen"
+
+#: src/components/labels.ts
+msgid "After review"
+msgstr "Nach Freigabe"
+
+#: src/screens/settings.tsx
+msgid "Alert after (minutes without heartbeat)"
+msgstr "Warnen nach (Minuten ohne Lebenszeichen)"
+
+#: src/screens/settings.tsx
+msgid "Alert settings saved"
+msgstr "Benachrichtigungen gespeichert"
+
+#: src/screens/settings.tsx
+msgid "Alerts"
+msgstr "Warnungen"
+
+#: src/screens/inbox.tsx
+msgid "All"
+msgstr "Alle"
+
+#: src/screens/home.tsx
+msgid "All statuses"
+msgstr "Alle Status"
+
+#: src/screens/settings.tsx
+msgid "Already captured statuses keep their day; fix single days in the day editor."
+msgstr "Bereits erfasste Status behalten ihren Tag; einzelne Tage korrigierst du im Tag-Editor."
+
+#: src/screens/trips.tsx
+msgid "Another trip already uses this address."
+msgstr "Diese Adresse hat schon eine andere Reise."
+
+#: src/screens/settings.tsx
+msgid "API tokens"
+msgstr "API-Tokens"
+
+#: src/screens/settings.tsx
+msgid "App"
+msgstr "App"
+
+#: src/screens/settings.tsx
+msgid "App (admin access)"
+msgstr "App (voller Zugriff)"
+
+#: src/screens/settings.tsx
+msgid "Appearance"
+msgstr "Aussehen"
+
+#: src/lib/captures.ts
+msgid "Appears after the delay"
+msgstr "Erscheint nach der Verzögerung"
+
+#: src/lib/captures.ts
+msgid "Appears after the delay ({at})"
+msgstr "Erscheint nach der Verzögerung ({at})"
+
+#. placeholder {0}: formatDateTime(since, deviceTimeZone(), locale)
+#: src/screens/settings.tsx
+msgid "Applies to statuses since {0}. Everything published before stays online."
+msgstr "Gilt für Status seit {0}. Alles vorher Veröffentlichte bleibt online."
+
+#: src/screens/settings.tsx
+msgid "Apply"
+msgstr "Übernehmen"
+
+#: src/screens/inbox.tsx
+msgid "As soon as you post a WhatsApp status, it shows up here."
+msgstr "Sobald du einen WhatsApp-Status postest, erscheint er hier."
+
+#: src/screens/home.tsx
+msgid "As soon as your computer at home publishes, you will see it here."
+msgstr "Sobald dein Rechner zu Hause veröffentlicht, siehst du es hier."
+
+#: src/screens/days.tsx
+#: src/screens/item.tsx
+msgid "Automatic"
+msgstr "Automatisch"
+
+#: src/screens/days.tsx
+msgid "Automatic uses the first public photo of the day."
+msgstr "Automatisch nimmt das erste öffentliche Foto des Tages."
+
+#: src/screens/root.tsx
+msgid "Back home"
+msgstr "Zurück zum Start"
+
+#: src/screens/item.tsx
+msgid "Back on its own day"
+msgstr "Wieder an seinem eigenen Tag"
+
+#: src/screens/item.tsx
+msgid "Back to the day it was captured"
+msgstr "Zurück zum Aufnahmetag"
+
+#: src/screens/days.tsx
+msgid "Between -180 and 180"
+msgstr "Zwischen -180 und 180"
+
+#: src/screens/days.tsx
+msgid "Between -90 and 90"
+msgstr "Zwischen -90 und 90"
+
+#: src/screens/trips.tsx
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: src/api/conflicts.ts
+msgid "Changed elsewhere, and the newer version could not be loaded."
+msgstr "Woanders geändert – und die neuere Version konnte nicht geladen werden."
+
+#: src/components/conflict-dialog.tsx
+msgid "Changed on another device"
+msgstr "Auf einem anderen Gerät geändert"
+
+#: src/screens/layout.tsx
+#: src/screens/settings.tsx
+msgid "Changes not sent yet"
+msgstr "Noch nicht gesendete Änderungen"
+
+#: src/screens/composer.tsx
+msgid "Changes saved"
+msgstr "Änderungen gespeichert"
+
+#: src/screens/trips.tsx
+msgid "chapter by chapter"
+msgstr "Kapitel für Kapitel"
+
+#: src/screens/home.tsx
+msgid "Check again"
+msgstr "Neu prüfen"
+
+#: src/screens/days.tsx
+msgid "Check the coordinates."
+msgstr "Bitte prüfe die Koordinaten."
+
+#: src/screens/trips.tsx
+msgid "Choose a start and an end."
+msgstr "Wähle Anfang und Ende."
+
+#: src/screens/settings.tsx
+msgid "Choose another zone"
+msgstr "Andere Zeitzone wählen"
+
+#: src/screens/trips.tsx
+msgid "Chosen from the day covers of the trip."
+msgstr "Ausgewählt aus den Titelbildern der Reisetage."
+
+#: src/components/conflict-dialog.tsx
+#: src/components/install.tsx
+#: src/components/unsaved.tsx
+#: src/screens/composer.tsx
+#: src/screens/layout.tsx
+#: src/screens/settings.tsx
+#: src/screens/trips.tsx
+msgid "Close"
+msgstr "Schließen"
+
+#: src/screens/home.tsx
+#: src/screens/settings.tsx
+msgid "Computer at home"
+msgstr "Rechner zu Hause"
+
+#: src/screens/settings.tsx
+msgid "Computer at home (sync)"
+msgstr "Rechner zu Hause (Synchronisation)"
+
+#: src/components/labels.ts
+msgid "Connected"
+msgstr "Verbunden"
+
+#: src/components/labels.ts
+msgid "Connecting…"
+msgstr "Verbindet…"
+
+#: src/screens/days.tsx
+msgid "Coordinates (optional)"
+msgstr "Koordinaten (optional)"
+
+#: src/screens/settings.tsx
+msgid "Copied"
+msgstr "Kopiert"
+
+#: src/screens/settings.tsx
+msgid "Copy"
+msgstr "Kopieren"
+
+#: src/components/ui.tsx
+msgid "Could not load this."
+msgstr "Das konnte nicht geladen werden."
+
+#: src/api/conflicts.ts
+msgid "Could not save – it was changed elsewhere at the same time."
+msgstr "Nicht gespeichert – es wurde gleichzeitig woanders geändert."
+
+#: src/api/writes.ts
+msgid "Could not save: {reason}"
+msgstr "Speichern fehlgeschlagen: {reason}"
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+msgid "Country"
+msgstr "Land"
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+#: src/screens/trips.tsx
+msgid "Cover"
+msgstr "Titelbild"
+
+#: src/screens/inbox.tsx
+msgid "Cover (automatic)"
+msgstr "Titelbild (automatisch)"
+
+#: src/screens/inbox.tsx
+msgid "Cover removed"
+msgstr "Titelbild entfernt"
+
+#: src/screens/settings.tsx
+msgid "Create token"
+msgstr "Token erstellen"
+
+#: src/screens/trips.tsx
+msgid "Create trip"
+msgstr "Reise anlegen"
+
+#: src/screens/settings.tsx
+msgid "Current"
+msgstr "Aktuell"
+
+#: src/screens/trips.tsx
+msgid "Dates"
+msgstr "Zeitraum"
+
+#: src/screens/settings.tsx
+msgid "Dawn"
+msgstr "Hell"
+
+#: src/components/labels.ts
+#: src/screens/composer.tsx
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+msgid "Day"
+msgstr "Tag"
+
+#: src/screens/days.tsx
+msgid "Day saved"
+msgstr "Tag gespeichert"
+
+#: src/screens/days.tsx
+#: src/screens/layout.tsx
+msgid "Days"
+msgstr "Tage"
+
+#: src/screens/days.tsx
+msgid "Days appear as soon as there is a status or a note."
+msgstr "Tage erscheinen, sobald es einen Status oder eine Notiz gibt."
+
+#: src/screens/days.tsx
+msgid "Days or trips"
+msgstr "Tage oder Reisen"
+
+#: src/screens/settings.tsx
+msgid "default"
+msgstr "Standard"
+
+#: src/screens/settings.tsx
+msgid "Default language changed"
+msgstr "Standardsprache geändert"
+
+#: src/screens/settings.tsx
+msgid "Delay changed"
+msgstr "Verzögerung geändert"
+
+#: src/screens/settings.tsx
+msgid "Delay in hours"
+msgstr "Verzögerung in Stunden"
+
+#: src/components/labels.ts
+msgid "Delayed"
+msgstr "Verzögert"
+
+#: src/screens/composer.tsx
+#: src/screens/trips.tsx
+msgid "Delete"
+msgstr "Löschen"
+
+#: src/screens/composer.tsx
+msgid "Delete this note?"
+msgstr "Diese Notiz löschen?"
+
+#: src/screens/composer.tsx
+msgid "Delete this story?"
+msgstr "Diese Geschichte löschen?"
+
+#: src/screens/trips.tsx
+msgid "Delete this trip?"
+msgstr "Diese Reise löschen?"
+
+#: src/screens/trips.tsx
+msgid "Delete trip"
+msgstr "Reise löschen"
+
+#: src/screens/composer.tsx
+msgid "Deleted"
+msgstr "Gelöscht"
+
+#: src/screens/inbox.tsx
+msgid "Deleted on WhatsApp"
+msgstr "Auf WhatsApp gelöscht"
+
+#: src/screens/inbox.tsx
+msgid "Describe"
+msgstr "Beschreiben"
+
+#: src/components/labels.ts
+#: src/screens/item.tsx
+#: src/screens/trips.tsx
+msgid "Description"
+msgstr "Beschreibung"
+
+#: src/screens/item.tsx
+msgid "Description ({tab})"
+msgstr "Beschreibung ({tab})"
+
+#: src/screens/item.tsx
+msgid "Description saved"
+msgstr "Beschreibung gespeichert"
+
+#: src/components/feedback.tsx
+#: src/components/ui.tsx
+msgid "Details"
+msgstr "Details"
+
+#: src/screens/home.tsx
+msgid "Details are on the control page of your computer at home."
+msgstr "Einzelheiten stehen auf der Steuerseite deines Rechners zu Hause."
+
+#: src/components/unsaved.tsx
+#: src/screens/days.tsx
+#: src/screens/item.tsx
+msgid "Discard"
+msgstr "Verwerfen"
+
+#: src/screens/composer.tsx
+msgid "Discard draft"
+msgstr "Entwurf verwerfen"
+
+#: src/components/conflict-dialog.tsx
+msgid "Discard my change"
+msgstr "Meine Änderung verwerfen"
+
+#: src/components/labels.ts
+msgid "Disconnected"
+msgstr "Getrennt"
+
+#: src/components/feedback.tsx
+msgid "Dismiss"
+msgstr "Ausblenden"
+
+#: src/screens/settings.tsx
+msgid "Done, I saved it"
+msgstr "Erledigt, ist gespeichert"
+
+#: src/screens/composer.tsx
+msgid "Draft saved"
+msgstr "Entwurf gespeichert"
+
+#. placeholder {0}: formatTime(savedAt, deviceTimeZone(), locale)
+#: src/screens/composer.tsx
+msgid "Draft saved on this device at {0}"
+msgstr "Entwurf um {0} auf diesem Gerät gespeichert"
+
+#: src/screens/composer.tsx
+msgid "Drafts are saved on this device while you write."
+msgstr "Entwürfe werden beim Schreiben auf diesem Gerät gespeichert."
+
+#: src/screens/composer.tsx
+msgid "Drafts stay on this device."
+msgstr "Entwürfe bleiben auf diesem Gerät."
+
+#: src/screens/settings.tsx
+msgid "Dusk"
+msgstr "Dunkel"
+
+#: src/screens/login.tsx
+#: src/screens/settings.tsx
+msgid "E-mail"
+msgstr "E-Mail"
+
+#: src/screens/login.tsx
+msgid "E-mail or password is not right."
+msgstr "E-Mail oder Passwort stimmt nicht."
+
+#: src/screens/settings.tsx
+msgid "e.g. Computer at home"
+msgstr "z. B. Rechner zu Hause"
+
+#: src/screens/days.tsx
+msgid "e.g. Hội An"
+msgstr "z. B. Hội An"
+
+#: src/screens/days.tsx
+msgid "e.g. Lanterns in Hội An"
+msgstr "z. B. Laternen in Hội An"
+
+#: src/screens/trips.tsx
+msgid "e.g. Vietnam 2026"
+msgstr "z. B. Vietnam 2026"
+
+#: src/screens/composer.tsx
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: src/screens/composer.tsx
+msgid "Edit an existing post from its day"
+msgstr "Bestehende Einträge bearbeitest du über ihren Tag"
+
+#: src/screens/composer.tsx
+msgid "Edit note"
+msgstr "Notiz bearbeiten"
+
+#: src/screens/composer.tsx
+msgid "Edit story"
+msgstr "Geschichte bearbeiten"
+
+#. placeholder {0}: ago(d.savedAt)
+#: src/screens/home.tsx
+msgid "Edit, saved {0}"
+msgstr "Bearbeitung, gespeichert {0}"
+
+#: src/screens/composer.tsx
+msgid "Editor mode"
+msgstr "Editor-Modus"
+
+#: src/components/labels.ts
+msgid "End"
+msgstr "Ende"
+
+#: src/components/labels.ts
+msgid "Error"
+msgstr "Fehler"
+
+#: src/screens/trips.tsx
+msgid "Every day in this range belongs to the trip."
+msgstr "Jeder Tag in diesem Zeitraum gehört zur Reise."
+
+#: src/screens/settings.tsx
+msgid "Every new status appears on the site within about a minute."
+msgstr "Jeder neue Status erscheint nach etwa einer Minute auf der Seite."
+
+#: src/screens/home.tsx
+msgid "Everything is live"
+msgstr "Alles ist live"
+
+#: src/screens/days.tsx
+msgid "Fill in both coordinates or none."
+msgstr "Bitte beide Koordinaten ausfüllen oder keine."
+
+#: src/screens/settings.tsx
+msgid "Findable by search engines"
+msgstr "Für Suchmaschinen auffindbar"
+
+#: src/screens/trips.tsx
+msgid "First day"
+msgstr "Erster Tag"
+
+#: src/lib/captures.ts
+msgid "Follows the publish setting again"
+msgstr "Folgt wieder der Veröffentlichungs-Einstellung"
+
+#. placeholder {0}: formatDateTime(auto.publishAt, deviceTimeZone(), locale)
+#: src/screens/item.tsx
+msgid "Follows your publish setting: appears {0}."
+msgstr "Folgt deiner Einstellung: erscheint am {0}."
+
+#: src/screens/item.tsx
+msgid "Follows your publish setting: hidden because you deleted it on WhatsApp."
+msgstr "Folgt deiner Einstellung: versteckt, weil du ihn auf WhatsApp gelöscht hast."
+
+#: src/screens/item.tsx
+msgid "Follows your publish setting: waits for your release."
+msgstr "Folgt deiner Einstellung: wartet auf deine Freigabe."
+
+#: src/screens/item.tsx
+msgid "Follows your publish setting."
+msgstr "Folgt deiner Veröffentlichungs-Einstellung."
+
+#: src/screens/settings.tsx
+msgid "For"
+msgstr "Für"
+
+#: src/screens/settings.tsx
+msgid "For your computer at home and future apps. A token is shown only once."
+msgstr "Für deinen Rechner zu Hause und künftige Apps. Ein Token wird nur einmal angezeigt."
+
+#: src/components/labels.ts
+msgid "GIF"
+msgstr "GIF"
+
+#: src/screens/trips.tsx
+msgid "Give the trip a title."
+msgstr "Gib der Reise einen Titel."
+
+#: src/screens/composer.tsx
+msgid "Give your story a title and some text."
+msgstr "Gib deiner Geschichte einen Titel und etwas Text."
+
+#: src/screens/home.tsx
+msgid "Good evening, <0>{name}</0>"
+msgstr "Guten Abend, <0>{name}</0>"
+
+#: src/screens/home.tsx
+msgid "Good morning, <0>{name}</0>"
+msgstr "Guten Morgen, <0>{name}</0>"
+
+#: src/screens/home.tsx
+msgid "Good night, <0>{name}</0>"
+msgstr "Gute Nacht, <0>{name}</0>"
+
+#: src/screens/settings.tsx
+msgid "Google & co. may list your journal."
+msgstr "Google & Co. dürfen dein Tagebuch listen."
+
+#: src/components/install.tsx
+msgid "Got it"
+msgstr "Verstanden"
+
+#: src/screens/home.tsx
+msgid "Hello, <0>{name}</0>"
+msgstr "Hallo, <0>{name}</0>"
+
+#: src/components/labels.ts
+#: src/screens/composer.tsx
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+msgid "Hidden"
+msgstr "Versteckt"
+
+#: src/screens/settings.tsx
+msgid "Hidden from search engines"
+msgstr "Vor Suchmaschinen verborgen"
+
+#: src/lib/captures.ts
+msgid "Hidden from the site"
+msgstr "Auf der Seite versteckt"
+
+#: src/screens/inbox.tsx
+msgid "Hide"
+msgstr "Verstecken"
+
+#: src/screens/login.tsx
+msgid "Hide password"
+msgstr "Passwort verbergen"
+
+#: src/screens/settings.tsx
+msgid "Hide statuses I delete on WhatsApp"
+msgstr "Auf WhatsApp gelöschte Status verstecken"
+
+#: src/screens/layout.tsx
+msgid "Home"
+msgstr "Start"
+
+#: src/screens/home.tsx
+msgid "How was your day?"
+msgstr "Wie war dein Tag?"
+
+#: src/screens/settings.tsx
+msgid "how your journal behaves"
+msgstr "wie sich dein Tagebuch verhält"
+
+#: src/screens/days.tsx
+msgid "If items of this day were sorted in with the wrong time zone, choose the right one here."
+msgstr "Wurden Einträge dieses Tages mit der falschen Zeitzone einsortiert, wähle hier die richtige."
+
+#: src/screens/home.tsx
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+#: src/screens/layout.tsx
+msgid "Inbox"
+msgstr "Eingang"
+
+#: src/components/install.tsx
+msgid "Install as an app"
+msgstr "Als App installieren"
+
+#: src/components/labels.ts
+msgid "Instantly"
+msgstr "Sofort"
+
+#: src/screens/composer.tsx
+msgid "It disappears from the site with the next publish. This cannot be undone."
+msgstr "Sie verschwindet mit der nächsten Veröffentlichung von der Seite. Das lässt sich nicht rückgängig machen."
+
+#. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
+#: src/screens/item.tsx
+msgid "It is the automatic cover of {0} right now. Set it to keep it when other photos arrive."
+msgstr "Gerade ist es automatisch das Titelbild von {0}. Leg es fest, damit es das bleibt, wenn weitere Fotos kommen."
+
+#: src/lib/errors.ts
+msgid "It was changed elsewhere in the meantime"
+msgstr "Es wurde inzwischen woanders geändert"
+
+#: src/lib/errors.ts
+msgid "Just a moment – too many requests at once"
+msgstr "Kurz warten – gerade zu viele Anfragen"
+
+#: src/screens/composer.tsx
+#: src/screens/settings.tsx
+#: src/screens/trips.tsx
+msgid "Keep"
+msgstr "Behalten"
+
+#: src/components/unsaved.tsx
+msgid "Keep editing"
+msgstr "Weiter bearbeiten"
+
+#: src/screens/settings.tsx
+msgid "Keep it private"
+msgstr "Privat lassen"
+
+#: src/components/conflict-dialog.tsx
+msgid "Keep newer version"
+msgstr "Neuere Version behalten"
+
+#: src/screens/settings.tsx
+msgid "Keep the current mode"
+msgstr "Modus nicht ändern"
+
+#: src/components/install.tsx
+msgid "Keep the journal on your home screen"
+msgstr "Das Reisetagebuch auf den Home-Bildschirm"
+
+#: src/screens/composer.tsx
+msgid "Kind"
+msgstr "Art"
+
+#: src/screens/composer.tsx
+#: src/screens/days.tsx
+#: src/screens/item.tsx
+#: src/screens/trips.tsx
+msgid "Language"
+msgstr "Sprache"
+
+#: src/screens/settings.tsx
+msgid "Language of this app"
+msgstr "Sprache dieser App"
+
+#: src/screens/settings.tsx
+msgid "Languages changed"
+msgstr "Sprachen geändert"
+
+#: src/screens/settings.tsx
+msgid "Languages of the site"
+msgstr "Sprachen der Website"
+
+#: src/screens/trips.tsx
+msgid "Last day"
+msgstr "Letzter Tag"
+
+#. placeholder {0}: ago(seen)
+#: src/screens/home.tsx
+msgid "Last heartbeat {0}"
+msgstr "Gemeldet {0}"
+
+#: src/screens/home.tsx
+msgid "Last known publish {knownAt}."
+msgstr "Zuletzt bekannte Veröffentlichung {knownAt}."
+
+#: src/screens/home.tsx
+msgid "Last published {lastAt}."
+msgstr "Zuletzt veröffentlicht {lastAt}."
+
+#: src/screens/home.tsx
+msgid "Last status {lastStatus}"
+msgstr "Letzter Status {lastStatus}"
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+msgid "Latitude"
+msgstr "Breitengrad"
+
+#: src/screens/settings.tsx
+msgid "Let search engines find you?"
+msgstr "Für Suchmaschinen auffindbar machen?"
+
+#: src/components/status.tsx
+msgid "Live"
+msgstr "Live"
+
+#: src/screens/inbox.tsx
+msgid "Load older statuses"
+msgstr "Ältere Status laden"
+
+#: src/screens/login.tsx
+msgid "Log in"
+msgstr "Anmelden"
+
+#: src/screens/layout.tsx
+#: src/screens/settings.tsx
+msgid "Log out"
+msgstr "Abmelden"
+
+#: src/screens/layout.tsx
+#: src/screens/settings.tsx
+msgid "Log out anyway"
+msgstr "Trotzdem abmelden"
+
+#: src/components/labels.ts
+msgid "Logged out"
+msgstr "Abgemeldet"
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+msgid "Longitude"
+msgstr "Längengrad"
+
+#: src/screens/layout.tsx
+msgid "Main"
+msgstr "Hauptnavigation"
+
+#: src/screens/settings.tsx
+msgid "Matches this device"
+msgstr "Passt zu diesem Gerät"
+
+#: src/components/capture.tsx
+#: src/screens/item.tsx
+msgid "Media lost"
+msgstr "Medien verloren"
+
+#: src/api/conflicts.ts
+msgid "Merged with a newer version from another device."
+msgstr "Mit einer neueren Version von einem anderen Gerät zusammengeführt."
+
+#: src/screens/item.tsx
+msgid "Move"
+msgstr "Verschieben"
+
+#: src/screens/inbox.tsx
+msgid "moved"
+msgstr "verschoben"
+
+#. placeholder {0}: formatLocalDate(c.localDate, locale, 'long')
+#: src/screens/item.tsx
+msgid "Moved here by you. Captured on {0}."
+msgstr "Von dir hierher verschoben. Aufgenommen am {0}."
+
+#: src/screens/item.tsx
+msgid "Moved to another day"
+msgstr "Auf einen anderen Tag verschoben"
+
+#: src/screens/settings.tsx
+msgid "Name"
+msgstr "Name"
+
+#: src/screens/trips.tsx
+msgid "Name & story"
+msgstr "Name & Geschichte"
+
+#: src/screens/home.tsx
+msgid "Never checked in"
+msgstr "Hat sich noch nie gemeldet"
+
+#: src/screens/settings.tsx
+msgid "never used"
+msgstr "nie benutzt"
+
+#: src/screens/inbox.tsx
+msgid "new"
+msgstr "neu"
+
+#: src/screens/layout.tsx
+msgid "New entry"
+msgstr "Neuer Eintrag"
+
+#: src/screens/composer.tsx
+msgid "New note"
+msgstr "Neue Notiz"
+
+#: src/screens/settings.tsx
+msgid "New statuses appear after a delay, so nobody can see where you are right now. Hide something in the meantime and it never appears."
+msgstr "Neue Status erscheinen verzögert, damit niemand sieht, wo du gerade bist. Was du in der Zwischenzeit versteckst, erscheint nie."
+
+#: src/screens/home.tsx
+msgid "New statuses are on their way to the site."
+msgstr "Neue Status sind auf dem Weg zur Seite."
+
+#: src/screens/home.tsx
+msgid "New statuses are sorted into days by it. Set now: {currentLabel}."
+msgstr "Danach werden neue Status den Tagen zugeordnet. Eingestellt ist: {currentLabel}."
+
+#: src/screens/settings.tsx
+msgid "New statuses are sorted into days by this zone. Change it when you arrive somewhere new."
+msgstr "Neue Status werden nach dieser Zeitzone in Tage einsortiert. Ändere sie, wenn du woanders ankommst."
+
+#: src/screens/settings.tsx
+msgid "New statuses wait in the inbox until you release them one by one."
+msgstr "Neue Status warten im Eingang, bis du sie einzeln freigibst."
+
+#: src/screens/composer.tsx
+msgid "New story"
+msgstr "Neue Geschichte"
+
+#: src/screens/trips.tsx
+msgid "New trip"
+msgstr "Neue Reise"
+
+#: src/components/conflict-dialog.tsx
+msgid "Newer version"
+msgstr "Neuere Version"
+
+#: src/screens/days.tsx
+msgid "Next day"
+msgstr "Nächster Tag"
+
+#: src/screens/item.tsx
+msgid "No caption"
+msgstr "Keine Bildunterschrift"
+
+#: src/lib/errors.ts
+msgid "No connection – we will try again in a moment"
+msgstr "Keine Verbindung – wir versuchen es gleich wieder"
+
+#: src/screens/login.tsx
+msgid "No connection to the server. Check your internet and try again."
+msgstr "Keine Verbindung zum Server. Prüfe dein Internet und versuche es noch einmal."
+
+#: src/screens/days.tsx
+msgid "No correction"
+msgstr "Keine Korrektur"
+
+#: src/screens/days.tsx
+msgid "No country"
+msgstr "Kein Land"
+
+#: src/screens/trips.tsx
+msgid "No day in this range has a picture yet."
+msgstr "Noch kein Tag in diesem Zeitraum hat ein Bild."
+
+#: src/screens/days.tsx
+msgid "No days yet"
+msgstr "Noch keine Tage"
+
+#: src/screens/inbox.tsx
+msgid "No description yet"
+msgstr "Noch keine Beschreibung"
+
+#: src/screens/home.tsx
+msgid "No news from your computer at home yet"
+msgstr "Noch keine Nachricht von zu Hause"
+
+#: src/screens/days.tsx
+msgid "no place"
+msgstr "kein Ort"
+
+#: src/screens/home.tsx
+msgid "No status captured yet"
+msgstr "Noch kein Status erfasst"
+
+#: src/screens/inbox.tsx
+msgid "No status matches this filter."
+msgstr "Kein Status passt zu diesem Filter."
+
+#: src/screens/inbox.tsx
+msgid "No statuses yet"
+msgstr "Noch keine Status"
+
+#: src/screens/settings.tsx
+msgid "No tokens yet."
+msgstr "Noch keine Tokens."
+
+#: src/screens/trips.tsx
+msgid "No trips yet"
+msgstr "Noch keine Reisen"
+
+#: src/screens/trips.tsx
+msgid "None"
+msgstr "Keine"
+
+#: src/screens/home.tsx
+msgid "Not checking in"
+msgstr "Meldet sich nicht"
+
+#: src/components/install.tsx
+#: src/screens/home.tsx
+msgid "Not now"
+msgstr "Jetzt nicht"
+
+#: src/screens/home.tsx
+msgid "Not published yet"
+msgstr "Noch nicht veröffentlicht"
+
+#: src/screens/days.tsx
+#: src/screens/item.tsx
+msgid "Not saved yet"
+msgstr "Noch nicht gespeichert"
+
+#: src/lib/rescue.ts
+msgid "Not saved: {reason}. Your text is back in your drafts."
+msgstr "Nicht gespeichert: {reason}. Dein Text liegt wieder bei deinen Entwürfen."
+
+#: src/screens/days.tsx
+#: src/screens/item.tsx
+#: src/screens/trips.tsx
+msgid "Not set"
+msgstr "Nicht gesetzt"
+
+#: src/components/capture.tsx
+msgid "Not supported"
+msgstr "Nicht unterstützt"
+
+#: src/components/labels.ts
+#: src/screens/composer.tsx
+#: src/screens/home.tsx
+msgid "Note"
+msgstr "Notiz"
+
+#: src/screens/composer.tsx
+msgid "Note ({tab})"
+msgstr "Notiz ({tab})"
+
+#: src/screens/inbox.tsx
+msgid "Nothing here"
+msgstr "Hier ist nichts"
+
+#: src/screens/days.tsx
+msgid "Nothing on this day yet."
+msgstr "An diesem Tag gibt es noch nichts."
+
+#: src/screens/composer.tsx
+msgid "Nothing to preview yet."
+msgstr "Noch nichts für die Vorschau."
+
+#: src/components/feedback.tsx
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+#: src/screens/composer.tsx
+#: src/screens/trips.tsx
+msgid "now"
+msgstr "jetzt"
+
+#: src/screens/settings.tsx
+msgid "Off: only people with the link find the site."
+msgstr "Aus: Nur wer den Link hat, findet die Seite."
+
+#: src/screens/days.tsx
+msgid "On this day"
+msgstr "An diesem Tag"
+
+#: src/components/install.tsx
+msgid "One tap to write, full screen, and it works offline."
+msgstr "Mit einem Tipp schreiben, im Vollbild – und auch offline."
+
+#: src/screens/days.tsx
+msgid "Only days that need love"
+msgstr "Nur Tage, die Liebe brauchen"
+
+#: src/screens/login.tsx
+msgid "Only for you. You stay logged in on this device."
+msgstr "Nur für dich. Du bleibst auf diesem Gerät angemeldet."
+
+#: src/screens/trips.tsx
+msgid "Only lowercase letters, digits and dashes."
+msgstr "Nur Kleinbuchstaben, Ziffern und Bindestriche."
+
+#: src/screens/inbox.tsx
+msgid "Open {kind} from {time}"
+msgstr "{kind} von {time} öffnen"
+
+#: src/lib/rescue.ts
+msgid "Open draft"
+msgstr "Entwurf öffnen"
+
+#: src/screens/item.tsx
+msgid "Open the day"
+msgstr "Tag öffnen"
+
+#: src/components/install.tsx
+msgid "Open this page in Safari and tap <0/> <1>Share</1>."
+msgstr "Öffne diese Seite in Safari und tippe auf <0/> <1>Teilen</1>."
+
+#: src/screens/composer.tsx
+#: src/screens/days.tsx
+#: src/screens/item.tsx
+#: src/screens/trips.tsx
+msgid "original"
+msgstr "Original"
+
+#: src/components/labels.ts
+#: src/screens/composer.tsx
+msgid "Original language"
+msgstr "Originalsprache"
+
+#: src/screens/composer.tsx
+msgid "Other languages are shown as translations."
+msgstr "Andere Sprachen werden als Übersetzung gezeigt."
+
+#: src/screens/trips.tsx
+msgid "Overlaps with {names}. Trips must not share days."
+msgstr "Überschneidet sich mit {names}. Reisen dürfen sich keine Tage teilen."
+
+#: src/screens/days.tsx
+msgid "page by page"
+msgstr "Seite für Seite"
+
+#: src/components/labels.ts
+msgid "Pairing…"
+msgstr "Koppeln…"
+
+#: src/screens/login.tsx
+msgid "Password"
+msgstr "Passwort"
+
+#: src/components/labels.ts
+msgid "Photo"
+msgstr "Foto"
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+msgid "Place"
+msgstr "Ort"
+
+#: src/screens/trips.tsx
+msgid "Plan the first trip"
+msgstr "Erste Reise anlegen"
+
+#: src/screens/trips.tsx
+msgid "Please check the marked fields."
+msgstr "Bitte prüfe die markierten Felder."
+
+#: src/lib/errors.ts
+msgid "Please log in again"
+msgstr "Bitte melde dich neu an"
+
+#: src/screens/composer.tsx
+msgid "Preview"
+msgstr "Vorschau"
+
+#: src/screens/days.tsx
+msgid "Previous day"
+msgstr "Vorheriger Tag"
+
+#: src/components/capture.tsx
+msgid "Processing…"
+msgstr "Wird verarbeitet…"
+
+#: src/components/labels.ts
+#: src/screens/composer.tsx
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+msgid "Public"
+msgstr "Öffentlich"
+
+#: src/screens/composer.tsx
+msgid "Publish"
+msgstr "Veröffentlichen"
+
+#: src/screens/settings.tsx
+msgid "Publish mode"
+msgstr "Veröffentlichungsmodus"
+
+#: src/screens/settings.tsx
+msgid "Publish mode changed"
+msgstr "Veröffentlichungsmodus geändert"
+
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+msgid "Publish now"
+msgstr "Jetzt veröffentlichen"
+
+#: src/screens/settings.tsx
+msgid "Publish the older waiting statuses?"
+msgstr "Ältere wartende Status veröffentlichen?"
+
+#: src/screens/settings.tsx
+msgid "Publish what is waiting?"
+msgstr "Alles Wartende veröffentlichen?"
+
+#: src/screens/composer.tsx
+msgid "Published. It will be on the site in a moment."
+msgstr "Veröffentlicht. Gleich ist es auf der Seite."
+
+#: src/screens/settings.tsx
+msgid "Publishing"
+msgstr "Veröffentlichen"
+
+#: src/screens/home.tsx
+msgid "Publishing fails"
+msgstr "Veröffentlichen klappt nicht"
+
+#: src/screens/home.tsx
+msgid "Publishing is failing"
+msgstr "Veröffentlichen klappt gerade nicht"
+
+#: src/components/status.tsx
+#: src/screens/home.tsx
+msgid "Publishing…"
+msgstr "Wird veröffentlicht…"
+
+#: src/screens/settings.tsx
+msgid "Push address (ntfy)"
+msgstr "Push-Adresse (ntfy)"
+
+#: src/screens/settings.tsx
+msgid "Push notifications via ntfy.sh, e.g. https://ntfy.sh/my-secret-topic"
+msgstr "Push-Nachrichten über ntfy.sh, z. B. https://ntfy.sh/mein-geheimes-topic"
+
+#. placeholder {0}: zoneLabel(device, locale)
+#: src/screens/days.tsx
+msgid "Re-sort this day in this device's zone ({0})"
+msgstr "Diesen Tag in der Zeitzone dieses Geräts einsortieren ({0})"
+
+#: src/screens/home.tsx
+msgid "Recently captured"
+msgstr "Zuletzt erfasst"
+
+#: src/screens/settings.tsx
+msgid "Recommended. Otherwise a deleted status stays in the journal."
+msgstr "Empfohlen. Sonst bleibt ein gelöschter Status im Tagebuch."
+
+#: src/components/feedback.tsx
+msgid "Reload"
+msgstr "Neu laden"
+
+#: src/screens/item.tsx
+msgid "Remove as cover"
+msgstr "Als Titelbild entfernen"
+
+#: src/screens/inbox.tsx
+msgid "Remove as the day's cover"
+msgstr "Nicht mehr Titelbild des Tages"
+
+#: src/screens/days.tsx
+msgid "Remove correction"
+msgstr "Korrektur entfernen"
+
+#: src/components/labels.ts
+msgid "Replaced by another session"
+msgstr "Von einer anderen Sitzung ersetzt"
+
+#: src/screens/item.tsx
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: src/components/conflict-dialog.tsx
+msgid "Restore with my change"
+msgstr "Mit meiner Änderung wiederherstellen"
+
+#: src/components/ui.tsx
+msgid "Retry"
+msgstr "Erneut versuchen"
+
+#: src/screens/settings.tsx
+msgid "Revoke"
+msgstr "Widerrufen"
+
+#. placeholder {0}: token.name
+#: src/screens/settings.tsx
+msgid "Revoke {0}"
+msgstr "{0} widerrufen"
+
+#: src/screens/settings.tsx
+msgid "Revoke this token?"
+msgstr "Diesen Token widerrufen?"
+
+#: src/screens/home.tsx
+msgid "Running"
+msgstr "Läuft"
+
+#: src/components/unsaved.tsx
+#: src/screens/item.tsx
+#: src/screens/settings.tsx
+msgid "Save"
+msgstr "Speichern"
+
+#: src/screens/settings.tsx
+msgid "Save alerts"
+msgstr "Benachrichtigungen speichern"
+
+#: src/screens/composer.tsx
+msgid "Save changes"
+msgstr "Änderungen speichern"
+
+#: src/screens/days.tsx
+msgid "Save day"
+msgstr "Tag speichern"
+
+#: src/screens/composer.tsx
+msgid "Save hidden"
+msgstr "Versteckt speichern"
+
+#: src/components/conflict-dialog.tsx
+msgid "Save my choice"
+msgstr "Meine Auswahl speichern"
+
+#: src/screens/trips.tsx
+msgid "Save trip"
+msgstr "Reise speichern"
+
+#: src/components/unsaved.tsx
+msgid "Save your changes?"
+msgstr "Änderungen speichern?"
+
+#: src/screens/settings.tsx
+msgid "Saved"
+msgstr "Gespeichert"
+
+#: src/lib/notices.ts
+msgid "Saved – sending…"
+msgstr "Gespeichert – wird gesendet …"
+
+#. placeholder {0}: ago(d.savedAt)
+#: src/screens/home.tsx
+msgid "Saved {0}"
+msgstr "Gespeichert {0}"
+
+#: src/screens/composer.tsx
+msgid "Saved as hidden."
+msgstr "Versteckt gespeichert."
+
+#: src/lib/notices.ts
+msgid "Saved on this device, sent when you are online"
+msgstr "Auf diesem Gerät gespeichert – wird gesendet, sobald du online bist"
+
+#: src/components/status.tsx
+msgid "Saving…"
+msgstr "Speichert…"
+
+#: src/components/install.tsx
+msgid "Scroll down and tap <0/> <1>Add to Home Screen</1>."
+msgstr "Scrolle nach unten und tippe auf <0/> <1>Zum Home-Bildschirm</1>."
+
+#: src/screens/item.tsx
+msgid "Set as cover"
+msgstr "Als Titelbild festlegen"
+
+#: src/screens/inbox.tsx
+msgid "Set as the day's cover"
+msgstr "Als Titelbild des Tages"
+
+#: src/screens/layout.tsx
+#: src/screens/settings.tsx
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: src/screens/layout.tsx
+msgctxt "tab bar, keep short"
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: src/screens/inbox.tsx
+msgid "Show"
+msgstr "Zeigen"
+
+#: src/screens/item.tsx
+msgid "Show on"
+msgstr "Zeigen am"
+
+#: src/screens/login.tsx
+msgid "Show password"
+msgstr "Passwort zeigen"
+
+#. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
+#: src/screens/item.tsx
+msgid "Shown on {0}."
+msgstr "Erscheint am {0}."
+
+#. placeholder {0}: ago(a.since)
+#: src/screens/home.tsx
+msgid "since {0}"
+msgstr "seit {0}"
+
+#: src/screens/home.tsx
+msgid "Site is live"
+msgstr "Seite ist live"
+
+#: src/screens/settings.tsx
+msgid "Site title"
+msgstr "Titel der Website"
+
+#: src/screens/settings.tsx
+msgid "Site title saved"
+msgstr "Titel gespeichert"
+
+#: src/screens/root.tsx
+msgid "Skip to content"
+msgstr "Zum Inhalt springen"
+
+#: src/lib/errors.ts
+#: src/screens/root.tsx
+msgid "Something went wrong"
+msgstr "Etwas ist schiefgelaufen"
+
+#: src/components/labels.ts
+msgid "Start"
+msgstr "Anfang"
+
+#: src/screens/item.tsx
+msgid "Status"
+msgstr "Status"
+
+#: src/screens/home.tsx
+msgid "Status unknown"
+msgstr "Status unbekannt"
+
+#: src/screens/home.tsx
+msgid "Status unknown right now"
+msgstr "Status gerade unbekannt"
+
+#: src/screens/settings.tsx
+msgid "Statuses you hid stay hidden. Everything newer follows the new mode."
+msgstr "Was du versteckt hast, bleibt versteckt. Alles Neue folgt dem neuen Modus."
+
+#: src/screens/layout.tsx
+#: src/screens/settings.tsx
+msgid "Stay logged in"
+msgstr "Angemeldet bleiben"
+
+#: src/components/labels.ts
+#: src/screens/composer.tsx
+#: src/screens/home.tsx
+msgid "Story"
+msgstr "Geschichte"
+
+#: src/screens/composer.tsx
+msgid "Story text in Markdown ({tab})"
+msgstr "Text der Geschichte in Markdown ({tab})"
+
+#: src/screens/inbox.tsx
+msgid "straight from WhatsApp"
+msgstr "frisch von WhatsApp"
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+#: src/screens/inbox.tsx
+msgid "Swipe a status away to hide it, or back to show it. Tap to describe it."
+msgstr "Wisch einen Status weg, um ihn zu verstecken, oder zurück, um ihn zu zeigen. Tippe, um ihn zu beschreiben."
+
+#: src/screens/settings.tsx
+msgid "Switch and publish"
+msgstr "Umstellen und veröffentlichen"
+
+#: src/screens/settings.tsx
+msgid "Switching to instant publishes everything that is still waiting (unless you hid it)."
+msgstr "Der Wechsel auf „Sofort“ veröffentlicht alles, was noch wartet (außer du hast es versteckt)."
+
+#: src/screens/settings.tsx
+msgid "System"
+msgstr "System"
+
+#: src/components/install.tsx
+msgid "Tap <0>Add</0>. The journal now opens from its own icon, full screen."
+msgstr "Tippe auf <0>Hinzufügen</0>. Das Reisetagebuch öffnet sich jetzt über sein eigenes Symbol, im Vollbild."
+
+#: src/screens/composer.tsx
+msgid "Tell the story… (Markdown: **bold**, _italic_, ## heading, - list)"
+msgstr "Erzähl die Geschichte… (Markdown: **fett**, _kursiv_, ## Überschrift, - Liste)"
+
+#: src/components/labels.ts
+msgid "Temporarily banned"
+msgstr "Vorübergehend gesperrt"
+
+#: src/components/labels.ts
+msgid "Text"
+msgstr "Text"
+
+#: src/components/capture.tsx
+#: src/components/labels.ts
+msgid "Text status"
+msgstr "Textstatus"
+
+#: src/screens/composer.tsx
+msgid "The {lang} note is {over} characters too long."
+msgstr "Die Notiz ({lang}) ist {over} Zeichen zu lang."
+
+#: src/screens/composer.tsx
+msgid "The {lang} story needs a title."
+msgstr "Die Geschichte ({lang}) braucht einen Titel."
+
+#: src/screens/trips.tsx
+msgid "The address cannot change after the trip was created."
+msgstr "Die Adresse lässt sich nach dem Anlegen nicht mehr ändern."
+
+#: src/screens/item.tsx
+msgid "The caption comes from WhatsApp and cannot be changed here."
+msgstr "Die Bildunterschrift kommt von WhatsApp und lässt sich hier nicht ändern."
+
+#: src/components/conflict-dialog.tsx
+msgid "the day {date}"
+msgstr "der Tag {date}"
+
+#: src/screens/trips.tsx
+msgid "The days and their moments stay. Only the trip chapter and its page disappear."
+msgstr "Die Tage und ihre Momente bleiben. Nur das Reisekapitel und seine Seite verschwinden."
+
+#: src/screens/trips.tsx
+msgid "The end must not be before the start."
+msgstr "Das Ende darf nicht vor dem Anfang liegen."
+
+#: src/screens/days.tsx
+msgid "The items of this day were sorted in by the time zone set when they were captured ({capturedLabels}). If that was wrong (a flight, a forgotten setting), choose the right zone: they are re-dated and may move to the day before or after."
+msgstr "Die Einträge dieses Tages wurden nach der Zeitzone einsortiert, die beim Erfassen eingestellt war ({capturedLabels}). War das falsch (ein Flug, eine vergessene Einstellung), wähle die richtige Zone: Die Einträge werden neu datiert und rutschen eventuell auf den Tag davor oder danach."
+
+#: src/components/capture.tsx
+msgid "The media could not be downloaded from WhatsApp."
+msgstr "Die Medien konnten nicht von WhatsApp geladen werden."
+
+#: src/screens/item.tsx
+msgid "The other language is shown as a translation."
+msgstr "Die andere Sprache wird als Übersetzung gezeigt."
+
+#: src/lib/errors.ts
+msgid "The server did not accept this"
+msgstr "Der Server hat das nicht angenommen"
+
+#: src/screens/home.tsx
+msgid "The server did not answer. Your site is probably fine."
+msgstr "Der Server hat nicht geantwortet. Deine Seite ist vermutlich in Ordnung."
+
+#: src/lib/errors.ts
+msgid "The server has a problem right now"
+msgstr "Der Server hat gerade ein Problem"
+
+#: src/components/feedback.tsx
+msgid "The server is not reachable right now"
+msgstr "Der Server ist gerade nicht erreichbar"
+
+#: src/screens/login.tsx
+msgid "The server is not reachable right now. You can still log in once it answers again."
+msgstr "Der Server ist gerade nicht erreichbar. Sobald er wieder antwortet, kannst du dich anmelden."
+
+#: src/components/conflict-dialog.tsx
+msgid "the trip “{slug}”"
+msgstr "die Reise „{slug}“"
+
+#: src/components/install.tsx
+msgid "Then the journal opens like an app, without the browser around it."
+msgstr "Dann öffnet sich das Reisetagebuch wie eine App, ohne den Browser drumherum."
+
+#: src/screens/days.tsx
+msgid "There is no photo or video on this day yet."
+msgstr "An diesem Tag gibt es noch kein Foto oder Video."
+
+#: src/screens/settings.tsx
+msgid "This app"
+msgstr "Diese App"
+
+#: src/screens/settings.tsx
+msgid "This does not look like an e-mail address."
+msgstr "Das sieht nicht nach einer E-Mail-Adresse aus."
+
+#: src/lib/errors.ts
+msgid "This is not allowed – reload the app and try again"
+msgstr "Das ist nicht erlaubt – lade die App neu und versuch es nochmal"
+
+#. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
+#: src/screens/item.tsx
+msgid "This is the cover of {0}."
+msgstr "Das ist das Titelbild von {0}."
+
+#: src/lib/errors.ts
+msgid "This no longer exists"
+msgstr "Das gibt es nicht mehr"
+
+#. placeholder {0}: current ? <> ({zoneLabel(current, locale)})</> : null
+#: src/screens/days.tsx
+msgid "This only re-sorts this one day. Where you are now (for new statuses) is set in <0>Settings</0>{0}."
+msgstr "Das sortiert nur diesen einen Tag neu. Wo du gerade bist (für neue Status), stellst du in den <0>Einstellungen</0> ein{0}."
+
+#: src/screens/root.tsx
+msgid "This page does not exist. Maybe it moved, like you."
+msgstr "Diese Seite gibt es nicht. Vielleicht ist sie weitergezogen – wie du."
+
+#: src/components/conflict-dialog.tsx
+msgid "this post"
+msgstr "dieser Eintrag"
+
+#: src/screens/composer.tsx
+msgid "This post was changed on another device after you started this draft. Saving keeps both: where you both changed the same text, you choose."
+msgstr "Dieser Beitrag wurde auf einem anderen Gerät geändert, nachdem du diesen Entwurf angefangen hast. Beim Speichern bleibt beides erhalten: Wo ihr denselben Text geändert habt, entscheidest du."
+
+#: src/components/conflict-dialog.tsx
+msgid "this status"
+msgstr "diesen Status"
+
+#: src/screens/trips.tsx
+msgid "This trip does not exist (any more)."
+msgstr "Diese Reise gibt es nicht (mehr)."
+
+#: src/components/conflict-dialog.tsx
+msgid "This was deleted elsewhere"
+msgstr "Das wurde woanders gelöscht"
+
+#: src/components/labels.ts
+msgid "Time"
+msgstr "Zeitpunkt"
+
+#. placeholder {0}: zoneLabel(tz, locale)
+#: src/screens/composer.tsx
+msgid "Time in {0}. Leave empty for now."
+msgstr "Zeit in {0}. Leer lassen = jetzt."
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+#: src/screens/settings.tsx
+msgid "Time zone"
+msgstr "Zeitzone"
+
+#: src/screens/days.tsx
+msgid "Time zone of this day"
+msgstr "Zeitzone dieses Tages"
+
+#: src/screens/home.tsx
+#: src/screens/settings.tsx
+msgid "Time zone updated"
+msgstr "Zeitzone aktualisiert"
+
+#: src/components/labels.ts
+#: src/screens/days.tsx
+#: src/screens/trips.tsx
+msgid "Title"
+msgstr "Titel"
+
+#: src/screens/composer.tsx
+msgid "Title ({tab})"
+msgstr "Titel ({tab})"
+
+#: src/screens/days.tsx
+msgid "Title & summary"
+msgstr "Titel & Zusammenfassung"
+
+#: src/screens/composer.tsx
+msgid "Title of your story"
+msgstr "Titel deiner Geschichte"
+
+#: src/screens/home.tsx
+msgid "Today"
+msgstr "Heute"
+
+#: src/screens/settings.tsx
+msgid "Token revoked"
+msgstr "Token widerrufen"
+
+#: src/screens/login.tsx
+msgid "Too many attempts. Please wait a few minutes."
+msgstr "Zu viele Versuche. Bitte warte ein paar Minuten."
+
+#: src/screens/layout.tsx
+msgid "travel journal"
+msgstr "Reisetagebuch"
+
+#: src/screens/trips.tsx
+msgid "Trip"
+msgstr "Reise"
+
+#: src/screens/trips.tsx
+msgid "Trip created"
+msgstr "Reise angelegt"
+
+#: src/screens/trips.tsx
+msgid "Trip deleted"
+msgstr "Reise gelöscht"
+
+#: src/screens/trips.tsx
+msgid "Trip saved"
+msgstr "Reise gespeichert"
+
+#: src/screens/days.tsx
+#: src/screens/layout.tsx
+#: src/screens/trips.tsx
+msgid "Trips"
+msgstr "Reisen"
+
+#: src/api/conflicts.ts
+#: src/screens/root.tsx
+msgid "Try again"
+msgstr "Noch einmal versuchen"
+
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+msgid "Undo"
+msgstr "Rückgängig"
+
+#: src/screens/days.tsx
+msgid "Unsaved changes"
+msgstr "Ungespeicherte Änderungen"
+
+#: src/screens/item.tsx
+msgid "Unsaved description"
+msgstr "Beschreibung nicht gespeichert"
+
+#: src/components/labels.ts
+msgid "Unsupported"
+msgstr "Nicht unterstützt"
+
+#: src/screens/days.tsx
+msgid "Untitled day"
+msgstr "Tag ohne Titel"
+
+#: src/screens/home.tsx
+msgid "Use {city}"
+msgstr "{city} übernehmen"
+
+#: src/screens/settings.tsx
+msgid "Use an http(s) address."
+msgstr "Bitte eine http(s)-Adresse verwenden."
+
+#. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
+#: src/screens/item.tsx
+msgid "Use it as the picture of {0}."
+msgstr "Als Bild für {0} verwenden."
+
+#. placeholder {0}: zoneLabel(device, locale)
+#: src/screens/settings.tsx
+msgid "Use this device's zone ({0})"
+msgstr "Zeitzone dieses Geräts nehmen ({0})"
+
+#. placeholder {0}: formatRelative(token.lastUsedAt, locale)
+#: src/screens/settings.tsx
+msgid "used {0}"
+msgstr "benutzt {0}"
+
+#: src/components/labels.ts
+msgid "Video"
+msgstr "Video"
+
+#: src/components/labels.ts
+#: src/screens/composer.tsx
+#: src/screens/item.tsx
+msgid "Visibility"
+msgstr "Sichtbarkeit"
+
+#: src/lib/captures.ts
+msgid "Visible on the site"
+msgstr "Auf der Seite sichtbar"
+
+#: src/components/labels.ts
+msgid "Voice message"
+msgstr "Sprachnachricht"
+
+#: src/components/labels.ts
+#: src/screens/inbox.tsx
+#: src/screens/item.tsx
+msgid "Waiting"
+msgstr "Wartet"
+
+#: src/components/status.tsx
+msgid "Waiting for network"
+msgstr "Wartet aufs Netz"
+
+#: src/components/labels.ts
+msgid "Waiting for QR scan"
+msgstr "Wartet auf QR-Scan"
+
+#: src/screens/home.tsx
+msgid "Waiting for the first status to recognise the traveller."
+msgstr "Wartet auf den ersten Status, um die Reisende zu erkennen."
+
+#: src/lib/captures.ts
+msgid "Waiting for your release"
+msgstr "Wartet auf deine Freigabe"
+
+#: src/screens/trips.tsx
+msgid "Web address"
+msgstr "Webadresse"
+
+#: src/screens/settings.tsx
+msgid "Website"
+msgstr "Website"
+
+#: src/screens/item.tsx
+msgid "What happened here?"
+msgstr "Was ist hier passiert?"
+
+#: src/screens/settings.tsx
+msgid "What happens with new WhatsApp statuses. Your notes and stories have their own visibility."
+msgstr "Was mit neuen WhatsApp-Status passiert. Deine Notizen und Geschichten haben ihre eigene Sichtbarkeit."
+
+#: src/screens/composer.tsx
+msgid "What is on your mind right now?"
+msgstr "Was geht dir gerade durch den Kopf?"
+
+#. placeholder {0}: revoking?.name
+#: src/screens/settings.tsx
+msgid "Whatever uses “{0}” loses access immediately."
+msgstr "Was „{0}“ benutzt, verliert sofort den Zugriff."
+
+#: src/screens/composer.tsx
+msgid "When"
+msgstr "Wann"
+
+#: src/screens/settings.tsx
+msgid "Where to send a message when your computer at home stops checking in or WhatsApp logs out."
+msgstr "Wohin eine Nachricht geht, wenn sich dein Rechner zu Hause nicht mehr meldet oder WhatsApp abgemeldet wird."
+
+#: src/components/conflict-dialog.tsx
+msgid "While you were editing, <0/> was changed elsewhere. Choose which version to keep."
+msgstr "Während du bearbeitet hast, wurde <0/> woanders geändert. Wähle, welche Version bleibt."
+
+#: src/components/conflict-dialog.tsx
+msgid "While you were editing, <0/> was deleted (maybe on another device)."
+msgstr "Während du bearbeitet hast, wurde <0/> gelöscht (vielleicht auf einem anderen Gerät)."
+
+#: src/screens/composer.tsx
+#: src/screens/layout.tsx
+msgid "Write"
+msgstr "Schreiben"
+
+#: src/screens/composer.tsx
+msgid "Write a few words first."
+msgstr "Schreib zuerst ein paar Worte."
+
+#: src/screens/days.tsx
+#: src/screens/item.tsx
+#: src/screens/trips.tsx
+msgid "Written in"
+msgstr "Geschrieben auf"
+
+#: src/screens/root.tsx
+msgid "Wrong turn"
+msgstr "Falsch abgebogen"
+
+#: src/screens/settings.tsx
+msgid "Yes, make it findable"
+msgstr "Ja, auffindbar machen"
+
+#: src/screens/home.tsx
+msgid "You are in {city} now ({offset}) – use this time zone?"
+msgstr "Du bist jetzt in {city} ({offset}) – Zeitzone übernehmen?"
+
+#: src/components/feedback.tsx
+msgid "You are offline"
+msgstr "Du bist offline"
+
+#: src/components/feedback.tsx
+msgid "You can keep editing: changes are kept on this device and sent later."
+msgstr "Du kannst weiter bearbeiten: Änderungen bleiben auf diesem Gerät und werden später gesendet."
+
+#: src/components/unsaved.tsx
+msgid "You changed this but did not save it yet."
+msgstr "Du hast hier etwas geändert und noch nicht gespeichert."
+
+#: src/screens/item.tsx
+msgid "You deleted this status on WhatsApp."
+msgstr "Du hast diesen Status auf WhatsApp gelöscht."
+
+#: src/components/conflict-dialog.tsx
+msgid "Your change"
+msgstr "Deine Änderung"
+
+#: src/screens/item.tsx
+msgid "Your choice overrides the publish setting."
+msgstr "Deine Wahl überstimmt die Veröffentlichungs-Einstellung."
+
+#: src/screens/home.tsx
+msgid "Your computer at home could not upload the last version. It keeps retrying."
+msgstr "Dein Rechner zu Hause konnte die letzte Version nicht hochladen. Er versucht es weiter."
+
+#: src/components/conflict-dialog.tsx
+msgid "your GIF"
+msgstr "dein GIF"
+
+#: src/screens/settings.tsx
+msgid "Your journal, with places and dates, can then show up in search results for anyone. This is hard to undo: search engines keep copies for a while."
+msgstr "Dein Tagebuch mit Orten und Daten kann dann für alle in Suchergebnissen auftauchen. Das lässt sich schwer rückgängig machen: Suchmaschinen behalten eine Weile Kopien."
+
+#: src/screens/home.tsx
+msgid "Your latest edits and new statuses are on their way."
+msgstr "Deine letzten Änderungen und neue Status sind unterwegs."
+
+#: src/screens/home.tsx
+msgid "Your latest edits are on their way to the site."
+msgstr "Deine letzten Änderungen sind auf dem Weg zur Seite."
+
+#: src/screens/settings.tsx
+msgid "Your new token — copy it now, it will not be shown again:"
+msgstr "Dein neuer Token – kopiere ihn jetzt, er wird nicht noch einmal angezeigt:"
+
+#: src/components/conflict-dialog.tsx
+msgid "your photo"
+msgstr "dein Foto"
+
+#: src/components/conflict-dialog.tsx
+msgid "your status"
+msgstr "dein Status"
+
+#: src/components/conflict-dialog.tsx
+msgid "your text status"
+msgstr "dein Textstatus"
+
+#: src/screens/login.tsx
+msgid "Your travel journal is waiting for you"
+msgstr "Dein Reisetagebuch wartet auf dich"
+
+#: src/components/conflict-dialog.tsx
+msgid "your video"
+msgstr "dein Video"
+
+#: src/components/conflict-dialog.tsx
+msgid "your voice message"
+msgstr "deine Sprachnachricht"
+
+#: src/screens/home.tsx
+msgid "Your website"
+msgstr "Deine Website"
+
+#: src/screens/item.tsx
+msgid "Your words next to the status, per language. The caption stays as it was posted."
+msgstr "Deine Worte zum Status, pro Sprache. Die Bildunterschrift bleibt, wie sie gepostet wurde."

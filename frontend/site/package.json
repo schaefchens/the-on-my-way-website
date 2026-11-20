@@ -1,0 +1,52 @@
+{
+  "name": "@omw/site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "On My Way public timeline SPA (static, Vite base './'), built into the backend image",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json && tsc -p tsconfig.node.json && tsc -p e2e/tsconfig.json",
+    "test": "vitest run",
+    "dev-data": "TSX_DISABLE_CACHE=1 node --conditions=@omw/source --import tsx scripts/make-dev-data.ts",
+    "dev-data:check": "TSX_DISABLE_CACHE=1 node --conditions=@omw/source --import tsx scripts/make-dev-data.ts --check",
+    "dev-data:large": "TSX_DISABLE_CACHE=1 node --conditions=@omw/source --import tsx scripts/make-large-dev-data.ts",
+    "i18n:extract": "lingui extract --clean",
+    "e2e": "playwright test -c e2e/playwright.config.ts"
+  },
+  "dependencies": {
+    "@lingui/core": "6.12.0",
+    "@lingui/react": "6.12.0",
+    "@omw/contracts": "workspace:*",
+    "@omw/ui": "workspace:*",
+    "@tanstack/react-query": "5.108.1",
+    "@tanstack/react-router": "1.170.46",
+    "@tanstack/react-virtual": "3.14.26",
+    "markdown-it": "15.0.3",
+    "motion": "14.14.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@lingui/cli": "6.12.0",
+    "@lingui/conf": "6.12.0",
+    "@lingui/format-po": "6.12.0",
+    "@lingui/vite-plugin": "6.12.0",
+    "@tailwindcss/vite": "4.3.5",
+    "@types/markdown-it": "14.2.0",
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "sharp": "0.35.5",
+    "tailwindcss": "4.3.5",
+    "thumbhash": "0.1.1",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.8",
+    "vitest": "5.1.1",
+    "zod": "4.6.7"
+  }
+}

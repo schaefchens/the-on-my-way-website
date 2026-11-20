@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/Health.json",
+  "title": "Health",
+  "additionalProperties": false,
+  "properties": {
+    "contractVersion": {
+      "const": 1,
+      "type": "number"
+    },
+    "ok": {
+      "const": true,
+      "type": "boolean"
+    },
+    "version": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "ok",
+    "version",
+    "contractVersion"
+  ],
+  "type": "object"
+}

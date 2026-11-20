@@ -1,0 +1,85 @@
+{
+  "description": "publicId = \"e_\" + base32_rfc4648_lower(sha256(utf8(sourceKey)))[0..12] (D4)",
+  "cases": [
+    {
+      "sourceKey": "wa:ABC123",
+      "publicId": "e_uyhb2dbiu56w"
+    },
+    {
+      "sourceKey": "wa:3EB0C767D26A1D8B7A3B",
+      "publicId": "e_j6gd4lgqgjff"
+    },
+    {
+      "sourceKey": "wa:3EB0D4DF9C5342C8CF0B",
+      "publicId": "e_sd2oahsgwwzj"
+    },
+    {
+      "sourceKey": "wa:3EB014A3498BB36BA7F5",
+      "publicId": "e_pvtehxa6a44m"
+    },
+    {
+      "sourceKey": "wa:3EB0CCAE0F9B4D04143F",
+      "publicId": "e_yovocc3t5dzc"
+    },
+    {
+      "sourceKey": "wa:3EB04F6CD4B59C4BBA47",
+      "publicId": "e_akesniciyfqf"
+    },
+    {
+      "sourceKey": "wa:3EB04C34FA66C18E4EE1",
+      "publicId": "e_bgzmkhei2f76"
+    },
+    {
+      "sourceKey": "wa:3EB0B028C9D92EFF4C5B",
+      "publicId": "e_woexqib6nefe"
+    },
+    {
+      "sourceKey": "wa:3EB0B53E4ADF9987E545",
+      "publicId": "e_zoydmiuilwch"
+    },
+    {
+      "sourceKey": "wa:3EB07AB0A895AA6DAE0C",
+      "publicId": "e_2yn4qyzmo2kv"
+    },
+    {
+      "sourceKey": "wa:3EB029F28898501FA172",
+      "publicId": "e_4jwjo4ms24oy"
+    },
+    {
+      "sourceKey": "wa:3EB02EB54680C905FFAD",
+      "publicId": "e_myh4shxqod5y"
+    },
+    {
+      "sourceKey": "wa:3EB0A0A7F6C40B6C176C",
+      "publicId": "e_ac3xigmkhau3"
+    },
+    {
+      "sourceKey": "wa:3EB01C3C6177CF4AE3C4",
+      "publicId": "e_sdc36ihgckye"
+    },
+    {
+      "sourceKey": "wa:3EB0A5BBCEF6DE6DB217",
+      "publicId": "e_zt56vyoxnnt7"
+    },
+    {
+      "sourceKey": "wa:3EB051DDE7F36B6CBE94",
+      "publicId": "e_6hrstxhklmyd"
+    },
+    {
+      "sourceKey": "wa:3EB0A95100B25384B95E",
+      "publicId": "e_wcnb3enoc3eb"
+    },
+    {
+      "sourceKey": "wa:3EB075FC4D0EBB28EBF5",
+      "publicId": "e_hqt25qjhaxk5"
+    },
+    {
+      "sourceKey": "wa:3EB039918D3FBEC62243",
+      "publicId": "e_s7on6ejcunc4"
+    },
+    {
+      "sourceKey": "wa:3EB002FB95C8D4FA723E",
+      "publicId": "e_6skcnqrdpc2d"
+    }
+  ]
+}

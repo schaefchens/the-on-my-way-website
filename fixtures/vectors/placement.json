@@ -1,0 +1,597 @@
+{
+  "description": "effectiveLocalDate/effectiveTz(item, annotation, dayTz): override > Day.tz of the stored local date > stored",
+  "cases": [
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": null,
+      "dayTz": null,
+      "localDate": "2026-11-16",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": null,
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-15",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": null,
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-15",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": null,
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-15",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": null,
+      "localDate": "2026-11-16",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-15",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-15",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-15",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": null,
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T18:30:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-16"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": null,
+      "dayTz": null,
+      "localDate": "2026-11-15",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": null,
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-15",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": null,
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-15",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": null,
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-15",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": null,
+      "localDate": "2026-11-15",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-15",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-15",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-15",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": null,
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-15T16:59:59Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "localDate": "2026-11-15"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-17",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": null,
+      "dayTz": null,
+      "localDate": "2026-11-19",
+      "tz": "Pacific/Kiritimati"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": null,
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-18",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": null,
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-17",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": null,
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-18",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": null,
+      "localDate": "2026-11-19",
+      "tz": "Pacific/Kiritimati"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-18",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-17",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-18",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": null,
+      "localDate": "2026-11-17",
+      "tz": "Pacific/Kiritimati"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-17",
+      "tz": "Pacific/Kiritimati"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-17",
+      "tz": "Pacific/Kiritimati"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-11-18T10:00:00Z",
+        "tz": "Pacific/Kiritimati",
+        "localDate": "2026-11-19"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-17",
+      "tz": "Pacific/Kiritimati"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": null,
+      "dayTz": null,
+      "localDate": "2026-03-29",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": null,
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-03-29",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": null,
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-03-28",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": null,
+      "dayTz": "America/New_York",
+      "localDate": "2026-03-28",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": null,
+      "localDate": "2026-03-29",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-03-29",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-03-28",
+      "tz": "Pacific/Pago_Pago"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": null
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-03-28",
+      "tz": "America/New_York"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": null,
+      "localDate": "2026-11-17",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Europe/Berlin",
+      "localDate": "2026-11-17",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "Pacific/Pago_Pago",
+      "localDate": "2026-11-17",
+      "tz": "Europe/Berlin"
+    },
+    {
+      "item": {
+        "occurredAt": "2026-03-29T00:30:00Z",
+        "tz": "Europe/Berlin",
+        "localDate": "2026-03-29"
+      },
+      "annotation": {
+        "localDateOverride": "2026-11-17"
+      },
+      "dayTz": "America/New_York",
+      "localDate": "2026-11-17",
+      "tz": "Europe/Berlin"
+    }
+  ]
+}

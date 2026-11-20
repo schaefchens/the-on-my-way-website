@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "msgId": "3EB0GOLDENunsupported",
+  "source": "live",
+  "receivedAt": "2026-11-15T02:12:03.000Z",
+  "sender": {
+    "pn": "4915100000001",
+    "lid": "100000000000001",
+    "jid": "100000000000001@lid",
+    "pushName": "Reisende"
+  },
+  "timestamp": "2026-11-15T02:12:00Z",
+  "kind": "unsupported",
+  "download": {
+    "state": "not_applicable",
+    "attempts": 0
+  },
+  "unsupportedType": "pollCreationMessageV3",
+  "rawProtoB64": "ggQDEgE/",
+  "addressingMode": "lid",
+  "stanzaTag": "status"
+}

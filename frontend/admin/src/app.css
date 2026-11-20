@@ -1,0 +1,306 @@
+@import "tailwindcss";
+@import "@omw/ui/theme.css";
+
+/*
+ * Admin-only touches on top of the @omw/ui tokens: a soft dawn glow behind the paper grain,
+ * the Fraunces SOFT axis for headings, tactile press feedback and a few journal details
+ * (polaroid frames, handwritten labels). Colours come only from the theme tokens.
+ */
+
+/*
+ * Admin-only token: success text on a tinted success background ("Live" chips, the site card)
+ * needs more contrast than --omw-success gives (4.37:1 on success/14); >= 6:1 in both themes.
+ */
+@layer base {
+  :root,
+  [data-theme] {
+    --omw-success-strong: light-dark(#17603c, #a9e8c6);
+  }
+}
+
+@theme inline {
+  --color-success-strong: var(--omw-success-strong);
+}
+
+@layer base {
+  /* A focused field never ends up under the tab bar or a sticky save bar. */
+  html {
+    scroll-padding-bottom: calc(11rem + env(safe-area-inset-bottom));
+  }
+  @media (width >= 64rem) {
+    html {
+      scroll-padding-bottom: 6rem;
+    }
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Native date/time pickers follow the theme. */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color-scheme: inherit;
+  }
+
+  dialog {
+    color: inherit;
+  }
+
+  /* Grid items may shrink below their content width (no accidental horizontal overflow). */
+  .grid > * {
+    min-width: 0;
+  }
+
+  dialog::backdrop {
+    background: color-mix(in oklab, var(--omw-ink) 28%, transparent);
+    backdrop-filter: blur(3px);
+  }
+}
+
+/* Fraunces with its SOFT axis: rounder terminals for the journal feel. */
+@utility display-soft {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100;
+  letter-spacing: -0.012em;
+}
+
+/* Tactile press: a quick squish that springs back (never blocks the click). */
+@utility press {
+  transition:
+    transform 160ms var(--ease-snappy),
+    background-color 160ms var(--ease-soft),
+    box-shadow 200ms var(--ease-soft),
+    color 160ms var(--ease-soft);
+  &:active:not(:disabled) {
+    transform: scale(0.965);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+/* Full-bleed page backdrop: dawn glow + paper grain (fixed, behind everything). */
+@utility app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60rem 28rem at 0% -8%,
+      color-mix(in oklab, var(--omw-blush-strong) 70%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      48rem 30rem at 110% 105%,
+      color-mix(in oklab, var(--omw-lilac-strong) 55%, transparent),
+      transparent 70%
+    ),
+    var(--omw-bg);
+}
+
+/* Instant photo frame for capture previews. */
+@utility polaroid {
+  background: var(--omw-surface);
+  padding: 0.55rem 0.55rem 0;
+  border-radius: 0.9rem;
+  box-shadow:
+    0 1px 2px var(--omw-shadow-near),
+    0 10px 28px -12px var(--omw-shadow-far);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Space for the floating tab bar on phones (and the iOS home indicator). */
+@utility pb-tabbar {
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
+@utility bottom-safe {
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+}
+
+/* Rendered story preview (markdown-it output). */
+@utility prose-journal {
+  line-height: 1.7;
+  & > * + * {
+    margin-top: 0.85em;
+  }
+  & h1,
+  & h2,
+  & h3 {
+    font-family: var(--font-display);
+    font-variation-settings: "SOFT" 100;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-top: 1.3em;
+  }
+  & h1 {
+    font-size: 1.6rem;
+  }
+  & h2 {
+    font-size: 1.35rem;
+  }
+  & h3 {
+    font-size: 1.15rem;
+  }
+  & a {
+    color: var(--omw-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  & ul {
+    list-style: disc;
+    padding-inline-start: 1.3em;
+  }
+  & ol {
+    list-style: decimal;
+    padding-inline-start: 1.3em;
+  }
+  & blockquote {
+    border-inline-start: 3px solid var(--omw-blush-strong);
+    padding-inline-start: 0.9em;
+    color: var(--omw-muted);
+    font-style: italic;
+  }
+  & code {
+    background: var(--omw-surface-2);
+    border-radius: 0.35em;
+    padding: 0.1em 0.35em;
+    font-size: 0.92em;
+  }
+  & hr {
+    border: 0;
+    border-top: 2px dashed var(--omw-line);
+  }
+  & img {
+    border-radius: 0.75rem;
+  }
+}
+
+@keyframes omw-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+@utility animate-pulse-dot {
+  animation: omw-pulse-dot 1.6s var(--ease-float) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes omw-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-spin-soft {
+  animation: omw-spin 0.9s linear infinite;
+}
+
+@keyframes omw-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@utility skeleton {
+  background:
+    linear-gradient(
+      90deg,
+      var(--omw-surface-2) 0%,
+      color-mix(in oklab, var(--omw-surface-2) 40%, var(--omw-surface)) 50%,
+      var(--omw-surface-2) 100%
+    )
+    0 0 / 200% 100%;
+  animation: omw-shimmer 1.8s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/*
+ * Bottom-anchored UI on phones. The floating tab bar (+ its raised Write button) takes the
+ * bottom 6.5rem. While the owner types on a touch device (<html data-typing>, set by the
+ * layout) the tab bar slides away and save bars / toasts sit right above the on-screen
+ * keyboard: --omw-kb is the part of the layout viewport the keyboard covers (visualViewport).
+ */
+@utility sticky-actions {
+  bottom: calc(6.75rem + env(safe-area-inset-bottom));
+  :root[data-typing] & {
+    bottom: calc(0.75rem + var(--omw-kb, 0px));
+  }
+  @media (width >= 64rem) {
+    bottom: 1rem;
+  }
+}
+
+@utility hide-when-typing {
+  transition:
+    translate 220ms var(--ease-soft),
+    opacity 180ms var(--ease-soft);
+  :root[data-typing] & {
+    translate: 0 160%;
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/*
+ * Toasts sit just above the tab bar. While a sticky save bar (StickyActions) is on screen they
+ * float above it instead, so "Saved" never covers the buttons for the next edit.
+ */
+@utility toaster-stack {
+  bottom: calc(6.25rem + env(safe-area-inset-bottom));
+  :root:has([data-sticky-actions]) & {
+    bottom: calc(11rem + env(safe-area-inset-bottom));
+  }
+  :root[data-typing] & {
+    bottom: calc(0.75rem + var(--omw-kb, 0px));
+  }
+  :root[data-typing]:has([data-sticky-actions]) & {
+    bottom: calc(5rem + var(--omw-kb, 0px));
+  }
+  @media (width >= 64rem) {
+    bottom: 1.5rem;
+    :root:has([data-sticky-actions]) & {
+      bottom: 5.75rem;
+    }
+  }
+}

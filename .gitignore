@@ -1,0 +1,44 @@
+# Dependencies & build output
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# PHP API
+api/vendor/
+# var/ holds the database, previews, backups, logs; only its deny-all .htaccess is tracked
+api/var/*
+!api/var/.htaccess
+api/public/admin/
+.phpunit.cache/
+
+# Backend runtime data: WhatsApp archive, generated site, publish config (incl. SSH keys)
+backend/data/
+backend/wa-helper/bin/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Tool caches (pnpm store, Go, Composer, Playwright) and generated fixtures
+.cache/
+fixtures/generated/
+**/dist/
+
+# Frontend: dev data set built from fixtures (pnpm --filter @omw/site dev-data)
+frontend/site/dev-data/
+
+# Locally generated deploy secrets (admin password, API tokens, cron key); never commit
+.secrets/

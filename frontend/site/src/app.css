@@ -1,0 +1,313 @@
+@import "tailwindcss";
+@import "@omw/ui/theme.css";
+
+/* The backend generator's first-screen templates (TS string templates) use these utilities too. */
+@source "../../../backend/src/generator";
+
+@layer base {
+  /* Paper grain texture (dawn: plum specks, as @omw/ui's paper-grain; dusk: faint light specks). */
+  :root {
+    --site-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .23 0 0 0 0 .14 0 0 0 0 .25 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="dawn"]) {
+      --site-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .86 0 0 0 0 .78 0 0 0 .03 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+  }
+  :root[data-theme="night"] {
+    --site-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .86 0 0 0 0 .78 0 0 0 .03 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  html {
+    scrollbar-gutter: stable;
+  }
+  /* Overlays (player, trip page) lock the page; the timeline keeps its scroll position. */
+  html.omw-scroll-lock {
+    overflow: hidden;
+  }
+  /* User text keeps its own direction but aligns with the (possibly mirrored) layout: a German
+     title on an RTL page sits at the right edge. Chromium and WebKit only know the prefixed
+     keyword (the unprefixed one is dropped there); Firefox takes the standard one. */
+  [data-user-text] {
+    text-align: -webkit-match-parent;
+    /* biome-ignore lint/suspicious/noDuplicateProperties: progressive fallback (see above) */
+    text-align: match-parent;
+  }
+}
+
+/* Fraunces with its SOFT axis: rounder, friendlier display type. */
+@utility soft {
+  font-variation-settings: "SOFT" 100;
+}
+
+/* Tactile press: a quick squeeze, a soft settle. Carries the element's other transitions too. */
+@utility press {
+  transition-property: scale, translate, rotate, box-shadow, background-color, border-color, color, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: var(--ease-snappy);
+  &:active {
+    scale: 0.97;
+    transition-duration: 70ms;
+  }
+}
+
+/* Instant-photo frame for collages. */
+@utility polaroid {
+  display: block;
+  padding: 0.4rem 0.4rem 1.35rem;
+  border-radius: 0.3rem;
+  background-color: light-dark(#ffffff, #efe4ea);
+  box-shadow: var(--shadow-lift);
+}
+
+/* A strip of washi tape. */
+@utility tape {
+  inline-size: 4.75rem;
+  block-size: 1.3rem;
+  border-radius: 2px;
+  opacity: 0.88;
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--omw-lilac-strong) 88%, transparent) 0 6px,
+    color-mix(in oklab, var(--omw-blush-strong) 88%, transparent) 6px 12px
+  );
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+
+/* Notebook paper for notes (the rules come from note-lines, on the text's own box). */
+@utility note-paper {
+  background-color: light-dark(#fffaf1, #2e2235);
+}
+
+/* Ruled lines at the text's line pitch: 1lh of this very box (set its font and line height
+   to the text's), one rule just under each line's baseline, so the handwriting sits on the
+   lines instead of drifting across them (L3-09). */
+@utility note-lines {
+  --rule: light-dark(rgb(190 74 116 / 0.16), rgb(244 163 188 / 0.14));
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(1lh - 0.3em),
+    var(--rule) calc(1lh - 0.3em) calc(1lh - 0.3em + 1px),
+    transparent calc(1lh - 0.3em + 1px)
+  );
+  background-size: 100% 1lh;
+  background-repeat: repeat-y;
+}
+
+/* Passport stamp: double-ruled ink, a little faded. */
+@utility passport-stamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.7rem 0.4rem;
+  border: 3px double currentColor;
+  border-radius: 0.7rem;
+  color: light-dark(#5d3fa0, #bca4f2);
+  background-color: light-dark(rgb(255 255 255 / 0.62), rgb(37 26 46 / 0.72));
+  box-shadow: 0 0 0 1px color-mix(in oklab, currentColor 18%, transparent) inset;
+  opacity: 0.92;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.6 2.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.6 2.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* Loading placeholder with a gentle shimmer (inline background-color may tint it). */
+@utility skeleton {
+  background-color: var(--omw-blush);
+  background-image: linear-gradient(100deg, transparent 35%, rgb(255 255 255 / 0.32) 50%, transparent 65%);
+  background-size: 250% 100%;
+  animation: omw-shimmer 1.6s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility float-gently {
+  animation: omw-float 6s var(--ease-float) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility toast-in {
+  animation: omw-toast-in 420ms var(--ease-soft) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@layer components {
+  /* ---- filmstrip ------------------------------------------------------------------------ */
+  .strip {
+    scrollbar-width: none;
+    padding-block: 0.75rem;
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+  }
+  .strip::-webkit-scrollbar {
+    display: none;
+  }
+  :where([dir="rtl"]) .strip {
+    mask-image: linear-gradient(to left, #000 calc(100% - 2.5rem), transparent);
+  }
+  .strip-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    inline-size: 2.6rem;
+    block-size: 2.6rem;
+    translate: 0 -50%;
+    border-radius: 9999px;
+    background-color: var(--omw-surface);
+    color: var(--omw-ink);
+    box-shadow: var(--shadow-lift);
+    opacity: 0;
+    transition:
+      opacity 200ms var(--ease-soft),
+      scale 160ms var(--ease-snappy);
+  }
+  .strip-arrow:active {
+    scale: 0.94;
+  }
+  @media (hover: hover) {
+    .group\/strip:hover .strip-arrow:not(:disabled) {
+      opacity: 1;
+    }
+  }
+  .strip-arrow:disabled {
+    pointer-events: none;
+  }
+
+  /* ---- paper grain ---------------------------------------------------------------------- */
+  /* The page's grain layer and the sticky day headers share one texture, so a header at rest is
+     indistinguishable from the page around it (uniform noise needs no alignment, and no
+     fixed-attachment backgrounds keeps scrolling on the compositor). Dusk uses light specks. */
+  .page-grain {
+    background-image: var(--site-grain);
+  }
+
+  /* ---- day rows ------------------------------------------------------------------------- */
+  /* Sticky day header: an opaque band of page (colour + grain) with a short soft edge below, so
+     the filmstrip scrolling underneath never shows through the text. The band leaves the thread
+     gutter open: the route thread runs on behind the avatar, unbroken. */
+  .day-header::before,
+  .day-header::after {
+    content: "";
+    position: absolute;
+    /* From the thread gutter to the end of the filmstrip's bleed (-me-gutter). */
+    inset-inline: 2.875rem calc(-1 * var(--spacing-gutter));
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--omw-bg);
+    background-image: var(--site-grain);
+  }
+  .day-header::before {
+    inset-block: 0;
+  }
+  .day-header::after {
+    inset-block-start: 100%;
+    block-size: 0.875rem;
+    /* The same paper, faded out with a mask: no grain-free seam. */
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+    mask-image: linear-gradient(to bottom, #000, transparent);
+  }
+  /* Day glow: a soft halo in the cover's dominant colour behind the filmstrip's moments. Its
+     box spans the moments only (the filmstrip sets its inline size) and stays inside the row;
+     `closest-side` fades it out before every edge of that box (no visible seams). */
+  .strip-glow {
+    position: absolute;
+    inset-block: -0.5rem -2rem;
+    inset-inline-start: -0.75rem;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in oklab, var(--glow, transparent) 34%, transparent),
+      color-mix(in oklab, var(--glow, transparent) 12%, transparent) 55%,
+      transparent
+    );
+  }
+
+  /* ---- route thread --------------------------------------------------------------------- */
+  .thread {
+    --thread-color: var(--omw-lilac-strong);
+    position: absolute;
+    inset-inline-start: 21px;
+    inline-size: 2px;
+    background-image: radial-gradient(circle at center, var(--thread-color) 0 1.1px, transparent 1.5px);
+    background-size: 2px 8px;
+    background-repeat: repeat-y;
+    pointer-events: none;
+  }
+  .thread-trip {
+    --thread-color: var(--omw-accent);
+    inset-inline-start: 20.5px;
+    inline-size: 3px;
+    background-size: 3px 9px;
+    background-image: radial-gradient(circle at center, var(--thread-color) 0 1.4px, transparent 1.8px);
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .thread {
+        animation: omw-thread-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 45%;
+      }
+    }
+  }
+
+  /* ---- floating controls ---------------------------------------------------------------- */
+  .zoom-pill-dock {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .zoom-pill-thumb {
+    inset-inline-start: calc(0.25rem + var(--i, 0) * (100% - 0.5rem) / 3);
+    inline-size: calc((100% - 0.5rem) / 3);
+    transition: inset-inline-start 320ms var(--ease-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zoom-pill-thumb {
+      transition: none;
+    }
+  }
+  .toast-dock {
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4.25rem);
+  }
+}
+
+@keyframes omw-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes omw-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -6px;
+  }
+}
+
+@keyframes omw-toast-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+    scale: 0.96;
+  }
+}
+
+@keyframes omw-thread-draw {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}

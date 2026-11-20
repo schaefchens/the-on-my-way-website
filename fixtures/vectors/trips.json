@@ -1,0 +1,76 @@
+{
+  "description": "tripForDate(date, trips): inclusive ranges; overlaps resolve to the earliest start, then slug",
+  "trips": [
+    {
+      "slug": "vietnam-2026",
+      "startDate": "2026-11-14",
+      "endDate": "2026-11-17"
+    },
+    {
+      "slug": "berlin",
+      "startDate": "2026-11-01",
+      "endDate": "2026-11-12"
+    },
+    {
+      "slug": "a-overlap",
+      "startDate": "2026-11-16",
+      "endDate": "2026-11-20"
+    },
+    {
+      "slug": "same-start-b",
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-02"
+    },
+    {
+      "slug": "same-start-a",
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-03"
+    }
+  ],
+  "cases": [
+    {
+      "date": "2026-10-31",
+      "trip": null
+    },
+    {
+      "date": "2026-11-01",
+      "trip": "berlin"
+    },
+    {
+      "date": "2026-11-12",
+      "trip": "berlin"
+    },
+    {
+      "date": "2026-11-13",
+      "trip": null
+    },
+    {
+      "date": "2026-11-14",
+      "trip": "vietnam-2026"
+    },
+    {
+      "date": "2026-11-16",
+      "trip": "vietnam-2026"
+    },
+    {
+      "date": "2026-11-17",
+      "trip": "vietnam-2026"
+    },
+    {
+      "date": "2026-11-18",
+      "trip": "a-overlap"
+    },
+    {
+      "date": "2026-11-21",
+      "trip": null
+    },
+    {
+      "date": "2026-12-01",
+      "trip": "same-start-a"
+    },
+    {
+      "date": "2026-12-03",
+      "trip": "same-start-a"
+    }
+  ]
+}

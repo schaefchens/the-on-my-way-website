@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/LoginRequest.json",
+  "title": "LoginRequest",
+  "additionalProperties": false,
+  "properties": {
+    "email": {
+      "format": "email",
+      "maxLength": 254,
+      "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+      "type": "string"
+    },
+    "password": {
+      "maxLength": 1000,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "email",
+    "password"
+  ],
+  "type": "object"
+}

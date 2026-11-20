@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/Settings.json",
+  "title": "Settings",
+  "additionalProperties": false,
+  "properties": {
+    "alerts.email": {
+      "format": "email",
+      "maxLength": 254,
+      "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+      "type": "string"
+    },
+    "alerts.heartbeat_stale_minutes": {
+      "maximum": 10080,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "alerts.ntfy_url": {
+      "pattern": "^https?:\\/\\/[^\\s/?#]+(?:[/?#]\\S*)?$",
+      "type": "string"
+    },
+    "ingest.on_revoke": {
+      "enum": [
+        "hide",
+        "keep"
+      ],
+      "type": "string"
+    },
+    "publish.delay_minutes": {
+      "maximum": 525600,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "publish.mode": {
+      "enum": [
+        "instant",
+        "delayed",
+        "review"
+      ],
+      "type": "string"
+    },
+    "publish.mode_since": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+      "type": "string"
+    },
+    "site.default_locale": {
+      "enum": [
+        "de",
+        "en",
+        "ar"
+      ],
+      "type": "string"
+    },
+    "site.indexable": {
+      "type": "boolean"
+    },
+    "site.locales": {
+      "items": {
+        "enum": [
+          "de",
+          "en",
+          "ar"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "site.title": {
+      "maxLength": 120,
+      "minLength": 1,
+      "type": "string"
+    },
+    "timezone.current": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_+\\-/]*$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "publish.mode",
+    "publish.mode_since",
+    "publish.delay_minutes",
+    "ingest.on_revoke",
+    "timezone.current",
+    "site.title",
+    "site.locales",
+    "site.default_locale",
+    "site.indexable",
+    "alerts.heartbeat_stale_minutes"
+  ],
+  "type": "object"
+}

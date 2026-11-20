@@ -1,0 +1,2 @@
+# Never serve anything from var/ (database, previews, backups, logs).
+Require all denied

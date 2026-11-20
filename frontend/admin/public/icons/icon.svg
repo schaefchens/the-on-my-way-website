@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t">
+  <title id="t">On My Way</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#be4a74"/>
+      <stop offset="1" stop-color="#5d3fa0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M120 360c40-10 70-40 96-78s58-70 104-82" fill="none" stroke="#fce7ee" stroke-width="14" stroke-linecap="round" stroke-dasharray="2 30"/>
+  <path d="M392 150 236 216l62 26 22 64z" fill="#fff8f6"/>
+  <path d="m298 242 94-92-72 156z" fill="#f7d0dd"/>
+  <circle cx="120" cy="360" r="20" fill="#fff8f6"/>
+</svg>

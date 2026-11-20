@@ -1,0 +1,46 @@
+# On My Way API: root of the deploy unit (docs/HOSTING.md).
+#
+# Works with the document root at THIS folder (Hetzner shared hosting: the SFTP root "/" is the
+# docroot) and with the document root at public/ (then this file is never read). Every request
+# is routed into public/; .env (secrets), var/ (database, previews, backups), src/, vendor/, bin/,
+# migrations/, schemas/, tests/ and composer.* are never served. scripts/deploy-api.ts and the
+# admin doctor (GET /api/v1/admin/doctor) verify that over HTTP after every deploy.
+Options -Indexes -MultiViews
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # HTTPS only (the admin's __Host- session cookie requires it anyway). ACME challenges stay on http.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{REQUEST_URI} !^/\.well-known/
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # /.well-known/ (ACME http-01 challenges, security.txt, …) is served from THIS folder, where a
+    # webroot client writes it (<document root>/.well-known/acme-challenge/<token>), over http and
+    # https; a missing file is a plain 404. Never rewritten into public/.
+    RewriteRule ^\.well-known(?:/|$) - [L]
+
+    # Dotfiles anywhere (.env, .git, .maintenance, .omw-deploy.json, …): forbidden.
+    RewriteRule (^|/)\.(?!well-known(/|$)) - [F,L]
+
+    # Private folders and files: plain 404.
+    RewriteRule ^(?:var|src|vendor|bin|migrations|schemas|tests|node_modules)(?:/|$) - [R=404,L]
+    RewriteRule ^(?:composer\.(?:json|lock)|phpunit\.xml|phpstan\.neon)$ - [R=404,L]
+
+    # /admin -> /admin/ here (mod_dir would otherwise redirect to the internal /public/admin/).
+    RewriteRule ^admin$ /admin/ [R=301,L]
+
+    # Everything else is served from public/ (its own .htaccess takes over there).
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
+
+# Second line of defence for dotfiles; the .well-known directory itself is allowed (a request for a
+# file below a missing .well-known/ maps to that name and would otherwise be a 403, not a 404).
+<FilesMatch "^\.(?!well-known$)">
+    Require all denied
+</FilesMatch>

@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AdminPost.json",
+  "title": "AdminPost",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "changeSeq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "content": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+                "maxLength": 100000,
+                "type": "string"
+              }
+            },
+            "required": [
+              "body"
+            ],
+            "type": "object"
+          },
+          "minProperties": 1,
+          "propertyNames": {
+            "enum": [
+              "de",
+              "en",
+              "ar"
+            ],
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "kind": {
+          "const": "note",
+          "type": "string"
+        },
+        "localDate": {
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+          "type": "string"
+        },
+        "occurredAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+          "type": "string"
+        },
+        "origLocale": {
+          "enum": [
+            "de",
+            "en",
+            "ar"
+          ],
+          "type": "string"
+        },
+        "publicId": {
+          "pattern": "^p_[A-Za-z0-9_-]{4,64}$",
+          "type": "string"
+        },
+        "tz": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_+\\-/]*$",
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+          "type": "string"
+        },
+        "visibility": {
+          "enum": [
+            "public",
+            "hidden",
+            "pending"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "publicId",
+        "occurredAt",
+        "tz",
+        "localDate",
+        "origLocale",
+        "visibility",
+        "updatedAt",
+        "kind",
+        "content",
+        "changeSeq"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "changeSeq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "content": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+                "maxLength": 100000,
+                "type": "string"
+              },
+              "title": {
+                "maxLength": 200,
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "body"
+            ],
+            "type": "object"
+          },
+          "minProperties": 1,
+          "propertyNames": {
+            "enum": [
+              "de",
+              "en",
+              "ar"
+            ],
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "kind": {
+          "const": "story",
+          "type": "string"
+        },
+        "localDate": {
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+          "type": "string"
+        },
+        "occurredAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+          "type": "string"
+        },
+        "origLocale": {
+          "enum": [
+            "de",
+            "en",
+            "ar"
+          ],
+          "type": "string"
+        },
+        "publicId": {
+          "pattern": "^p_[A-Za-z0-9_-]{4,64}$",
+          "type": "string"
+        },
+        "tz": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_+\\-/]*$",
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+          "type": "string"
+        },
+        "visibility": {
+          "enum": [
+            "public",
+            "hidden",
+            "pending"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "publicId",
+        "occurredAt",
+        "tz",
+        "localDate",
+        "origLocale",
+        "visibility",
+        "updatedAt",
+        "kind",
+        "content",
+        "changeSeq"
+      ],
+      "type": "object"
+    }
+  ]
+}

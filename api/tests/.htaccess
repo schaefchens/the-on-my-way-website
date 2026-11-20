@@ -1,0 +1,2 @@
+# Never served (defense in depth: ../.htaccess routes every request into public/).
+Require all denied

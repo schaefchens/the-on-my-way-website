@@ -1,0 +1,629 @@
+/* On My Way control UI: same rose/violet language as the site (dawn = cream/plum, dusk = night). */
+:root {
+  color-scheme: light dark;
+  --bg: #fff8f6;
+  --surface: #ffffff;
+  --surface-2: #fce7ee;
+  --ink: #3b2341;
+  --muted: #6a4e6f;
+  --line: #f7d0dd;
+  --accent: #be4a74;
+  --accent-ink: #ffffff;
+  --accent-2: #9c3a5e;
+  --violet: #8e6bd6;
+  --ok: #2f7d55;
+  --ok-bg: #e3f4ea;
+  --warn: #8a5a00;
+  --warn-bg: #fdf0d5;
+  --bad: #a3263f;
+  --bad-bg: #fbe1e6;
+  --info: #5d3fa0;
+  --info-bg: #eee6fa;
+  --idle: #6a4e6f;
+  --idle-bg: #f3ecf1;
+  --font-display: "Fraunces Variable", "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --font-body:
+    "Nunito Variable", "Nunito", ui-rounded, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius: 1.25rem;
+  --radius-sm: 0.75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b1322;
+    --surface: #251a2e;
+    --surface-2: #30243b;
+    --ink: #f7ecf2;
+    --muted: #c9b6cc;
+    --line: #3d2f49;
+    --accent: #f4a3bc;
+    --accent-ink: #1b1322;
+    --accent-2: #f7d0dd;
+    --violet: #bca4f2;
+    --ok: #8fd9ad;
+    --ok-bg: #1f3a2b;
+    --warn: #f3c86b;
+    --warn-bg: #3d3018;
+    --bad: #ff9fb2;
+    --bad-bg: #4a1f2a;
+    --info: #cdb8f0;
+    --info-bg: #33284a;
+    --idle: #c9b6cc;
+    --idle-bg: #30243b;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px / 1.5 var(--font-body);
+}
+a {
+  color: var(--accent-2);
+}
+@media (prefers-color-scheme: dark) {
+  a {
+    color: var(--accent);
+  }
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+}
+h1 {
+  font-size: 1.75rem;
+  margin: 0.5rem 0 1.25rem;
+}
+h2 {
+  font-size: 1.15rem;
+}
+h3 {
+  font-size: 1rem;
+  margin-top: 1.25rem;
+}
+code,
+.mono {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+:focus-visible {
+  outline: 3px solid var(--violet);
+  outline-offset: 2px;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+.brand-mark {
+  color: var(--accent);
+}
+.brand-sub {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+.nav a,
+.nav .link {
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.nav a:hover,
+.nav .link:hover {
+  background: var(--surface-2);
+}
+.nav a.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.main {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 3rem;
+}
+.foot {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  padding: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.grid.two {
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  box-shadow:
+    0 1px 0 rgb(59 35 65 / 4%),
+    0 8px 24px -16px rgb(59 35 65 / 25%);
+}
+.card.wide {
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+.card.login {
+  max-width: 26rem;
+  margin: 3rem auto;
+}
+dl {
+  margin: 0;
+}
+.kv {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed var(--line);
+}
+.kv:last-child {
+  border-bottom: 0;
+}
+dt {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.state {
+  margin: 0 0 0.5rem;
+}
+.hint {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin: 0 0 0.75rem;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 0.82rem;
+}
+.error {
+  color: var(--bad);
+}
+.nowrap {
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.badge-ok {
+  color: var(--ok);
+  background: var(--ok-bg);
+}
+.badge-warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+}
+.badge-bad {
+  color: var(--bad);
+  background: var(--bad-bg);
+}
+.badge-info {
+  color: var(--info);
+  background: var(--info-bg);
+}
+.badge-idle {
+  color: var(--idle);
+  background: var(--idle-bg);
+}
+
+.flash {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+.flash-ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.flash-error {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+
+.btn {
+  display: inline-block;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.3;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.btn-primary:hover {
+  background: var(--accent-2);
+  color: var(--accent-ink);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-secondary:hover {
+  background: var(--surface-2);
+}
+.btn-danger {
+  background: transparent;
+  color: var(--bad);
+  border-color: var(--bad-bg);
+}
+.btn-danger:hover {
+  background: var(--bad-bg);
+}
+.btn[disabled],
+.busy .btn {
+  opacity: 0.6;
+  cursor: progress;
+}
+button.link {
+  background: none;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+form.inline {
+  display: inline;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.stack {
+  display: grid;
+  gap: 0.75rem;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.row > label {
+  flex: 1 1 12rem;
+}
+.row > label.narrow {
+  flex: 0 1 8rem;
+}
+label.check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-weight: 500;
+}
+input,
+select,
+textarea {
+  font: inherit;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.7rem;
+  width: 100%;
+}
+input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--accent);
+}
+textarea {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+fieldset {
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+fieldset.dim {
+  opacity: 0.55;
+}
+fieldset[hidden] {
+  display: none;
+}
+legend {
+  font-family: var(--font-display);
+  font-weight: 600;
+  padding: 0 0.4rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.table th,
+.table td {
+  text-align: start;
+  vertical-align: top;
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.table th {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.log td {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+.table.compact td,
+.table.compact th {
+  padding: 0.3rem 0.4rem;
+}
+.table td .btn {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.82rem;
+  margin: 0.1rem 0;
+}
+.logwrap {
+  max-height: 65vh;
+  overflow: auto;
+}
+.log .lvl-warn td:nth-child(2) {
+  color: var(--warn);
+  font-weight: 700;
+}
+.log .lvl-error td:nth-child(2),
+.log .lvl-fatal td:nth-child(2) {
+  color: var(--bad);
+  font-weight: 700;
+}
+.log .lvl-debug,
+.log .lvl-trace {
+  color: var(--muted);
+}
+
+.qr {
+  display: grid;
+  place-items: center;
+  min-height: 18rem;
+  background: #ffffff;
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+}
+.qr svg {
+  width: min(18rem, 100%);
+  height: auto;
+}
+.qr-empty {
+  color: #6a4e6f;
+  text-align: center;
+}
+/* No code on screen: a short placeholder instead of an empty square. */
+.qr:has(.qr-empty) {
+  min-height: 7rem;
+}
+.qr.expired svg {
+  opacity: 0.25;
+}
+.paircode {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-align: center;
+  color: var(--accent-2);
+  margin: 1rem 0;
+  min-height: 1em;
+}
+.steps {
+  padding-inline-start: 1.25rem;
+  margin: 0.5rem 0 0;
+}
+.steps li {
+  margin: 0.25rem 0;
+}
+
+.center {
+  text-align: center;
+}
+.mono {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Link page: the QR window ended (or the helper stopped): one obvious way on. */
+.renew {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+  padding: 0.85rem 1rem;
+  margin: 0.25rem 0 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--warn-bg);
+  color: var(--ink);
+}
+.renew[hidden] {
+  display: none;
+}
+.renew-text {
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Touch screens: every button is a 44 px target. */
+@media (pointer: coarse) {
+  .btn,
+  .nav a,
+  .nav .link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/*
+ * Phones: table rows become cards (label above/next to each value) and the row actions get a
+ * line of their own with full-size buttons, so nothing hides off-screen to the right.
+ */
+@media (max-width: 640px) {
+  .card.wide {
+    overflow-x: visible;
+  }
+  .table.cards,
+  .table.cards tbody,
+  .table.cards tr,
+  .table.cards td {
+    display: block;
+    width: 100%;
+  }
+  .table.cards thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .table.cards tr {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    margin: 0 0 0.75rem;
+    background: var(--surface);
+  }
+  /* Label column on the left, every piece of the value (text, code, notes) on the right. */
+  .table.cards td {
+    position: relative;
+    padding: 0.3rem 0 0.3rem 7rem;
+    border-bottom: 1px dashed var(--line);
+    overflow-wrap: anywhere;
+    min-height: 1.9rem;
+  }
+  .table.cards td::before {
+    content: attr(data-label);
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.45rem;
+    width: 6.5rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .table.cards td.empty {
+    display: none;
+  }
+  .table.cards td.cell-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 0;
+    padding: 0.6rem 0 0.2rem;
+    white-space: normal;
+  }
+  .table.cards td.cell-actions::before {
+    content: none;
+  }
+  .table.cards td.cell-actions form.inline {
+    display: contents;
+  }
+  .table.cards td.cell-actions .btn {
+    min-height: 44px;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.92rem;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+  }
+  .table.cards tr > td:last-child {
+    border-bottom: 0;
+  }
+  .kv {
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+  }
+}

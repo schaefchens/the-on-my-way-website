@@ -1,0 +1,171 @@
+/*
+ * Long-form typography of the story sheet (loaded with the story chunk only). Rules sit in the
+ * "components" layer, so Tailwind utilities still win where they are used.
+ * Markdown headings are demoted below the sheet's h1 title (# -> h2, ## -> h3, …; # and ## look
+ * alike). Fraunces (SOFT) headings, Nunito body at a comfortable measure, handwritten
+ * blockquotes, a rose drop cap and a little flower ornament for thematic breaks. No images:
+ * markdown images are disabled, as on the pre-rendered page (CSP: images from the site only).
+ */
+@layer components {
+  .omw-prose {
+    font-size: 1.125rem;
+    line-height: 1.78;
+    color: var(--omw-ink);
+    overflow-wrap: break-word;
+    hyphens: auto;
+    /* Long-form text aligns with its OWN direction (dir="auto"), unlike short user text
+       ([data-user-text]: match-parent). The drop cap, list markers and indents follow the text's
+       direction, so a German story on an RTL page aligned right would leave them stranded on
+       the left. */
+    text-align: start;
+  }
+
+  .omw-prose > * + * {
+    margin-block-start: 1.15em;
+  }
+
+  .omw-prose :is(h2, h3, h4, h5, h6) {
+    font-family: var(--font-display, "Fraunces Variable", Georgia, serif);
+    font-variation-settings: "SOFT" 100;
+    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin-block-start: 2em;
+  }
+
+  .omw-prose :is(h2, h3, h4, h5, h6) + * {
+    margin-block-start: 0.6em;
+  }
+
+  .omw-prose > :first-child {
+    margin-block-start: 0;
+  }
+
+  .omw-prose :is(h2, h3) {
+    font-size: 1.6rem;
+  }
+
+  .omw-prose h4 {
+    font-size: 1.3rem;
+  }
+
+  .omw-prose :is(h5, h6) {
+    font-size: 1.1rem;
+  }
+
+  .omw-prose > p:first-of-type::first-letter {
+    float: inline-start;
+    font-family: var(--font-display, "Fraunces Variable", Georgia, serif);
+    font-variation-settings: "SOFT" 100;
+    font-weight: 600;
+    font-size: 3.55em;
+    line-height: 0.82;
+    margin-block-start: 0.1em;
+    margin-inline-end: 0.09em;
+    color: var(--omw-accent);
+  }
+
+  .omw-prose strong {
+    font-weight: 800;
+  }
+
+  .omw-prose em {
+    font-style: italic;
+  }
+
+  .omw-prose a {
+    color: var(--omw-accent);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in oklab, var(--omw-accent) 45%, transparent);
+    transition: text-decoration-color 150ms;
+  }
+
+  .omw-prose a:hover {
+    text-decoration-color: var(--omw-accent);
+  }
+
+  .omw-prose :is(ul, ol) {
+    padding-inline-start: 1.35em;
+  }
+
+  .omw-prose ul {
+    list-style: disc;
+  }
+
+  .omw-prose ol {
+    list-style: decimal;
+  }
+
+  .omw-prose li + li {
+    margin-block-start: 0.4em;
+  }
+
+  .omw-prose li::marker {
+    color: var(--omw-accent);
+    font-weight: 700;
+  }
+
+  .omw-prose blockquote {
+    position: relative;
+    margin-inline: 0;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-card, 1.5rem);
+    background: var(--omw-lilac);
+    font-family: var(--font-hand, "Playpen Sans Variable", cursive);
+    font-size: 1.05em;
+    line-height: 1.6;
+    color: var(--omw-ink);
+    rotate: -0.4deg;
+  }
+
+  .omw-prose blockquote > * + * {
+    margin-block-start: 0.6em;
+  }
+
+  .omw-prose hr {
+    border: 0;
+    margin-block: 2.2em;
+    text-align: center;
+    overflow: visible;
+  }
+
+  .omw-prose hr::after {
+    content: "✿  ✿  ✿";
+    white-space: pre;
+    color: var(--omw-accent);
+    font-size: 0.95rem;
+    letter-spacing: 0.4em;
+  }
+
+  .omw-prose :not(pre) > code {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: 0.88em;
+    padding: 0.12em 0.4em;
+    border-radius: 0.4em;
+    background: var(--omw-blush);
+  }
+
+  .omw-prose pre {
+    overflow-x: auto;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-tile, 1rem);
+    background: var(--omw-surface-2);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .omw-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+  }
+
+  .omw-prose :is(th, td) {
+    padding: 0.5em 0.75em;
+    border-block-end: 1px solid var(--omw-line);
+    text-align: start;
+  }
+}

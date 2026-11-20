@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/TripUpsert.json",
+  "title": "TripUpsert",
+  "additionalProperties": false,
+  "properties": {
+    "coverSourceKey": {
+      "anyOf": [
+        {
+          "maxLength": 160,
+          "pattern": "^[a-z]+:[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "description": {
+      "additionalProperties": {
+        "maxLength": 20000,
+        "type": "string"
+      },
+      "propertyNames": {
+        "enum": [
+          "de",
+          "en",
+          "ar"
+        ],
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "endDate": {
+      "format": "date",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+      "type": "string"
+    },
+    "ifUpdatedAt": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+      "type": "string"
+    },
+    "origLocale": {
+      "enum": [
+        "de",
+        "en",
+        "ar"
+      ],
+      "type": "string"
+    },
+    "slug": {
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "startDate": {
+      "format": "date",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+      "type": "string"
+    },
+    "title": {
+      "additionalProperties": {
+        "maxLength": 20000,
+        "type": "string"
+      },
+      "propertyNames": {
+        "enum": [
+          "de",
+          "en",
+          "ar"
+        ],
+        "type": "string"
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "slug",
+    "title",
+    "startDate",
+    "endDate"
+  ],
+  "type": "object"
+}

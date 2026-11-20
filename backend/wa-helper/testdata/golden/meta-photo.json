@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "msgId": "3EB0GOLDENphoto",
+  "source": "live",
+  "receivedAt": "2026-11-15T02:12:03.000Z",
+  "sender": {
+    "pn": "4915100000001",
+    "lid": "100000000000001",
+    "jid": "100000000000001@lid",
+    "pushName": "Reisende"
+  },
+  "timestamp": "2026-11-15T02:12:00Z",
+  "kind": "photo",
+  "caption": "Hội An",
+  "media": {
+    "mimetype": "image/jpeg",
+    "fileSha256B64": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s=",
+    "fileLength": 123456,
+    "width": 1080,
+    "height": 1350
+  },
+  "download": {
+    "state": "pending",
+    "attempts": 0
+  },
+  "rawProtoB64": "Gm4SCmltYWdlL2pwZWcaCEjhu5lpIEFuIiCrq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urqyjAxAcwxgo4uAhCIAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBWggvdi90NjIveA==",
+  "addressingMode": "lid",
+  "stanzaTag": "status"
+}

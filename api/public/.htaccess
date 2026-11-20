@@ -1,0 +1,90 @@
+# Apache config for the API's public/ directory: front controller, admin PWA, security headers.
+# Reached directly (document root = public/) or through the rewrite in ../.htaccess (document
+# root = the api/ folder). nginx equivalent: docs/HOSTING.md.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # HTTPS only (no-op when ../.htaccess already redirected). ACME challenges stay on http; the
+    # REQUEST_URI seen here is "/public/…" when the document root is the api/ folder.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{REQUEST_URI} !^/(?:public/)?\.well-known/
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # Document root = public/: /.well-known/ is served from here as is (a missing file is a 404,
+    # not the PHP front controller). With the api/ folder as document root ../.htaccess serves it.
+    RewriteRule ^\.well-known(?:/|$) - [L]
+
+    # Never serve dotfiles (.htaccess, …).
+    RewriteRule (^|/)\.(?!well-known(/|$)) - [F,L]
+
+    # Pass the Authorization header through to PHP on CGI/FastCGI setups (Bearer tokens). After
+    # the internal rewrites PHP sees it as REDIRECT_HTTP_AUTHORIZATION (handled by Http\Input).
+    RewriteCond %{HTTP:Authorization} .+
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Admin PWA (built into public/admin/): unknown paths below /admin/ load the SPA shell, except
+    # hashed build assets: a missing /admin/assets/* file must be a real 404 (otherwise the service
+    # worker could cache index.html as a font or script).
+    RewriteRule ^admin/assets/ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^admin/ admin/index.html [L]
+
+    # Everything else that is not an existing file goes to the Slim front controller.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    # Without mod_rewrite only /index.php/... URLs would work; fail loudly instead.
+    ErrorDocument 404 "mod_rewrite is required for the On My Way API"
+</IfModule>
+
+# Second line of defence for dotfiles if mod_rewrite rules are skipped (the .well-known directory
+# itself is allowed, see ../.htaccess).
+<FilesMatch "^\.(?!well-known$)">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType font/woff2 .woff2
+    AddType image/avif .avif
+    AddType image/webp .webp
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Static files only: responses of the PHP front controller carry the same headers from
+    # Http\Middleware\SecurityHeaders (Apache would otherwise send them twice). The REQUEST_URI
+    # seen here is the rewritten one: "/public/…" when the document root is the api/ folder.
+    <If "%{REQUEST_URI} !~ m#^(?:/public)?/index\.php$#">
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set Referrer-Policy "same-origin"
+        Header always set X-Frame-Options "DENY"
+        Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+    </If>
+
+    <If "%{REQUEST_URI} =~ m#^(?:/public)?/admin/#">
+        # Admin PWA: same-origin only, never framed. 'unsafe-inline' styles: Motion animates style attributes.
+        Header set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+        Header set Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=()"
+    </If>
+    <ElseIf "%{REQUEST_URI} !~ m#^(?:/public)?/index\.php$#">
+        Header always set Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    </ElseIf>
+
+    # Admin PWA caching: the shell, service worker and manifest must be revalidated on every load
+    # (new deploys take effect); hashed assets never change.
+    <If "%{REQUEST_URI} =~ m#^(?:/public)?/admin/(?:sw\.js|index\.html|manifest\.webmanifest)?$#">
+        Header set Cache-Control "no-cache"
+    </If>
+    <ElseIf "%{REQUEST_URI} =~ m#^(?:/public)?/admin/assets/#">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </ElseIf>
+</IfModule>

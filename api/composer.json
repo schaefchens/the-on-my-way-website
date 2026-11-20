@@ -1,0 +1,59 @@
+{
+    "name": "omw/api",
+    "description": "On My Way: dynamic API (owner content, capture mirror, admin, alerts). PHP 8.3+, Slim 4, SQLite.",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.3",
+        "ext-fileinfo": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*",
+        "monolog/monolog": "^3.13",
+        "opis/json-schema": "^2.6",
+        "php-di/php-di": "^7.1",
+        "slim/psr7": "^1.8",
+        "slim/slim": "^4.15",
+        "symfony/mailer": "^7.4",
+        "vlucas/phpdotenv": "^5.8"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.3",
+        "phpunit/phpunit": "^12.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omw\\Api\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omw\\Api\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.3.0"
+        },
+        "sort-packages": true,
+        "allow-plugins": {}
+    },
+    "scripts": {
+        "test": "phpunit",
+        "stan": "phpstan analyse --memory-limit=1G --no-progress",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php -S 127.0.0.1:8080 -t public public/index.php"
+        ],
+        "migrate": "@php bin/migrate.php",
+        "doctor": "@php bin/doctor.php"
+    },
+    "scripts-descriptions": {
+        "test": "Run the PHPUnit suite",
+        "stan": "Run PHPStan (see phpstan.neon)",
+        "serve": "Dev server on http://127.0.0.1:8080 (public/index.php doubles as router script)",
+        "migrate": "Apply pending database migrations",
+        "doctor": "Check the hosting environment"
+    }
+}

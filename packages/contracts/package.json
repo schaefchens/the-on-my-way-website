@@ -1,0 +1,71 @@
+{
+  "name": "@omw/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "zod 4 contracts shared by backend, site, admin and (via JSON Schema) the PHP API",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@omw/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./wa": {
+      "@omw/source": "./src/wa.ts",
+      "types": "./dist/wa.d.ts",
+      "default": "./dist/wa.js"
+    },
+    "./site": {
+      "@omw/source": "./src/site.ts",
+      "types": "./dist/site.d.ts",
+      "default": "./dist/site.js"
+    },
+    "./api": {
+      "@omw/source": "./src/api.ts",
+      "types": "./dist/api.d.ts",
+      "default": "./dist/api.js"
+    },
+    "./policy": {
+      "@omw/source": "./src/policy.ts",
+      "types": "./dist/policy.d.ts",
+      "default": "./dist/policy.js"
+    },
+    "./time": {
+      "@omw/source": "./src/time.ts",
+      "types": "./dist/time.d.ts",
+      "default": "./dist/time.js"
+    },
+    "./ids": {
+      "@omw/source": "./src/ids.ts",
+      "types": "./dist/ids.d.ts",
+      "default": "./dist/ids.js"
+    },
+    "./i18n": {
+      "@omw/source": "./src/i18n.ts",
+      "types": "./dist/i18n.d.ts",
+      "default": "./dist/i18n.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "schemas": "TSX_DISABLE_CACHE=1 node --import tsx scripts/export-schemas.ts",
+    "schemas:check": "TSX_DISABLE_CACHE=1 node --import tsx scripts/export-schemas.ts --check"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.1.1"
+  }
+}

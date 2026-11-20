@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "msgId": "3EB0GOLDENgif",
+  "source": "live",
+  "receivedAt": "2026-11-15T02:12:03.000Z",
+  "sender": {
+    "pn": "4915100000001",
+    "lid": "100000000000001",
+    "jid": "100000000000001@lid",
+    "pushName": "Reisende"
+  },
+  "timestamp": "2026-11-15T02:12:00Z",
+  "kind": "gif",
+  "media": {
+    "mimetype": "video/mp4",
+    "fileSha256B64": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s=",
+    "fileLength": 42,
+    "seconds": 2,
+    "gifPlayback": true
+  },
+  "download": {
+    "state": "pending",
+    "attempts": 0
+  },
+  "rawProtoB64": "SigaIKurq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urICooAkAB",
+  "addressingMode": "lid",
+  "stanzaTag": "status"
+}
