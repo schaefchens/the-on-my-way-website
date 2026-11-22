@@ -49,6 +49,16 @@ Checks: `pnpm typecheck`, `pnpm test`, `pnpm lint` (Biome), `pnpm schemas:check`
 Secrets live only in the repo's `.env` (read literally by the tools, never `source`d) and in
 `.secrets/`; both are git-ignored.
 
+Freeing disk space: `sh scripts/clean.sh -n` lists what would go, with sizes; drop `-n` to remove
+it. By default it removes build outputs, test results, screenshots and agent scratch in `.cache/`.
+- `--caches` also removes download/tool caches (pnpm store, Go, Playwright browsers, …).
+- `--all` also removes `node_modules`, `api/vendor` and `composer.phar`.
+- `--devices` also removes this project's Android emulator, and `--docker` the `omw-builder` cache and e2e leftovers.
+
+It never touches `.secrets/`, `.env`, git worktrees (`.cache/wt/`), the live site's publish state
+(`.cache/live-preview/`), design notes (`.cache/design-*`), backups, `backend/data/` or `api/var/`.
+It refuses to run while processes use `.cache/`. See the script's header for how to rebuild afterwards.
+
 ## Status
 
 As of 2026-11-21.
