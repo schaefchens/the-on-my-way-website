@@ -3,7 +3,6 @@
 # again. It never touches:
 #   .secrets/ and .env                   credentials
 #   .cache/wt/                           git worktrees (e.g. the traveler app on branch "app")
-#   .cache/live-preview/, live-api-link/ the live site's publish state, config and deploy records
 #   .cache/design-*/                     design specs and the owner's decisions
 #   .cache/snapshots/, reports/, progress/, phase0/   backups, workflow reports, agent progress logs
 #   backend/data/                        the backend's archive and runtime data
@@ -43,7 +42,7 @@ for arg in "$@"; do
 done
 
 # .cache entries that are never removed (by name), and the tool caches (only with --caches/--all).
-protected='wt live-preview live-api-link snapshots reports progress phase0'
+protected='wt snapshots reports progress phase0'
 tool_caches='pnpm-store pnpm-cache pnpm-state go go-build composer ms-playwright playwright npm
 pip-cache home fontconfig git dl maestro android-avd'
 tools='bin'

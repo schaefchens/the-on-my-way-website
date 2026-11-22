@@ -57,6 +57,7 @@ export function EntryThumb({ m, size, radius = 4 }: { m: OutboxManifest; size: n
         <View style={styles.bars}>
           {bars.map((h, i) => (
             <View
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length decorative bars, never reordered
               key={`b${i}`}
               style={{ width: 3, height: size * 0.22 * h, borderRadius: 2, backgroundColor: '#ffffffcc' }}
             />

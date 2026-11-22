@@ -1,5 +1,5 @@
 # Grants the camera (and microphone) just in time, when the app asks.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 ---
 - runFlow:
     when:

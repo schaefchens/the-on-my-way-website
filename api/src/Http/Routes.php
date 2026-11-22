@@ -80,6 +80,7 @@ final class Routes
                 $g->put('/captures/{sourceKey}', [$c, 'putCapture'])->setName('backend.captures.put');           // CaptureMirror -> 201|204
                 $g->post('/captures/{sourceKey}/preview', [$c, 'preview'])->setName('backend.captures.preview'); // multipart role+file -> 204
                 $g->post('/captures/{sourceKey}/revoke', [$c, 'revoke'])->setName('backend.captures.revoke');    // CaptureRevoke -> 204
+                $g->delete('/captures/{sourceKey}', [$c, 'purge'])->setName('backend.captures.purge');       // -> 204 (idempotent; also the app inbox entry)
                 $g->get('/changes', [$c, 'changes'])->setName('backend.changes');                                 // ?after=&limit= -> ChangesResponse
                 $g->post('/heartbeat', [$c, 'heartbeat'])->setName('backend.heartbeat');                          // Heartbeat -> 204
                 $g->post('/published', [$c, 'published'])->setName('backend.published');                          // PublishedReport -> 204

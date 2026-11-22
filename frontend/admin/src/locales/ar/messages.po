@@ -410,6 +410,10 @@ msgstr ""
 msgid "All"
 msgstr ""
 
+#: src/screens/layout.tsx
+msgid "All areas"
+msgstr ""
+
 #: src/screens/person.tsx
 msgid "All data of a person deleted"
 msgstr ""
@@ -1658,6 +1662,11 @@ msgstr ""
 msgid "Moments from the app go to the archive at home. Nothing from the app is published yet."
 msgstr ""
 
+#: src/screens/layout.tsx
+msgctxt "tab bar, keep short"
+msgid "More"
+msgstr ""
+
 #: src/screens/item.tsx
 msgid "Move"
 msgstr ""
@@ -2247,6 +2256,7 @@ msgstr ""
 msgid "Previous day"
 msgstr ""
 
+#: src/screens/layout.tsx
 #: src/screens/privacy.tsx
 #: src/screens/settings.tsx
 msgid "Privacy notice"
@@ -2478,6 +2488,7 @@ msgstr ""
 msgid "Running"
 msgstr ""
 
+#: src/screens/layout.tsx
 #: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Safety"
@@ -2600,11 +2611,6 @@ msgstr ""
 #: src/screens/privacy.tsx
 #: src/screens/safety.tsx
 #: src/screens/settings.tsx
-msgid "Settings"
-msgstr ""
-
-#: src/screens/layout.tsx
-msgctxt "tab bar, keep short"
 msgid "Settings"
 msgstr ""
 

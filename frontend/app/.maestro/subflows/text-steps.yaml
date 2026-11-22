@@ -1,7 +1,7 @@
 # Makes a text status (type, another background from the palette sheet, Calistoga) and shares it
 # with the send button. Starts and ends on Today. The caller passes TEXT (runFlow env); a default
 # here would win over the caller's value in Maestro 2.12.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 ---
 - tapOn:
     id: text-button

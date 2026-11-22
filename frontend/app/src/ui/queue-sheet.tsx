@@ -59,6 +59,7 @@ export function QueueSheet({ open, onClose }: { open: boolean; onClose: () => vo
   const { label, detail, original } = useStatusText();
   const s = styles(theme);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refresh from the server only when the sheet opens, not on every outbox change
   useEffect(() => {
     if (open) void outbox.refresh({ server: true });
   }, [open]);

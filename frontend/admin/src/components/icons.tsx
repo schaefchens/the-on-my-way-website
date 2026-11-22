@@ -479,6 +479,18 @@ export function PeopleIcon(props: IconProps) {
   );
 }
 
+/** Four rounded tiles: "more" (every area of the admin, phone tab bar). */
+export function MoreIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4.5" y="4.5" width="6" height="6" rx="1.8" />
+      <rect x="13.5" y="4.5" width="6" height="6" rx="1.8" />
+      <rect x="4.5" y="13.5" width="6" height="6" rx="1.8" />
+      <rect x="13.5" y="13.5" width="6" height="6" rx="1.8" />
+    </Svg>
+  );
+}
+
 /** A soft shield: who can see the journey. */
 export function ShieldIcon(props: IconProps) {
   return (

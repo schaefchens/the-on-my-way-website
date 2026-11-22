@@ -218,6 +218,30 @@ final class AppInbox
     }
 
     /**
+     * Removes an app entry for good (DELETE /backend/captures/app:<id>, i.e. the backend purges
+     * the capture): its row, its upload slots and any inbox files still on disk. Idempotent.
+     */
+    public function purge(string $entryId): bool
+    {
+        if (!AppRules::isEntryId($entryId)) {
+            return false;
+        }
+        $now = Clock::nowIso();
+        [$existed, $paths] = $this->db->write(function () use ($entryId, $now): array {
+            $paths = $this->dropSlots($entryId, null, 'deleted', $now);
+            $existed = $this->db->exec('DELETE FROM app_entries WHERE entry_id = ?', [$entryId]) > 0;
+
+            return [$existed, $paths];
+        });
+        $this->unlink($paths);
+        if ($existed) {
+            $this->logger->info('app entry {entryId} purged by the backend', ['entryId' => $entryId]);
+        }
+
+        return $existed;
+    }
+
+    /**
      * PUT /app/visibility/{sourceKey} (AppVisibilityRequest): tighten her own app entry only.
      *
      * @return array<string, mixed> AppEntryState

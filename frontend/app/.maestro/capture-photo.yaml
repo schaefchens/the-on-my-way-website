@@ -1,6 +1,6 @@
 # The main path: take a photo with the emulator's virtual camera -> caption -> share -> it shows
 # up on Today and in the queue sheet with a status from the one vocabulary.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: Photo - capture, caption, share, queue
 tags:
   - main

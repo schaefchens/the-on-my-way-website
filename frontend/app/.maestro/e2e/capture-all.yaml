@@ -3,7 +3,7 @@
 # for ~20 s, so its original (~3 MB from the virtual camera) is still on its way while the run
 # kills the app and switches the network. Never force-stops the app (that would cancel its
 # upload jobs): launchApp with stopApp false.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: e2e - capture all four kinds
 tags:
   - e2e

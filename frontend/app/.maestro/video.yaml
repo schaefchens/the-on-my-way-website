@@ -1,6 +1,6 @@
 # A short video from the virtual camera: Video mode, tap to start, tap to stop, then the trim bar
 # and "sound off" on the compose screen, share -> the phone exports it (MediaExport) and queues it.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: Video - record, trim UI, mute, share
 tags:
   - main

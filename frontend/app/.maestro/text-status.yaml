@@ -1,6 +1,6 @@
 # A WhatsApp-compatible text status: type, another background (swipe, and the palette sheet),
 # another font (Aa, and the sheet), share -> it waits in the queue.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: Text status - make and share
 tags:
   - main

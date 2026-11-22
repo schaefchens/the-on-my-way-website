@@ -410,6 +410,10 @@ msgstr "Warnungen"
 msgid "All"
 msgstr "Alle"
 
+#: src/screens/layout.tsx
+msgid "All areas"
+msgstr "Alle Bereiche"
+
 #: src/screens/person.tsx
 msgid "All data of a person deleted"
 msgstr "Alle Daten einer Person gelöscht"
@@ -1658,6 +1662,11 @@ msgstr "Nachricht auf"
 msgid "Moments from the app go to the archive at home. Nothing from the app is published yet."
 msgstr "Momente aus der App landen im Archiv zu Hause. Noch wird nichts aus der App veröffentlicht."
 
+#: src/screens/layout.tsx
+msgctxt "tab bar, keep short"
+msgid "More"
+msgstr "Mehr"
+
 #: src/screens/item.tsx
 msgid "Move"
 msgstr "Verschieben"
@@ -2247,6 +2256,7 @@ msgstr "Vorschau"
 msgid "Previous day"
 msgstr "Vorheriger Tag"
 
+#: src/screens/layout.tsx
 #: src/screens/privacy.tsx
 #: src/screens/settings.tsx
 msgid "Privacy notice"
@@ -2478,6 +2488,7 @@ msgstr "Rechte"
 msgid "Running"
 msgstr "Läuft"
 
+#: src/screens/layout.tsx
 #: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Safety"
@@ -2600,11 +2611,6 @@ msgstr "Website-Speicher einrichten"
 #: src/screens/privacy.tsx
 #: src/screens/safety.tsx
 #: src/screens/settings.tsx
-msgid "Settings"
-msgstr "Einstellungen"
-
-#: src/screens/layout.tsx
-msgctxt "tab bar, keep short"
 msgid "Settings"
 msgstr "Einstellungen"
 

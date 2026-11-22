@@ -83,6 +83,7 @@ export default function TextMaker() {
 
   // A new text status opens with the keyboard (autoFocus alone loses the race with the screen's
   // fade on Android).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: focus once when a new text status opens; an existing one never steals focus later
   useEffect(() => {
     if (existing) return;
     const timer = setTimeout(() => input.current?.focus(), 320);

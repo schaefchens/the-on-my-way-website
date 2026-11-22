@@ -222,6 +222,7 @@ export default function CameraScreen() {
   }, [recording]);
 
   // Hold ◉ on Today: start a video right away (hands-free: tap to stop).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: auto-start once when the camera is ready (guarded by autoStarted); startVideo is a fresh closure every render
   useEffect(() => {
     if (params.start === 'video' && ready && !autoStarted.current && permission?.granted) {
       autoStarted.current = true;

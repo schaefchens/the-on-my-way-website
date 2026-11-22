@@ -19,11 +19,14 @@ import {
   FeatherIcon,
   HomeIcon,
   InboxIcon,
+  InfoIcon,
   LogOutIcon,
+  MoreIcon,
   PeopleIcon,
   PlaneIcon,
   PlusIcon,
   SettingsIcon,
+  ShieldIcon,
   SuitcaseIcon,
 } from '../components/icons';
 import { Button, buttonClass, cx, Dialog, type Icon } from '../components/ui';
@@ -56,13 +59,109 @@ const TAB_NAV: NavItem[] = [
   { to: '/', label: msg`Home`, icon: HomeIcon },
   { to: '/inbox', label: msg`Inbox`, icon: InboxIcon },
   { to: '/days', label: msg`Days`, icon: CalendarIcon, also: ['/trips'] },
-  {
-    to: '/settings',
-    label: msg({ message: 'Settings', context: 'tab bar, keep short' }),
-    icon: SettingsIcon,
-    also: ['/people'],
-  },
 ];
+
+/** Everything the phone tab bar has no room for, in the "More" sheet (all areas of the admin). */
+type MoreTo = '/days' | '/trips' | '/people' | '/settings' | '/settings/safety' | '/settings/privacy';
+const MORE_NAV: Array<{ to: MoreTo; label: MessageDescriptor; icon: Icon }> = [
+  { to: '/days', label: msg`Days`, icon: CalendarIcon },
+  { to: '/trips', label: msg`Trips`, icon: SuitcaseIcon },
+  { to: '/people', label: msg`People`, icon: PeopleIcon },
+  { to: '/settings/safety', label: msg`Safety`, icon: ShieldIcon },
+  { to: '/settings/privacy', label: msg`Privacy notice`, icon: InfoIcon },
+  { to: '/settings', label: msg`Settings`, icon: SettingsIcon },
+];
+
+/** Logging out, asking first when offline edits would be lost (side nav and the "More" sheet). */
+function useLogout() {
+  const { t } = useLingui();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const pending = usePendingWrites().length;
+  const [confirm, setConfirm] = useState(false);
+  async function doLogout() {
+    setConfirm(false);
+    // Leave the signed-in screens first, so nothing refetches (401) while the data is wiped.
+    await navigate({ to: '/login' });
+    await logout(qc);
+  }
+  // Queued offline edits would be deleted with the local data: ask first (as in Settings).
+  const request = () => (pending > 0 ? setConfirm(true) : void doLogout());
+  const dialog = (
+    <Dialog
+      open={confirm}
+      onClose={() => setConfirm(false)}
+      closeLabel={t`Close`}
+      title={<Trans>Changes not sent yet</Trans>}
+      description={
+        <Plural
+          value={pending}
+          one="# change has not reached the server. Logging out deletes it from this device."
+          other="# changes have not reached the server. Logging out deletes them from this device."
+        />
+      }
+      footer={
+        <>
+          <Button variant="secondary" onClick={() => setConfirm(false)}>
+            <Trans>Stay logged in</Trans>
+          </Button>
+          <Button className="bg-danger hover:bg-danger" icon={LogOutIcon} onClick={() => void doLogout()}>
+            <Trans>Log out anyway</Trans>
+          </Button>
+        </>
+      }
+    />
+  );
+  return { request, dialog };
+}
+
+/** Phone tab bar "More": a sheet listing every area, so Trips, People etc. are one tap away. */
+function MoreSheet({ open, onClose, pendingDevices }: { open: boolean; onClose: () => void; pendingDevices: number }) {
+  const { i18n, t } = useLingui();
+  const out = useLogout();
+  return (
+    <>
+      <Dialog open={open} onClose={onClose} closeLabel={t`Close`} title={<Trans>All areas</Trans>}>
+        <nav aria-label={t`All areas`}>
+          <ul className="space-y-2">
+            {MORE_NAV.map((item) => {
+              const IconCmp = item.icon;
+              return (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    onClick={onClose}
+                    className="press relative flex min-h-14 items-center gap-3 rounded-card bg-blush/50 px-4 font-bold text-ink hover:bg-blush"
+                  >
+                    <IconCmp className="size-5 shrink-0 text-accent-strong" />
+                    <span className="min-w-0 flex-1">{i18n._(item.label)}</span>
+                    {item.to === '/people' && pendingDevices > 0 && (
+                      <span className="rounded-pill bg-accent px-2 py-0.5 text-xs font-extrabold text-on-accent">
+                        {pendingDevices}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        <Button
+          variant="secondary"
+          icon={LogOutIcon}
+          className="mt-4 w-full"
+          onClick={() => {
+            onClose();
+            out.request();
+          }}
+        >
+          <Trans>Log out</Trans>
+        </Button>
+      </Dialog>
+      {out.dialog}
+    </>
+  );
+}
 
 function useActive() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -101,6 +200,7 @@ function TabBar() {
   const newCount = useNewCount();
   const pendingDevices = usePendingDevices();
   const composing = useRouterState({ select: (s) => s.location.pathname.includes('/compose') });
+  const [moreOpen, setMoreOpen] = useState(false);
   const tab = (item: NavItem) => {
     const active = isActive(item);
     const IconCmp = item.icon;
@@ -121,19 +221,13 @@ function TabBar() {
         <span className={cx('relative', active ? 'text-accent-strong' : 'text-muted')}>
           <IconCmp className="size-[1.4rem]" />
           {item.to === '/inbox' && <CountDot count={newCount} />}
-          {item.to === '/settings' && pendingDevices > 0 && (
-            <span
-              data-testid="settings-pending-dot"
-              aria-hidden="true"
-              className="absolute -end-1 -top-0.5 size-2.5 rounded-pill bg-accent ring-2 ring-surface"
-            />
-          )}
         </span>
-        {item.to === '/settings' && pendingDevices > 0 && <span className="sr-only">{t`A device is waiting`}</span>}
         <span className={cx('relative', active ? 'text-ink' : 'text-muted')}>{i18n._(item.label)}</span>
       </Link>
     );
   };
+  // "More" is active on the screens only it leads to (People, Settings and their sub-screens).
+  const moreActive = isActive({ to: '/settings', label: msg`Settings`, icon: SettingsIcon, also: ['/people'] });
   return (
     <nav
       aria-label={t`Main`}
@@ -153,7 +247,37 @@ function TabBar() {
           </Link>
         </div>
         {TAB_NAV.slice(2).map(tab)}
+        <button
+          type="button"
+          onClick={() => setMoreOpen(true)}
+          aria-haspopup="dialog"
+          aria-current={moreActive ? 'page' : undefined}
+          className="press relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-[1.4rem] text-[0.68rem] font-bold"
+        >
+          {moreActive && (
+            <m.span
+              layoutId="tab-pill"
+              transition={SPRINGS.soft}
+              className="absolute inset-1 rounded-[1.2rem] bg-blush"
+            />
+          )}
+          <span className={cx('relative', moreActive ? 'text-accent-strong' : 'text-muted')}>
+            <MoreIcon className="size-[1.4rem]" />
+            {pendingDevices > 0 && (
+              <span
+                data-testid="settings-pending-dot"
+                aria-hidden="true"
+                className="absolute -end-1 -top-0.5 size-2.5 rounded-pill bg-accent ring-2 ring-surface"
+              />
+            )}
+          </span>
+          {pendingDevices > 0 && <span className="sr-only">{t`A device is waiting`}</span>}
+          <span className={cx('relative', moreActive ? 'text-ink' : 'text-muted')}>
+            {t({ message: 'More', context: 'tab bar, keep short' })}
+          </span>
+        </button>
       </div>
+      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} pendingDevices={pendingDevices} />
     </nav>
   );
 }
@@ -164,16 +288,7 @@ function SideNav() {
   const newCount = useNewCount();
   const pendingDevices = usePendingDevices();
   const { me } = useRouteContext({ from: '/authed' });
-  const qc = useQueryClient();
-  const navigate = useNavigate();
-  const pending = usePendingWrites().length;
-  const [confirm, setConfirm] = useState(false);
-  async function doLogout() {
-    setConfirm(false);
-    // Leave the signed-in screens first, so nothing refetches (401) while the data is wiped.
-    await navigate({ to: '/login' });
-    await logout(qc);
-  }
+  const out = useLogout();
   return (
     <aside className="fixed inset-y-0 start-0 z-30 hidden w-68 flex-col border-e border-line/70 bg-surface/60 px-4 py-6 backdrop-blur-md lg:flex">
       <Link to="/" className="press mb-8 flex items-center gap-3 rounded-card px-2 py-1">
@@ -247,37 +362,14 @@ function SideNav() {
             type="button"
             aria-label={t`Log out`}
             title={t`Log out`}
-            // Queued offline edits would be deleted with the local data: ask first (as in Settings).
-            onClick={() => (pending > 0 ? setConfirm(true) : void doLogout())}
+            onClick={out.request}
             className="press grid size-9 place-items-center rounded-pill text-muted hover:bg-blush hover:text-ink"
           >
             <LogOutIcon className="size-[1.1rem]" />
           </button>
         </div>
       </div>
-      <Dialog
-        open={confirm}
-        onClose={() => setConfirm(false)}
-        closeLabel={t`Close`}
-        title={<Trans>Changes not sent yet</Trans>}
-        description={
-          <Plural
-            value={pending}
-            one="# change has not reached the server. Logging out deletes it from this device."
-            other="# changes have not reached the server. Logging out deletes them from this device."
-          />
-        }
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setConfirm(false)}>
-              <Trans>Stay logged in</Trans>
-            </Button>
-            <Button className="bg-danger hover:bg-danger" icon={LogOutIcon} onClick={() => void doLogout()}>
-              <Trans>Log out anyway</Trans>
-            </Button>
-          </>
-        }
-      />
+      {out.dialog}
     </aside>
   );
 }

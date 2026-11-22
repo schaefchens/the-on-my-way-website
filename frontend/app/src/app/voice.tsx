@@ -88,6 +88,7 @@ export default function Voice() {
   const playing = useAudioPlayerStatus(player);
 
   // The live meter (information, so it keeps moving with reduced motion too).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: durationMillis ticks pace the meter sampling while recording
   useEffect(() => {
     if (phase !== 'recording') return;
     setLevels((l) => [...l, meterLevel(recState.metering)].slice(-BARS));
@@ -148,6 +149,7 @@ export default function Voice() {
   };
 
   // The 60 s limit stops the recorder by itself.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: stop once when the recorder ends by itself; finish is a fresh closure every render
   useEffect(() => {
     if (phase === 'recording' && !recState.isRecording && Date.now() - startedAt.current > 1000) void finish(false);
   }, [recState.isRecording, phase]);
@@ -220,6 +222,7 @@ export default function Voice() {
           accessibilityLabel={phase === 'recording' ? t`Recording` : t`Your voice note`}
         >
           {shownLevels.map((l, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length level bars, never reordered or filtered
             <View key={i} style={[styles.bar, { height: 8 + l * 88, opacity: phase === 'idle' ? 0.35 : 1 }]} />
           ))}
         </View>

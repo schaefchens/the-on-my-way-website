@@ -25,9 +25,9 @@ TOKEN_FILE="$ROOT/.secrets/api-backend-token"
 [[ -f "$ENV_FILE" ]] || { echo "missing $ENV_FILE (see the header of this script)" >&2; exit 1; }
 [[ -f "$TOKEN_FILE" ]] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
 
-# The old fixture preview (.cache/live-preview) publishes to the same target: never both at once.
-if pgrep -f "$ROOT/.cache/live-preview" > /dev/null 2>&1; then
-  echo "the fixture preview backend (.cache/live-preview) is running; stop it first" >&2
+# Exactly one live backend: two would publish to the same target and pull the same inbox.
+if [[ "${1:-start}" == "start" ]] && lsof -nP -iTCP:8787 -sTCP:LISTEN > /dev/null 2>&1; then
+  echo "something already listens on 127.0.0.1:8787: is the live backend running already? Stop it first" >&2
   exit 1
 fi
 

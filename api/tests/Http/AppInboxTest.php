@@ -10,6 +10,7 @@ use Omw\Api\Domain\App\AppRules;
 use Omw\Api\Domain\App\TransferSlots;
 use Omw\Api\Domain\Ids;
 use Omw\Api\Infra\Clock;
+use Omw\Api\Infra\Db;
 use Omw\Api\Infra\Paths;
 
 /**
@@ -275,6 +276,29 @@ final class AppInboxTest extends ApiTestCase
         self::assertIsArray($items);
         self::assertSame(self::E3, $items[0]['entryId']);
         self::assertNotNull($items[0]['withdrawnAt']);
+    }
+
+    public function testTheBackendCanPurgeAnAppEntryForGood(): void
+    {
+        $token = $this->pairPhone();
+        // One entry with bytes still in the inbox, one archived text status.
+        $state = self::json($this->phone($token, 'POST', '/api/v1/app/entries', $this->photoEntry(self::E1, ['media'])));
+        $id = self::slots($state)['media'];
+        $this->uploadAll($token, $id, $this->files['media']);
+        self::assertTrue(is_file($this->partPath(self::E1, $id)));
+        self::assertSame(201, $this->phone($token, 'POST', '/api/v1/app/entries', self::textEntry(self::E2))->getStatusCode());
+        self::assertSame(204, $this->backend('POST', '/api/v1/backend/app/entries/' . self::E2 . '/ack', ['roles' => []])->getStatusCode());
+
+        foreach ([self::E1, self::E2] as $entryId) {
+            self::assertSame(204, $this->backend('DELETE', '/api/v1/backend/captures/' . rawurlencode('app:' . $entryId))->getStatusCode());
+            self::assertSame(204, $this->backend('DELETE', '/api/v1/backend/captures/' . rawurlencode('app:' . $entryId))->getStatusCode(), 'twice');
+        }
+        $db = $this->service(Db::class);
+        self::assertSame(0, (int) $db->scalar('SELECT COUNT(*) FROM app_entries'));
+        self::assertSame(0, (int) $db->scalar('SELECT COUNT(*) FROM app_uploads'));
+        self::assertFalse(is_file($this->partPath(self::E1, $id)));
+        self::assertSame([], self::json($this->backend('GET', '/api/v1/backend/app/entries'))['items']);
+        self::assertSame(404, $this->phone($token, 'GET', '/api/v1/app/entries/' . self::E2)->getStatusCode());
     }
 
     public function testTheBackendCanRejectAnEntry(): void

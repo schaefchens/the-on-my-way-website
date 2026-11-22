@@ -1,6 +1,6 @@
 # End-to-end run (scripts/app/e2e.sh), step 1: a fresh install pairs with the one-time code the
 # owner created in the admin ("Connect a phone"). Local dev API only. -e CODE=ABCD-EFGH
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: e2e - pair with the admin's code
 tags:
   - e2e

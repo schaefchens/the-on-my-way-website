@@ -110,6 +110,35 @@ final class BackendApiTest extends ApiTestCase
         self::assertSame('2026-11-18T03:00:00.000Z', $db->scalar('SELECT revoked_at FROM captures'));
     }
 
+    public function testPurgeEndpointRemovesTheCaptureItsPreviewsAndAnnotation(): void
+    {
+        $sourceKey = $this->putCapture('3EB0AAB1', '2026-11-18T02:00:00Z', ['kind' => 'video', 'media' => ['w' => 720, 'h' => 1280, 'duration' => 5]]);
+        $other = $this->putCapture('3EB0AAB2', '2026-11-18T03:00:00Z');
+        $url = '/api/v1/backend/captures/' . rawurlencode($sourceKey);
+        self::assertSame(204, $this->upload($url . '/preview', 'preview', self::WEBP)->getStatusCode());
+        self::assertSame(204, $this->upload($url . '/preview', 'poster', self::jpeg())->getStatusCode());
+        self::assertSame(200, $this->admin('PATCH', '/api/v1/admin/captures/' . rawurlencode($sourceKey), ['visibility' => 'hidden'])->getStatusCode());
+        self::assertCount(2, glob($this->tmpDir() . '/var/previews/*/*') ?: []);
+
+        self::assertError($this->request('DELETE', $url), 401, 'unauthorized');
+        self::assertSame(204, $this->backend('DELETE', $url)->getStatusCode());
+
+        $db = $this->service(Db::class);
+        self::assertNull($db->scalar('SELECT 1 FROM captures WHERE source_key = ?', [$sourceKey]));
+        self::assertNull($db->scalar('SELECT 1 FROM annotations WHERE source_key = ?', [$sourceKey]));
+        self::assertSame([], glob($this->tmpDir() . '/var/previews/*/*') ?: []);
+        self::assertSame(404, $this->admin('GET', '/api/v1/admin/captures/' . rawurlencode($sourceKey))->getStatusCode());
+        // The annotation leaves a tombstone on the change feed; the other capture is untouched.
+        $changes = self::json($this->backend('GET', '/api/v1/backend/changes?after=0'));
+        $last = end($changes['items']);
+        self::assertSame(['annotation', $sourceKey, 'delete'], [$last['entity'], $last['key'], $last['op']]);
+        self::assertSame(200, $this->admin('GET', '/api/v1/admin/captures/' . rawurlencode($other))->getStatusCode());
+
+        // Idempotent, and the source key is validated.
+        self::assertSame(204, $this->backend('DELETE', $url)->getStatusCode());
+        self::assertError($this->backend('DELETE', '/api/v1/backend/captures/nope'), 422, 'validation_failed');
+    }
+
     public function testRevokeEndpoint(): void
     {
         self::assertError($this->backend('POST', '/api/v1/backend/captures/wa%3ANOPE/revoke', ['contractVersion' => 1, 'at' => '2026-11-20T00:00:00Z']), 404, 'capture_not_mirrored');

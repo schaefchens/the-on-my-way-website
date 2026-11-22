@@ -2,7 +2,7 @@
 # screen (the end handle dragged to the left: the clip keeps its first second or so), mutes it and
 # shares it. Starts and ends on Today. Used by the end-to-end run. The caller passes REC_WAITS
 # (runFlow env); a default here would win over the caller's value in Maestro 2.12.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 ---
 - tapOn:
     id: capture-button

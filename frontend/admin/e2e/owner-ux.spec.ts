@@ -290,12 +290,36 @@ test('toasts: hide, describe, save a day and change the zone leave at most two t
   await page.goto('/admin/days/2026-11-16');
   await page.getByRole('textbox', { name: 'Ort', exact: true }).fill('Hội An');
   await page.getByRole('button', { name: 'Tag speichern' }).click();
-  await page.getByRole('link', { name: 'Einstellungen' }).last().click();
+  await page.getByRole('button', { name: 'Mehr' }).click();
+  await page.getByRole('dialog').getByRole('link', { name: 'Einstellungen' }).click();
   await page.getByText('Andere Zeitzone wählen').click();
   await page.getByRole('combobox', { name: 'Zeitzone' }).selectOption('Asia/Bangkok');
   await expect(page.getByText('Zeitzone aktualisiert')).toBeVisible();
   expect(await toasts(page).count()).toBeLessThanOrEqual(2);
   await page.screenshot({ path: '../../.cache/shots/fix-admin-control/e2e-toasts-390.png' });
+});
+
+test('phone: "Mehr" reaches every area (trips, people, safety, privacy, settings, log out)', async ({ page }) => {
+  await login(page);
+  const tabBar = page.getByRole('navigation', { name: 'Hauptnavigation' }).last();
+  await expect(tabBar.getByRole('link', { name: 'Tage' })).toBeVisible();
+  await tabBar.getByRole('button', { name: 'Mehr' }).click();
+  const sheet = page.getByRole('dialog', { name: 'Alle Bereiche' });
+  for (const name of ['Tage', 'Reisen', 'Menschen', 'Sicherheit', 'Datenschutzhinweise', 'Einstellungen']) {
+    await expect(sheet.getByRole('link', { name, exact: true })).toBeVisible();
+  }
+  await expect(sheet.getByRole('button', { name: 'Abmelden' })).toBeVisible();
+  await page.waitForTimeout(450); // let the sheet finish sliding in before the screenshot
+  await page.screenshot({ path: '../../.cache/shots/admin-more/more-sheet-390-de.png' });
+  await sheet.getByRole('link', { name: 'Reisen', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/trips$/);
+  await expect(page.getByRole('dialog', { name: 'Alle Bereiche' })).toBeHidden();
+  // "Tage" stays highlighted on Trips (they share the Days screen's switch).
+  await expect(tabBar.getByRole('link', { name: 'Tage' })).toHaveAttribute('aria-current', 'page');
+  await tabBar.getByRole('button', { name: 'Mehr' }).click();
+  await page.getByRole('dialog').getByRole('link', { name: 'Menschen', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/people$/);
+  await expect(tabBar.getByRole('button', { name: 'Mehr' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('story preview renders no remote image', async ({ page }) => {

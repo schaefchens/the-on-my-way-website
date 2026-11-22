@@ -8,6 +8,7 @@ use finfo;
 use Omw\Api\Config;
 use Omw\Api\Domain\Access\AccessState;
 use Omw\Api\Domain\BackendStatus;
+use Omw\Api\Domain\App\AppInbox;
 use Omw\Api\Domain\Captures;
 use Omw\Api\Domain\ChangeLog;
 use Omw\Api\Domain\Ids;
@@ -50,6 +51,7 @@ final class BackendController
         private readonly AccessState $access,
         private readonly Db $db,
         private readonly Config $config,
+        private readonly AppInbox $inbox,
     ) {
     }
 
@@ -120,6 +122,21 @@ final class BackendController
         $sourceKey = self::sourceKey($request);
         $body = $this->input->body($request, 'CaptureRevoke');
         $this->captures->revoke($sourceKey, (string) $body->at);
+
+        return $this->responder->noContent($response);
+    }
+
+    /**
+     * DELETE /backend/captures/{sourceKey}: purge a capture (mirror row, previews, annotation and,
+     * for "app:<id>", the app inbox entry). Always 204: a second purge finds nothing to do.
+     */
+    public function purge(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $sourceKey = self::sourceKey($request);
+        $this->captures->purge($sourceKey);
+        if (str_starts_with($sourceKey, 'app:')) {
+            $this->inbox->purge(substr($sourceKey, 4));
+        }
 
         return $this->responder->noContent($response);
     }

@@ -2,7 +2,7 @@
 #   maestro test -e UI_LANG=de -e SHOT=de-dusk .maestro/screens.yaml
 # The theme follows the system (adb shell cmd uimode night yes|no before the run). Needs the three
 # sample photos in the emulator's gallery (Pictures/harbour.jpg, ricefields.jpg, lanterns.jpg).
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: Screens tour
 tags:
   - screens

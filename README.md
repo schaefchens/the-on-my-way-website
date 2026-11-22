@@ -76,8 +76,7 @@ it. By default it removes build outputs, test results, screenshots and agent scr
 - `--all` also removes `node_modules`, `api/vendor` and `composer.phar`.
 - `--devices` also removes this project's Android emulator, and `--docker` the `omw-builder` cache and e2e leftovers.
 
-It never touches `.secrets/`, `.env`, git worktrees (`.cache/wt/`), the live site's publish state
-(`.cache/live-preview/`), design notes (`.cache/design-*`), backups, `backend/data/` or `api/var/`.
+It never touches `.secrets/`, `.env`, git worktrees (`.cache/wt/`), design notes (`.cache/design-*`), backups, `backend/data/` or `api/var/`.
 It refuses to run while processes use `.cache/`. See the script's header for how to rebuild afterwards.
 
 ## Status

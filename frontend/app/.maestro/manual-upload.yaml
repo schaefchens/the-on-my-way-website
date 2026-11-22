@@ -1,7 +1,7 @@
 # A4 manual mode against the LOCAL dev API: with "Upload automatically" off a new moment waits as
 # "Ready to upload" until "Upload now". Run after pair-code.yaml (the phone must be paired).
 # Leaves "Upload automatically" on again.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: Manual mode - waits for Upload now
 tags:
   - stack

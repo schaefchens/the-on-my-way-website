@@ -1,6 +1,6 @@
 # End-to-end run: opens the queue sheet, waits for a status text (-e EXPECT=<regex>), takes a
 # screenshot (-e SHOT=<name>) and closes it. Brings the app to the front without stopping it.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: e2e - queue shows a status
 tags:
   - e2e

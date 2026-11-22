@@ -1,7 +1,7 @@
 # End-to-end run (review R2, R4): a text status shared on Wi-Fi goes up at once; "Undo" a few
 # seconds later (after the API has it) turns it back into a draft; she fixes the typo and shares
 # again. -e TYPO=<first text> -e FIXED=<second text>. Starts and ends on Today.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: e2e - undo, edit, share again
 tags:
   - e2e

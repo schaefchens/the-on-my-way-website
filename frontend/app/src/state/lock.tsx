@@ -95,7 +95,7 @@ export function LockProvider({ children }: { children: ReactNode }) {
       }
       return result.success;
     },
-    [availability, settings.lock.enabled, settings.lock.afterSeconds, t],
+    [availability, settings.lock.enabled, t],
   );
 
   const value = useMemo(() => ({ availability, requireUnlock }), [availability, requireUnlock]);

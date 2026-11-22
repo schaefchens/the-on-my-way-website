@@ -59,6 +59,7 @@ export default function Compose() {
   const saved = useRef(false);
 
   // Initial edit state from the drafts (a reopened draft continues where she left off).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: seed edit state only when the set of entries changes (keyed by their ids), never on every items update
   useEffect(() => {
     setEdits((prev) => {
       const next = { ...prev };
@@ -351,6 +352,7 @@ function VideoPreview({
   const source = useEvent(player, 'sourceLoad');
   const time = useEvent(player, 'timeUpdate');
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: report the duration once per new source; onDuration is a fresh closure every render
   useEffect(() => {
     if (source?.duration) onDuration(Math.round(source.duration * 1000));
   }, [source?.duration]);

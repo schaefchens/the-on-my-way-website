@@ -123,7 +123,7 @@ const config: ExpoConfig = {
   backgroundColor: '#fff8f6',
   platforms: ['android'],
   android: {
-    package: process.env.OMW_ANDROID_PACKAGE ?? 'de.schaefchens.onmyway',
+    package: process.env.OMW_ANDROID_PACKAGE ?? 'de.schaefchens.apps.onmyway',
     versionCode: Number(process.env.OMW_VERSION_CODE ?? 1),
     allowBackup: false,
     permissions: [],

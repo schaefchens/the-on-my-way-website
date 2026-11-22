@@ -1,6 +1,6 @@
 # End-to-end run, last step: after the home backend archived everything, the app says so: the
 # pill reads "All safe" and the queue sheet is empty, with today's moments safe at home.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: e2e - archived
 tags:
   - e2e

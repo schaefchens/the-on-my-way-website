@@ -161,6 +161,29 @@ final class Captures
     }
 
     /**
+     * DELETE /backend/captures/{sourceKey}: the backend (primary for captures) removes a capture
+     * for good, e.g. test data or a moment the traveler deleted. Removes the mirror row, its
+     * private preview/poster and the owner's annotation of it (with a change-feed tombstone so
+     * every backend drops the annotation too). Idempotent: returns false when nothing existed.
+     */
+    public function purge(string $sourceKey): bool
+    {
+        [$existed, $files] = $this->db->write(function () use ($sourceKey): array {
+            $files = $this->detachPreviews($sourceKey);
+            $captured = $this->db->exec('DELETE FROM captures WHERE source_key = ?', [$sourceKey]) > 0;
+            $annotated = $this->db->exec('DELETE FROM annotations WHERE source_key = ?', [$sourceKey]) > 0;
+            if ($annotated) {
+                $this->changes->append('annotation', $sourceKey, 'delete', null);
+            }
+
+            return [$captured || $annotated, $files];
+        });
+        $this->unlinkPreviews($files);
+
+        return $existed;
+    }
+
+    /**
      * Cron sweep (idempotent): while ingest.on_revoke = hide, removes the previews/posters of
      * revoked captures that still have some (revoked before previews were deleted on revoke, or
      * while "keep" was set). Returns the number of files removed.

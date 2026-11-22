@@ -209,6 +209,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
     return next;
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runEffect and apply call each other; they read live state through refs
   const apply = useCallback(
     (entryId: string, event: OutboxEvent): Promise<OutboxManifest> =>
       serial(entryId, async () => {
@@ -370,6 +371,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
     }
   }, [applyQuietly, updateAppSettings]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runEffect and the callbacks call each other; they read live state through refs
   const reconcileNative = useCallback(async () => {
     const all = Object.values(entriesRef.current);
     for (const m of all) {
@@ -382,6 +384,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
   }, [onUploadStatus]);
 
   // Boot: index first (fast), then the folders (truth), then resume.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: boot sequence runs once; reconcileNative and refreshServer read live state through refs
   useEffect(() => {
     let alive = true;
     void (async () => {

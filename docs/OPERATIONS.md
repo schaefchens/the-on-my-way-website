@@ -33,8 +33,12 @@ Ctrl-C stops it cleanly). The same script runs any CLI command with the live con
   settings (instant, delayed, review); set it to `false` to go back to archive-only.
 - **While it's stopped:** her moments wait in the API's app inbox (about 1 GB budget). The admin
   shows "backend silent" after 15 minutes; that is expected.
-- Don't run the old fixture preview (`.cache/live-preview/`) at the same time: it publishes to the same
-  target, and the script refuses to start while it runs.
+- Only one live backend at a time: the script refuses to start while something listens on
+  127.0.0.1:8787 (the control UI of a running backend).
+- **"publisher: refused: would delete N of M remote files"** in the log is the deletion guard:
+  it refuses a deploy that would remove half of the site or every day page. If that is what you
+  want, for example after deleting the last moments, stop the backend (Ctrl-C), run
+  `scripts/live-backend.sh publish --force` once, then start it again.
 
 ## Run on the Mac (Docker)
 

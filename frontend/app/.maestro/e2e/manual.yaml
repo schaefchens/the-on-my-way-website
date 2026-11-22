@@ -1,5 +1,5 @@
 # End-to-end run: "Upload automatically" off, a new text status waits as "Ready to upload".
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: e2e - manual mode waits
 tags:
   - e2e

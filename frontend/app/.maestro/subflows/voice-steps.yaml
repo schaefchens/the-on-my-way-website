@@ -1,6 +1,6 @@
 # Records a voice note hands-free (tap the microphone, tap again), listens, shares. Starts and
 # ends on Today. The emulator's microphone records silence. Used by voice.yaml and the e2e run.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 ---
 - tapOn:
     id: capture-button

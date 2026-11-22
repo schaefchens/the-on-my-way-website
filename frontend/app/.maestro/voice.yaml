@@ -1,6 +1,6 @@
 # A voice note: tap the microphone to start, tap again to stop (the hands-free way), listen,
 # share. The emulator's microphone records silence, which is fine for the flow.
-appId: de.schaefchens.onmyway
+appId: de.schaefchens.apps.onmyway
 name: Voice - record and share
 tags:
   - main
