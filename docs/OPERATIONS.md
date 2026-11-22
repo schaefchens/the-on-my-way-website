@@ -20,7 +20,7 @@ rebuilds everything else from it), **the API database** (owner notes, stories, s
 ## Run on the Mac by hand (Node, current live setup)
 
 Owner decision (2026-11-23): the live backend runs with Node on this Mac, started by hand, with
-WhatsApp off and app moments archive-only. Start it with `scripts/live-backend.sh` (foreground,
+WhatsApp off. App moments are archived at home and published on the gated site (since 2026-11-23). Start it with `scripts/live-backend.sh` (foreground,
 Ctrl-C stops it cleanly). The same script runs any CLI command with the live configuration, e.g.
 `scripts/live-backend.sh status` or `scripts/live-backend.sh publish --force`.
 - **Private values:** `.secrets/live-backend.env` (`SITE_PUBLIC_URL` with the content folder,
@@ -29,7 +29,8 @@ Ctrl-C stops it cleanly). The same script runs any CLI command with the live con
 - **State:** in `backend/data/`. The publish target, with its SFTP password, is in
   `backend/data/config/targets.json`.
 - **Settings it runs with:** `WA_MODE=off` means no WhatsApp at all, so moments come only from the
-  traveler app. `APP_PUBLISH=false` means app moments go into the archive but never onto the site.
+  traveler app. `APP_PUBLISH=true` publishes app moments on the gated site, following the publish
+  settings (instant, delayed, review); set it to `false` to go back to archive-only.
 - **While it's stopped:** her moments wait in the API's app inbox (about 1 GB budget). The admin
   shows "backend silent" after 15 minutes; that is expected.
 - Don't run the old fixture preview (`.cache/live-preview/`) at the same time: it publishes to the same

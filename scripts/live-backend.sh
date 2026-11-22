@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Runs the LIVE backend on this Mac with Node (owner decision 2026-11-23: started by hand, not
-# Docker, not launchd). It pulls the traveler app's moments from the live API into the home archive
-# (archive-only: APP_PUBLISH stays false), mirrors the owner's content, and publishes the gated site.
+# Docker, not launchd). It pulls the traveler app's moments from the live API into the home archive,
+# publishes them on the gated site (APP_PUBLISH=true since 2026-11-23: only approved followers see
+# them, following the publish settings), mirrors the owner's content and publishes the site.
 # WhatsApp stays off (WA_MODE=off).
 #
 #   scripts/live-backend.sh            start (foreground; Ctrl-C stops it cleanly)
@@ -40,7 +41,7 @@ done
 cd "$ROOT"
 mkdir -p "$ROOT/.cache/tmp" "$ROOT/.cache/home"
 exec env -i PATH="$PATH" HOME="$ROOT/.cache/home" TMPDIR="$ROOT/.cache/tmp" TSX_DISABLE_CACHE=1 \
-  NODE_ENV=production WA_MODE=off APP_PUBLISH=false LOG_LEVEL=info \
+  NODE_ENV=production WA_MODE=off APP_PUBLISH=true LOG_LEVEL=info \
   DATA_DIR="$ROOT/backend/data/state" ARCHIVE_DIR="$ROOT/backend/data/archive" OUT_DIR="$ROOT/backend/data/out" \
   CONFIG_DIR="$ROOT/backend/data/config" MEDIA_DIR="$ROOT/backend/data/media" GATE_OUT_DIR="$ROOT/backend/data/out-gate" \
   ACCESS_MODE=gate ACCESS_COOKIE_MODE=headers ACCESS_HTTPS_REDIRECT=true \
