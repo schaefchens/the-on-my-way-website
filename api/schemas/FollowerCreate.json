@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/FollowerCreate.json",
+  "title": "FollowerCreate",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "maxLength": 60,
+      "minLength": 1,
+      "pattern": "^[^\\p{Cc}\\p{Z}](?:[^\\p{Cc}]*[^\\p{Cc}\\p{Z}])?$",
+      "type": "string"
+    },
+    "note": {
+      "maxLength": 200,
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "type": "object"
+}

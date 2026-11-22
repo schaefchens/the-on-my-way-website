@@ -2,8 +2,10 @@
  * Query cache persistence in IndexedDB (idb-keyval): the admin opens with the last known data
  * while offline, and queued writes survive reloads and app restarts.
  *
- * - Persisted: successful queries (except those with meta.persist === false: auth, tokens) and
- *   every PENDING owner write. Pending writes are stored as paused, so after a reload they
+ * - Persisted: successful queries (except those with meta.persist === false: auth, tokens and
+ *   everything about people and access) and every PENDING owner write (keys.ts MUTATION_NAMES).
+ *   Other mutations (immediate access actions, the password change, token creation) are never
+ *   written to IndexedDB: their variables may hold names or passwords. Pending writes are stored as paused, so after a reload they
  *   resume through QueryClient.resumePausedMutations() (a write whose answer was lost is
  *   replayed: creates are idempotent, and a replayed update that already landed is recognised
  *   by the conflict handler as "already applied").
@@ -15,6 +17,7 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import type { Mutation, Query } from '@tanstack/react-query';
 import type { PersistedClient, Persister, PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
 import { createStore as createIdbStore, del, get, set } from 'idb-keyval';
+import { isOwnerWriteKey } from './keys';
 
 /** Bump when a cached query's data shape changes incompatibly. */
 const CACHE_SCHEMA = 1;
@@ -32,7 +35,8 @@ export function markPendingAsPaused(client: PersistedClient): PersistedClient {
 
 export const dehydrateOptions = {
   shouldDehydrateQuery: (query: Query) => query.state.status === 'success' && query.meta?.persist !== false,
-  shouldDehydrateMutation: (mutation: Mutation) => mutation.state.status === 'pending',
+  shouldDehydrateMutation: (mutation: Mutation) =>
+    mutation.state.status === 'pending' && isOwnerWriteKey(mutation.options.mutationKey),
 };
 
 export interface PersistStorage {

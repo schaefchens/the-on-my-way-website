@@ -3,10 +3,11 @@
  *
  * Document shell (every page):
  *   <html lang dir> · charset · CSP <meta> (first, so it covers everything after it) · viewport ·
- *   colour scheme · robots (noindex unless site.indexable; 404 always) · title · description ·
- *   author (the profile's name, when set) ·
+ *   colour scheme · robots (noindex unless site.indexable; 404 always) · title (page-specific) ·
+ *   the neutral preview tags (spec-wave5 §5.2: description and og:title "Privat"/"Private",
+ *   og:type website, twitter:card summary; no og:image/description/url/site_name, no author) ·
  *   canonical + hreflang alternates + x-default (absolute, only with SITE_PUBLIC_URL) ·
- *   OG/Twitter (og:image = cover OG JPEG) · the theme boot script (THEME_BOOT_SCRIPT, L3-16:
+ *   the theme boot script (THEME_BOOT_SCRIPT, L3-16:
  *   applies a stored dawn/dusk choice before the first paint) · inline critical CSS (hashed in
  *   the CSP) · <noscript><style> hiding the twin · preloads (L3-01: Latin and, for Vietnamese
  *   text, Vietnamese font subsets; the hand font's 400 file where hand-font text is on the first
@@ -26,8 +27,10 @@
  * CSP: default-src 'self'; script-src 'self' + hashes of inline scripts (the theme boot script;
  * the language picker's); style-src 'self' + the hashes of the page's <style> elements; img-src 'self' data: blob:;
  * media-src 'self' blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri
- * 'self'; form-action 'self'; manifest-src 'self'; worker-src 'self'. No 'unsafe-inline' and no
- * style attributes anywhere (frame-ancestors cannot be set from a <meta>; see .htaccess).
+ * 'self'; form-action 'self'; manifest-src 'self'; worker-src 'self'. In gate mode connect-src
+ * adds the API origin and worker-src is 'none', and every Boot carries `access`. No
+ * 'unsafe-inline' and no style attributes anywhere (frame-ancestors cannot be set from a <meta>;
+ * see .htaccess).
  *
  * Release stamp: Boot.manifestVersion/timelineV are the release in which the page's content
  * last changed (home and 404 always carry the current release). This keeps day/story/trip
@@ -38,6 +41,7 @@ import type { LocaleCode } from '@omw/contracts/i18n';
 import { pickText, textDirection } from '@omw/contracts/i18n';
 import type {
   Boot,
+  BootAccess,
   DayDetail,
   DaySummary,
   Entry,
@@ -62,7 +66,7 @@ import {
   formatDate,
   formatDateRange,
   formatDuration,
-  formatTime,
+  formatEntryTime,
   languageName,
   localeLabel,
   type PageStrings,
@@ -134,6 +138,11 @@ export interface SiteContext {
    * next run full, so every page that shows it is re-rendered.
    */
   profile?: SiteProfile | null;
+  /**
+   * Gate mode (spec-wave5 §5.4): Boot.access of every page, and the API origin the CSP's
+   * connect-src allows besides 'self' (worker-src becomes 'none'). Absent/null = open mode.
+   */
+  access?: { boot: BootAccess; apiOrigin: string } | null;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -177,16 +186,6 @@ export function truncate(text: string, max = 160): string {
   if (/[\uD800-\uDBFF]$/.test(cut)) cut = cut.slice(0, -1);
   const space = cut.lastIndexOf(' ');
   return `${(space > max * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
-}
-
-function plainFromMarkdown(markdown: string): string {
-  return renderMarkdown(markdown)
-    .value.replace(/<[^>]*>/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&');
 }
 
 function origLabel(t: PageStrings, picked: LocaleCode, locale: LocaleCode): Html | null {
@@ -242,7 +241,7 @@ function entryHtml(
   priority: boolean,
 ): Html {
   const t = stringsFor(locale);
-  const time = formatTime(entry.at, entry.tz, locale);
+  const time = formatEntryTime(entry.at, entry.tz, locale, ctx.site.timePrecision);
   const description = entry.kind === 'note' || entry.kind === 'story' ? undefined : entry.description;
   const descOrig = entry.kind === 'note' || entry.kind === 'story' ? undefined : entry.descriptionOrig;
   const desc = textFor(description, locale, descOrig);
@@ -344,24 +343,40 @@ function arrows(locale: LocaleCode): { back: string; forward: string } {
 
 interface HeadMeta {
   locale: LocaleCode;
+  /** Page-specific <title> (tabs, history, accessibility); never in a link preview. */
   title: string;
-  description: string;
   /** Route of this page (canonical + alternates), null for 404 / picker. */
   route: RouteRef | null;
-  ogType: 'website' | 'article';
-  ogImage: ImageSet | undefined;
-  ogImageAlt: string;
   noindex: boolean;
 }
 
-/** <meta name="author"> with the traveler's name (setting site.author), when there is one. */
-function authorMeta(ctx: { profile?: SiteProfile | null }): Html | string {
-  const author = ctx.profile?.author;
-  return author ? html`<meta name="author" content="${author}">\n` : '';
+/**
+ * Neutral link-preview tags of every page (spec-wave5 §5.2, E7/E10): og:title and the meta
+ * description are "Privat"/"Private", og:type website, a summary card; never og:description,
+ * og:image*, og:url, og:site_name, og:locale or <meta name="author">, so a preview of a shared
+ * link (WhatsApp, iMessage, mail scanners) tells nothing about the person, place or day.
+ */
+function neutralMeta(locale: LocaleCode): Html {
+  const t = stringsFor(locale);
+  return html`<meta name="description" content="${t.privateTitle}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${t.privateTitle}">
+<meta name="twitter:card" content="summary">
+`;
 }
 
-function buildCsp(scriptHashes: readonly string[], styleHashes: string | readonly string[]): string {
+/**
+ * The page CSP. Gate mode (ctx.access): connect-src also allows the API origin (the SPA's hello,
+ * D11 re-confirm) and worker-src is 'none': a service worker could answer from its own cache
+ * after the device's access ended (spec-wave5 §3.11, §5.4).
+ */
+function buildCsp(
+  ctx: Pick<SiteContext, 'access'>,
+  scriptHashes: readonly string[],
+  styleHashes: string | readonly string[],
+): string {
   const styles = typeof styleHashes === 'string' ? [styleHashes] : styleHashes;
+  const gate = ctx.access ?? null;
   return [
     "default-src 'self'",
     `script-src 'self'${scriptHashes.map((h) => ` ${h}`).join('')}`,
@@ -369,12 +384,12 @@ function buildCsp(scriptHashes: readonly string[], styleHashes: string | readonl
     "img-src 'self' data: blob:",
     "media-src 'self' blob:",
     "font-src 'self'",
-    "connect-src 'self'",
+    gate ? `connect-src 'self' ${gate.apiOrigin}` : "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "manifest-src 'self'",
-    "worker-src 'self'",
+    gate ? "worker-src 'none'" : "worker-src 'self'",
   ].join('; ');
 }
 
@@ -400,9 +415,12 @@ export interface HeadOptions {
 }
 
 function headTags(ctx: SiteContext, meta: HeadMeta, css: string, opts: HeadOptions): Html {
-  const t = stringsFor(meta.locale);
   const scripts = opts.app ? [THEME_BOOT_SCRIPT, ...(opts.inlineScripts ?? [])] : (opts.inlineScripts ?? []);
-  const csp = buildCsp(scripts.map(cspHash), opts.noscriptCss ? [cspHash(css), cspHash(NOSCRIPT_CSS)] : [cspHash(css)]);
+  const csp = buildCsp(
+    ctx,
+    scripts.map(cspHash),
+    opts.noscriptCss ? [cspHash(css), cspHash(NOSCRIPT_CSS)] : [cspHash(css)],
+  );
   const route = meta.route;
   const canonical = route ? absoluteUrl(ctx, routePath(meta.locale, route)) : null;
   const alternates =
@@ -411,7 +429,6 @@ function headTags(ctx: SiteContext, meta: HeadMeta, css: string, opts: HeadOptio
           (l) => html`<link rel="alternate" hreflang="${l}" href="${absoluteUrl(ctx, routePath(l, route))}">\n`,
         )}<link rel="alternate" hreflang="x-default" href="${absoluteUrl(ctx, routePath(ctx.site.defaultLocale, route))}">\n`
       : null;
-  const og = meta.ogImage?.og ? absoluteUrl(ctx, meta.ogImage.og) : null;
   const build = ctx.build;
   const ltr = textDirection(meta.locale) === 'ltr';
   const hand = ltr && !!opts.handText?.trim();
@@ -445,22 +462,7 @@ function headTags(ctx: SiteContext, meta: HeadMeta, css: string, opts: HeadOptio
 <meta name="theme-color" content="#fff8f6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1322" media="(prefers-color-scheme: dark)">
 ${meta.noindex ? html`<meta name="robots" content="noindex, nofollow">\n` : ''}<title>${meta.title}</title>
-<meta name="description" content="${meta.description}">
-${authorMeta(ctx)}${canonical ? html`<link rel="canonical" href="${canonical}">\n` : ''}${alternates}<meta property="og:site_name" content="${ctx.site.title}">
-<meta property="og:type" content="${meta.ogType}">
-<meta property="og:title" content="${meta.title}">
-<meta property="og:description" content="${meta.description}">
-<meta property="og:locale" content="${t.ogLocale}">
-${canonical ? html`<meta property="og:url" content="${canonical}">\n` : ''}${
-  og
-    ? html`<meta property="og:image" content="${og}">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="${meta.ogImageAlt}">
-`
-    : ''
-}<meta name="twitter:card" content="${og ? 'summary_large_image' : 'summary'}">
-${scripts.map((s) => html`<script>${inlineCode(s)}</script>\n`)}${favicon}<style>${inlineCode(css)}</style>
+${neutralMeta(meta.locale)}${canonical ? html`<link rel="canonical" href="${canonical}">\n` : ''}${alternates}${scripts.map((s) => html`<script>${inlineCode(s)}</script>\n`)}${favicon}<style>${inlineCode(css)}</style>
 ${opts.noscriptCss ? html`<noscript><style>${inlineCode(NOSCRIPT_CSS)}</style></noscript>\n` : ''}${appTags}`;
 }
 
@@ -491,7 +493,7 @@ function finalizePage(
         `<link rel="preload" href="${safeHref(`${boot?.basePath ?? '/'}data/timeline.json?v=${stamp.timelineV}`)}" as="fetch" crossorigin>\n`,
       );
       if (!boot) return head + after;
-      const { basePath, locale: l, route: r, day, profile } = boot;
+      const { basePath, locale: l, route: r, day, profile, access } = boot;
       const full: Boot = {
         basePath,
         locale: l,
@@ -500,6 +502,7 @@ function finalizePage(
         timelineV: stamp.timelineV,
         ...(day ? { day } : {}),
         ...(profile ? { profile } : {}),
+        ...(access ? { access } : {}),
       };
       return head + jsonForScript(full).value + after;
     },
@@ -597,7 +600,12 @@ function appPage(
     timeline: true,
     noscriptCss: true,
   });
-  return finalizePage(path, routeName, alwaysCurrent, meta.locale, head, boot, body);
+  return finalizePage(path, routeName, alwaysCurrent, meta.locale, head, withAccess(ctx, boot), body);
+}
+
+/** Adds Boot.access in gate mode (spec-wave5 §5.4). */
+function withAccess(ctx: Pick<SiteContext, 'access'>, boot: BootBase): BootBase {
+  return ctx.access ? { ...boot, access: ctx.access.boot } : boot;
 }
 
 function pageTitle(ctx: SiteContext, ...parts: (string | null | undefined)[]): string {
@@ -647,7 +655,6 @@ export function renderHome(ctx: SiteContext, locale: LocaleCode): RenderedPage {
   const main = html`<h1>${ctx.site.title}</h1>${profileArticle(ctx, locale)}${
     tripRows.length > 0 ? html`<h2>${t.trips}</h2><ul class="omw-fs-list">${tripRows}</ul>` : ''
   }<h2>${t.latestDays}</h2>${dayRows.length > 0 ? html`<ul class="omw-fs-list">${dayRows}</ul>` : html`<p>${t.noMoments}</p>`}`;
-  const latestWithOg = recent.find((d) => d.cover?.og);
   return appPage(
     ctx,
     routeFile(locale, route),
@@ -655,11 +662,7 @@ export function renderHome(ctx: SiteContext, locale: LocaleCode): RenderedPage {
     {
       locale,
       title: ctx.site.title,
-      description: t.homeDescription(ctx.site.title),
       route,
-      ogType: 'website',
-      ogImage: latestWithOg?.cover,
-      ogImageAlt: ctx.site.title,
       noindex: !ctx.site.indexable,
     },
     styles,
@@ -720,7 +723,6 @@ export function renderDay(ctx: SiteContext, locale: LocaleCode, day: DayDetail):
         }</nav>`
       : ''
   }`;
-  const description = lead?.text ?? t.dayDescription(dateLong, day.entries.length);
   return appPage(
     ctx,
     routeFile(locale, route),
@@ -728,11 +730,7 @@ export function renderDay(ctx: SiteContext, locale: LocaleCode, day: DayDetail):
     {
       locale,
       title: pageTitle(ctx, title?.text, title ? formatDate(day.date, locale, 'short') : dateLong),
-      description: truncate(description),
       route,
-      ogType: 'article',
-      ogImage: cover,
-      ogImageAlt: title?.text ?? dateLong,
       noindex: !ctx.site.indexable,
     },
     styles,
@@ -761,11 +759,7 @@ export function renderStory(ctx: SiteContext, locale: LocaleCode, day: DayDetail
     {
       locale,
       title: pageTitle(ctx, title),
-      description: truncate(picked ? plainFromMarkdown(picked.content.body) || title : title),
       route,
-      ogType: 'article',
-      ogImage: ctx.summaryByDate.get(day.date)?.cover,
-      ogImageAlt: title,
       noindex: !ctx.site.indexable,
     },
     styles,
@@ -808,11 +802,7 @@ export function renderTrip(ctx: SiteContext, locale: LocaleCode, trip: TripDetai
     {
       locale,
       title: pageTitle(ctx, title?.text ?? trip.slug),
-      description: truncate(description?.text ?? t.tripDescription(title?.text ?? trip.slug, range)),
       route,
-      ogType: 'article',
-      ogImage: trip.cover,
-      ogImageAlt: title?.text ?? trip.slug,
       noindex: !ctx.site.indexable,
     },
     styles,
@@ -836,11 +826,7 @@ export function renderNotFound(ctx: SiteContext): RenderedPage {
     {
       locale,
       title: pageTitle(ctx, t.notFoundTitle),
-      description: t.notFoundText,
       route: null,
-      ogType: 'website',
-      ogImage: undefined,
-      ogImageAlt: '',
       noindex: true,
     },
     styles.css(),
@@ -852,7 +838,7 @@ export function renderNotFound(ctx: SiteContext): RenderedPage {
     true,
     locale,
     head,
-    { basePath: ctx.site.basePath, locale, route: { name: 'notFound', params: {} } },
+    withAccess(ctx, { basePath: ctx.site.basePath, locale, route: { name: 'notFound', params: {} } }),
     body,
   );
 }
@@ -875,7 +861,6 @@ export function pickerScript(ctx: { site: SiteInfo }): string {
 /** /index.html: language picker (JS: cookie, navigator.languages; no JS: meta refresh + links). */
 export function renderPicker(ctx: SiteContext): RenderedPage {
   const locale = ctx.site.defaultLocale;
-  const t = stringsFor(locale);
   const fallbackUrl = siteUrl(ctx, routePath(locale, { name: 'home' }));
   const script = pickerScript(ctx);
   const styles = new PageStyles();
@@ -893,14 +878,13 @@ export function renderPicker(ctx: SiteContext): RenderedPage {
     : null;
   // The picker loads no app stylesheet, so it paints its own page background (dawn/dusk).
   const css = `${styles.css()}html{background:var(--fs-bg);color-scheme:light dark}body{margin:0}`;
-  const csp = buildCsp([cspHash(script)], cspHash(css));
+  const csp = buildCsp(ctx, [cspHash(script)], cspHash(css));
   const head = html`<meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="${csp}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 ${ctx.site.indexable ? '' : html`<meta name="robots" content="noindex, nofollow">\n`}<title>${ctx.site.title}</title>
-<meta name="description" content="${t.homeDescription(ctx.site.title)}">
-${authorMeta(ctx)}${alternates}<noscript><meta http-equiv="refresh" content="0; url=${fallbackUrl}"></noscript>
+${neutralMeta(locale)}${alternates}<noscript><meta http-equiv="refresh" content="0; url=${fallbackUrl}"></noscript>
 <style>${inlineCode(css)}</style>
 <script>${inlineCode(script)}</script>
 `;

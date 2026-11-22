@@ -89,18 +89,18 @@ describe.skipIf(!present)('generator regressions: incremental dependencies', () 
     expect(r.version).toBe(2);
     // The day file itself is unchanged (the cover is summary-only) ...
     expect(r.changed).not.toContain('data/days/2026-11-15.json');
-    // ... but every page showing the cover follows: hero + og:image, story og:image, trip thumbs.
+    // ... but every page showing the cover follows: the day's hero and the trip thumbs. (Story
+    // pages no longer show it: link previews are neutral, there is no og:image, spec-wave5 §5.2.)
     expect(r.changed).toEqual(
       expect.arrayContaining([
         'data/timeline.json',
         'de/day/2026-11-15/index.html',
         'en/day/2026-11-15/index.html',
-        'de/day/2026-11-15/story/p_s01lantern/index.html',
-        'en/day/2026-11-15/story/p_s01lantern/index.html',
         'de/trip/vietnam-2026/index.html',
         'en/trip/vietnam-2026/index.html',
       ]),
     );
+    expect(ogImage(readOut(h, 'en/day/2026-11-15/index.html'))).toBeUndefined();
     const after = readOut(h, 'en/day/2026-11-15/index.html');
     expect(heroSrc(after)).not.toBe(heroSrc(before));
     expect(bootOf(after).manifestVersion).toBe(2);
@@ -133,7 +133,6 @@ describe.skipIf(!present)('generator regressions: incremental dependencies', () 
     });
     await h.generator.generate();
     expect(heroSrc(readOut(h, 'de/day/2026-11-15/index.html'))).toContain(sha);
-    expect(ogImage(readOut(h, 'de/day/2026-11-15/index.html'))).toContain(sha);
     h.store.owner.upsertAnnotation({
       ...(h.store.owner.getAnnotation(morning.sourceKey) ?? { sourceKey: morning.sourceKey }),
       localDateOverride: '2026-11-16',
@@ -143,10 +142,9 @@ describe.skipIf(!present)('generator regressions: incremental dependencies', () 
     expect(r.full).toBe(false);
     expect(r.changed).toContain('de/day/2026-11-15/index.html');
     const after15 = readOut(h, 'de/day/2026-11-15/index.html');
-    // hero, og:image and the timeline tile of 2026-11-15 come from an image still on that day
+    // hero and the timeline tile of 2026-11-15 come from an image still on that day
     expect(heroSrc(after15)).toBeDefined();
     expect(heroSrc(after15)).not.toContain(sha);
-    expect(ogImage(after15)).not.toContain(sha);
     const tl2 = readJson<{ days: { date: string; cover?: unknown }[] }>(h, 'data/timeline.json');
     const cover15 = JSON.stringify(tl2.days.find((d) => d.date === '2026-11-15')?.cover);
     expect(cover15).toBeDefined();
@@ -169,7 +167,7 @@ describe.skipIf(!present)('generator regressions: user text is never a media ref
     expect(readJson<{ entries: { id: string }[] }>(h, 'data/days/2026-11-12.json').entries.map((e) => e.id)).toContain(
       key('berlin-photo').publicId,
     );
-    expect(readOut(h, 'data/days/2026-11-15.json')).toContain('p_medianote');
+    expect(readOut(h, 'data/days/2026-11-15.json')).toContain('p_dwize7sn746ibqmj');
     expect(readOut(h, 'en/day/2026-11-12/index.html')).toContain('>media/ab/notreal.avif</p>');
     expect((await verifyOutDir(h.outDir)).problems).toEqual([]);
   });
@@ -186,8 +184,8 @@ describe.skipIf(!present)('generator regressions: one bad owner item never block
       expect.stringMatching(/^post p_hugenote \(note\) left out: violates the site contract/),
     ]);
     const day = readOut(h, 'data/days/2026-11-15.json');
-    expect(day).not.toContain('p_hugenote');
-    expect(day).toContain('p_finenote');
+    expect(day).not.toContain('p_cjnuw7a3vfy4e3yb');
+    expect(day).toContain('p_nfn6v4tphy5wmr2c');
     expect((await verifyOutDir(h.outDir)).problems).toEqual([]);
   });
 });
@@ -350,6 +348,67 @@ describe.skipIf(!present)('generator regressions: daylight saving time', () => {
     const oct = readJson<{ tz: string; entries: { at: string }[] }>(h, 'data/days/2026-10-25.json');
     expect(oct.tz).toBe('Europe/Berlin');
     expect(oct.entries.map((e) => e.at)).toEqual(instants.slice(2).map((t) => t.replace('Z', '.000Z')));
+  });
+});
+
+describe.skipIf(!present)('generator regressions: wave 5 privacy options end to end (spec-wave5 §5.2, §5.3)', () => {
+  it('neutral link previews on every page kind, the picker included', async () => {
+    h = await createHarness();
+    await h.generator.generate();
+    const pages = [
+      'index.html',
+      '404.html',
+      'de/index.html',
+      'en/day/2026-11-15/index.html',
+      'de/day/2026-11-15/story/p_bhhhs5v54ykcijn3/index.html',
+      'en/trip/vietnam-2026/index.html',
+    ];
+    for (const rel of pages) {
+      const page = readOut(h, rel);
+      const neutral = rel.startsWith('en/') ? 'Private' : 'Privat';
+      expect(page, rel).toContain(`<meta name="description" content="${neutral}">`);
+      expect(page, rel).toContain(`<meta property="og:title" content="${neutral}">`);
+      expect(page, rel).toContain('<meta property="og:type" content="website">');
+      expect(page, rel).toContain('<meta name="twitter:card" content="summary">');
+      expect(page, rel).not.toMatch(/og:image|og:description|og:url|og:site_name|og:locale|name="author"/);
+    }
+  });
+
+  it('here-now "none" and part-of-day times: data stripped and coarsened, flags in the manifest, no badge', async () => {
+    h = await createHarness();
+    h.store.owner.setSetting('site.here_now', 'none');
+    h.store.owner.setSetting('site.time_precision', 'part_of_day');
+    await h.generator.generate();
+    const manifest = readJson<{ site: Record<string, unknown> }>(h, 'data/manifest.json');
+    expect(manifest.site).toMatchObject({ hereNow: 'none', timePrecision: 'part_of_day' });
+    const timeline = readJson<{ days: { date: string; place?: string; country?: string; firstAt: string }[] }>(
+      h,
+      'data/timeline.json',
+    );
+    const newest = timeline.days.at(-1);
+    expect(newest?.place).toBeUndefined();
+    expect(newest?.country).toBeUndefined();
+    for (const d of timeline.days) expect(Date.parse(d.firstAt) % 1000, d.date).toBe(0);
+    const home = readOut(h, 'de/index.html');
+    expect(home).not.toMatch(/Gerade hier|Zuletzt hier|Gerade in/);
+    expect((await verifyOutDir(h.outDir)).problems).toEqual([]);
+    // Defaults again: the flags disappear (absent = city_badge / exact) and the place is back.
+    h.store.owner.setSetting('site.here_now', 'city_badge');
+    h.store.owner.setSetting('site.time_precision', 'exact');
+    await h.generator.generate();
+    expect(readJson<{ site: Record<string, unknown> }>(h, 'data/manifest.json').site).not.toHaveProperty('hereNow');
+  });
+
+  it('remembers the published portrait (store meta) and forgets it when the setting is removed', async () => {
+    h = await createHarness();
+    await h.generator.generate();
+    const avatar = h.store.owner.settings()['site.avatar'];
+    // The fixtures' demo owner has a portrait (the Hà Nội photo, published instantly).
+    expect(readJson<{ profile?: { avatar?: unknown } }>(h, 'data/timeline.json').profile?.avatar).toBeDefined();
+    expect(h.store.meta.portraitPublished()).toEqual(avatar);
+    h.store.owner.deleteSetting('site.avatar');
+    await h.generator.generate();
+    expect(h.store.meta.portraitPublished()).toBeNull();
   });
 });
 

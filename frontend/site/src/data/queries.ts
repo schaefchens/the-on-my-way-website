@@ -16,8 +16,9 @@
  */
 import type { DayDetail, DaySummary, TimelineIndex, TripDetail } from '@omw/contracts/site';
 import { type QueryClient, queryOptions } from '@tanstack/react-query';
+import { accessState } from '../access/access';
 import { MANIFEST_POLL_MS } from '../config';
-import { fetchDay, fetchManifest, fetchTimeline, fetchTrip } from './fetch';
+import { AccessEndedError, fetchDay, fetchManifest, fetchTimeline, fetchTrip } from './fetch';
 
 export const queryKeys = {
   all: ['omw'] as const,
@@ -29,12 +30,20 @@ export const queryKeys = {
 
 const IMMUTABLE = { staleTime: Number.POSITIVE_INFINITY, gcTime: 30 * 60_000 } as const;
 
+/**
+ * The manifest poll: every 5 minutes, until the gate refuses a request (AccessEndedError, here or
+ * anywhere else: the access state then leaves "ok", spec-wave5 §6.3).
+ */
+export function manifestPollInterval(error: unknown): number | false {
+  return error instanceof AccessEndedError || accessState.get() !== 'ok' ? false : MANIFEST_POLL_MS;
+}
+
 export function manifestQueryOptions(basePath: string) {
   return queryOptions({
     queryKey: queryKeys.manifest(),
     queryFn: ({ signal }) => fetchManifest(basePath, { signal }),
     staleTime: 60_000,
-    refetchInterval: MANIFEST_POLL_MS,
+    refetchInterval: (query) => manifestPollInterval(query.state.error),
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });

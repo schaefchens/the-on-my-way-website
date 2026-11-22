@@ -467,3 +467,75 @@ export function InstallIcon(props: IconProps) {
     </Svg>
   );
 }
+
+/** People (two heads): followers. */
+export function PeopleIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="9" cy="8.5" r="3.2" />
+      <path d="M3.5 19.5c.6-3.3 2.8-5.2 5.5-5.2s4.9 1.9 5.5 5.2" />
+      <path d="M15.5 5.6a3 3 0 0 1 0 5.8M17.5 14.6c1.6.6 2.7 2.2 3 4.9" />
+    </Svg>
+  );
+}
+
+/** A soft shield: who can see the journey. */
+export function ShieldIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3.5 5 6.2v5.3c0 4.3 2.9 7.7 7 9 4.1-1.3 7-4.7 7-9V6.2z" />
+      <path d="m9 12 2.2 2.2L15.3 10" />
+    </Svg>
+  );
+}
+
+/** A phone: one device of a person. */
+export function PhoneIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="7" y="2.5" width="10" height="19" rx="2.5" />
+      <path d="M11 18h2" />
+    </Svg>
+  );
+}
+
+/** A tablet (iPad). */
+export function TabletIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4.5" y="2.5" width="15" height="19" rx="2.5" />
+      <path d="M11 18h2" />
+    </Svg>
+  );
+}
+
+/** A laptop (Mac, Windows, Linux). */
+export function LaptopIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4.5" y="5" width="15" height="10.5" rx="1.5" />
+      <path d="M2.5 19h19" />
+    </Svg>
+  );
+}
+
+/** A device of unknown kind: a screen and a phone. */
+export function DevicesIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="2.5" y="4.5" width="13" height="9.5" rx="1.5" />
+      <path d="M6 18.5h6M9 14v4.5" />
+      <rect x="16" y="8.5" width="5.5" height="11" rx="1.5" />
+    </Svg>
+  );
+}
+
+/** An open padlock: unlock. */
+export function UnlockIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="5" y="10.5" width="14" height="10" rx="2.5" />
+      <path d="M8 10.5V8a4 4 0 0 1 7.6-1.7" />
+    </Svg>
+  );
+}

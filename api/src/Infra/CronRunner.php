@@ -6,6 +6,7 @@ namespace Omw\Api\Infra;
 
 use DateTimeImmutable;
 use Omw\Api\Config;
+use Omw\Api\Domain\Access\AccessJob;
 use Omw\Api\Domain\Alerts\AlertEngine;
 use Omw\Api\Domain\Settings;
 use Psr\Log\LoggerInterface;
@@ -17,8 +18,9 @@ use Throwable;
  * GET|POST /api/v1/cron. A non-blocking flock on var/cache/cron.lock makes overlapping runs
  * return immediately ("skipped"). The last result is kept in var/cache/cron-last.json (doctor).
  *
- * Jobs: alerts (every run), backup (once per local day after BACKUP_HOUR + retention),
- * cleanup (compaction, pruning, orphan previews, old logs).
+ * Jobs: alerts (every run), access (store ops, reconcile, handoff/pending expiry, owner notices,
+ * rate-limit salt, optional gate probe; Domain\Access\AccessJob), backup (once per local day after
+ * BACKUP_HOUR + retention), cleanup (compaction, pruning, orphan previews, old logs).
  *
  * While the maintenance flag (Config::maintenanceFlag(), "/.maintenance") exists nothing runs
  * ("skipped": "maintenance"): a deploy may be replacing PHP files, or a restore may be swapping
@@ -38,12 +40,13 @@ final class CronRunner
         private readonly Backups $backups,
         private readonly Maintenance $maintenance,
         private readonly Settings $settings,
+        private readonly AccessJob $access,
         private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
     /**
-     * @param list<string>|null $only run only these jobs (alerts, backup, cleanup); null = all
+     * @param list<string>|null $only run only these jobs (alerts, access, backup, cleanup); null = all
      * @return array{ok: bool, at: string, skipped: string|null, jobs: array<string, mixed>, durationMs: int}
      */
     public function run(?DateTimeImmutable $now = null, ?array $only = null, bool $forceBackup = false): array
@@ -119,6 +122,7 @@ final class CronRunner
     {
         return [
             'alerts' => fn (): array => $this->alerts->run($now),
+            'access' => fn (): array => $this->access->run($now),
             'backup' => function () use ($now, $forceBackup): array {
                 $tz = (string) $this->settings->get('timezone.current');
                 if (!$forceBackup && !$this->backups->due($now, $tz, $this->config->backupHour)) {

@@ -12,21 +12,68 @@
  * Credentials (admin password, backend token, control token) are random per run, kept in memory
  * and in <root>/secrets (mode 600); they are never printed. Every child runs in its own process
  * group and is stopped with SIGTERM (SIGKILL after 15 s).
+ *
+ * Gate mode (`gate` option, spec-wave5 §8.7): the backend runs with ACCESS_MODE=gate and publishes
+ * the gate tree to <root>/site and the content tree to <root>/site/<secret>; a local Apache
+ * (macOS /usr/sbin/httpd or httpd/apache2 on PATH, 127.0.0.1 only) serves <root>/site with the
+ * generated .htaccess files instead of the preview server; the session-file store is
+ * <root>/store, written by the API (`direct`) or by the backend's fallback writer (`none`, the
+ * local target's accessStoreDir). http on loopback → cookie names omw, omw_k, … without Secure.
  */
-import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
+import { type ChildProcess, execFileSync, spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { createWriteStream, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { delimiter, join, resolve } from 'node:path';
 
 export const REPO = resolve(import.meta.dirname, '../../../..');
 const API_DIR = join(REPO, 'api');
+
+export interface GateOptions {
+  /** Who writes the session-file store: the API itself (`direct`) or the backend (`none`). */
+  storeMode: 'direct' | 'none';
+  /** The content folder ([a-z0-9]{20}); random per run when absent. */
+  secret?: string;
+}
 
 export interface StackOptions {
   root?: string;
   apiPort?: number;
   controlPort?: number;
   sitePort?: number;
+  gate?: GateOptions;
 }
+
+/** An Apache binary with the modules the gate needs, or null (gate stacks are skipped then). */
+export function findApache(): { bin: string; modules: string } | null {
+  const onPath = (name: string) =>
+    (process.env.PATH ?? '')
+      .split(delimiter)
+      .map((d) => join(d, name))
+      .find((p) => existsSync(p)) ?? null;
+  const bin = [process.env.OMW_HTTPD, '/usr/sbin/httpd', onPath('httpd'), onPath('apache2')].find(
+    (b): b is string => !!b && existsSync(b),
+  );
+  const modules = ['/usr/libexec/apache2', '/usr/lib/apache2/modules', '/usr/lib64/httpd/modules'].find(
+    (d) => existsSync(join(d, 'mod_rewrite.so')) && existsSync(join(d, 'mod_headers.so')),
+  );
+  if (!bin || !modules || !existsSync(join(modules, 'mod_mpm_prefork.so'))) return null;
+  return { bin, modules };
+}
+
+const APACHE_MODULES = [
+  ['mpm_prefork_module', 'mod_mpm_prefork.so'],
+  ['authz_core_module', 'mod_authz_core.so'],
+  ['authz_host_module', 'mod_authz_host.so'],
+  ['unixd_module', 'mod_unixd.so'],
+  ['dir_module', 'mod_dir.so'],
+  ['mime_module', 'mod_mime.so'],
+  ['rewrite_module', 'mod_rewrite.so'],
+  ['headers_module', 'mod_headers.so'],
+  ['log_config_module', 'mod_log_config.so'],
+  ['env_module', 'mod_env.so'],
+  ['setenvif_module', 'mod_setenvif.so'],
+  ['filter_module', 'mod_filter.so'],
+] as const;
 
 export interface AdminCredentials {
   email: string;
@@ -66,34 +113,56 @@ export class Stack {
     state: string;
     archive: string;
     out: string;
+    outGate: string;
     config: string;
     media: string;
     site: string;
+    store: string;
+    apache: string;
     logs: string;
     secrets: string;
   };
+  readonly gate: (GateOptions & { secret: string }) | null;
   admin: AdminCredentials = { email: 'owner@example.org', password: '' };
   private backendToken = '';
   private controlToken = '';
   private readonly procs = new Map<'api' | 'backend' | 'static', ChildProcess>();
+  private apacheConf: string | null = null;
 
   constructor(opts: StackOptions = {}) {
     this.root = opts.root ?? join(REPO, '.cache/e2e-stack');
     this.apiPort = opts.apiPort ?? 8080;
     this.controlPort = opts.controlPort ?? 8787;
     this.sitePort = opts.sitePort ?? 4173;
+    this.gate = opts.gate
+      ? { ...opts.gate, secret: opts.gate.secret ?? randomBytes(20).toString('hex').slice(0, 20) }
+      : null;
+    if (this.gate && !/^[a-z0-9]{20}$/.test(this.gate.secret)) throw new Error('gate secret must be [a-z0-9]{20}');
     const r = this.root;
     this.dirs = {
       apiVar: join(r, 'api-var'),
       state: join(r, 'state'),
       archive: join(r, 'archive'),
       out: join(r, 'out'),
+      outGate: join(r, 'out-gate'),
       config: join(r, 'config'),
       media: join(r, 'media'),
       site: join(r, 'site'),
+      store: join(r, 'store'),
+      apache: join(r, 'apache'),
       logs: join(r, 'logs'),
       secrets: join(r, 'secrets'),
     };
+  }
+
+  /** The content folder of the gate tree ("" in open mode). */
+  get secret(): string {
+    return this.gate?.secret ?? '';
+  }
+
+  /** Where the content (the SPA) lives on the site host: "/<secret>/" in gate mode, "/" otherwise. */
+  get contentPath(): string {
+    return this.gate ? `/${this.gate.secret}/` : '/';
   }
 
   get apiUrl(): string {
@@ -113,8 +182,13 @@ export class Stack {
     if (!existsSync(join(API_DIR, 'public/admin/index.html'))) {
       throw new Error('api/public/admin is not built: run `pnpm --filter @omw/admin build` first');
     }
+    if (this.gate && !existsSync(join(REPO, 'frontend/site/dist/gate/.vite/manifest.json'))) {
+      throw new Error('the gate bundle is not built: run `pnpm --filter @omw/site build` first');
+    }
     rmSync(this.root, { recursive: true, force: true });
     for (const d of Object.values(this.dirs)) mkdirSync(d, { recursive: true, mode: 0o700 });
+    // Apache (running as this user) only needs to traverse the store: 0711 like the live host.
+    if (this.gate) execFileSync('chmod', ['0711', this.root, this.dirs.store]);
 
     this.admin = { email: 'owner@example.org', password: token(18) };
     this.controlToken = token();
@@ -132,29 +206,39 @@ export class Stack {
     secret('backend-token', this.backendToken);
     secret('control-token', this.controlToken);
 
+    this.writeTargets(this.dirs.store);
+  }
+
+  /**
+   * CONFIG_DIR/targets.json: one local target. Gate mode: content at <site>/<secret>, the gate tree
+   * at <site>, and the store as this machine sees it (`accessStoreDir`, used by the fallback writer).
+   */
+  writeTargets(accessStoreDir: string): void {
     const now = new Date().toISOString();
-    writeFileSync(
-      join(this.dirs.config, 'targets.json'),
-      JSON.stringify(
-        {
-          format: 1,
-          targets: [
-            {
-              id: 'local-e2e',
-              kind: 'local',
-              enabled: true,
-              publicBaseUrl: `${this.siteUrl}/`,
-              dir: this.dirs.site,
-              createdAt: now,
-              updatedAt: now,
-            },
-          ],
-        },
-        null,
-        2,
-      ),
-      { mode: 0o600 },
-    );
+    const target = this.gate
+      ? {
+          id: 'local-e2e',
+          kind: 'local',
+          enabled: true,
+          publicBaseUrl: `${this.siteUrl}${this.contentPath}`,
+          dir: join(this.dirs.site, this.gate.secret),
+          gateDir: this.dirs.site,
+          accessStoreDir,
+          createdAt: now,
+          updatedAt: now,
+        }
+      : {
+          id: 'local-e2e',
+          kind: 'local',
+          enabled: true,
+          publicBaseUrl: `${this.siteUrl}/`,
+          dir: this.dirs.site,
+          createdAt: now,
+          updatedAt: now,
+        };
+    writeFileSync(join(this.dirs.config, 'targets.json'), JSON.stringify({ format: 1, targets: [target] }, null, 2), {
+      mode: 0o600,
+    });
   }
 
   private apiEnv(): NodeJS.ProcessEnv {
@@ -171,7 +255,17 @@ export class Stack {
       LOG_LEVEL: 'info',
       SITE_ORIGIN: this.siteUrl,
       MAIL_DSN: '',
+      ...(this.gate?.storeMode === 'direct'
+        ? { ACCESS_STORE_MODE: 'direct', ACCESS_STORE_DIR: this.dirs.store }
+        : this.gate
+          ? { ACCESS_STORE_MODE: 'none' }
+          : {}),
     };
+  }
+
+  /** `php bin/cron.php` with the API's environment (every job, or `only`); returns stdout. */
+  cron(only?: string[]): string {
+    return this.php(['bin/cron.php', ...(only ? [`--only=${only.join(',')}`] : [])]);
   }
 
   /** Runs an api/bin script; returns stdout. Input goes to stdin (never on the command line). */
@@ -249,6 +343,15 @@ export class Stack {
       API_BASE_URL: this.apiUrl,
       API_TOKEN: this.backendToken,
       LOG_LEVEL: 'info',
+      ...(this.gate
+        ? {
+            ACCESS_MODE: 'gate',
+            SITE_PUBLIC_URL: `${this.siteUrl}${this.contentPath}`,
+            API_PUBLIC_URL: `${this.apiUrl}/`,
+            ACCESS_STORE_DIR: this.dirs.store,
+            GATE_OUT_DIR: this.dirs.outGate,
+          }
+        : {}),
     };
     this.start('backend', 'node', ['--conditions=@omw/source', '--import', 'tsx', 'backend/src/cli.ts', 'start'], env);
     await waitFor('the backend control UI', async () => (await fetch(`${this.controlUrl}/healthz`)).ok, 60_000);
@@ -259,6 +362,7 @@ export class Stack {
   }
 
   async startStatic(): Promise<void> {
+    if (this.gate) return this.startApache();
     this.start(
       'static',
       'node',
@@ -280,8 +384,79 @@ export class Stack {
     await waitFor('the static server', async () => (await fetch(`${this.siteUrl}/robots.txt`)).status < 500, 30_000);
   }
 
+  /** Gate mode: Apache on 127.0.0.1:<sitePort> serving <root>/site with AllowOverride All. */
+  private async startApache(): Promise<void> {
+    const apache = findApache();
+    if (!apache) throw new Error('no Apache binary with mod_rewrite/mod_headers found');
+    const dir = this.dirs.apache;
+    mkdirSync(join(dir, 'logs'), { recursive: true });
+    const systemTypes = ['/private/etc/apache2/mime.types', '/etc/mime.types'].find((p) => existsSync(p));
+    const types = systemTypes ?? join(dir, 'mime.types');
+    if (!systemTypes) writeFileSync(types, '');
+    const conf = join(dir, 'httpd.conf');
+    writeFileSync(
+      conf,
+      [
+        `ServerRoot "${dir}"`,
+        'ServerName 127.0.0.1',
+        `Listen 127.0.0.1:${this.sitePort}`,
+        ...APACHE_MODULES.map(([name, file]) => `LoadModule ${name} ${join(apache.modules, file)}`),
+        `PidFile ${join(dir, 'logs/httpd.pid')}`,
+        `ErrorLog ${join(this.dirs.logs, 'apache-error.log')}`,
+        'LogLevel warn',
+        // The request line only (no headers): it must never contain a session id or a key.
+        'LogFormat "%r %>s" short',
+        `CustomLog ${join(this.dirs.logs, 'apache-access.log')} short`,
+        'StartServers 2',
+        'MinSpareServers 1',
+        'MaxSpareServers 4',
+        `DocumentRoot "${this.dirs.site}"`,
+        `<Directory "${this.dirs.site}">`,
+        '  AllowOverride All',
+        '  Options FollowSymLinks',
+        '  Require all granted',
+        '</Directory>',
+        '<Files ".ht*">',
+        '  Require all denied',
+        '</Files>',
+        `TypesConfig ${types}`,
+        'AddType text/html .html',
+        'AddType text/css .css',
+        'AddType text/javascript .js .mjs',
+        'AddType application/json .json',
+        'AddType image/svg+xml .svg',
+        '',
+      ].join('\n'),
+    );
+    execFileSync(apache.bin, ['-f', conf, '-k', 'start'], { stdio: 'ignore' });
+    this.apacheConf = conf;
+    await waitFor('Apache', async () => (await fetch(`${this.siteUrl}/robots.txt`)).status < 500, 20_000);
+  }
+
+  private async stopApache(): Promise<void> {
+    const apache = findApache();
+    if (!this.apacheConf || !apache) return;
+    try {
+      execFileSync(apache.bin, ['-f', this.apacheConf, '-k', 'stop'], { stdio: 'ignore' });
+    } catch {
+      /* already gone */
+    }
+    const pid = join(this.dirs.apache, 'logs/httpd.pid');
+    await waitFor('Apache to stop', async () => !existsSync(pid), 15_000).catch(() => undefined);
+    this.apacheConf = null;
+  }
+
+  /** Apache's access log (request line + status per line). */
+  apacheAccessLog(): string {
+    try {
+      return readFileSync(join(this.dirs.logs, 'apache-access.log'), 'utf8');
+    } catch {
+      return '';
+    }
+  }
+
   async stopAll(): Promise<void> {
-    await Promise.all([this.stop('backend'), this.stop('static'), this.stop('api')]);
+    await Promise.all([this.stop('backend'), this.stop('static'), this.stop('api'), this.stopApache()]);
   }
 
   /** Control API of the backend (Bearer CONTROL_TOKEN). */
@@ -298,10 +473,17 @@ export class Stack {
     return (await res.json()) as T;
   }
 
-  /** GET from the static host: status + body text. */
-  async site(path: string): Promise<{ status: number; text: string }> {
-    const res = await fetch(`${this.siteUrl}${path}`, { cache: 'no-store' });
-    return { status: res.status, text: await res.text() };
+  /** GET from the static host: status + body text + headers (`follow: false` keeps redirects). */
+  async site(
+    path: string,
+    opts: { cookie?: string; follow?: boolean } = {},
+  ): Promise<{ status: number; text: string; headers: Headers }> {
+    const res = await fetch(`${this.siteUrl}${path}`, {
+      cache: 'no-store',
+      redirect: opts.follow === false ? 'manual' : 'follow',
+      ...(opts.cookie ? { headers: { cookie: opts.cookie } } : {}),
+    });
+    return { status: res.status, text: await res.text(), headers: res.headers };
   }
 
   async siteJson<T = unknown>(path: string): Promise<T | null> {
@@ -339,7 +521,7 @@ export class Stack {
   }
 
   /** The last lines of a child's log (for failure messages). */
-  logTail(name: 'api' | 'backend' | 'static', lines = 40): string {
+  logTail(name: 'api' | 'backend' | 'static' | 'apache-error', lines = 40): string {
     try {
       return readFileSync(join(this.dirs.logs, `${name}.log`), 'utf8')
         .split('\n')

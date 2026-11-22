@@ -29,13 +29,29 @@ use Throwable;
  * recorded and shown in the admin status.
  *
  * Kinds: heartbeat_stale (critical), wa_logged_out (critical), wa_banned (critical),
- * publish_failing (warning). publish_failing only looks at targets the backend still reports
- * (BackendStatus: stale targets were removed or renamed); when it resolves because its failing
- * targets went stale, the alert's message says so ("no longer reported").
+ * publish_failing (warning; critical when the Mac's post-deploy gate check found the gate open).
+ * publish_failing only looks at targets the backend still reports (BackendStatus: stale targets
+ * were removed or renamed); when it resolves because its failing targets went stale, the alert's
+ * message says so ("no longer reported").
+ *
+ * Access (spec-wave5 §3.9; messages never contain names): devices_pending (warning, resolves when
+ * none waits), access_store_failing (critical: a store op pending for 10 minutes or an SFTP auth
+ * block), access_store_unverified (critical: marker missing or foreign, heartbeat storeDir differs
+ * from ACCESS_STORE_DIR, store proof or gate check failed), access_store_mismatch (warning: the
+ * last reconcile found active sessions without a file), site_origin_mismatch (warning),
+ * public_flood (warning: the global public cap was hit within the hour), site_gate_open
+ * (critical: the API's own anonymous probe got through).
  */
 final class AlertEngine
 {
-    public const KINDS = ['heartbeat_stale', 'wa_logged_out', 'wa_banned', 'publish_failing'];
+    public const KINDS = [
+        'heartbeat_stale', 'wa_logged_out', 'wa_banned', 'publish_failing',
+        'devices_pending', 'access_store_failing', 'access_store_unverified', 'access_store_mismatch',
+        'site_origin_mismatch', 'public_flood', 'site_gate_open',
+    ];
+
+    /** A store op pending this long raises access_store_failing. */
+    public const STORE_FAILING_MINUTES = 10;
 
     public function __construct(
         private readonly Db $db,
@@ -48,9 +64,10 @@ final class AlertEngine
     }
 
     /**
+     * @param list<string>|null $only evaluate only these kinds (e.g. devices_pending right after a join)
      * @return array{opened: list<string>, repeated: list<string>, resolved: list<string>, failed: list<string>}
      */
-    public function run(?DateTimeImmutable $now = null): array
+    public function run(?DateTimeImmutable $now = null, ?array $only = null): array
     {
         $now ??= Clock::now();
         $nowIso = Clock::iso($now);
@@ -59,6 +76,9 @@ final class AlertEngine
         $repeatBefore = Clock::iso($now->modify('-' . $this->config->alertRepeatMinutes . ' minutes'));
 
         foreach (self::KINDS as $kind) {
+            if ($only !== null && !in_array($kind, $only, true)) {
+                continue;
+            }
             $condition = $conditions[$kind] ?? null;
             $open = $this->db->one("SELECT * FROM alerts WHERE kind = ? AND state = 'open'", [$kind]);
 
@@ -194,6 +214,112 @@ final class AlertEngine
             ];
         }
 
+        return $this->accessConditions($now, $heartbeat, $out);
+    }
+
+    /**
+     * @param array{heartbeat: stdClass, receivedAt: string, waState: string|null}|null $heartbeat
+     * @param array<string, array{severity: string, message: string, details: array<string, mixed>}> $out
+     * @return array<string, array{severity: string, message: string, details: array<string, mixed>}>
+     */
+    private function accessConditions(DateTimeImmutable $now, ?array $heartbeat, array $out): array
+    {
+        $state = $this->db->one('SELECT * FROM access_state WHERE id = 1');
+        if ($state === null) {
+            return $out;
+        }
+        $pending = (int) $this->db->scalar(
+            "SELECT COUNT(*) FROM devices d JOIN followers f ON f.id = d.follower_id WHERE d.state = 'pending' AND f.kind = 'person' AND f.state = 'active'",
+        );
+        if ($pending > 0) {
+            $out['devices_pending'] = [
+                'severity' => 'warning',
+                'message' => $pending === 1 ? '📱 1 neues Gerät wartet auf deine Bestätigung.' : sprintf('📱 %d neue Geräte warten auf deine Bestätigung.', $pending),
+                'details' => ['count' => $pending],
+            ];
+        }
+
+        $oldest = $this->db->scalar('SELECT MIN(created_at) FROM store_ops WHERE applied_at IS NULL');
+        $blocked = $state['writer_blocked_at'] ?? null;
+        if ($blocked !== null || (is_string($oldest) && $oldest <= Clock::iso($now->modify('-' . self::STORE_FAILING_MINUTES . ' minutes')))) {
+            $out['access_store_failing'] = [
+                'severity' => 'critical',
+                'message' => $blocked !== null
+                    ? 'The website store writer is blocked: the SFTP login was refused. Check the login, then press "Retry" in the admin.'
+                    : sprintf('Access changes are not reaching the website (oldest pending since %s). Revocations and locks are not in effect yet.', (string) $oldest),
+                'details' => ['oldestPendingAt' => $oldest, 'blocked' => $blocked !== null],
+            ];
+        }
+
+        $unverified = [];
+        $error = $state['writer_error'] ?? null;
+        if (is_string($error) && str_starts_with($error, 'store_unverified')) {
+            $unverified[] = mb_substr($error, 0, 200);
+        }
+        $site = $heartbeat !== null && ($heartbeat['heartbeat']->site ?? null) instanceof stdClass ? $heartbeat['heartbeat']->site : null;
+        if ($site !== null && $this->config->access->storeMode === 'direct' && is_string($site->storeDir ?? null) && $site->storeDir !== $this->config->access->storeDir) {
+            $unverified[] = 'the backend\'s store folder differs from the API\'s ACCESS_STORE_DIR';
+        }
+        $check = is_string($state['gate_check'] ?? null) ? json_decode($state['gate_check'], true) : null;
+        $check = is_array($check) ? $check : [];
+        if (($check['result'] ?? null) === 'store_unverified') {
+            $unverified[] = 'gate check: ' . (is_string($check['detail'] ?? null) ? $check['detail'] : 'store unverified');
+        }
+        if ($this->db->scalar("SELECT value FROM meta WHERE key = 'store_proof_failed_at'") !== null && ($check['result'] ?? null) !== 'store_unverified') {
+            $unverified[] = 'the last store proof failed';
+        }
+        if ($unverified !== []) {
+            $out['access_store_unverified'] = [
+                'severity' => 'critical',
+                'message' => 'The website store is not verified: ' . implode('; ', $unverified) . '. Revocations may not take effect.',
+                'details' => ['reasons' => $unverified],
+            ];
+        }
+
+        $report = is_string($state['reconcile_report'] ?? null) ? json_decode($state['reconcile_report'], true) : null;
+        $missing = is_array($report) && is_array($report['missing'] ?? null) ? count($report['missing']) : 0;
+        if ($missing > 0) {
+            $out['access_store_mismatch'] = [
+                'severity' => 'warning',
+                'message' => sprintf('%d device session(s) are missing from the website store; those devices rejoin automatically with their key.', $missing),
+                'details' => ['missing' => $missing],
+            ];
+        }
+
+        if ($site !== null && is_string($site->origin ?? null) && $this->config->siteOrigin !== '' && $site->origin !== $this->config->siteOrigin) {
+            $out['site_origin_mismatch'] = [
+                'severity' => 'warning',
+                'message' => sprintf('The backend publishes for %s, but the API\'s SITE_ORIGIN is %s.', $site->origin, $this->config->siteOrigin),
+                'details' => ['backend' => $site->origin, 'api' => $this->config->siteOrigin],
+            ];
+        }
+
+        $flood = $this->db->scalar("SELECT value FROM meta WHERE key = 'public_flood_at'");
+        if (is_string($flood) && $flood > Clock::iso($now->modify('-1 hour'))) {
+            $out['public_flood'] = [
+                'severity' => 'warning',
+                'message' => 'The public join routes were flooded; joins are refused for up to an hour. Viewing the site is not affected.',
+                'details' => ['at' => $flood],
+            ];
+        }
+
+        if (($check['result'] ?? null) === 'gate_open') {
+            $detail = is_string($check['detail'] ?? null) ? ' (' . $check['detail'] . ')' : '';
+            if (($check['by'] ?? null) === 'api') {
+                $out['site_gate_open'] = [
+                    'severity' => 'critical',
+                    'message' => 'The website answered an anonymous request with content: the access gate is open' . $detail . '.',
+                    'details' => ['at' => $check['at'] ?? null],
+                ];
+            } else {
+                $out['publish_failing'] = [
+                    'severity' => 'critical',
+                    'message' => 'The post-deploy check found the access gate open' . $detail . '. Publish again or lock the site.',
+                    'details' => ['targets' => [], 'gateCheck' => $check['at'] ?? null],
+                ];
+            }
+        }
+
         return $out;
     }
 
@@ -244,6 +370,13 @@ final class AlertEngine
             'wa_logged_out' => 'WhatsApp logged out',
             'wa_banned' => 'WhatsApp ban',
             'publish_failing' => 'Publishing failing',
+            'devices_pending' => 'Neues Gerät wartet',
+            'access_store_failing' => 'Access changes not applied',
+            'access_store_unverified' => 'Website store not verified',
+            'access_store_mismatch' => 'Website store differs',
+            'site_origin_mismatch' => 'Site origin differs',
+            'public_flood' => 'Public routes flooded',
+            'site_gate_open' => 'Access gate open',
             default => $kind,
         };
 

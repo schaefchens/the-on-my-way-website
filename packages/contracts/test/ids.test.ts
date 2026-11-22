@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
+import { PostPublicId } from '../src/common.js';
 import {
   base32Lower,
   bytesToHex,
@@ -10,6 +11,8 @@ import {
   parseSourceKey,
   publicIdForSourceKey,
   publicIdFromSha256Hex,
+  publishedPostId,
+  publishedPostIdFromSha256Hex,
   sha256Hex,
   waSourceKey,
 } from '../src/ids.js';
@@ -94,6 +97,40 @@ describe('publicIdForSourceKey (D4)', () => {
     await expect(publicIdForSourceKey('3EB0')).rejects.toThrow(RangeError);
     await expect(publicIdForSourceKey('wa:../etc')).rejects.toThrow(RangeError);
     expect(() => publicIdFromSha256Hex('xyz')).toThrow(RangeError);
+  });
+});
+
+describe('publishedPostId (wave 5, E16)', () => {
+  it('is "p_" + first 16 base32 chars of sha256("post:" + publicId)', async () => {
+    for (const publicId of ['p_note0001', 'p_01JDAB3K9XQZ7Y8W6V5T4S3R2N']) {
+      const digest = createHash('sha256').update(`post:${publicId}`, 'utf8').digest();
+      const expected = `p_${referenceBase32(digest).slice(0, 16)}`;
+      expect(await publishedPostId(publicId)).toBe(expected);
+      expect(publishedPostIdFromSha256Hex(digest.toString('hex'))).toBe(expected);
+    }
+    expect(await publishedPostId('p_note0001')).toMatchInlineSnapshot(`"p_vmu7dr53gmkoxdf2"`);
+  });
+
+  it('keeps the post id schema but never reveals the API id (a ULID carries its creation time)', async () => {
+    const ulid = /^p_[0-9A-HJKMNP-TV-Z]{26}$/;
+    const ids = new Set<string>();
+    for (let i = 0; i < 200; i++) {
+      const publicId = `p_01JDAB3K9XQZ7Y8W6V5T4S${String(i).padStart(4, '0')}`;
+      const published = await publishedPostId(publicId);
+      expect(isPostPublicId(published)).toBe(true);
+      expect(PostPublicId.safeParse(published).success).toBe(true);
+      expect(published).not.toMatch(ulid);
+      expect(published).not.toContain(publicId.slice(2, 12));
+      ids.add(published);
+    }
+    expect(ids.size).toBe(200);
+  });
+
+  it('rejects invalid ids and digests', async () => {
+    await expect(publishedPostId('e_abcdefgh2345')).rejects.toThrow(RangeError);
+    await expect(publishedPostId('p_')).rejects.toThrow(RangeError);
+    expect(() => publishedPostIdFromSha256Hex('AB'.repeat(32))).toThrow(RangeError);
+    expect(() => publishedPostIdFromSha256Hex('ab'.repeat(31))).toThrow(RangeError);
   });
 });
 

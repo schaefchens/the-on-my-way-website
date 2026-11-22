@@ -1,0 +1,1240 @@
+{
+  "description": "Store reconcile (spec-wave5 §3.8.5; PHP only: Domain\\Access\\Reconciler::plan(mode, desired, listing, touched, now)). desired: the database state (followers fid => {state, at}; devices did => {fid, state, sidHash = sha256 hex of the sid, handoff, revokedAt, together = revoked with the person}; lock fields). listing: contract StoreListing. touched: ops newer than the listing ({op, path}); fixes and lock imports on paths they touch are skipped. expected: DB imports, store ops in order, report.",
+  "now": "2026-11-20T10:00:00.000Z",
+  "cases": [
+    {
+      "name": "normal: consistent store, nothing to do",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "bbbbbbbb": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "pending",
+            "sidHash": null,
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: stale sid, unknown fid, revoked person, stray handoff are deleted; missing tombstone written",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          },
+          "bbbbbbbbbbbb": {
+            "state": "revoked",
+            "at": "2026-11-12T08:00:00.000Z"
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "cccccccc": {
+            "fid": "bbbbbbbbbbbb",
+            "state": "revoked",
+            "sidHash": null,
+            "handoff": false,
+            "revokedAt": "2026-11-12T08:00:00.000Z",
+            "together": true
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "s/dddddddddddd/eeeeeeee.CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "s/bbbbbbbbbbbb/cccccccc.DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+        ],
+        "handoffs": [
+          "aaaaaaaa",
+          "bbbbbbbb"
+        ],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [
+          {
+            "op": "delete",
+            "path": "s/aaaaaaaaaaaa/aaaaaaaa.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "delete",
+            "path": "s/dddddddddddd/eeeeeeee.CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "delete",
+            "path": "s/bbbbbbbbbbbb/cccccccc.DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "delete",
+            "path": "h/aaaaaaaa",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "delete",
+            "path": "h/bbbbbbbb",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "put",
+            "path": "t/bbbbbbbbbbbb",
+            "content": "{\"s\":\"revoked\",\"at\":\"2026-11-12T08:00:00.000Z\"}",
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 5,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: an active session without a file is reported missing",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "bbbbbbbb": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": null,
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [
+            {
+              "fid": "aaaaaaaaaaaa",
+              "did": "aaaaaaaa"
+            }
+          ],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: a handoff marker that is still awaited stays",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": true,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "handoffs": [
+          "aaaaaaaa"
+        ],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: the database is locked, the store is not: write the lock",
+      "mode": "normal",
+      "desired": {
+        "locked": true,
+        "lockedAt": "2026-11-14T08:00:00.000Z",
+        "lockedBy": "admin",
+        "unlockedAt": "2026-11-10T08:00:00.000Z",
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [
+          {
+            "op": "put",
+            "path": "locked",
+            "content": "{\"at\":\"2026-11-14T08:00:00.000Z\",\"by\":\"admin\"}",
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: sticky lock newer than unlocked_at is imported, never deleted",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": "2026-11-12T08:00:00.000Z",
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": "{\"at\":\"2026-11-14T08:00:00.000Z\",\"by\":\"mac\"}",
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "lock",
+            "by": "mac",
+            "at": "2026-11-14T08:00:00.000Z"
+          }
+        ],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": [
+            "lock (mac)"
+          ]
+        }
+      }
+    },
+    {
+      "name": "normal: a lock file older than unlocked_at is a leftover and deleted",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": "2026-11-14T08:00:00.000Z",
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": "{\"at\":\"2026-11-12T08:00:00.000Z\",\"by\":\"admin\"}",
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [
+          {
+            "op": "delete",
+            "path": "locked",
+            "content": null,
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: never unlocked: any lock file is imported",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": "{\"at\":\"2026-11-10T08:00:00.000Z\",\"by\":\"panic\"}",
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "lock",
+            "by": "panic",
+            "at": "2026-11-10T08:00:00.000Z"
+          }
+        ],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": [
+            "lock (panic)"
+          ]
+        }
+      }
+    },
+    {
+      "name": "normal: an unreadable lock file is imported as a Mac lock (when in doubt, refuse)",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": "2026-11-12T08:00:00.000Z",
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": "garbage",
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "lock",
+            "by": "mac",
+            "at": "2026-11-20T10:00:00.000Z"
+          }
+        ],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": [
+            "lock (mac)"
+          ]
+        }
+      }
+    },
+    {
+      "name": "normal: paths touched by ops newer than the listing are skipped (unlock, issue)",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": "2026-11-16T08:00:00.000Z",
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "59ae66da6ed3bbc4459e26cbdb0cfff96cfb74742b386dae8bdd429dfe7b1f9c",
+            "handoff": true,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": "{\"at\":\"2026-11-14T08:00:00.000Z\",\"by\":\"admin\"}",
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "handoffs": [
+          "aaaaaaaa"
+        ],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [
+        {
+          "op": "delete",
+          "path": "locked"
+        },
+        {
+          "op": "delete_prefix",
+          "path": "s/aaaaaaaaaaaa/aaaaaaaa."
+        },
+        {
+          "op": "put",
+          "path": "s/aaaaaaaaaaaa/aaaaaaaa.EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+        },
+        {
+          "op": "put",
+          "path": "h/aaaaaaaa"
+        }
+      ],
+      "expected": {
+        "imports": [],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: a newer lock op wins over the sticky import",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": "2026-11-12T08:00:00.000Z",
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": "{\"at\":\"2026-11-14T08:00:00.000Z\",\"by\":\"mac\"}",
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [
+        {
+          "op": "delete",
+          "path": "locked"
+        }
+      ],
+      "expected": {
+        "imports": [],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: strays below s/ and h/ are deleted, others only reported",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": [
+          "s/xyz",
+          "h/tmp.123",
+          "s/aaaaaaaaaaaa/garbage",
+          "t/whatever",
+          ".DS_Store"
+        ]
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [
+          {
+            "op": "delete_tree",
+            "path": "s/xyz",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "delete_tree",
+            "path": "h/tmp.123",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "delete_tree",
+            "path": "s/aaaaaaaaaaaa/garbage",
+            "content": null,
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 3,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: a deleted person's \"revoked\" tombstone is upgraded",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "cccccccccccc": {
+            "state": "deleted",
+            "at": "2026-11-14T08:00:00.000Z"
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [
+          {
+            "path": "t/cccccccccccc",
+            "content": "{\"s\":\"revoked\",\"at\":\"2026-11-12T08:00:00.000Z\"}"
+          }
+        ],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [
+          {
+            "op": "put",
+            "path": "t/cccccccccccc",
+            "content": "{\"s\":\"deleted\",\"at\":\"2026-11-14T08:00:00.000Z\"}",
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "normal: a device revoked on its own gets a device tombstone; one revoked with its person does not",
+      "mode": "normal",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          },
+          "bbbbbbbbbbbb": {
+            "state": "revoked",
+            "at": "2026-11-14T08:00:00.000Z"
+          }
+        },
+        "devices": {
+          "dddddddd": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "revoked",
+            "sidHash": null,
+            "handoff": false,
+            "revokedAt": "2026-11-12T08:00:00.000Z",
+            "together": false
+          },
+          "cccccccc": {
+            "fid": "bbbbbbbbbbbb",
+            "state": "revoked",
+            "sidHash": null,
+            "handoff": false,
+            "revokedAt": "2026-11-14T08:00:00.000Z",
+            "together": true
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [
+          {
+            "path": "t/bbbbbbbbbbbb",
+            "content": "{\"s\":\"revoked\",\"at\":\"2026-11-14T08:00:00.000Z\"}"
+          }
+        ],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [],
+        "ops": [
+          {
+            "op": "put",
+            "path": "t/aaaaaaaaaaaa.dddddddd",
+            "content": "{\"s\":\"revoked\",\"at\":\"2026-11-12T08:00:00.000Z\"}",
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": []
+        }
+      }
+    },
+    {
+      "name": "restored_api: a revoked tombstone revokes the person; her sessions go",
+      "mode": "restored_api",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          },
+          "bbbbbbbbbbbb": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "cccccccc": {
+            "fid": "bbbbbbbbbbbb",
+            "state": "active",
+            "sidHash": "3eb0f8ef9faa01942d4a1b1c2653cbd8e073271fb42bddb4cd607c6d7ee650f9",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "bbbbbbbb": {
+            "fid": "bbbbbbbbbbbb",
+            "state": "pending",
+            "sidHash": null,
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "s/bbbbbbbbbbbb/cccccccc.FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+        ],
+        "handoffs": [],
+        "tombstones": [
+          {
+            "path": "t/bbbbbbbbbbbb",
+            "content": "{\"s\":\"revoked\",\"at\":\"2026-11-12T08:00:00.000Z\"}"
+          }
+        ],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "revoke_follower",
+            "fid": "bbbbbbbbbbbb",
+            "at": "2026-11-12T08:00:00.000Z"
+          }
+        ],
+        "ops": [
+          {
+            "op": "delete",
+            "path": "s/bbbbbbbbbbbb/cccccccc.FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            "content": null,
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 1,
+          "missing": [],
+          "orphans": [],
+          "imported": [
+            "revoked bbbbbbbbbbbb"
+          ]
+        }
+      }
+    },
+    {
+      "name": "restored_api: a deleted tombstone erases the person again",
+      "mode": "restored_api",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          },
+          "cccccccccccc": {
+            "state": "revoked",
+            "at": "2026-11-10T08:00:00.000Z"
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "eeeeeeee": {
+            "fid": "cccccccccccc",
+            "state": "revoked",
+            "sidHash": null,
+            "handoff": false,
+            "revokedAt": "2026-11-10T08:00:00.000Z",
+            "together": true
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "s/cccccccccccc/eeeeeeee.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        ],
+        "handoffs": [],
+        "tombstones": [
+          {
+            "path": "t/cccccccccccc",
+            "content": "{\"s\":\"deleted\",\"at\":\"2026-11-14T08:00:00.000Z\"}"
+          }
+        ],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "erase_follower",
+            "fid": "cccccccccccc",
+            "at": "2026-11-14T08:00:00.000Z"
+          }
+        ],
+        "ops": [
+          {
+            "op": "delete",
+            "path": "s/cccccccccccc/eeeeeeee.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+            "content": null,
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 1,
+          "missing": [],
+          "orphans": [],
+          "imported": [
+            "erased cccccccccccc"
+          ]
+        }
+      }
+    },
+    {
+      "name": "restored_api: unknown fids are tombstoned, sessions of unknown devices are orphans and removed",
+      "mode": "restored_api",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "s/dddddddddddd/eeeeeeee.CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "s/aaaaaaaaaaaa/ffffffff.GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+        ],
+        "handoffs": [],
+        "tombstones": [
+          {
+            "path": "t/gggggggggggg",
+            "content": "{\"s\":\"revoked\",\"at\":\"2026-11-12T08:00:00.000Z\"}"
+          }
+        ],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "tombstone_fid",
+            "fid": "gggggggggggg"
+          },
+          {
+            "kind": "tombstone_fid",
+            "fid": "dddddddddddd"
+          }
+        ],
+        "ops": [
+          {
+            "op": "delete",
+            "path": "s/dddddddddddd/eeeeeeee.CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "delete",
+            "path": "s/aaaaaaaaaaaa/ffffffff.GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+            "content": null,
+            "exclusive": true
+          },
+          {
+            "op": "put",
+            "path": "t/dddddddddddd",
+            "content": "{\"s\":\"deleted\",\"at\":\"2026-11-20T10:00:00.000Z\"}",
+            "exclusive": true
+          },
+          {
+            "op": "put",
+            "path": "t/gggggggggggg",
+            "content": "{\"s\":\"deleted\",\"at\":\"2026-11-20T10:00:00.000Z\"}",
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 2,
+          "missing": [],
+          "orphans": [
+            {
+              "fid": "aaaaaaaaaaaa",
+              "did": "ffffffff"
+            },
+            {
+              "fid": "dddddddddddd",
+              "did": "eeeeeeee"
+            }
+          ],
+          "imported": [
+            "tombstoned gggggggggggg",
+            "tombstoned dddddddddddd"
+          ]
+        }
+      }
+    },
+    {
+      "name": "restored_api: the session file of a known active device is adopted",
+      "mode": "restored_api",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "bbbbbbbb": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "412dc46cc9e3cb26f29f7c1415c556349af62904c5d15b0a2d8cfdc5cfa22b34",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+        ],
+        "handoffs": [
+          "aaaaaaaa"
+        ],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "adopt_session",
+            "fid": "aaaaaaaaaaaa",
+            "did": "aaaaaaaa",
+            "sidHash": "e0574aed10f4fc8ce8cc9e73a95c3434869987cdbf50d827957ad0d1b6e4c7fe"
+          }
+        ],
+        "ops": [
+          {
+            "op": "delete",
+            "path": "h/aaaaaaaa",
+            "content": null,
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 1,
+          "missing": [
+            {
+              "fid": "aaaaaaaaaaaa",
+              "did": "bbbbbbbb"
+            }
+          ],
+          "orphans": [],
+          "imported": [
+            "adopted aaaaaaaaaaaa.aaaaaaaa"
+          ]
+        }
+      }
+    },
+    {
+      "name": "restored_api: a device tombstone revokes that device only",
+      "mode": "restored_api",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": null,
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {
+          "aaaaaaaa": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "0f007385b6f9d4b7eeb2748605afe1a984a0a3bfa3f014d09e2a784ce9e5cd1a",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          },
+          "bbbbbbbb": {
+            "fid": "aaaaaaaaaaaa",
+            "state": "active",
+            "sidHash": "412dc46cc9e3cb26f29f7c1415c556349af62904c5d15b0a2d8cfdc5cfa22b34",
+            "handoff": false,
+            "revokedAt": null,
+            "together": false
+          }
+        }
+      },
+      "listing": {
+        "marker": null,
+        "locked": null,
+        "sessions": [
+          "s/aaaaaaaaaaaa/aaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "s/aaaaaaaaaaaa/bbbbbbbb.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        ],
+        "handoffs": [],
+        "tombstones": [
+          {
+            "path": "t/aaaaaaaaaaaa.bbbbbbbb",
+            "content": "{\"s\":\"revoked\",\"at\":\"2026-11-12T08:00:00.000Z\"}"
+          }
+        ],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "revoke_device",
+            "fid": "aaaaaaaaaaaa",
+            "did": "bbbbbbbb",
+            "at": "2026-11-12T08:00:00.000Z"
+          }
+        ],
+        "ops": [
+          {
+            "op": "delete",
+            "path": "s/aaaaaaaaaaaa/bbbbbbbb.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+            "content": null,
+            "exclusive": true
+          }
+        ],
+        "report": {
+          "deleted": 1,
+          "missing": [],
+          "orphans": [],
+          "imported": [
+            "revoked device aaaaaaaaaaaa.bbbbbbbb"
+          ]
+        }
+      }
+    },
+    {
+      "name": "restored_api: the sticky lock rule applies too",
+      "mode": "restored_api",
+      "desired": {
+        "locked": false,
+        "lockedAt": null,
+        "lockedBy": null,
+        "unlockedAt": "2026-11-12T08:00:00.000Z",
+        "followers": {
+          "aaaaaaaaaaaa": {
+            "state": "active",
+            "at": null
+          }
+        },
+        "devices": {}
+      },
+      "listing": {
+        "marker": null,
+        "locked": "{\"at\":\"2026-11-16T08:00:00.000Z\",\"by\":\"mac\"}",
+        "sessions": [],
+        "handoffs": [],
+        "tombstones": [],
+        "strays": []
+      },
+      "touched": [],
+      "expected": {
+        "imports": [
+          {
+            "kind": "lock",
+            "by": "mac",
+            "at": "2026-11-16T08:00:00.000Z"
+          }
+        ],
+        "ops": [],
+        "report": {
+          "deleted": 0,
+          "missing": [],
+          "orphans": [],
+          "imported": [
+            "lock (mac)"
+          ]
+        }
+      }
+    }
+  ]
+}

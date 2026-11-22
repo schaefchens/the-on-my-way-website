@@ -1,0 +1,222 @@
+/**
+ * Texts of the gate pages (spec-wave5 §6.1, §6.2): a typed table, German (du-form, warm and
+ * short) and English, plus the dev pseudo-locale "ar" (accented English wrapped in RTL marks,
+ * like the SPA's Lingui pseudo-locale) for mirroring checks. No Lingui runtime: the bundle is
+ * public and small.
+ *
+ * The gate bundle is served to everyone, so no text may say that someone is away or travels
+ * (§5.5 word list: Reise, reist, Reisen, unterwegs, Urlaub, journey, travel, travels, trip,
+ * vacation, she, her). test/gate/strings.test.ts enforces it. Placeholders are `{name}`.
+ */
+import type { LocaleCode } from '@omw/contracts/i18n';
+
+export const en = {
+  privateTitle: 'Private',
+  language: 'Language',
+  loading: 'One moment\u00a0…',
+  offline: 'No connection.',
+  retry: 'Try again',
+  rateLimited: 'Too many attempts. Please try again later.',
+  unavailable: 'Not available right now. Please try again later.',
+  invalidLink: 'This link is not valid (any more). Ask the person who sent it to you.',
+  noKey: 'No invitation is saved on this device. Please open your personal link again.',
+  tooManyPending: 'Several devices are already waiting for approval for this link.',
+  linkFor: 'This link is for {name}.',
+  mustWait: 'This device still needs to be approved before you can see the page.',
+  inAppHint: 'Best open the link in Safari or Chrome; otherwise this app counts as a separate device.',
+  confirmHint: 'By tapping “Continue” you confirm that you have read this information.',
+  continue: 'Continue',
+  cancel: 'Cancel',
+  slow: 'This is taking longer than expected\u00a0…',
+  almostThere: 'One moment, almost there\u00a0…',
+  noticeUpdated: 'The privacy information has just changed. Please read it once more.',
+  waitTitle: 'Almost done!',
+  waitText:
+    'The person who invited you will approve this device. You can close this page and open your link again later.',
+  waitStopped: 'No approval yet.',
+  checkAgain: 'Check again',
+  withdraw: 'Withdraw request',
+  endedText: 'No access on this device. If you think this is a mistake, ask the person who invited you.',
+  deletedText: 'Your data has been deleted.',
+  yourData: 'Your data',
+  noticeChanged: 'The privacy information has changed.',
+  back: 'Back',
+  headingCollected: 'What is stored',
+  headingAudience: 'Who sees what',
+  headingPurpose: 'Why and for how long',
+  headingRights: 'Your rights',
+  headingController: 'Responsible',
+  rightsFixed: 'Under “Your data” you can view, export and delete everything.',
+  noticeVersion: 'Version {n} · valid since {date}',
+  sharedWith: 'Shared personally with {name} since {date}',
+  thisDevice: 'This device',
+  thisDeviceLine: 'This device: {label} · {state} · since {date}',
+  otherDevices: 'Other devices',
+  noOtherDevices: 'No other devices.',
+  since: 'since {date}',
+  lastSeen: 'last opened {date}',
+  stateActive: 'active',
+  statePending: 'waiting',
+  stateRevoked: 'removed',
+  stateDeclined: 'declined',
+  confirmedNotices: 'Confirmed privacy information',
+  consentLine: 'Version {n} · confirmed {date}',
+  viewNotice: 'View privacy information',
+  noticeInExport: 'The export also contains the privacy information you confirmed.',
+  stored: 'What is stored',
+  catName: 'Your name',
+  catDevices: 'Devices',
+  catConsents: 'Confirmations',
+  catVisits: 'Visits',
+  catViews: 'Views',
+  catReactions: 'Reactions',
+  catMessages: 'Messages',
+  catEmail: 'E-mail address',
+  exportData: 'Export data',
+  exportStarted: 'The download has started.',
+  signout: 'Sign out on this device',
+  signoutText:
+    'To use this device again, open your link again; the person who invited you then has to approve it again.',
+  signoutConfirm: 'Sign out',
+  signedOut: 'Signed out.',
+  deleteAll: 'Delete me and all my data\u00a0…',
+  toPage: 'To the page',
+  limitedHint: 'You can view, export and delete your data on an approved device, or ask the person who invited you.',
+  withdrawText: 'The request for this device will be withdrawn.',
+  withdrawn: 'Request withdrawn.',
+  noData: 'No data is stored for this device (any more).',
+  deleteTitle: 'Delete everything?',
+  deleteWhat: 'This deletes:',
+  deleteWarning: 'This cannot be undone. You immediately lose access on all devices.',
+  deleteCheck: 'I understand that everything will be deleted for good',
+  deleteNow: 'Delete now for good',
+  panicTitle: 'Lock the website',
+  panicText: 'Nobody can open the website any more until it is unlocked in the admin.',
+  panicButton: 'Lock the website now',
+  panicDone: 'Locked (if the link was valid). Unlocking is only possible in the admin.',
+} as const satisfies Record<string, string>;
+
+export type StringKey = keyof typeof en;
+export type Strings = Readonly<Record<StringKey, string>>;
+
+export const de: Strings = {
+  privateTitle: 'Privat',
+  language: 'Sprache',
+  loading: 'Einen Moment\u00a0…',
+  offline: 'Keine Verbindung.',
+  retry: 'Erneut versuchen',
+  rateLimited: 'Zu viele Versuche. Bitte später noch einmal.',
+  unavailable: 'Gerade nicht verfügbar. Bitte später noch einmal versuchen.',
+  invalidLink: 'Dieser Link ist nicht (mehr) gültig. Frag die Person, die ihn dir geschickt hat.',
+  noKey: 'Auf diesem Gerät ist keine Einladung gespeichert. Öffne bitte deinen persönlichen Link noch einmal.',
+  tooManyPending: 'Für diesen Link warten schon mehrere Geräte auf Bestätigung.',
+  linkFor: 'Dieser Link ist für {name}.',
+  mustWait: 'Dieses Gerät muss noch bestätigt werden, bevor du die Seite sehen kannst.',
+  inAppHint: 'Öffne den Link am besten in Safari oder Chrome; sonst zählt diese App als eigenes Gerät.',
+  confirmHint: 'Mit „Weiter“ bestätigst du, dass du diese Hinweise gelesen hast.',
+  continue: 'Weiter',
+  cancel: 'Abbrechen',
+  slow: 'Dauert länger als gedacht\u00a0…',
+  almostThere: 'Einen Moment, gleich geht’s weiter\u00a0…',
+  noticeUpdated: 'Die Datenschutzhinweise haben sich gerade geändert. Lies sie bitte noch einmal.',
+  waitTitle: 'Fast geschafft!',
+  waitText:
+    'Die Person, die dich eingeladen hat, bestätigt dieses Gerät. Du kannst diese Seite schließen und später deinen Link wieder öffnen.',
+  waitStopped: 'Noch keine Bestätigung.',
+  checkAgain: 'Erneut prüfen',
+  withdraw: 'Anfrage zurückziehen',
+  endedText:
+    'Kein Zugang auf diesem Gerät. Wenn du glaubst, dass das ein Irrtum ist, frag die Person, die dich eingeladen hat.',
+  deletedText: 'Deine Daten wurden gelöscht.',
+  yourData: 'Deine Daten',
+  noticeChanged: 'Die Datenschutzhinweise haben sich geändert.',
+  back: 'Zurück',
+  headingCollected: 'Was gespeichert wird',
+  headingAudience: 'Wer was sieht',
+  headingPurpose: 'Wozu und wie lange',
+  headingRights: 'Deine Rechte',
+  headingController: 'Verantwortlich',
+  rightsFixed: 'Unter „Deine Daten“ kannst du alles einsehen, exportieren und löschen.',
+  noticeVersion: 'Version {n} · gültig seit {date}',
+  sharedWith: 'Persönlich geteilt mit {name} seit {date}',
+  thisDevice: 'Dieses Gerät',
+  thisDeviceLine: 'Dieses Gerät: {label} · {state} · seit {date}',
+  otherDevices: 'Weitere Geräte',
+  noOtherDevices: 'Keine weiteren Geräte.',
+  since: 'seit {date}',
+  lastSeen: 'zuletzt geöffnet {date}',
+  stateActive: 'aktiv',
+  statePending: 'wartet',
+  stateRevoked: 'entfernt',
+  stateDeclined: 'abgelehnt',
+  confirmedNotices: 'Bestätigte Datenschutzhinweise',
+  consentLine: 'Version {n} · bestätigt am {date}',
+  viewNotice: 'Datenschutzhinweise ansehen',
+  noticeInExport: 'Der Export enthält auch die Datenschutzhinweise, die du bestätigt hast.',
+  stored: 'Was gespeichert ist',
+  catName: 'Dein Name',
+  catDevices: 'Geräte',
+  catConsents: 'Bestätigungen',
+  catVisits: 'Besuche',
+  catViews: 'Aufrufe',
+  catReactions: 'Reaktionen',
+  catMessages: 'Nachrichten',
+  catEmail: 'E-Mail-Adresse',
+  exportData: 'Daten exportieren',
+  exportStarted: 'Der Download hat begonnen.',
+  signout: 'Auf diesem Gerät abmelden',
+  signoutText:
+    'Um dieses Gerät wieder zu nutzen, öffne deinen Link erneut; die Person, die dich eingeladen hat, muss es dann neu bestätigen.',
+  signoutConfirm: 'Abmelden',
+  signedOut: 'Abgemeldet.',
+  deleteAll: 'Mich und alle meine Daten löschen\u00a0…',
+  toPage: 'Zur Seite',
+  limitedHint:
+    'Deine Daten kannst du auf einem bestätigten Gerät einsehen, exportieren und löschen, oder du bittest die Person, die dich eingeladen hat.',
+  withdrawText: 'Die Anfrage für dieses Gerät wird zurückgezogen.',
+  withdrawn: 'Anfrage zurückgezogen.',
+  noData: 'Für dieses Gerät sind keine Daten (mehr) gespeichert.',
+  deleteTitle: 'Alles löschen?',
+  deleteWhat: 'Gelöscht werden:',
+  deleteWarning: 'Das kann nicht rückgängig gemacht werden. Du verlierst sofort den Zugang auf allen Geräten.',
+  deleteCheck: 'Ich verstehe, dass alles endgültig gelöscht wird',
+  deleteNow: 'Jetzt endgültig löschen',
+  panicTitle: 'Website sperren',
+  panicText: 'Danach kann niemand die Website öffnen, bis sie im Admin entsperrt wird.',
+  panicButton: 'Website jetzt sperren',
+  panicDone: 'Gesperrt (wenn der Link gültig war). Entsperren geht nur im Admin.',
+};
+
+const ACCENTS: Readonly<Record<string, string>> = {
+  a: 'á',
+  e: 'é',
+  i: 'í',
+  o: 'ó',
+  u: 'ú',
+  y: 'ý',
+  c: 'ç',
+  n: 'ñ',
+  A: 'Á',
+  E: 'É',
+  I: 'Í',
+  O: 'Ó',
+  U: 'Ú',
+  C: 'Ç',
+  N: 'Ñ',
+};
+
+/** Pseudo-localized text: accented letters (placeholders kept), wrapped in RTL embedding marks. */
+export function pseudo(text: string): string {
+  const parts = text.split(/(\{[a-z]+\})/);
+  const body = parts.map((p) => (p.startsWith('{') ? p : p.replace(/[A-Za-z]/g, (ch) => ACCENTS[ch] ?? ch))).join('');
+  return `‫${body}‬`;
+}
+
+const ar = Object.fromEntries(Object.entries(en).map(([k, v]) => [k, pseudo(v)])) as Strings;
+
+export const STRINGS: Readonly<Record<LocaleCode, Strings>> = { de, en, ar };
+
+/** Fills `{name}` placeholders (values are plain text and rendered as text nodes). */
+export function fmt(template: string, values: Readonly<Record<string, string | number>>): string {
+  return template.replace(/\{([a-z]+)\}/g, (whole, key: string) => (key in values ? String(values[key]) : whole));
+}

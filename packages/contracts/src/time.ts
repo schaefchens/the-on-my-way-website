@@ -177,3 +177,90 @@ export function dateRange(start: string, end: string): string[] {
   for (let i = 0; i <= n; i++) out.push(addDays(start, i));
   return out;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Wall-clock arithmetic for release slots and time buckets (wave 5; vectors
+// fixtures/vectors/time-buckets.json and release.json)
+
+/** Local wall time of the instant in `tz`, encoded as epoch ms of the same fields in UTC (+ ms). */
+function wallMillis(ms: number, tz: string): number {
+  const w = wallClock(ms, tz);
+  return Date.UTC(w.year, w.month - 1, w.day, w.hour, w.minute, w.second) + (((ms % 1000) + 1000) % 1000);
+}
+
+const HHMM_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+/**
+ * The UTC instant (ISO, ms) at which the wall clock in `tz` shows `date` `hhmm`:00. DST: a wall
+ * time inside a gap (spring forward) maps to the first instant after the gap (the transition);
+ * an ambiguous one (fall back) to the earlier instant.
+ */
+export function zonedWallTimeToUtc(date: string, hhmm: string, tz: string): string {
+  const [y, mo, d] = parseDate(date);
+  const m = HHMM_RE.exec(hhmm);
+  if (!m) throw new RangeError(`Invalid wall time: ${hhmm}`);
+  if (!isValidTimeZone(tz)) throw new RangeError(`Invalid time zone: ${tz}`);
+  const wall = Date.UTC(y, mo - 1, d, Number(m[1]), Number(m[2]));
+  // Offsets in force around that wall time (at most one transition in reach in practice).
+  const offsets = new Set<number>();
+  for (let k = -4; k <= 4; k++) offsets.add(wallMillis(wall + k * 6 * 3_600_000, tz) - (wall + k * 6 * 3_600_000));
+  const exact = [...offsets].map((o) => wall - o).filter((t) => wallMillis(t, tz) === wall);
+  if (exact.length > 0) return new Date(Math.min(...exact)).toISOString();
+  // A gap: the first instant whose wall time is at or after `wall`.
+  const candidates = [...offsets].map((o) => wall - o);
+  let lo = Math.min(...candidates.filter((t) => wallMillis(t, tz) < wall));
+  let hi = Math.max(...candidates.filter((t) => wallMillis(t, tz) > wall));
+  if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo >= hi) {
+    throw new RangeError(`Cannot place ${date} ${hhmm} in ${tz}`);
+  }
+  // Invariant: wall(lo) < wall <= wall(hi); find the smallest such hi (whole seconds suffice:
+  // zone transitions happen on whole seconds).
+  lo = Math.floor(lo / 1000) * 1000;
+  hi = Math.ceil(hi / 1000) * 1000;
+  while (hi - lo > 1000) {
+    const mid = lo + Math.floor((hi - lo) / 2000) * 1000;
+    if (wallMillis(mid, tz) >= wall) hi = mid;
+    else lo = mid;
+  }
+  return new Date(hi).toISOString();
+}
+
+export type PartOfDay = 'night' | 'morning' | 'midday' | 'afternoon' | 'evening';
+export type BucketStartHour = 0 | 3 | 6 | 9 | 12 | 15 | 18 | 21;
+
+const PART_OF_DAY: Readonly<Record<BucketStartHour, PartOfDay>> = {
+  0: 'night',
+  3: 'night',
+  6: 'morning',
+  9: 'morning',
+  12: 'midday',
+  15: 'afternoon',
+  18: 'evening',
+  21: 'night',
+};
+
+/** 3-hour bucket of the local wall time: 00,03,21 night · 06,09 morning · 12 midday · 15 afternoon · 18 evening. */
+export function timeBucket(at: InstantInput, tz: string): { startHour: BucketStartHour; partOfDay: PartOfDay } {
+  const startHour = (Math.floor(wallClock(at, tz).hour / 3) * 3) as BucketStartHour;
+  return { startHour, partOfDay: PART_OF_DAY[startHour] };
+}
+
+/** Largest `index` coarsenToBucket accepts (the coarsened time stays inside its bucket). */
+export const MAX_BUCKET_INDEX = 3599;
+
+/**
+ * Coarsens an entry time to its 3-hour local bucket (setting site.time_precision = part_of_day):
+ * at − (local (hour mod 3)·3600 + minute·60 + second + ms) + index seconds, ISO with ms = 000.
+ * `index` = 0-based position among the day's entries in the same bucket, ordered by the original
+ * (at, id), so the coarsened times keep their order.
+ */
+export function coarsenToBucket(at: InstantInput, tz: string, index: number): string {
+  if (!Number.isInteger(index) || index < 0 || index > MAX_BUCKET_INDEX) {
+    throw new RangeError(`Bucket index out of range: ${index}`);
+  }
+  const d = toDate(at);
+  const w = wallClock(d, tz);
+  const ms = ((d.getTime() % 1000) + 1000) % 1000;
+  const intoBucket = ((w.hour % 3) * 3600 + w.minute * 60 + w.second) * 1000 + ms;
+  return new Date(d.getTime() - intoBucket + index * 1000).toISOString();
+}

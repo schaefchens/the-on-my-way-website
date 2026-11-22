@@ -3,15 +3,16 @@
  * the texts it shows already picked for the locale. Pure, so it can be tested without a DOM.
  */
 import { type LocaleCode, type PickedText, pickText } from '@omw/contracts/i18n';
-import type { DayDetail, Entry, EntryKind, ImageSet } from '@omw/contracts/site';
+import type { DayDetail, Entry, EntryKind, ImageSet, TimePrecision } from '@omw/contracts/site';
 import { formatTime } from '@omw/ui/locale';
+import { partOfDayLabel } from '../components/time-labels';
 import { type ItemTiming, itemTiming } from './durations';
 
 export interface PlayerItem {
   index: number;
   entry: Entry;
   kind: EntryKind;
-  /** "HH:mm" in the traveler's zone. */
+  /** "HH:mm" in the traveler's zone, or the part of the day ("morgens") with part-of-day precision. */
   time: string;
   /** Owner description picked for the locale (photo/video/gif/voice/text). */
   description: PickedText | null;
@@ -34,7 +35,12 @@ export function entryImage(entry: Entry): ImageSet | null {
   }
 }
 
-export function buildItems(day: DayDetail, locale: LocaleCode, opts: { dataSaver?: boolean } = {}): PlayerItem[] {
+export function buildItems(
+  day: DayDetail,
+  locale: LocaleCode,
+  opts: { dataSaver?: boolean; timePrecision?: TimePrecision } = {},
+): PlayerItem[] {
+  const partOfDay = opts.timePrecision === 'part_of_day';
   return day.entries.map((entry, index) => {
     const description =
       entry.kind === 'note' || entry.kind === 'story'
@@ -44,7 +50,7 @@ export function buildItems(day: DayDetail, locale: LocaleCode, opts: { dataSaver
       index,
       entry,
       kind: entry.kind,
-      time: safeTime(entry.at, entry.tz, locale),
+      time: partOfDay ? partOfDayLabel(entry.at, entry.tz) : safeTime(entry.at, entry.tz, locale),
       description,
       alt: description?.text ?? entry.caption?.trim() ?? '',
       image: entryImage(entry),

@@ -31,6 +31,24 @@
       "minimum": 0,
       "type": "integer"
     },
+    "publish.departure_hold": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "maxDays": {
+          "maximum": 7,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "enabled",
+        "maxDays"
+      ],
+      "type": "object"
+    },
     "publish.mode": {
       "enum": [
         "instant",
@@ -43,6 +61,34 @@
       "format": "date-time",
       "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
       "type": "string"
+    },
+    "publish.moved_on_at": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+      "type": "string"
+    },
+    "publish.release_slots": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "times": {
+          "items": {
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "enabled",
+        "times"
+      ],
+      "type": "object"
     },
     "site.author": {
       "maxLength": 60,
@@ -92,6 +138,15 @@
       ],
       "type": "string"
     },
+    "site.here_now": {
+      "enum": [
+        "city_badge",
+        "city",
+        "country",
+        "none"
+      ],
+      "type": "string"
+    },
     "site.indexable": {
       "type": "boolean"
     },
@@ -126,6 +181,13 @@
       "type": "array",
       "uniqueItems": true
     },
+    "site.time_precision": {
+      "enum": [
+        "exact",
+        "part_of_day"
+      ],
+      "type": "string"
+    },
     "site.title": {
       "maxLength": 120,
       "minLength": 1,
@@ -142,12 +204,16 @@
     "publish.mode",
     "publish.mode_since",
     "publish.delay_minutes",
+    "publish.release_slots",
+    "publish.departure_hold",
     "ingest.on_revoke",
     "timezone.current",
     "site.title",
     "site.locales",
     "site.default_locale",
     "site.indexable",
+    "site.here_now",
+    "site.time_precision",
     "alerts.heartbeat_stale_minutes"
   ],
   "type": "object"

@@ -28,7 +28,8 @@ use RuntimeException;
  *     "tokens": [                                  // optional, e.g. the backend token
  *       {"kind": "backend", "name": "home", "tokenHash": "<sha256 hex of the token>", "hint": "omw_AbC12…"}
  *     ],
- *     "rotateFeedId": false,                       // true after a restore (docs/HOSTING.md)
+ *     "rotateFeedId": false,                       // true after a restore (docs/HOSTING.md); also rotates
+ *                                                  // the access epoch (joins frozen until reconciled)
  *     "adminEmail": {                              // optional: change the login e-mail
  *       "from": "old@example.org", "to": "new@example.org"
  *     }
@@ -105,6 +106,7 @@ final class Bootstrapper
             $emailResult = $spec['adminEmail'] === null ? 'none' : $this->applyAdminEmail($spec['adminEmail']['from'], $spec['adminEmail']['to']);
             if ($spec['rotateFeedId']) {
                 $this->db->exec("UPDATE meta SET value = lower(hex(randomblob(16))) WHERE key = 'feed_id'");
+                $this->rotateAccessEpoch();
             }
             $this->db->exec(
                 "INSERT INTO meta (key, value) VALUES ('bootstrap_sha256', ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value",
@@ -141,6 +143,26 @@ final class Bootstrapper
         }
 
         return ['exists', $existing['id']];
+    }
+
+    /**
+     * After a restore of the API database (spec-wave5 §3.8.6): a new access epoch freezes joins,
+     * polls, resumes and approvals until a restored_api reconcile ran. Pending store ops and clear
+     * session ids of the restored database are dropped: that reconcile rebuilds the store from
+     * the restored state (and imports the store's tombstones) instead.
+     */
+    private function rotateAccessEpoch(): void
+    {
+        if ($this->db->scalar("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'access_state'") === null) {
+            return;
+        }
+        $now = Clock::nowIso();
+        $this->db->exec(
+            'UPDATE access_state SET epoch = lower(hex(randomblob(8))), lease_holder = NULL, lease_until = NULL, updated_at = ? WHERE id = 1',
+            [$now],
+        );
+        $this->db->exec('DELETE FROM store_ops WHERE applied_at IS NULL');
+        $this->db->exec('UPDATE devices SET pending_sid = NULL WHERE pending_sid IS NOT NULL');
     }
 
     /** @return string changed | unchanged | skipped */

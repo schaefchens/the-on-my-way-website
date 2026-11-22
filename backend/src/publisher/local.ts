@@ -105,6 +105,10 @@ export class LocalRemote implements RemoteFs {
     return out;
   }
 
+  async chmod(path: string, mode: number): Promise<void> {
+    await wrap(`chmod ${path}`, () => fsp.chmod(this.abs(path), mode));
+  }
+
   async close(): Promise<void> {}
 
   /** Maps a remote absolute path ("/data/x.json") into the root; refuses escapes. */

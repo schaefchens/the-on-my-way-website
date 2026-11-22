@@ -123,7 +123,8 @@ final class AutoSetupTest extends ApiTestCase
         self::assertSame(['migrated', 'noop', 'noop', 'noop'], $outputs, implode("\n", $outputs));
         $db = $this->db($this->config());
         self::assertSame(1, (int) $db->scalar("SELECT COUNT(*) FROM schema_migrations WHERE version = '0001_init'"));
-        self::assertSame(10, (int) $db->scalar("SELECT COUNT(*) FROM change_log WHERE entity = 'setting'"), 'seed ran once');
+        // 10 settings seeded by 0001_init + 4 by 0002_settings_w5, each announced once.
+        self::assertSame(14, (int) $db->scalar("SELECT COUNT(*) FROM change_log WHERE entity = 'setting'"), 'seed ran once');
     }
 
     public function testBootstrapIsConsumedOnce(): void

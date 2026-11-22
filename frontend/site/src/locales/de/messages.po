@@ -61,6 +61,14 @@ msgstr "{moments, plural, one {# Moment} other {# Momente}}"
 msgid "{nextCount, plural, one {# moment} other {# moments}}"
 msgstr "{nextCount, plural, one {# Moment} other {# Momente}}"
 
+#: src/components/time-labels.ts
+msgid "at midday"
+msgstr "mittags"
+
+#: src/components/time-labels.ts
+msgid "at night"
+msgstr "nachts"
+
 #: src/player/story-sheet.tsx
 msgid "Back to the day"
 msgstr "Zurück zum Tag"
@@ -129,6 +137,18 @@ msgstr "Zwischendurch"
 #: src/timeline/rows-overview.tsx
 msgid "In between: {range}"
 msgstr "Zwischendurch: {range}"
+
+#: src/components/time-labels.ts
+msgid "in the afternoon"
+msgstr "nachmittags"
+
+#: src/components/time-labels.ts
+msgid "in the evening"
+msgstr "abends"
+
+#: src/components/time-labels.ts
+msgid "in the morning"
+msgstr "morgens"
 
 #: src/player/journey-player.tsx
 #: src/routes/day.tsx
@@ -216,6 +236,10 @@ msgstr "Hier ist nichts"
 msgid "Now in"
 msgstr "Gerade in"
 
+#: src/access/ended-screen.tsx
+msgid "One moment …"
+msgstr "Einen Moment …"
+
 #. placeholder {0}: languageName(description.locale, locale)
 #: src/routes/trip.tsx
 msgid "Original: {0}"
@@ -254,6 +278,7 @@ msgstr "Video abspielen"
 msgid "Player options"
 msgstr "Wiedergabe-Optionen"
 
+#: src/access/ended-screen.tsx
 #: src/routes/not-found.tsx
 msgid "Please try again in a moment."
 msgstr "Bitte versuch es gleich noch einmal."
@@ -279,6 +304,10 @@ msgstr "Tag noch mal ansehen"
 msgid "See the trip"
 msgstr "Zur Reise"
 
+#: src/components/site-header.tsx
+msgid "Shared personally with <0>{name}</0>"
+msgstr "Persönlich geteilt mit <0>{name}</0>"
+
 #: src/player/story-sheet.tsx
 msgid "Show in {alternativeLanguage}"
 msgstr "Auf {alternativeLanguage} zeigen"
@@ -290,6 +319,10 @@ msgstr "In der Zeitleiste zeigen"
 #: src/player/story-sheet.tsx
 msgid "Show original"
 msgstr "Original zeigen"
+
+#: src/components/site-header.tsx
+msgid "Sign out on this device"
+msgstr "Auf diesem Gerät abmelden"
 
 #: src/player/journey-player.tsx
 msgid "Skip now"
@@ -359,6 +392,10 @@ msgstr "Das war’s fürs Erste. Neue Momente erscheinen hier, sobald die Reise 
 #: src/timeline/home-timeline.tsx
 msgid "The journey is about to begin. Come back soon ✨"
 msgstr "Die Reise beginnt gleich. Schau bald wieder vorbei ✨"
+
+#: src/access/ended-screen.tsx
+msgid "The journey is not available right now."
+msgstr "Die Reise ist gerade nicht verfügbar."
 
 #: src/timeline/home-timeline.tsx
 msgid "The timeline could not be loaded"
@@ -430,6 +467,7 @@ msgstr "Übersetzung · Original: {origLanguage}"
 msgid "Trip"
 msgstr "Reise"
 
+#: src/access/ended-screen.tsx
 #: src/routes/not-found.tsx
 #: src/timeline/filmstrip.tsx
 #: src/timeline/home-timeline.tsx
@@ -476,6 +514,15 @@ msgstr "Jahre"
 #: src/timeline/timeline.tsx
 msgid "Years and trips"
 msgstr "Jahre und Reisen"
+
+#: src/components/site-header.tsx
+msgid "Your access"
+msgstr "Dein Zugang"
+
+#: src/access/ended-screen.tsx
+#: src/components/site-header.tsx
+msgid "Your data"
+msgstr "Deine Daten"
 
 #: src/timeline/zoom-pill.tsx
 msgid "Zoom (keys + and −, 1 to 3)"

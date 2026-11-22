@@ -1,0 +1,2083 @@
+{
+  "description": "Access ids, gate cookie values, personal/panic links and the site-store layout (spec-wave5 §0.3, §2.2, §4.1; contracts/src/access.ts, PHP Domain\\Access\\StoreLayout). tokens/followerIds/deviceIds/gateSessions: accept/reject lists of the id and token patterns. cookieValues: gateCookieValue(fid, did, sid) = value and parseGateSession(value) = {fid, did, sid}. personalLinks/panicLinks: personalLinkUrl(origin, t) / panicLinkUrl(origin, k) = url; badOrigins are refused. storePaths: the STORE_PATHS of the sample ids (sessionPrefix as a full delete_prefix path). pathKinds: storePathKind(path) (null = not a store path). opPaths: isValidStoreOpPath(op, path, exclusive). storeDirs: isSafeStoreDir(dir) (ACCESS_STORE_DIR). fragments: parseLinkFragment(hash). cookies: gateCookies(origin, cookieMode) (cookie names and the Secure attribute).",
+  "ids": {
+    "fid": "abcdefgh2345",
+    "did": "qrst2345",
+    "sid": "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+    "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+    "k": "kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9"
+  },
+  "tokens": {
+    "accept": [
+      "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+      "kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "-------------------------------------------",
+      "___________________________________________",
+      "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ9"
+    ],
+    "reject": [
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa+",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ",
+      ""
+    ]
+  },
+  "followerIds": {
+    "accept": [
+      "abcdefgh2345",
+      "aaaaaaaaaaaa",
+      "222222777777",
+      "zzzzzzzzzzzz"
+    ],
+    "reject": [
+      "abcdefgh234",
+      "abcdefgh23456",
+      "ABCDEFGH2345",
+      "abcdefgh2341",
+      "abcdefgh2348",
+      "abcdefgh2340",
+      "abcdefgh-345",
+      ""
+    ]
+  },
+  "deviceIds": {
+    "accept": [
+      "qrst2345",
+      "aaaaaaaa",
+      "27272727"
+    ],
+    "reject": [
+      "qrst234",
+      "qrst23456",
+      "QRST2345",
+      "qrst2341",
+      "qrst_345",
+      ""
+    ]
+  },
+  "gateSessions": {
+    "accept": [
+      "abcdefgh2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "aaaaaaaaaaaa.aaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ],
+    "reject": [
+      "abcdefgh2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z.kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "abcdefgh2345.qrst2345",
+      "abcdefgh2345.qrst2345.1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "abcdefgh2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_zx",
+      "ABCDEFGH2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "abcdefgh2345:qrst2345:A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "abcdefgh2345..qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      " abcdefgh2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "\"abcdefgh2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\""
+    ]
+  },
+  "cookieValues": [
+    {
+      "fid": "abcdefgh2345",
+      "did": "qrst2345",
+      "sid": "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "value": "abcdefgh2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z"
+    },
+    {
+      "fid": "abcdefgh2345",
+      "did": "qrst2345",
+      "sid": "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "value": "abcdefgh2345.qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z"
+    },
+    {
+      "fid": "aaaaaaaaaaaa",
+      "did": "aaaaaaaa",
+      "sid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "value": "aaaaaaaaaaaa.aaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "personalLinks": [
+    {
+      "origin": "https://site.example",
+      "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+      "url": "https://site.example/_/join/#t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0"
+    },
+    {
+      "origin": "http://127.0.0.1:4173",
+      "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+      "url": "http://127.0.0.1:4173/_/join/#t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0"
+    },
+    {
+      "origin": "https://the-site.example.org:8443",
+      "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+      "url": "https://the-site.example.org:8443/_/join/#t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0"
+    }
+  ],
+  "panicLinks": [
+    {
+      "origin": "https://site.example",
+      "k": "kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "url": "https://site.example/_/panic/#k=kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9"
+    },
+    {
+      "origin": "http://127.0.0.1:4173",
+      "k": "kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "url": "http://127.0.0.1:4173/_/panic/#k=kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9"
+    },
+    {
+      "origin": "https://the-site.example.org:8443",
+      "k": "kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "url": "https://the-site.example.org:8443/_/panic/#k=kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9"
+    }
+  ],
+  "badOrigins": [
+    "https://site.example/",
+    "https://site.example/x",
+    "HTTPS://site.example",
+    "https://Site.example",
+    "ftp://site.example",
+    "site.example",
+    "https://user@site.example"
+  ],
+  "storePaths": {
+    "marker": ".omw-store.json",
+    "locked": "locked",
+    "htaccess": ".htaccess",
+    "session": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+    "sessionDir": "s/abcdefgh2345",
+    "sessionPrefix": "s/abcdefgh2345/qrst2345.",
+    "handoff": "h/qrst2345",
+    "personTombstone": "t/abcdefgh2345",
+    "deviceTombstone": "t/abcdefgh2345.qrst2345"
+  },
+  "pathKinds": [
+    {
+      "path": ".omw-store.json",
+      "kind": "marker"
+    },
+    {
+      "path": "locked",
+      "kind": "locked"
+    },
+    {
+      "path": ".htaccess",
+      "kind": "htaccess"
+    },
+    {
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "kind": "session"
+    },
+    {
+      "path": "s/abcdefgh2345",
+      "kind": "sessionDir"
+    },
+    {
+      "path": "s/abcdefgh2345/qrst2345.",
+      "kind": "sessionPrefix"
+    },
+    {
+      "path": "h/qrst2345",
+      "kind": "handoff"
+    },
+    {
+      "path": "t/abcdefgh2345",
+      "kind": "personTombstone"
+    },
+    {
+      "path": "t/abcdefgh2345.qrst2345",
+      "kind": "deviceTombstone"
+    },
+    {
+      "path": "s/xyz",
+      "kind": "stray"
+    },
+    {
+      "path": "s/UPPERCASE_DIR",
+      "kind": "stray"
+    },
+    {
+      "path": "s/abcdefgh2345/garbage",
+      "kind": "stray"
+    },
+    {
+      "path": "s/abcdefgh2345/qrst2345.short",
+      "kind": "stray"
+    },
+    {
+      "path": "h/tmp.123",
+      "kind": "stray"
+    },
+    {
+      "path": "h/QRST2345",
+      "kind": "stray"
+    },
+    {
+      "path": "",
+      "kind": null
+    },
+    {
+      "path": "s",
+      "kind": null
+    },
+    {
+      "path": "h",
+      "kind": null
+    },
+    {
+      "path": "t",
+      "kind": null
+    },
+    {
+      "path": "s/",
+      "kind": null
+    },
+    {
+      "path": "h/",
+      "kind": null
+    },
+    {
+      "path": "/locked",
+      "kind": null
+    },
+    {
+      "path": "locked/",
+      "kind": null
+    },
+    {
+      "path": "../locked",
+      "kind": null
+    },
+    {
+      "path": "s/../t/abcdefgh2345",
+      "kind": null
+    },
+    {
+      "path": "s/.hidden",
+      "kind": null
+    },
+    {
+      "path": "s/abcdefgh2345/.qrst2345",
+      "kind": null
+    },
+    {
+      "path": "s/..",
+      "kind": null
+    },
+    {
+      "path": "s/.",
+      "kind": null
+    },
+    {
+      "path": "s//abcdefgh2345",
+      "kind": null
+    },
+    {
+      "path": "s/abcdefgh2345/qrst2345/x",
+      "kind": null
+    },
+    {
+      "path": "t/abcdefgh2345.qrst2345.x",
+      "kind": null
+    },
+    {
+      "path": "t/abcdefgh2345/x",
+      "kind": null
+    },
+    {
+      "path": "x/abcdefgh2345",
+      "kind": null
+    },
+    {
+      "path": "S/abcdefgh2345",
+      "kind": null
+    },
+    {
+      "path": ".omw-store.json.tmp",
+      "kind": null
+    },
+    {
+      "path": "locked.tmp",
+      "kind": null
+    },
+    {
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\n",
+      "kind": null
+    },
+    {
+      "path": "s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "kind": null
+    },
+    {
+      "path": "h/qrst2345 ",
+      "kind": null
+    }
+  ],
+  "opPaths": [
+    {
+      "op": "init",
+      "path": ".omw-store.json",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "init",
+      "path": "locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": ".htaccess",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345/qrst2345.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "h/qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "t/abcdefgh2345.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/xyz",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/UPPERCASE_DIR",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345/garbage",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345/qrst2345.short",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "h/tmp.123",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "h/QRST2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "h",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "t",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "h/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "/locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "locked/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "../locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/../t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/.hidden",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345/.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/..",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s//abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345/qrst2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "t/abcdefgh2345.qrst2345.x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "t/abcdefgh2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "x/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "S/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": ".omw-store.json.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "locked.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\n",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "init",
+      "path": "h/qrst2345 ",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": ".omw-store.json",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": ".omw-store.json",
+      "exclusive": false,
+      "valid": true
+    },
+    {
+      "op": "put",
+      "path": "locked",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "put",
+      "path": "locked",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": ".htaccess",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": ".htaccess",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/qrst2345",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "put",
+      "path": "h/qrst2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345.qrst2345",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345.qrst2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/xyz",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/xyz",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/UPPERCASE_DIR",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/UPPERCASE_DIR",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/garbage",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/garbage",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.short",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.short",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/tmp.123",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/tmp.123",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/QRST2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/QRST2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "/locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "/locked",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "locked/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "locked/",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "../locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "../locked",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/../t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/../t/abcdefgh2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/.hidden",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/.hidden",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/.qrst2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/..",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/..",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/.",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s//abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s//abcdefgh2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345/x",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345.qrst2345.x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345.qrst2345.x",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "t/abcdefgh2345/x",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "x/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "x/abcdefgh2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "S/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "S/abcdefgh2345",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": ".omw-store.json.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": ".omw-store.json.tmp",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "locked.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "locked.tmp",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\n",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\n",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/qrst2345 ",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "put",
+      "path": "h/qrst2345 ",
+      "exclusive": false,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": ".omw-store.json",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "locked",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": ".htaccess",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345/qrst2345.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "h/qrst2345",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "t/abcdefgh2345.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/xyz",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "s/UPPERCASE_DIR",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345/garbage",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345/qrst2345.short",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "h/tmp.123",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "h/QRST2345",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete",
+      "path": "",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "h",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "t",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "h/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "/locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "locked/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "../locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/../t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/.hidden",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345/.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/..",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s//abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345/qrst2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "t/abcdefgh2345.qrst2345.x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "t/abcdefgh2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "x/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "S/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": ".omw-store.json.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "locked.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\n",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete",
+      "path": "h/qrst2345 ",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": ".omw-store.json",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": ".htaccess",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345/qrst2345.",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_prefix",
+      "path": "h/qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "t/abcdefgh2345.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/xyz",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/UPPERCASE_DIR",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345/garbage",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345/qrst2345.short",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "h/tmp.123",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "h/QRST2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "h",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "t",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "h/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "/locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "locked/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "../locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/../t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/.hidden",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345/.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/..",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s//abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345/qrst2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "t/abcdefgh2345.qrst2345.x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "t/abcdefgh2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "x/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "S/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": ".omw-store.json.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "locked.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\n",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_prefix",
+      "path": "h/qrst2345 ",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": ".omw-store.json",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": ".htaccess",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345/qrst2345.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "h/qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "t/abcdefgh2345.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/xyz",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/UPPERCASE_DIR",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345/garbage",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345/qrst2345.short",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_tree",
+      "path": "h/tmp.123",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_tree",
+      "path": "h/QRST2345",
+      "exclusive": true,
+      "valid": true
+    },
+    {
+      "op": "delete_tree",
+      "path": "",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "h",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "t",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "h/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "/locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "locked/",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "../locked",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/../t/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/.hidden",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345/.qrst2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/..",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/.",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s//abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345/qrst2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "t/abcdefgh2345.qrst2345.x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "t/abcdefgh2345/x",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "x/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "S/abcdefgh2345",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": ".omw-store.json.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "locked.tmp",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/abcdefgh2345/qrst2345.A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0-_z\n",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "exclusive": true,
+      "valid": false
+    },
+    {
+      "op": "delete_tree",
+      "path": "h/qrst2345 ",
+      "exclusive": true,
+      "valid": false
+    }
+  ],
+  "storeDirs": [
+    {
+      "dir": "/usr/home/omw/omw-store/site1",
+      "safe": true
+    },
+    {
+      "dir": "/var/www/html/.omw-store",
+      "safe": true
+    },
+    {
+      "dir": "/a",
+      "safe": true
+    },
+    {
+      "dir": "/a.b/c_d-e",
+      "safe": true
+    },
+    {
+      "dir": "/...",
+      "safe": true
+    },
+    {
+      "dir": "/a/.b",
+      "safe": true
+    },
+    {
+      "dir": "",
+      "safe": false
+    },
+    {
+      "dir": "/",
+      "safe": false
+    },
+    {
+      "dir": "relative/store",
+      "safe": false
+    },
+    {
+      "dir": "/a/",
+      "safe": false
+    },
+    {
+      "dir": "/a//b",
+      "safe": false
+    },
+    {
+      "dir": "//a",
+      "safe": false
+    },
+    {
+      "dir": "/a/../b",
+      "safe": false
+    },
+    {
+      "dir": "/..",
+      "safe": false
+    },
+    {
+      "dir": "/a/..",
+      "safe": false
+    },
+    {
+      "dir": "/a b",
+      "safe": false
+    },
+    {
+      "dir": "/a%2fb",
+      "safe": false
+    },
+    {
+      "dir": "/a$b",
+      "safe": false
+    },
+    {
+      "dir": "/a'b",
+      "safe": false
+    },
+    {
+      "dir": "/a\"b",
+      "safe": false
+    },
+    {
+      "dir": "/a;b",
+      "safe": false
+    },
+    {
+      "dir": "/ä",
+      "safe": false
+    },
+    {
+      "dir": "/a\\b",
+      "safe": false
+    }
+  ],
+  "fragments": [
+    {
+      "hash": "#t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+      "parsed": {
+        "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0"
+      }
+    },
+    {
+      "hash": "t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+      "parsed": {
+        "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0"
+      }
+    },
+    {
+      "hash": "#t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0&k=kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "parsed": {
+        "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+        "k": "kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9"
+      }
+    },
+    {
+      "hash": "#k=kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "parsed": {
+        "k": "kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9"
+      }
+    },
+    {
+      "hash": "#resume",
+      "parsed": {
+        "mode": "resume"
+      }
+    },
+    {
+      "hash": "#reconfirm",
+      "parsed": {
+        "mode": "reconfirm"
+      }
+    },
+    {
+      "hash": "#reconfirm&return=%2Fabcdefghij0123456789%2Fde%2Fday%2F2026-11-15%2F",
+      "parsed": {
+        "mode": "reconfirm",
+        "returnPath": "/abcdefghij0123456789/de/day/2026-11-15/"
+      }
+    },
+    {
+      "hash": "#reconfirm&return=//evil.example/",
+      "parsed": {
+        "mode": "reconfirm"
+      }
+    },
+    {
+      "hash": "#reconfirm&return=%2F%2Fevil.example%2F",
+      "parsed": {
+        "mode": "reconfirm"
+      }
+    },
+    {
+      "hash": "#reconfirm&return=https%3A%2F%2Fevil.example%2F",
+      "parsed": {
+        "mode": "reconfirm"
+      }
+    },
+    {
+      "hash": "#reconfirm&return=%2F%5Cevil.example",
+      "parsed": {
+        "mode": "reconfirm"
+      }
+    },
+    {
+      "hash": "#reconfirm&return=%E0%A4%A",
+      "parsed": {
+        "mode": "reconfirm"
+      }
+    },
+    {
+      "hash": "#view",
+      "parsed": {
+        "mode": "view"
+      }
+    },
+    {
+      "hash": "#handoff-failed",
+      "parsed": {
+        "mode": "handoff-failed"
+      }
+    },
+    {
+      "hash": "#resume&handoff-failed",
+      "parsed": {
+        "mode": "resume"
+      }
+    },
+    {
+      "hash": "#t=TtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0",
+      "parsed": {}
+    },
+    {
+      "hash": "#t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0x",
+      "parsed": {}
+    },
+    {
+      "hash": "#unknown",
+      "parsed": {}
+    },
+    {
+      "hash": "#",
+      "parsed": {}
+    },
+    {
+      "hash": "",
+      "parsed": {}
+    },
+    {
+      "hash": "#t=tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0&t=kKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkKkK_-9",
+      "parsed": {
+        "t": "tTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtTtT-_0"
+      }
+    }
+  ],
+  "cookies": [
+    {
+      "origin": "https://site.example",
+      "cookieMode": "headers",
+      "cookies": {
+        "session": "__Host-omw",
+        "key": "__Host-omw_k",
+        "transfer": "__Host-omw_s",
+        "handoff": "__Host-omw_h",
+        "resume": "__Host-omw_r",
+        "secure": true
+      }
+    },
+    {
+      "origin": "https://site.example",
+      "cookieMode": "co",
+      "cookies": {
+        "session": "omw",
+        "key": "omw_k",
+        "transfer": "omw_s",
+        "handoff": "omw_h",
+        "resume": "omw_r",
+        "secure": true
+      }
+    },
+    {
+      "origin": "https://site.example",
+      "cookieMode": "parent",
+      "cookies": {
+        "session": "omw",
+        "key": "omw_k",
+        "transfer": "omw_s",
+        "handoff": "omw_h",
+        "resume": "omw_r",
+        "secure": true
+      }
+    },
+    {
+      "origin": "http://127.0.0.1:4173",
+      "cookieMode": "headers",
+      "cookies": {
+        "session": "omw",
+        "key": "omw_k",
+        "transfer": "omw_s",
+        "handoff": "omw_h",
+        "resume": "omw_r",
+        "secure": false
+      }
+    },
+    {
+      "origin": "http://127.0.0.1:4173",
+      "cookieMode": "co",
+      "cookies": {
+        "session": "omw",
+        "key": "omw_k",
+        "transfer": "omw_s",
+        "handoff": "omw_h",
+        "resume": "omw_r",
+        "secure": false
+      }
+    },
+    {
+      "origin": "http://127.0.0.1:4173",
+      "cookieMode": "parent",
+      "cookies": {
+        "session": "omw",
+        "key": "omw_k",
+        "transfer": "omw_s",
+        "handoff": "omw_h",
+        "resume": "omw_r",
+        "secure": false
+      }
+    },
+    {
+      "origin": "https://the-site.example.org:8443",
+      "cookieMode": "headers",
+      "cookies": {
+        "session": "__Host-omw",
+        "key": "__Host-omw_k",
+        "transfer": "__Host-omw_s",
+        "handoff": "__Host-omw_h",
+        "resume": "__Host-omw_r",
+        "secure": true
+      }
+    },
+    {
+      "origin": "https://the-site.example.org:8443",
+      "cookieMode": "co",
+      "cookies": {
+        "session": "omw",
+        "key": "omw_k",
+        "transfer": "omw_s",
+        "handoff": "omw_h",
+        "resume": "omw_r",
+        "secure": true
+      }
+    },
+    {
+      "origin": "https://the-site.example.org:8443",
+      "cookieMode": "parent",
+      "cookies": {
+        "session": "omw",
+        "key": "omw_k",
+        "transfer": "omw_s",
+        "handoff": "omw_h",
+        "resume": "omw_r",
+        "secure": true
+      }
+    }
+  ]
+}

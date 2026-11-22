@@ -2,9 +2,11 @@
  * Smoke test of the whole SPA: real route tree, loaders, Lingui catalogs and screens, rendered
  * to HTML in Node from the dev data set (memory history instead of the browser).
  */
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { publishedPostIdFromSha256Hex } from '@omw/contracts/ids';
 import type { TimelineIndex } from '@omw/contracts/site';
 import { createMemoryHistory } from '@tanstack/react-router';
 import { renderToString } from 'react-dom/server';
@@ -17,6 +19,8 @@ import { createSiteContext } from '../src/site';
 
 const DIR = fileURLToPath(new URL('../dev-data', import.meta.url));
 const HAVE_DATA = existsSync(join(DIR, 'data/manifest.json'));
+/** Story routes use the hashed published id of the post (as the generator and make-dev-data write it). */
+const LANTERN_STORY = publishedPostIdFromSha256Hex(createHash('sha256').update('post:p_s01lantern').digest('hex'));
 
 async function render(path: string) {
   const boot = fallbackBoot(path);
@@ -78,7 +82,7 @@ describe.skipIf(!HAVE_DATA)('app (rendered from dev-data)', () => {
   });
 
   it('renders a story sheet and a trip page', async () => {
-    expect((await render('/de/day/2026-11-15/story/p_s01lantern/')).html).toContain('Die Nacht der Laternen');
+    expect((await render(`/de/day/2026-11-15/story/${LANTERN_STORY}/`)).html).toContain('Die Nacht der Laternen');
     expect((await render('/en/trip/vietnam-2026/')).html).toContain('From Hà Nội via Hội An to Sài Gòn.');
   });
 

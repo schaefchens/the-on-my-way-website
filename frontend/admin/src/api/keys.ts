@@ -26,6 +26,18 @@ export const qk = {
   trips: ['admin', 'trips'] as const,
   settings: ['admin', 'settings'] as const,
   tokens: ['admin', 'tokens'] as const,
+  /**
+   * People and access (wave 5): never persisted (names, devices, last-seen times stay in memory,
+   * see queries.ts), still below "admin" so logout drops them with everything else.
+   */
+  access: {
+    all: ['admin', 'access'] as const,
+    status: ['admin', 'access', 'status'] as const,
+    followers: ['admin', 'access', 'followers'] as const,
+    follower: (fid: string) => ['admin', 'access', 'follower', fid] as const,
+    privacy: ['admin', 'access', 'privacy'] as const,
+    notices: ['admin', 'access', 'notices'] as const,
+  },
 };
 
 function normalizeFilter(filter: CaptureFilter): CaptureFilter {
@@ -50,6 +62,22 @@ export const mk = {
 
 export type MutationName = keyof typeof mk;
 export const MUTATION_NAMES = Object.keys(mk) as MutationName[];
+
+/**
+ * Mutation keys of the immediate (never queued, never persisted) actions of api/access.ts:
+ * deliberately NOT in `mk`/MUTATION_NAMES, so the offline queue, the "sending…" pill and the
+ * IndexedDB persister (persist.ts) never pick them up.
+ */
+export const ak = {
+  action: ['access', 'action'] as const,
+  password: ['access', 'password'] as const,
+};
+
+/** True for the queued, offline-resumable owner writes (the only mutations ever persisted). */
+export function isOwnerWriteKey(key: readonly unknown[] | undefined): boolean {
+  const first = key?.[0];
+  return typeof first === 'string' && (MUTATION_NAMES as string[]).includes(first);
+}
 
 /** All queued owner writes run one after another, in the order they were made. */
 export const WRITE_SCOPE = { id: 'omw-owner-writes' } as const;

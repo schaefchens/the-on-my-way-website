@@ -4,6 +4,133 @@
   "title": "StatusResponse",
   "additionalProperties": false,
   "properties": {
+    "access": {
+      "additionalProperties": false,
+      "properties": {
+        "locked": {
+          "type": "boolean"
+        },
+        "lockedAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lockedBy": {
+          "anyOf": [
+            {
+              "enum": [
+                "admin",
+                "panic",
+                "mac"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mismatch": {
+          "type": "boolean"
+        },
+        "noticeVersion": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "oldestPendingOpAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pendingDevices": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pendingOps": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "restoring": {
+          "type": "boolean"
+        },
+        "unreadNotices": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "writer": {
+          "additionalProperties": false,
+          "properties": {
+            "blocked": {
+              "type": "boolean"
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "mode": {
+              "enum": [
+                "direct",
+                "sftp",
+                "none"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "mode",
+            "blocked",
+            "error"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "locked",
+        "lockedAt",
+        "lockedBy",
+        "pendingDevices",
+        "pendingOps",
+        "oldestPendingOpAt",
+        "writer",
+        "restoring",
+        "mismatch",
+        "unreadNotices",
+        "noticeVersion"
+      ],
+      "type": "object"
+    },
     "alerts": {
       "items": {
         "additionalProperties": false,
@@ -150,6 +277,48 @@
               "required": [
                 "pending",
                 "failed"
+              ],
+              "type": "object"
+            },
+            "site": {
+              "additionalProperties": false,
+              "properties": {
+                "access": {
+                  "enum": [
+                    "open",
+                    "gate"
+                  ],
+                  "type": "string"
+                },
+                "cookieMode": {
+                  "enum": [
+                    "headers",
+                    "co",
+                    "parent"
+                  ],
+                  "type": "string"
+                },
+                "origin": {
+                  "pattern": "^https?:\\/\\/[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::\\d{1,5})?$",
+                  "type": "string"
+                },
+                "storeDir": {
+                  "anyOf": [
+                    {
+                      "maxLength": 300,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "origin",
+                "access",
+                "cookieMode",
+                "storeDir"
               ],
               "type": "object"
             },
@@ -332,6 +501,51 @@
             "maximum": 9007199254740991,
             "minimum": 0,
             "type": "integer"
+          },
+          "gateCheck": {
+            "additionalProperties": false,
+            "properties": {
+              "at": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                "type": "string"
+              },
+              "by": {
+                "enum": [
+                  "mac",
+                  "api"
+                ],
+                "type": "string"
+              },
+              "detail": {
+                "anyOf": [
+                  {
+                    "maxLength": 300,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "result": {
+                "enum": [
+                  "ok",
+                  "gate_open",
+                  "store_unverified",
+                  "error",
+                  "skipped"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "at",
+              "by",
+              "result",
+              "detail"
+            ],
+            "type": "object"
           },
           "lastOkAt": {
             "anyOf": [

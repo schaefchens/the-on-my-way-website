@@ -146,3 +146,128 @@ describe('loadConfig', () => {
     expect(text).toContain('***');
   });
 });
+
+describe('access gate config (spec-wave5 §5.1)', () => {
+  const SECRET = 'k3j9x0m2p7q4r8s1t5u6';
+  const gate = {
+    ACCESS_MODE: 'gate',
+    SITE_PUBLIC_URL: `https://site.example.org/${SECRET}/`,
+    API_PUBLIC_URL: 'https://api.example.org/',
+    ACCESS_STORE_DIR: '/usr/home/omw/omw-store/site1',
+  };
+
+  it('defaults to open mode; the site description only when the URLs are known', () => {
+    const open = loadConfig({});
+    expect(open.access).toMatchObject({ mode: 'open', site: null, secret: null });
+    expect(open.access?.gateOutDir).toBe(join(BACKEND_ROOT, 'data', 'out-gate'));
+    const described = loadConfig({
+      SITE_PUBLIC_URL: 'http://127.0.0.1:4173/',
+      API_BASE_URL: 'http://127.0.0.1:8081',
+      API_TOKEN: 't',
+    });
+    expect(described.access?.site).toEqual({
+      mode: 'open',
+      siteOrigin: 'http://127.0.0.1:4173',
+      contentPath: '/',
+      apiPublicBase: 'http://127.0.0.1:8081/api/v1/public/',
+      cookieMode: 'headers',
+      httpsRedirect: false,
+    });
+  });
+
+  it('builds the gate configuration: origin, content folder, public API base, store', () => {
+    const c = loadConfig(gate);
+    expect(c.access).toEqual({
+      mode: 'gate',
+      secret: SECRET,
+      gateOutDir: join(BACKEND_ROOT, 'data', 'out-gate'),
+      site: {
+        mode: 'gate',
+        siteOrigin: 'https://site.example.org',
+        contentPath: `/${SECRET}/`,
+        apiPublicBase: 'https://api.example.org/api/v1/public/',
+        cookieMode: 'headers',
+        storeDir: '/usr/home/omw/omw-store/site1',
+        httpsRedirect: false,
+      },
+    });
+    // API_PUBLIC_URL defaults to API_BASE_URL (with its path).
+    const viaBase = loadConfig({
+      ...gate,
+      API_PUBLIC_URL: '',
+      API_BASE_URL: 'https://example.org/omw',
+      API_TOKEN: 't',
+    });
+    expect(viaBase.access?.site?.apiPublicBase).toBe('https://example.org/omw/api/v1/public/');
+    expect(
+      loadConfig({ ...gate, ACCESS_COOKIE_MODE: 'co', ACCESS_COOKIE_DOMAIN: 'site.example.org' }).access?.site,
+    ).toMatchObject({ cookieMode: 'co', cookieDomain: 'site.example.org' });
+    expect(loadConfig({ ...gate, ACCESS_HTTPS_REDIRECT: 'true' }).access?.site?.httpsRedirect).toBe(true);
+  });
+
+  it.each([
+    [{ ...gate, SITE_PUBLIC_URL: '' }, /needs SITE_PUBLIC_URL/],
+    [{ ...gate, API_PUBLIC_URL: '' }, /needs API_PUBLIC_URL/],
+    [{ ...gate, ACCESS_STORE_DIR: '' }, /storeDir/],
+    [{ ...gate, ACCESS_STORE_DIR: '/srv/../etc' }, /storeDir/],
+    [{ ...gate, ACCESS_STORE_DIR: '/srv//store' }, /storeDir/],
+    [{ ...gate, ACCESS_STORE_DIR: '/srv/a b' }, /storeDir/],
+    [{ ...gate, ACCESS_STORE_DIR: '/srv/$x' }, /storeDir/],
+    [{ ...gate, SITE_PUBLIC_URL: 'https://site.example.org/travel/' }, /contentPath/],
+    [{ ...gate, SITE_PUBLIC_URL: `https://site.example.org/${SECRET}/de/` }, /contentPath/],
+    [{ ...gate, SITE_PUBLIC_URL: `http://site.example.org/${SECRET}/` }, /must be https/],
+    [{ ...gate, API_PUBLIC_URL: 'http://api.example.org/' }, /apiPublicBase must be https/],
+    [{ ...gate, ACCESS_COOKIE_DOMAIN: 'example.org' }, /must not be set with cookieMode "headers"/],
+    [{ ...gate, ACCESS_COOKIE_MODE: 'co', ACCESS_COOKIE_DOMAIN: 'example.org' }, /cookieDomain = the site host/],
+    [{ ...gate, ACCESS_COOKIE_MODE: 'parent', ACCESS_COOKIE_DOMAIN: 'other.org' }, /parent domain/],
+    [{ ...gate, ACCESS_COOKIE_MODE: 'cookie-jar' }, /ACCESS_COOKIE_MODE/],
+    [{ ...gate, OUT_DIR: '/srv/site', GATE_OUT_DIR: '/srv/site/gate' }, /GATE_OUT_DIR/],
+  ])('rejects %o', (env, message) => {
+    expect(() => loadConfig(env)).toThrow(ConfigError);
+    expect(() => loadConfig(env)).toThrow(message);
+  });
+
+  it('accepts http only for a loopback site (local Apache tests)', () => {
+    const c = loadConfig({
+      ACCESS_MODE: 'gate',
+      SITE_PUBLIC_URL: `http://127.0.0.1:4174/${SECRET}/`,
+      API_PUBLIC_URL: 'http://127.0.0.1:8081/',
+      ACCESS_STORE_DIR: '/tmp/omw-store',
+    });
+    expect(c.access?.site?.siteOrigin).toBe('http://127.0.0.1:4174');
+  });
+});
+
+describe('no hostname literals (Q9)', () => {
+  /** Every origin comes from config: no source file names the live hosts. */
+  it('backend, API, frontends and contracts never hard-code the live host names', async () => {
+    const { readdirSync, readFileSync, statSync } = await import('node:fs');
+    const roots = ['backend/src', 'api/src', 'packages/contracts/src'];
+    for (const app of readdirSync(join(REPO_ROOT, 'frontend'))) {
+      const src = join('frontend', app, 'src');
+      try {
+        if (statSync(join(REPO_ROOT, src)).isDirectory()) roots.push(src);
+      } catch {
+        // not an app with sources
+      }
+    }
+    const hits: string[] = [];
+    const walk = (rel: string) => {
+      for (const e of readdirSync(join(REPO_ROOT, rel), { withFileTypes: true })) {
+        const child = `${rel}/${e.name}`;
+        if (e.isDirectory()) {
+          if (e.name !== 'node_modules' && e.name !== 'vendor') walk(child);
+          continue;
+        }
+        if (!/\.(?:ts|tsx|js|mjs|php|json|css|html)$/.test(e.name)) continue;
+        const text = readFileSync(join(REPO_ROOT, child), 'utf8');
+        if (/schaefchens/i.test(text)) hits.push(`${child}: schaefchens`);
+        if (/your-server\.de/i.test(text) && child !== 'backend/src/publisher/hostkeys.ts') {
+          hits.push(`${child}: your-server.de`);
+        }
+      }
+    };
+    for (const root of roots) walk(root);
+    expect(hits).toEqual([]);
+  });
+});

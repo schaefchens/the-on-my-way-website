@@ -27,12 +27,19 @@
  * 5. Write order: media, assets, day/trip JSON, timeline.json, HTML, root files, manifest.json
  *    last; removals after that. Every write is atomic (temp + rename) and skipped when the
  *    bytes on disk are already identical; `changed`/`removed` list what actually happened.
+ * 6. Gate mode (ACCESS_MODE=gate, spec-wave5 §5.4): the gate tree (gate.ts) is rendered on every
+ *    run and written into GATE_OUT_DIR (unchanged bytes skipped, strays removed on full runs); a
+ *    change of it counts as a content change (new release, so the publisher deploys it). The
+ *    content tree gets the gated .htaccess, Boot.access and the gate CSP, no robots.txt or
+ *    sitemap.xml, and is never indexable. The gate tree's inputs (access config, locales, gate
+ *    build) are part of the settings hash, so a change of them makes the run full.
  */
 
 import { promises as fsp } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { CONTRACT_VERSION } from '@omw/contracts';
+import { gateCookies } from '@omw/contracts/access';
 import type { Settings } from '@omw/contracts/api';
 import { isAppSourceKey } from '@omw/contracts/app';
 import {
@@ -50,18 +57,27 @@ import {
 } from '@omw/contracts/site';
 import { isValidLocalDate } from '@omw/contracts/time';
 import { z } from 'zod';
-import type { Config } from '../config.js';
+import { accessOf, type Config, isGateMode } from '../config.js';
 import { linkOrCopy } from '../fsutil.js';
 import type { Logger } from '../log.js';
 import { mediaFilePath, REPO_ROOT } from '../paths.js';
 import { makeAvatarCrop, removeStaleAvatarCrops } from '../pipeline/avatar.js';
 import { mkdirWithMode } from '../pipeline/files.js';
 import type { Store } from '../store/index.js';
-import { htaccess, robotsTxt, sitemapXml } from './extras.js';
+import { contentHtaccess, robotsTxt, sitemapXml } from './extras.js';
+import {
+  cookieDomainOf,
+  type GateTreeContext,
+  gateHtaccessConfig,
+  gateTreeKey,
+  renderGateTree,
+  writeGateTree,
+} from './gate.js';
 import { contentHash, shortSha } from './hash.js';
 import { scanMediaRoot } from './media.js';
 import {
   buildSiteModel,
+  decidePortrait,
   loadModelInputs,
   type ModelInputs,
   type PortraitCrop,
@@ -89,11 +105,11 @@ import {
   renderTrip,
   type SiteContext,
 } from './pages.js';
-import { readSiteBuild, scanAssets } from './site-build.js';
+import { readGateBuild, readSiteBuild, scanAssets } from './site-build.js';
 import { type GeneratorState, isDirty, loadState, markDirty, saveState } from './state.js';
 
 /** Bump when templates, CSS or strings change: the next run is full and re-stamps every page. */
-export const GENERATOR_VERSION = 5;
+export const GENERATOR_VERSION = 6;
 
 export interface GenerateOptions {
   /** Re-render and re-check everything (also removes stray files from OUT_DIR). */
@@ -128,10 +144,15 @@ export interface GenerateResult {
   /** Local dates whose files were (re)rendered. */
   dates: string[];
   timelineV: string;
-  /** Next instant at which a pending capture becomes public (publish.mode "delayed"): run again then. */
+  /**
+   * Next instant at which a pending item is released (publish.mode "delayed", release slots,
+   * departure hold) or the chosen portrait may appear: run again then.
+   */
   nextRunAt: string | null;
   warnings: string[];
   stats: { days: number; trips: number; entries: number; media: number; pagesRendered: number; written: number };
+  /** Gate mode: what changed in GATE_OUT_DIR (paths relative to it); absent in open mode. */
+  gate?: { changed: string[]; removed: string[] };
 }
 
 export interface GenerationContext {
@@ -148,6 +169,8 @@ export interface GenerationContext {
   htaccess: boolean;
   /** Warnings of the previous run (logged at warn level only when they change). */
   lastWarnings?: string;
+  /** "site.indexable is ignored in gate mode" was logged (once per process). */
+  indexableWarned?: boolean;
 }
 
 export class GeneratorValidationError extends Error {
@@ -182,7 +205,8 @@ function outputSettings(settings: Settings): Record<string, unknown> {
  * The portrait's round crop (pipeline/avatar.ts) for the model: made once per photo and focus
  * point, found again on later runs. Crops nothing references any more (another focus point or
  * photo, no portrait) are removed from MEDIA_DIR; `present` (a scan of MEDIA_DIR) is updated.
- * Problems are returned for the model to warn about, never thrown.
+ * Problems are returned for the model to warn about, never thrown. The photo is the one
+ * decidePortrait() picks (site.avatar once released, else the previously published portrait).
  */
 async function preparePortrait(
   inputs: ModelInputs,
@@ -190,7 +214,7 @@ async function preparePortrait(
   present: Set<string>,
   log: Logger,
 ): Promise<PortraitCrop | undefined> {
-  const setting = inputs.settings['site.avatar'];
+  const setting = decidePortrait(inputs).setting;
   const keep = new Set<string>();
   let crop: PortraitCrop | undefined;
   const found = setting ? portraitSourceFor(setting, inputs) : null;
@@ -272,6 +296,20 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
   // capture in the snapshot finds its files (scanning first could miss a capture that became
   // ready in between and leave it out as "missing media").
   const build = await readSiteBuild(ctx.siteDistDir);
+  const gateMode = isGateMode(config);
+  const gateOutDir = accessOf(config).gateOutDir;
+  const gateBuild = gateMode ? await readGateBuild(ctx.siteDistDir) : null;
+  if (gateMode) {
+    assertSafeOutDir(gateOutDir, {
+      OUT_DIR: outDir,
+      DATA_DIR: config.dirs.data,
+      ARCHIVE_DIR: config.dirs.archive,
+      CONFIG_DIR: config.dirs.config,
+      MEDIA_DIR: ctx.mediaDir,
+      'the site build': ctx.siteDistDir,
+      'the repository': REPO_ROOT,
+    });
+  }
   let mediaAvailable: Set<string> = new Set();
   const { state, dirty, inputs, versionFloor } = store.db
     .transaction(() => {
@@ -290,18 +328,38 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
   mediaAvailable = await scanMediaRoot(ctx.mediaDir);
   inputs.portraitCrop = await preparePortrait(inputs, ctx.mediaDir, mediaAvailable, log);
   const settings = inputs.settings;
+  const publicBase = publicBaseOf(config);
+  if (gateMode && settings['site.indexable'] && !ctx.indexableWarned) {
+    log.warn('site.indexable is ignored in gate mode (always noindex, no sitemap)');
+    ctx.indexableWarned = true;
+  }
+  // The model is built before the full/incremental decision: the resolved profile (who travels,
+  // the portrait) may be shown on every page, so a change of it re-renders everything like a
+  // site.* setting does (undefined members drop out of the hash: no profile = the old hash).
+  const model: SiteModel = buildSiteModel(inputs);
   const site: SiteInfo = {
     title: settings['site.title'],
     locales: settings['site.locales'],
     defaultLocale: settings['site.default_locale'],
     basePath: config.site.basePath,
-    indexable: settings['site.indexable'],
+    // Gate mode: never indexable (noindex everywhere, no sitemap), whatever the setting says.
+    indexable: gateMode ? false : settings['site.indexable'],
+    // Absent = the default (wave 4 behaviour), so sites that keep the defaults keep their bytes.
+    ...(model.hereNow !== 'city_badge' ? { hereNow: model.hereNow } : {}),
+    ...(model.timePrecision !== 'exact' ? { timePrecision: model.timePrecision } : {}),
   };
-  const publicBase = publicBaseOf(config);
-  // The model is built before the full/incremental decision: the resolved profile (who travels,
-  // the portrait) may be shown on every page, so a change of it re-renders everything like a
-  // site.* setting does (undefined members drop out of the hash: no profile = the old hash).
-  const model: SiteModel = buildSiteModel(inputs);
+  // Gate mode: the gate tree's inputs, Boot.access and the gated .htaccess (spec-wave5 §5.4).
+  const gateCtx: GateTreeContext | null =
+    isGateMode(config) && gateBuild && config.access.site.storeDir
+      ? {
+          site: { ...config.access.site, storeDir: config.access.site.storeDir },
+          secret: config.access.secret,
+          locales: site.locales,
+          defaultLocale: site.defaultLocale,
+          build: gateBuild,
+        }
+      : null;
+  const gateCfg = gateCtx ? gateHtaccessConfig(gateCtx.site, gateCtx.secret) : null;
   const settingsHash = contentHash({
     s: outputSettings(settings),
     site,
@@ -310,6 +368,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     profile: model.profile ?? undefined,
     // Switching app publishing on or off re-checks every day (absent = the old hash).
     appPublish: config.app?.publish === true ? true : undefined,
+    gate: gateCtx ? gateTreeKey(gateCtx) : undefined,
   });
 
   const fullReason = opts.full
@@ -416,6 +475,20 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     trips,
     tripSummaries: model.tripSummaries,
     profile: model.profile,
+    access: gateCtx
+      ? {
+          boot: (() => {
+            const names = gateCookies(gateCtx.site.siteOrigin, gateCtx.site.cookieMode);
+            return {
+              api: gateCtx.site.apiPublicBase,
+              cookies: { key: names.key, transfer: names.transfer, handoff: names.handoff },
+              cookieMode: gateCtx.site.cookieMode,
+              cookieDomain: cookieDomainOf(gateCtx.site),
+            };
+          })(),
+          apiOrigin: new URL(gateCtx.site.apiPublicBase).origin,
+        }
+      : null,
   };
   const pages: RenderedPage[] = [];
   for (const locale of site.locales) {
@@ -432,17 +505,23 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
   pages.push(renderNotFound(pageCtx), renderPicker(pageCtx));
   for (const page of pages) plan(page.path, '', page);
 
-  plan('robots.txt', robotsTxt(site, publicBase));
-  const routes: RouteRef[] = [{ name: 'home' }];
-  for (const day of model.days) {
-    routes.push({ name: 'day', date: day.date });
-    for (const e of day.entries) if (e.kind === 'story') routes.push({ name: 'story', date: day.date, id: e.id });
+  // Gate mode: the gate tree's robots.txt rules the host; the content tree has none and no sitemap.
+  if (!gateCtx) {
+    plan('robots.txt', robotsTxt(site, publicBase));
+    const routes: RouteRef[] = [{ name: 'home' }];
+    for (const day of model.days) {
+      routes.push({ name: 'day', date: day.date });
+      for (const e of day.entries) if (e.kind === 'story') routes.push({ name: 'story', date: day.date, id: e.id });
+    }
+    for (const t of model.trips) routes.push({ name: 'trip', slug: t.slug });
+    const sitemap = sitemapXml(site, publicBase, routes);
+    if (sitemap) plan('sitemap.xml', sitemap);
   }
-  for (const t of model.trips) routes.push({ name: 'trip', slug: t.slug });
-  const sitemap = sitemapXml(site, publicBase, routes);
-  if (sitemap) plan('sitemap.xml', sitemap);
-  if (ctx.htaccess) plan('.htaccess', htaccess(site));
+  if (ctx.htaccess || gateCfg) plan('.htaccess', contentHtaccess(site, gateCfg));
   if (site.indexable && !publicBase) log.warn('site.indexable is on but SITE_PUBLIC_URL is unset: no sitemap.xml');
+  // The gate tree: rendered every run (a dozen small files plus the bundle), written below.
+  const gateFiles = gateCtx ? await renderGateTree(gateCtx) : null;
+  const gateChanged = gateFiles ? await gateTreeDiffers(gateOutDir, gateFiles, full) : false;
 
   // ------------------------------------------------------------------------- removals in scope
   const toRemove = new Set<string>();
@@ -467,7 +546,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     const prefixes: string[] = [];
     for (const d of renderDays) prefixes.push(dayDataPath(d), ...dayPrefixes(locales, d));
     for (const s of renderTrips) prefixes.push(tripDataPath(s), ...[...locales].map((l) => `${l}/trip/${s}/`));
-    prefixes.push('sitemap.xml', '.htaccess');
+    prefixes.push('sitemap.xml', '.htaccess', 'robots.txt');
     for (const path of Object.keys(prev.files)) {
       if (planned.has(path) || path === MANIFEST_PATH) continue;
       if (prefixes.some((p) => path === p || (p.endsWith('/') && path.startsWith(p)))) toRemove.add(path);
@@ -520,7 +599,8 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     trackedRemovals.length > 0 ||
     state.mediaHash !== mediaHash ||
     state.buildHash !== build.hash ||
-    state.timelineV !== model.timelineV;
+    state.timelineV !== model.timelineV ||
+    gateChanged;
   const version = anyChange ? store.meta.nextSiteVersion() : (state as GeneratorState).version;
   const generatedAt = anyChange ? nowIso : (state as GeneratorState).generatedAt;
   const current: ReleaseStamp = { manifestVersion: version, timelineV: model.timelineV };
@@ -594,6 +674,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
   for (const rel of [...toRemove].sort()) if (await removeOutput(outDir, rel)) removed.push(rel);
   for (const rel of mediaToRemove) if (await removeOutput(outDir, rel)) removed.push(rel);
   for (const rel of assetsToRemove) if (await removeOutput(outDir, rel)) removed.push(rel);
+  const gateWrite = gateFiles ? await writeGateTree(gateOutDir, gateFiles, { full }) : null;
 
   // ------------------------------------------------------------------------- state
   const files: GeneratorState['files'] = full ? {} : { ...(state as GeneratorState).files };
@@ -631,6 +712,11 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     pages: sortRecord(pagesState),
   };
   saveState(store, next);
+  // The portrait this run published stays while a newly chosen one waits for its release
+  // (decidePortrait); a removed portrait setting forgets it.
+  const published = model.profile?.avatar ? decidePortrait(inputs).setting : null;
+  if (published) store.meta.setPortraitPublished(published);
+  else if (!settings['site.avatar']) store.meta.setPortraitPublished(null);
 
   const result: GenerateResult = {
     version,
@@ -651,6 +737,7 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
       pagesRendered: pages.length,
       written: changed.length,
     },
+    ...(gateWrite ? { gate: gateWrite } : {}),
   };
   const warningsKey = model.warnings.join('\n');
   if (warningsKey !== ctx.lastWarnings) for (const w of model.warnings) log.warn(w);
@@ -671,6 +758,21 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     anyChange ? 'site generated' : 'site unchanged',
   );
   return result;
+}
+
+/** True when writing `files` would change GATE_OUT_DIR (bytes differ, or strays on a full run). */
+async function gateTreeDiffers(
+  gateOutDir: string,
+  files: ReadonlyMap<string, string | Buffer>,
+  full: boolean,
+): Promise<boolean> {
+  for (const [rel, bytes] of files) {
+    const existing = await readIfExists(gateOutDir, rel);
+    if (!existing?.equals(typeof bytes === 'string' ? Buffer.from(bytes, 'utf8') : bytes)) return true;
+  }
+  if (!full) return false;
+  const present = await scanOutputs(gateOutDir);
+  return present.some((rel) => !files.has(rel));
 }
 
 /** Parallel file operations (media links/stats): enough to hide syscall latency, few fds. */

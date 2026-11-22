@@ -382,11 +382,23 @@ test('the owner edits reach the generated site through the change feed', async (
     await expect.poll(() => html(`/en/day/${DAY}/`), { timeout: 30_000 }).toContain(T.dayTitleEn);
     expect(await html(`/de/day/${DAY}/`)).toContain(T.place);
   });
-  await test.step('the story has its page', async () => {
+  await test.step('the story has its page (under its published id, not the admin id)', async () => {
     expect(shared.storyId).toMatch(/^p_/);
+    // Wave 5 (P0 fix): published post ids are hashed, so the route is found through the day data.
+    let publishedId = '';
     await expect
-      .poll(() => html(`/de/day/${DAY}/story/${shared.storyId}/`), { timeout: 60_000 })
-      .toContain(T.storyTitle);
+      .poll(
+        async () => {
+          const day = await stack.siteJson<DayJson>(`/data/days/${DAY}.json`);
+          const story = day?.entries.find((e) => e.kind === 'story' && JSON.stringify(e).includes(T.storyTitle));
+          publishedId = story?.id ?? '';
+          return publishedId;
+        },
+        { timeout: 60_000 },
+      )
+      .toMatch(/^p_[a-z2-7]{16}$/);
+    expect(publishedId).not.toBe(shared.storyId);
+    await expect.poll(() => html(`/de/day/${DAY}/story/${publishedId}/`), { timeout: 60_000 }).toContain(T.storyTitle);
   });
   await test.step('the trip page exists', async () => {
     await expect.poll(() => html(`/de/trip/${TRIP_SLUG}/`), { timeout: 60_000 }).toContain(T.tripDe);

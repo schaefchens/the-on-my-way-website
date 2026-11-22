@@ -12,6 +12,12 @@
  * Ports (must be free): 8080 API, 8787 backend control UI, 4173 static site
  * (override with OMW_STACK_API_PORT / OMW_STACK_CONTROL_PORT / OMW_STACK_SITE_PORT; the state
  * directory with OMW_STACK_ROOT, default .cache/e2e-stack).
+ *
+ * access-flow.stack.ts (wave 5, the access gate) runs two more stacks one after the other, with
+ * the API's store writer `direct` and then `none` (the backend writes the store): API 8081,
+ * control UI 8788 and a local Apache serving the generated gate + content trees on 4174
+ * (OMW_GATE_API_PORT / OMW_GATE_CONTROL_PORT / OMW_GATE_SITE_PORT; roots .cache/e2e-stack-gate
+ * and .cache/e2e-stack-gate-mac). Skipped without an Apache binary (macOS: /usr/sbin/httpd).
  */
 import { resolve } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';

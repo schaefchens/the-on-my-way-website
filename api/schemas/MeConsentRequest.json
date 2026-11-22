@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/MeConsentRequest.json",
+  "title": "MeConsentRequest",
+  "additionalProperties": false,
+  "properties": {
+    "k": {
+      "pattern": "^[A-Za-z0-9_-]{43}$",
+      "type": "string"
+    },
+    "locale": {
+      "enum": [
+        "de",
+        "en",
+        "ar"
+      ],
+      "type": "string"
+    },
+    "version": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "k",
+    "version",
+    "locale"
+  ],
+  "type": "object"
+}

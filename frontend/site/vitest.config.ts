@@ -13,5 +13,8 @@ export default defineConfig({
   test: {
     include: ['test/**/*.test.{ts,tsx}'],
     environment: 'node',
+    // Gate page tests opt into jsdom per file (`// @vitest-environment jsdom`), on an https
+    // origin so Secure and __Host- cookies behave as in production.
+    environmentOptions: { jsdom: { url: 'https://site.example/_/join/' } },
   },
 });

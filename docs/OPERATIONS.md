@@ -140,6 +140,60 @@ never keep it; the publisher deletes the files of hidden or revoked items at onc
 a CDN in front of the static host, purge it on every hide and revoke (and check that it honours
 `private`).
 
+## Followers and access
+
+Wave 5: only people the traveler invited see the site. Hosting, store and configuration:
+[HOSTING.md §11](HOSTING.md#11-access-gate-wave-5-approval-only-followers); what is stored about
+followers: [PRIVACY.md](PRIVACY.md). Everything below happens in the admin PWA (*Einstellungen →
+Menschen & Zugang / Sicherheit / Datenschutzhinweise*) unless it says otherwise.
+
+**Before the first invitation** (once): publish the privacy notice version 1 (*Datenschutzhinweise*:
+name and e-mail of the person responsible; the texts are templates, not legal advice; joins are
+refused while no version is published), then *Menschen → "Website-Speicher einrichten"*.
+
+| Task | In the admin | What happens |
+|---|---|---|
+| Invite a person | *Menschen → Person einladen*, name → **Link erstellen**, then *Teilen* (WhatsApp) or *Link kopieren* | The link `https://<site>/_/join/#t=…` is shown **once**. The person sees an information screen ("Dieser Link ist für Oma." + the privacy notice) and joins with *Weiter*; consent is recorded. |
+| A new device waits | Push "📱 1 neues Gerät wartet" → *Start*: **Erlauben** / **Ablehnen** (or the person's screen) | Every device after a person's first one waits for you (Q3 c). Allow only devices you can match to the person (label like "iPhone · Safari", time). At most `ACCESS_MAX_DEVICES` (5) active devices: remove one first. |
+| New link (lost or forwarded) | person → **Neuen Link erstellen** | The old link stops working at once; devices that joined stay. |
+| Remove a device | person → device → **Entfernen** | That device sees the neutral page from its next request; the others keep access. |
+| End a person's access | person → **Zugang beenden** | All her devices are out; her data stays (D8). Also take her out of your WhatsApp status audience. |
+| Delete everything about a person | person → **Löschen …** (tick the box) | Devices, consents and the name are erased; a nameless tombstone keeps the id from being reused. Followers can do the same themselves under *Deine Daten* ("Eine Person hat ihre Daten gelöscht" appears on Start). |
+| Export a person's data | person → **Daten exportieren** | JSON `omw-follower-data/1` (answer to a data request by mail or phone). |
+| Lock the site for everyone | *Start* or *Sicherheit* → **Jetzt sperren**; unlock with **Entsperren** + your password | Everyone, followers included, sees the neutral page; no cookies are cleared, so unlocking needs no re-join. |
+| Lock without logging in | *Sicherheit → Panik-Link erstellen* (shown once; keep it like a password) | Opening the panic link and tapping *Website jetzt sperren* locks the site through the API. Unlock only in the admin. |
+| Lock from the Mac | control UI → Publish → **Website sperren** | Writes the lock straight into the store over SFTP (works with the API down). Needs a target with a store path (`accessStoreRoot`); not available while no login can reach the store (HOSTING §11.6). |
+| Change the privacy text | *Datenschutzhinweise* → edit → save → **Als Version N veröffentlichen** | Followers read and confirm the new version on their next visit. The button stays off while the saved text equals the current version (nobody has to confirm an unchanged text). |
+| Change your password | *Einstellungen → Passwort ändern* | Every other session ends (app tokens too when ticked). Lost password: `scripts/deploy-api.ts --reset-admin-password` (HOSTING §7). |
+
+**"Wirksam ✓" / "Noch nicht wirksam ⏳".** Every access action says whether it is already in the
+store Apache checks. With the live writer (`direct`) it is in effect within a second. "Noch nicht
+wirksam" means the writer could not reach the store: the API retries every 5 minutes (and the Mac
+after 60 s when it has a store target); *Erneut versuchen* retries at once. "Nicht gesendet –
+keine Verbindung" means the phone never reached the API: nothing happened, tap again when online.
+
+**"Zugang nicht geprüft" / alert "access store unverified".** A writer found no store marker (or
+one of another store), or the post-deploy check showed that a session it wrote is not seen by
+Apache. Check that the API's and the backend's `ACCESS_STORE_DIR` name the same folder; after a
+webspace restore that removed the store, run *Website-Speicher einrichten* again (devices resume
+with their device key, nobody has to re-join).
+
+**After a restore** of the API database: open *Menschen* and read the "after a restore" card. The
+restore resets every personal link (a link replaced after the backup must not work again) and the
+panic link; connected devices stay connected. Create a new link for each person the card lists who
+wants to add a device, create the panic link again, and reset the admin password if you changed it
+after the backup (HOSTING §8).
+
+**Known residual of Q3 c (accepted):** whoever opens a fresh personal link **first** gets that
+person's first device without your approval. If a link was forwarded before the person used it,
+you will see a device you do not expect: remove it and create a new link. Until you do, that
+device can read, export and delete the person's data under *Deine Daten*.
+
+**Followers' side** (`https://<site>/_/…`, no app, no account): *Deine Daten* (via the menu on the
+site) shows what is stored, exports it and has "Mich und alle meine Daten löschen" with a
+deliberate confirmation; *Auf diesem Gerät abmelden* ends only that device. A waiting device sees
+only itself there and can withdraw its request.
+
 ## Backups
 
 | What | How |

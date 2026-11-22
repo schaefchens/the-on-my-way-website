@@ -57,6 +57,12 @@ const StoredBase = z.object({
   label: Label.optional(),
   /** Disabled targets are skipped by deploy() without a targetId. */
   enabled: z.boolean(),
+  /**
+   * false = a store-only target (spec-wave5 §5.6.1: a separate SFTP account restricted to the
+   * session-file store, used by the Mac fallback writer and the lock button); skipped by deploys.
+   * Absent = true.
+   */
+  publish: z.boolean().optional(),
   /** Where the published site is reachable (HTTP check); null = no check. */
   publicBaseUrl: PublicBaseUrl.nullable(),
   createdAt: Iso,
@@ -65,8 +71,12 @@ const StoredBase = z.object({
 
 export const StoredLocalTarget = StoredBase.extend({
   kind: z.literal('local'),
-  /** Absolute directory the site is mirrored into. */
+  /** Absolute directory the site is mirrored into (gate mode: gateDir/<secret>). */
   dir: z.string().min(1),
+  /** Gate mode: absolute directory of the web root the gate tree (GATE_OUT_DIR) goes to. */
+  gateDir: z.string().min(1).optional(),
+  /** The session-file store as this machine sees it (Mac fallback writer, lock button). */
+  accessStoreDir: z.string().min(1).optional(),
 });
 export type StoredLocalTarget = z.infer<typeof StoredLocalTarget>;
 
@@ -88,6 +98,10 @@ export const StoredSftpTarget = StoredBase.extend({
   remoteRoot: RemoteRoot,
   /** Parallel transfers on the connection (1–8). */
   concurrency: z.int().min(1).max(8),
+  /** Gate mode: the web root the gate tree goes to (usually "/"); remoteRoot = gateRoot/<secret>. */
+  gateRoot: RemoteRoot.optional(),
+  /** The session-file store as this login sees it (Mac fallback writer, lock button). */
+  accessStoreRoot: RemoteRoot.optional(),
 });
 export type StoredSftpTarget = z.infer<typeof StoredSftpTarget>;
 
@@ -108,12 +122,18 @@ const InputBase = z.object({
   label: Label.nullish(),
   enabled: z.boolean().optional(),
   publicBaseUrl: PublicBaseUrl.nullish(),
+  /** false = store-only target (skipped by deploys). */
+  publish: z.boolean().optional(),
 });
 
 export const LocalTargetInput = InputBase.extend({
   kind: z.literal('local'),
   /** Absolute, or relative to backend/. */
   dir: z.string().trim().min(1).max(1024),
+  /** Gate mode: the web root (absolute, or relative to backend/); null removes it. */
+  gateDir: z.string().trim().min(1).max(1024).nullish(),
+  /** The session-file store (absolute, or relative to backend/); null removes it. */
+  accessStoreDir: z.string().trim().min(1).max(1024).nullish(),
 });
 
 export const SftpTargetInput = InputBase.extend({
@@ -135,6 +155,10 @@ export const SftpTargetInput = InputBase.extend({
   trustOnFirstUse: z.boolean().optional(),
   remoteRoot: RemoteRoot.optional(),
   concurrency: z.int().min(1).max(8).optional(),
+  /** Gate mode: the web root ("/"); null removes it. */
+  gateRoot: RemoteRoot.nullish(),
+  /** The session-file store as this login sees it; null removes it. */
+  accessStoreRoot: RemoteRoot.nullish(),
 });
 
 export const PublishTargetInput = z.discriminatedUnion('kind', [LocalTargetInput, SftpTargetInput]);
@@ -159,6 +183,8 @@ interface PublicBase {
   id: string;
   label: string | null;
   enabled: boolean;
+  /** false = store-only target. */
+  publish: boolean;
   publicBaseUrl: string | null;
   createdAt: string;
   updatedAt: string;
@@ -168,6 +194,8 @@ interface PublicBase {
 export interface LocalTargetPublic extends PublicBase {
   kind: 'local';
   dir: string;
+  gateDir: string | null;
+  accessStoreDir: string | null;
 }
 
 export interface SftpTargetPublic extends PublicBase {
@@ -184,6 +212,8 @@ export interface SftpTargetPublic extends PublicBase {
   trustOnFirstUse: boolean;
   remoteRoot: string;
   concurrency: number;
+  gateRoot: string | null;
+  accessStoreRoot: string | null;
 }
 
 export type PublishTargetPublic = LocalTargetPublic | SftpTargetPublic;
@@ -221,6 +251,9 @@ export interface DeployResult {
   recovered?: boolean;
   reason?: string;
   at?: string;
+  /** Gate mode: the gate tree deploy (uploads/deletes at gateRoot) and the anonymous check. */
+  gate?: { uploaded: number; deleted: number; htaccess: boolean };
+  gateCheck?: import('@omw/contracts/access').GateCheckResult;
 }
 
 export type PublishErrorCode =
@@ -241,7 +274,14 @@ export type PublishErrorCode =
   /** The target already serves a newer site version (state lost): regenerate above it (L2-02 d). */
   | 'version_behind'
   /** Not attempted: publishing is paused (restore in progress, first owner sync pending). */
-  | 'paused';
+  | 'paused'
+  /**
+   * Gate mode (spec-wave5 §5.6): the target cannot carry the gate (no gateRoot/gateDir, content
+   * root not gateRoot/<secret>, no atomic replace, a generated .htaccess that fails verify).
+   */
+  | 'gate_config'
+  /** Gate mode: the anonymous-must-be-refused check found the content open (§5.6.3). */
+  | 'gate_open';
 
 /** Error with a classification: `transient` errors are retried with a fresh connection. */
 export class PublishError extends Error {

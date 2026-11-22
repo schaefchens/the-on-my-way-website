@@ -8,6 +8,11 @@ use Omw\Api\Config;
 use Omw\Api\Domain\Auth\ApiTokens;
 use Omw\Api\Domain\Auth\Passwords;
 use Omw\Api\Domain\Auth\Users;
+use Omw\Api\Domain\Access\StoreApplier;
+use Omw\Api\Domain\Access\StoreLayout;
+use Omw\Api\Infra\Store\SftpStoreWriter;
+use Omw\Api\Infra\Store\StoreWriterException;
+use Omw\Api\Infra\Store\StoreWriterFactory;
 use PDO;
 use Throwable;
 
@@ -115,6 +120,47 @@ final class Doctor
         return $last['ok']
             ? DoctorCheck::ok('cron', 'Last cron run ' . $last['at'])
             : DoctorCheck::warn('cron', 'Last cron run ' . $last['at'] . ' had failing jobs (see var/logs/).');
+    }
+
+    /**
+     * The site-store writer (spec-wave5 §3.1): reachable, marker readable with the expected store
+     * id, file modes; for sftp a warning when the login can list anything outside the store.
+     * Connects to the writer, so only the admin doctor (on request) runs it.
+     */
+    public function accessStore(StoreWriterFactory $writers, ?string $storeId): DoctorCheck
+    {
+        $access = $this->config->access;
+        if ($access->storeMode === 'none') {
+            return DoctorCheck::ok('access_store', 'ACCESS_STORE_MODE=none: the Mac writes the site store (revocations apply while it runs).');
+        }
+        $modes = sprintf('modes %04o/%04o', $access->dirMode, $access->fileMode);
+        try {
+            $writer = $writers->open();
+        } catch (StoreWriterException $e) {
+            return DoctorCheck::fail('access_store', 'Store writer (' . $access->storeMode . ') failed: ' . $e->reason . ': ' . $e->getMessage(), 'Check the ACCESS_STORE_* settings (docs/HOSTING.md).');
+        }
+        if ($writer === null) {
+            return DoctorCheck::ok('access_store', 'No store writer configured.');
+        }
+        try {
+            $marker = StoreApplier::parseMarker($writer->read(StoreLayout::MARKER));
+            $outside = $writer instanceof SftpStoreWriter && $writer->seesOutsideStore();
+        } catch (StoreWriterException $e) {
+            return DoctorCheck::fail('access_store', 'Store not readable: ' . $e->getMessage());
+        } finally {
+            $writer->close();
+        }
+        if ($storeId === null) {
+            return DoctorCheck::warn('access_store', 'The store is not initialised yet.', 'Admin → Personen → "Website-Speicher einrichten".');
+        }
+        if ($marker === null || $marker['storeId'] !== $storeId) {
+            return DoctorCheck::fail('access_store', $marker === null ? 'The store marker is missing or unreadable.' : 'The store marker belongs to another store.', 'Check that the API and the backend name the same store folder, then initialise the store again.');
+        }
+        if ($outside) {
+            return DoctorCheck::warn('access_store', 'Store ok (' . $modes . '), but the SFTP login can list folders outside the store.', 'Use an SFTP account restricted to the store folder (D4).');
+        }
+
+        return DoctorCheck::ok('access_store', 'Store ok (' . $access->storeMode . ', ' . $modes . ', store ' . $storeId . ').');
     }
 
     /** Files that must never be served (checked by {@see httpExposure()} and scripts/deploy-api.ts). */

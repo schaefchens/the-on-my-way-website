@@ -3,7 +3,7 @@
  *
  *   backend [start]                 run the backend (capture, generate, publish, sync, control UI)
  *   backend generate [--full]       regenerate the static site
- *   backend publish [--target <id>] [--force]
+ *   backend publish [--target <id>] [--force] | --migrate-to-gate <id> [--confirm]
  *                                   deploy OUT_DIR to all enabled targets (or one); --force
  *                                   overrides the mass-delete guard (publisher deploy.ts)
  *   backend reprocess [sourceKey]   re-run the media pipeline from the archive (all or one status)
@@ -45,6 +45,7 @@ import { type Config, ConfigError, type LogLevel, loadConfig } from './config.js
 import { createGenerator } from './generator/index.js';
 import { createLogger, type Logger } from './log.js';
 import { statePaths } from './paths.js';
+import { describeMigration } from './publisher/cli.js';
 import { createPublisher, TARGETS_FILE } from './publisher/index.js';
 import { Store } from './store/index.js';
 import {
@@ -70,6 +71,10 @@ Commands:
   publish [--target ID] [--force]
                           deploy OUT_DIR to every enabled target, or one; --force overrides the
                           guard that refuses deploys deleting half the site or every day page
+  publish --migrate-to-gate ID [--confirm]
+                          one-off move of an open-mode site into gate mode (ACCESS_MODE=gate):
+                          gate tree, content into /<secret>/, gate check; lists the legacy root
+                          files and deletes them only with --confirm
   reprocess [SOURCE_KEY]  re-run the media pipeline from the archive (all, or one "wa:<id>")
   status [--json]         health summary
   pair-code PHONE         get a pairing code to link the OBSERVER phone (backend must be running)
@@ -108,12 +113,13 @@ export function parseArgs(argv: readonly string[]): Parsed {
     } else if (a.startsWith('--')) {
       const eq = a.indexOf('=');
       if (eq > 0) flags.set(a.slice(2, eq), a.slice(eq + 1));
-      else if (a === '--target') {
+      else if (a === '--target' || a === '--migrate-to-gate') {
+        const name = a.slice(2);
         const v = argv[i + 1];
         if (v !== undefined && !v.startsWith('--')) {
-          flags.set('target', v);
+          flags.set(name, v);
           i++;
-        } else flags.set('target', true);
+        } else flags.set(name, true);
       } else flags.set(a.slice(2), true);
     } else args.push(a);
   }
@@ -430,6 +436,24 @@ async function localPublish(config: Config, log: Logger, targetId: string | unde
   }
 }
 
+async function localMigrateToGate(config: Config, log: Logger, targetId: string, confirm: boolean) {
+  await localGenerate(config, log, true, [], 'migrate-to-gate');
+  const store = Store.open(statePaths(config.dirs.data).storeDb);
+  const publisher = createPublisher({ config, log, store });
+  const sync = createSync({ config, log, store });
+  try {
+    const report = await publisher.migrateToGate(targetId, { confirm });
+    sync.reportPublished([report.deploy]);
+    if (sync.enabled) {
+      await sync.flushNow().catch((err: unknown) => log.warn({ err }, 'API report delivery failed (queued)'));
+    }
+    return report;
+  } finally {
+    await sync.stop();
+    store.close();
+  }
+}
+
 async function localReprocess(config: Config, log: Logger, sourceKey: string | undefined) {
   const store = Store.open(statePaths(config.dirs.data).storeDb);
   const paths = statePaths(config.dirs.data);
@@ -618,6 +642,24 @@ async function oneShot(
     }
 
     case 'publish': {
+      const migrate = flags.get('migrate-to-gate');
+      if (migrate !== undefined) {
+        // One-off (spec-wave5 §5.6.4): generate in gate mode, deploy gate + content trees, gate
+        // check, list (and with --confirm delete) the legacy root files. Runs on its own.
+        if (migrate === true) {
+          io.err('--migrate-to-gate needs a target id');
+          return 2;
+        }
+        if (await daemonRunning(config, fetchImpl)) {
+          io.err('Stop the running backend first: --migrate-to-gate runs on its own.');
+          return 1;
+        }
+        const log = createLogger({ level: chatty, pretty: config.env === 'development' });
+        const confirm = flags.has('confirm');
+        const report = await withLocalLock(config, 'publish', () => localMigrateToGate(config, log, migrate, confirm));
+        io.out(describeMigration(report, confirm));
+        return report.deploy.ok ? 0 : 1;
+      }
       const target = flags.get('target');
       const force = flags.has('force');
       if (target === true) {

@@ -1,18 +1,32 @@
 /**
  * Home: is the site live, is WhatsApp connected, did the backend check in, any alerts, and a
- * gentle nudge for today's page of the journal.
+ * gentle nudge for today's page of the journal. Wave 5: new devices waiting for the owner's OK
+ * (names come from GET /admin/access, never persisted), the shield/lock card, owner notices, the
+ * People tile and the departure hold card.
  */
 import { msg } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
-import type { StatusResponse } from '@omw/contracts/api';
+import type { AccessSummary, PendingDeviceCard } from '@omw/contracts/access';
+import type { Settings, StatusResponse } from '@omw/contracts/api';
 import { pickText } from '@omw/contracts/i18n';
 import { localDateFor } from '@omw/contracts/time';
-import { countryFlag, formatLocalDate, formatNumber, formatRelative, formatTime } from '@omw/ui/locale';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { countryFlag, formatDateTime, formatLocalDate, formatNumber, formatRelative, formatTime } from '@omw/ui/locale';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouteContext } from '@tanstack/react-router';
 import { type ReactNode, useState } from 'react';
-import { capturesQuery, daysQuery, settingsQuery } from '../api/queries';
+import { accessApi, notifyAccessError, useAccessAction, useAccessRequest } from '../api/access';
+import { qk } from '../api/keys';
+import {
+  ACCESS_POLL_MS,
+  accessStatusQuery,
+  capturesQuery,
+  daysQuery,
+  followersQuery,
+  noticesQuery,
+  settingsQuery,
+} from '../api/queries';
 import { CaptureVisual } from '../components/capture';
+import { EffectBadge } from '../components/effect-badge';
 import {
   AlertIcon,
   BookIcon,
@@ -24,15 +38,20 @@ import {
   FeatherIcon,
   InboxIcon,
   PencilIcon,
+  PeopleIcon,
+  PhoneIcon,
   PinIcon,
   RefreshIcon,
+  SendIcon,
   SparklesIcon,
   WifiIcon,
 } from '../components/icons';
 import { InstallCard } from '../components/install';
 import { KIND_LABEL, WA_STATE_LABEL } from '../components/labels';
+import { LockCard } from '../components/lock-card';
 import { Badge, Button, Card, cx, IconButton, QueryError, ScreenHeader, Skeleton, Spinner } from '../components/ui';
 import { draftPreview, draftSearch, draftStore, listDrafts } from '../lib/drafts';
+import { heldPlaces } from '../lib/held-days';
 import { useLocale, useNotifyWrite, useNow, usePublishSummary, useWrite } from '../lib/hooks';
 import { deviceTimeZone, zoneCity, zoneLabel, zoneOffset } from '../lib/places';
 import { lastPublishStore, type PublishSummary } from '../lib/publish';
@@ -448,7 +467,7 @@ function QuickTile({
   tone,
   badge,
 }: {
-  to: '/compose' | '/inbox';
+  to: '/compose' | '/inbox' | '/people';
   search?: { kind: 'note' | 'story' };
   icon: typeof FeatherIcon;
   label: ReactNode;
@@ -476,12 +495,14 @@ function QuickTile({
   );
 }
 
-function QuickActions() {
+function QuickActions({ pendingDevices }: { pendingDevices: number }) {
   const seenAt = useStore(inboxSeenStore);
   const captures = useInfiniteQuery(capturesQuery());
   const fresh = (captures.data?.pages[0]?.items ?? []).filter((c) => isNew(c.occurredAt, seenAt)).length;
+  const followers = useQuery(followersQuery());
+  const people = followers.data?.items.filter((f) => f.state === 'active').length;
   return (
-    <div className="grid grid-cols-3 gap-3 sm:col-span-2 lg:col-span-3">
+    <div className="grid grid-cols-4 gap-2.5 sm:col-span-2 sm:gap-3 lg:col-span-3">
       <QuickTile
         to="/compose"
         search={{ kind: 'note' }}
@@ -503,7 +524,210 @@ function QuickActions() {
         label={<Trans>Inbox</Trans>}
         badge={fresh}
       />
+      <QuickTile
+        to="/people"
+        icon={PeopleIcon}
+        tone="bg-surface-2 text-violet"
+        label={people === undefined ? <Trans>People</Trans> : <Plural value={people} one="# person" other="# people" />}
+        badge={pendingDevices}
+      />
     </div>
+  );
+}
+
+/** "New device for Oma · iPhone · Safari · 5 min ago" [Allow] [Decline] (spec §7.5). */
+function PendingDevicesCard({ count }: { count: number }) {
+  const locale = useLocale();
+  const now = useNow();
+  const q = useQuery({ ...accessStatusQuery(), refetchInterval: ACCESS_POLL_MS });
+  const action = useAccessAction();
+  const cards: PendingDeviceCard[] = q.data?.pending ?? [];
+  if (cards.length === 0 && !q.isPending) return null;
+  const more = Math.max(0, (q.data?.pendingDevices ?? count) - cards.length);
+  return (
+    <section
+      aria-labelledby="pending-h"
+      className="min-w-0 rounded-card bg-blush p-4 shadow-soft sm:col-span-2 sm:p-5 lg:col-span-3"
+      data-testid="pending-devices"
+    >
+      <h2 id="pending-h" className="mb-3 flex items-center gap-2 font-bold">
+        <PhoneIcon className="size-5 text-accent" />
+        <Plural
+          value={q.data?.pendingDevices ?? count}
+          one="A new device is waiting"
+          other="# new devices are waiting"
+        />
+      </h2>
+      {q.isPending && <Skeleton className="h-14" />}
+      <ul className="space-y-2.5">
+        {cards.map((c) => {
+          const name = c.name;
+          const label = c.label;
+          const ago = formatRelative(c.createdAt, locale, now);
+          return (
+            <li key={c.did} className="rounded-tile bg-surface p-3">
+              <p className="text-sm">
+                <Trans>
+                  New device for <bdi className="font-bold">{name}</bdi> · {label} · {ago}
+                </Trans>
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  icon={CheckIcon}
+                  disabled={action.isPending}
+                  onClick={() =>
+                    action.mutate({
+                      what: msg`Device allowed for ${name}`,
+                      values: { name },
+                      call: () => accessApi.approveDevice(c.did),
+                    })
+                  }
+                >
+                  <Trans>Allow</Trans>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  icon={CloseIcon}
+                  disabled={action.isPending}
+                  onClick={() =>
+                    action.mutate({ what: msg`Device declined`, call: () => accessApi.declineDevice(c.did) })
+                  }
+                >
+                  <Trans>Decline</Trans>
+                </Button>
+                <Link
+                  to="/people/$fid"
+                  params={{ fid: c.fid }}
+                  className="inline-flex min-h-9 items-center px-2 text-sm font-bold text-accent hover:underline pointer-coarse:min-h-11"
+                >
+                  <Trans>Details</Trans>
+                </Link>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {more > 0 && (
+        <Link
+          to="/people"
+          className="mt-3 inline-flex min-h-9 items-center text-sm font-bold text-accent hover:underline pointer-coarse:min-h-11"
+        >
+          <Plural value={more} one="+ # more" other="+ # more" />
+        </Link>
+      )}
+    </section>
+  );
+}
+
+/** One-shot notices without names ("A person deleted their data · 20 Nov") with [OK]. */
+function OwnerNoticesCard() {
+  const locale = useLocale();
+  const qc = useQueryClient();
+  const q = useQuery(noticesQuery());
+  const read = useAccessRequest<void>();
+  const unread = (q.data?.items ?? []).filter((n) => n.readAt === null);
+  if (unread.length === 0) return null;
+  return (
+    <section
+      aria-labelledby="notices-h"
+      className="min-w-0 space-y-1 rounded-card bg-lilac px-4 py-2 shadow-soft sm:col-span-2 lg:col-span-3"
+      data-testid="owner-notices"
+    >
+      <h2 id="notices-h" className="sr-only">
+        <Trans>Notices</Trans>
+      </h2>
+      {unread.map((n) => {
+        const date = formatLocalDate(localDateFor(n.createdAt, deviceTimeZone()), locale, 'short');
+        return (
+          <div key={n.id} className="flex items-center gap-3 py-1.5 text-sm">
+            <AlertIcon className="size-4 shrink-0 text-violet" />
+            <p className="min-w-0 flex-1">
+              {n.kind === 'follower_deleted' ? (
+                <Trans>A person deleted their data · {date}</Trans>
+              ) : n.kind === 'restore_reconciled' ? (
+                <Trans>After a restore: please look at People · {date}</Trans>
+              ) : (
+                <Trans>The website storage does not match its set-up: see Safety · {date}</Trans>
+              )}
+            </p>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={read.isPending}
+              onClick={() =>
+                read.mutate(() => accessApi.readNotices([n.id]), {
+                  onSuccess: () => {
+                    void qc.invalidateQueries({ queryKey: qk.access.notices });
+                    void qc.invalidateQueries({ queryKey: qk.status });
+                  },
+                  onError: (err) => notifyAccessError(err),
+                })
+              }
+            >
+              <Trans>OK</Trans>
+            </Button>
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
+/** Departure hold (Q1): days waiting until she has moved on, with the one-tap release. */
+function HoldCard({ settings }: { settings: Settings }) {
+  const { t } = useLingui();
+  const locale = useLocale();
+  const now = useNow(60_000);
+  const days = useQuery(daysQuery());
+  const patch = useWrite('patchSettings');
+  const notifyWrite = useNotifyWrite();
+  // useNow only re-renders every minute; the decision itself uses the current time, so a
+  // "moved on" just tapped (moved_on_at = now) releases at once.
+  const held = heldPlaces(days.data?.items ?? [], settings, Math.max(now, Date.now()));
+  if (held.length === 0) return null;
+  return (
+    <section
+      aria-labelledby="hold-h"
+      className="min-w-0 rounded-card bg-lilac p-4 shadow-soft sm:col-span-2 lg:col-span-3"
+      data-testid="hold-card"
+    >
+      <h2 id="hold-h" className="sr-only">
+        <Trans>Departure hold</Trans>
+      </h2>
+      <ul className="space-y-1.5">
+        {held.map((h) => {
+          const place = h.place ?? t`Without a place`;
+          const n = h.days;
+          const until = formatDateTime(h.until, deviceTimeZone(), locale);
+          return (
+            <li key={`${h.place ?? ''}-${h.until}`} className="flex items-start gap-2 text-sm">
+              <PinIcon className="mt-0.5 size-4 shrink-0 text-violet" />
+              <span>
+                <Plural
+                  value={n}
+                  one={`${place}: # day waits until she has moved on (at the latest ${until})`}
+                  other={`${place}: # days wait until she has moved on (at the latest ${until})`}
+                />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <Button
+        size="md"
+        variant="secondary"
+        icon={SendIcon}
+        className="mt-3"
+        onClick={() => {
+          patch({ patch: { 'publish.moved_on_at': new Date().toISOString() } });
+          notifyWrite('settings', msg`Marked as moved on`);
+        }}
+      >
+        <Trans>She has moved on</Trans>
+      </Button>
+    </section>
   );
 }
 
@@ -602,10 +826,15 @@ export function HomeScreen() {
   const settings = useQuery(settingsQuery());
   const name = me.displayName?.split(' ')[0] ?? me.email.split('@')[0] ?? '';
   const today = formatLocalDate(localDateFor(new Date(), deviceTimeZone()), locale, 'long');
+  const access: AccessSummary | undefined = status.data?.access;
+  const pendingDevices = access?.pendingDevices ?? 0;
   return (
     <>
       <ScreenHeader eyebrow={today} title={<Greeting name={name} />} />
+      <EffectBadge className="mb-4" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {pendingDevices > 0 && <PendingDevicesCard count={pendingDevices} />}
+        {access && access.unreadNotices > 0 && <OwnerNoticesCard />}
         {settings.data && <TimeZoneNudge current={settings.data['timezone.current']} />}
         <SiteCard
           summary={summary}
@@ -614,7 +843,9 @@ export function HomeScreen() {
           onRefresh={() => void status.refetch()}
         />
         <TodayCard />
-        <QuickActions />
+        {settings.data && <HoldCard settings={settings.data} />}
+        <QuickActions pendingDevices={pendingDevices} />
+        {access && <LockCard access={access} className="sm:col-span-2 lg:col-span-3" />}
         <DraftsCard />
         <InstallCard />
         <RecentStrip />

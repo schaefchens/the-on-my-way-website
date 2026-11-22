@@ -42,6 +42,11 @@ export interface RemoteFs {
   stat(path: string): Promise<RemoteStat | null>;
   list(path: string): Promise<RemoteEntry[]>;
   close(): Promise<void>;
+  /**
+   * Sets the mode of a file or directory (the access store's 0600/0711, spec-wave5 §2.2). Optional:
+   * connectors without it keep their own modes.
+   */
+  chmod?(path: string, mode: number): Promise<void>;
 }
 
 export type RemoteErrorKind = 'not_found' | 'permission' | 'failure' | 'connection' | 'timeout' | 'unsupported';

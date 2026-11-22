@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Omw\Api\Tests\Domain;
 
+use Omw\Api\Domain\Access\StoreLayout;
 use Omw\Api\Domain\Ids;
 use Omw\Api\Domain\Policy;
 use Omw\Api\Domain\Time;
@@ -208,5 +209,72 @@ final class VectorsTest extends TestCase
         self::assertSame('2026-11-18T02:00:00.000Z', Time::toIsoUtc('2026-11-18T02:00:00Z'));
         self::assertTrue(Time::isIsoUtc('2026-11-18T02:00:00.123Z'));
         self::assertFalse(Time::isIsoUtc('2026-11-18T02:00:00+01:00'));
+    }
+
+    /**
+     * Domain\Access\StoreLayout against fixtures/vectors/access-paths.json (shared with
+     * packages/contracts/src/access.ts): id and token patterns, gate cookie values, personal and
+     * panic links, store paths and kinds, which op may name which path, ACCESS_STORE_DIR, cookie names.
+     */
+    public function testAccessPathVectors(): void
+    {
+        $v = self::vectors('access-paths');
+        $ids = $v['ids'];
+        \assert(is_array($ids));
+        foreach (['tokens' => 'isToken', 'followerIds' => 'isFollowerId', 'deviceIds' => 'isDeviceId'] as $key => $fn) {
+            foreach ($v[$key]['accept'] as $value) {
+                self::assertTrue(\Omw\Api\Domain\Access\Tokens::$fn($value), "$key accept $value");
+            }
+            foreach ($v[$key]['reject'] as $value) {
+                self::assertFalse(\Omw\Api\Domain\Access\Tokens::$fn($value), "$key reject $value");
+            }
+        }
+        foreach ($v['gateSessions']['accept'] as $value) {
+            self::assertNotNull(StoreLayout::parseGateSession($value), $value);
+        }
+        foreach ($v['gateSessions']['reject'] as $value) {
+            self::assertNull(StoreLayout::parseGateSession($value), $value);
+        }
+        foreach ($v['cookieValues'] as $c) {
+            self::assertSame($c['value'], StoreLayout::gateCookieValue($c['fid'], $c['did'], $c['sid']));
+            self::assertSame(['fid' => $c['fid'], 'did' => $c['did'], 'sid' => $c['sid']], StoreLayout::parseGateSession($c['value']));
+        }
+        foreach ($v['personalLinks'] as $c) {
+            self::assertSame($c['url'], StoreLayout::personalLinkUrl($c['origin'], $c['t']));
+        }
+        foreach ($v['panicLinks'] as $c) {
+            self::assertSame($c['url'], StoreLayout::panicLinkUrl($c['origin'], $c['k']));
+        }
+        foreach ($v['badOrigins'] as $origin) {
+            self::assertFalse(StoreLayout::isOrigin($origin), $origin);
+            try {
+                StoreLayout::personalLinkUrl($origin, (string) $ids['t']);
+                self::fail("accepted $origin");
+            } catch (\InvalidArgumentException) {
+                // refused
+            }
+        }
+        $paths = $v['storePaths'];
+        self::assertSame($paths['marker'], StoreLayout::MARKER);
+        self::assertSame($paths['locked'], StoreLayout::LOCKED);
+        self::assertSame($paths['htaccess'], StoreLayout::HTACCESS);
+        self::assertSame($paths['session'], StoreLayout::session($ids['fid'], $ids['did'], $ids['sid']));
+        self::assertSame($paths['sessionDir'], StoreLayout::sessionDir($ids['fid']));
+        self::assertSame($paths['sessionPrefix'], StoreLayout::sessionPrefix($ids['fid'], $ids['did']));
+        self::assertSame($paths['handoff'], StoreLayout::handoff($ids['did']));
+        self::assertSame($paths['personTombstone'], StoreLayout::personTombstone($ids['fid']));
+        self::assertSame($paths['deviceTombstone'], StoreLayout::deviceTombstone($ids['fid'], $ids['did']));
+        foreach ($v['pathKinds'] as $c) {
+            self::assertSame($c['kind'], StoreLayout::kind($c['path']), 'kind of ' . (string) json_encode($c['path']));
+        }
+        foreach ($v['opPaths'] as $c) {
+            self::assertSame($c['valid'], StoreLayout::isValidOpPath($c['op'], $c['path'], $c['exclusive']), (string) json_encode($c));
+        }
+        foreach ($v['storeDirs'] as $c) {
+            self::assertSame($c['safe'], StoreLayout::isSafeStoreDir($c['dir']), (string) json_encode($c['dir']));
+        }
+        foreach ($v['cookies'] as $c) {
+            self::assertSame($c['cookies'], StoreLayout::gateCookies($c['origin'], $c['cookieMode']), $c['origin'] . ' ' . $c['cookieMode']);
+        }
     }
 }

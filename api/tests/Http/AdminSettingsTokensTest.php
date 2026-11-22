@@ -111,7 +111,15 @@ final class AdminSettingsTokensTest extends ApiTestCase
 
     public function testStatusWithoutBackend(): void
     {
-        self::assertSame(['backend' => null, 'lastSeenAt' => null, 'publish' => [], 'alerts' => []], self::json($this->admin('GET', '/api/v1/admin/status')));
+        $status = self::json($this->admin('GET', '/api/v1/admin/status'));
+        $access = $status['access'] ?? null;
+        unset($status['access']);
+        self::assertSame(['backend' => null, 'lastSeenAt' => null, 'publish' => [], 'alerts' => []], $status);
+        // Wave 5: the counts-only access summary (no names: the admin persists this response).
+        self::assertIsArray($access);
+        self::assertSame(['mode' => 'none', 'blocked' => false, 'error' => null], $access['writer']);
+        self::assertSame(0, $access['pendingDevices']);
+        self::assertFalse($access['locked']);
     }
 
     public function testDoctorEndpoint(): void

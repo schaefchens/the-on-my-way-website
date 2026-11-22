@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AccessAck.json",
+  "title": "AccessAck",
+  "additionalProperties": false,
+  "properties": {
+    "appliedThrough": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "epoch": {
+      "pattern": "^[0-9a-f]{16}$",
+      "type": "string"
+    },
+    "failed": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "opId": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "opId",
+        "error"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "epoch",
+    "appliedThrough"
+  ],
+  "type": "object"
+}

@@ -46,14 +46,18 @@ import {
 import { hostname } from 'node:os';
 import { dirname, join } from 'node:path';
 import { isValidLocalDate } from '@omw/contracts/time';
+import { AccessFallback } from './access/fallback.js';
+import { ServiceSessionKeeper } from './access/service-session.js';
+import { openStoreRemote } from './access/store-remote.js';
 import { type AppSource, type AppSourceDeps, createAppSource } from './capture/app-source.js';
 import { listArchiveRecords } from './capture/archive.js';
 import type { Ingest, IngestChange, WaSource } from './capture/index.js';
-import type { Config } from './config.js';
+import { accessOf, type Config } from './config.js';
 import type { Logger } from './log.js';
-import { type StatePaths, statePaths } from './paths.js';
+import { BACKEND_ROOT, type StatePaths, statePaths } from './paths.js';
 import { mkdirWithModeSync, PRIVATE_DIR_MODE, PUBLIC_DIR_MODE, restrictTree } from './pipeline/files.js';
-import type { DeployOptions, DeployResult, Publisher } from './publisher/index.js';
+import type { DeployOptions, DeployResult, Publisher, ServiceSessionSource } from './publisher/index.js';
+import { TARGETS_FILE, TargetStore } from './publisher/targets.js';
 import { Store } from './store/index.js';
 import { type BackupDeps, type BackupPort, createBackupPuller } from './sync/backup.js';
 import { ApiClient } from './sync/client.js';
@@ -132,7 +136,13 @@ export interface AppFactories {
     syncOutbox?: boolean;
   }): Ingest;
   createGenerator(deps: { config: Config; log: Logger; store: Store; siteDistDir?: string }): GeneratorPort;
-  createPublisher(deps: { config: Config; log: Logger; store: Store }): PublisherPort;
+  createPublisher(deps: {
+    config: Config;
+    log: Logger;
+    store: Store;
+    /** Gate mode: the service session for the post-deploy gate check (spec-wave5 §5.6.3). */
+    serviceSession?: ServiceSessionSource | null;
+  }): PublisherPort;
   createSync?(deps: SyncDeps): Sync;
   /** API backup puller (default createBackupPuller; only with an API configured). */
   createBackup?(deps: BackupDeps): BackupPort;
@@ -1031,6 +1041,8 @@ export class App implements ControlBackend {
   ingest!: Ingest;
   generator!: GeneratorPort;
   publisher!: PublisherPort;
+  /** Mac fallback writer of the access store + lock button (spec-wave5 §5.6.6). */
+  accessFallback!: AccessFallback;
   sync!: Sync;
   scheduler!: BuildScheduler;
   publishRunner!: PublishRunner;
@@ -1124,7 +1136,40 @@ export class App implements ControlBackend {
       store: this.store,
       ...(config.siteDistDir ? { siteDistDir: config.siteDistDir } : {}),
     });
-    this.publisher = f.createPublisher({ config, log, store: this.store });
+    const accessClient = () => this.sync?.accessClient?.() ?? null;
+    this.publisher = f.createPublisher({
+      config,
+      log,
+      store: this.store,
+      ...(config.api ? { serviceSession: new ServiceSessionKeeper({ client: accessClient }) } : {}),
+    });
+    // Mac fallback writer of the access store and the lock button (spec-wave5 §5.6.6). Targets are
+    // read with their credentials from CONFIG_DIR/targets.json (never bootstrapped from env here).
+    const storeTargets = new TargetStore({
+      file: join(config.dirs.config, TARGETS_FILE),
+      configDir: config.dirs.config,
+      baseDir: BACKEND_ROOT,
+      outDir: config.dirs.out,
+      protectedDirs: [config.dirs.data, config.dirs.archive, config.dirs.config, config.dirs.media],
+      env: {},
+      log,
+      now: this.now,
+    });
+    this.accessFallback = new AccessFallback({
+      log: log.child({ module: 'access' }),
+      store: this.store,
+      client: accessClient,
+      targets: () => {
+        try {
+          return storeTargets.list();
+        } catch (err) {
+          log.warn({ err: (err as Error).message }, 'access writer: cannot read the publish targets');
+          return [];
+        }
+      },
+      openStore: (target) => openStoreRemote(target, { configDir: config.dirs.config, log }),
+      now: this.now,
+    });
     const syncDeps: SyncDeps = {
       config,
       log,
@@ -1137,6 +1182,7 @@ export class App implements ControlBackend {
       },
       enabledTargets: () => this.enabledTargetIds(),
       now: this.now,
+      onAccess: (access) => this.accessFallback.noteNeedsWriter(access.needsWriter),
       ...(this.opts.sync ? { options: this.opts.sync } : {}),
     };
     this.sync = (f.createSync ?? createSync)(syncDeps);
@@ -1506,10 +1552,13 @@ export class App implements ControlBackend {
 
   private enabledTargetIds(): string[] {
     try {
-      return this.publisher
-        .listTargets()
-        .filter((t) => t.enabled)
-        .map((t) => t.id);
+      return (
+        this.publisher
+          .listTargets()
+          // Store-only targets (publish: false, spec-wave5 §5.6.1) are never deployed.
+          .filter((t) => t.enabled && (t as { publish?: boolean }).publish !== false)
+          .map((t) => t.id)
+      );
     } catch (err) {
       this.log.error({ err }, 'cannot read publish targets');
       return [];
@@ -1713,7 +1762,33 @@ export class App implements ControlBackend {
         nextRetryAt: this.publishRunner.nextRetryAt,
       },
       site: { publicUrl: this.config.site.publicUrl, outDir: this.config.dirs.out },
+      access: { mode: accessOf(this.config).mode, writer: this.accessWriterLine() },
     };
+  }
+
+  /** One line about the Mac fallback writer for the control UI (null when it never ran). */
+  private accessWriterLine(): string | null {
+    const last = this.accessFallback?.last;
+    if (!last) return null;
+    const what =
+      last.status === 'applied'
+        ? `${last.applied} op(s) applied`
+        : last.status === 'refused'
+          ? `refused: ${last.reason}`
+          : last.status === 'failed'
+            ? `failed: ${last.error}`
+            : last.status === 'skipped'
+              ? `skipped: ${last.reason}`
+              : last.status.replace('_', ' ');
+    return `${what} (${last.at})`;
+  }
+
+  /** "Website sperren" (control UI): the store's `locked` file over the store target. */
+  async lockSite(): Promise<ActionResult> {
+    const r = await this.accessFallback.lockSite();
+    return r.ok
+      ? { ok: true, detail: r.already ? 'Gesperrt (war schon gesperrt)' : 'Gesperrt' }
+      : { ok: false, detail: r.error };
   }
 
   get targets(): TargetOps {

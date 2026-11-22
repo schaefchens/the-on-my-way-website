@@ -1,14 +1,15 @@
 /**
  * Boot JSON reader (D3). Every generated page carries
- *   <script id="omw-boot" type="application/json">{basePath, locale, route, manifestVersion, timelineV, day?, profile?}</script>
+ *   <script id="omw-boot" type="application/json">{basePath, locale, route, manifestVersion, timelineV, day?, profile?, access?}</script>
  * The runtime basePath ("/" or "/travel/") comes from here, never from the build.
  *
  * Parsing is structural and dependency-free (no zod in the production bundle); in dev the full
  * schema check runs too (data/validate.dev.ts).
  */
 import type { LocaleCode } from '@omw/contracts/i18n';
-import type { AvatarImage, DayDetail, RouteName, SiteProfile } from '@omw/contracts/site';
+import type { AvatarImage, BootAccess, DayDetail, RouteName, SiteProfile } from '@omw/contracts/site';
 import { BOOT_ELEMENT_ID } from './config';
+import { PUBLIC_API_BASE_RE } from './gate/access-lite';
 import { isKnownLocale } from './locales';
 import { parseRoutePath } from './route-path';
 
@@ -22,6 +23,8 @@ export interface SiteBoot {
   day: DayDetail | null;
   /** The owner's profile, inlined on day/story pages (shown until the timeline has loaded). */
   profile: SiteProfile | null;
+  /** Gate mode (spec-wave5 §5.4): how the SPA talks to the API about its device; null = open mode. */
+  access: BootAccess | null;
   /** "document": read from the page; "fallback": derived from the URL (dev without boot JSON). */
   source: 'document' | 'fallback';
   /** The raw JSON value, for dev validation. */
@@ -92,6 +95,28 @@ export function parseBootProfile(value: unknown): SiteProfile | null {
   return Object.keys(profile).length > 0 ? profile : null;
 }
 
+const COOKIE_NAME_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const COOKIE_DOMAIN_RE = /^[a-z0-9.-]+$/;
+const COOKIE_MODES: ReadonlySet<string> = new Set(['headers', 'co', 'parent']);
+
+/** Boot.access, structurally checked; null when absent or malformed (then the SPA is in open mode). */
+export function parseBootAccess(value: unknown): BootAccess | null {
+  if (!isRecord(value) || !isRecord(value.cookies)) return null;
+  const { api, cookieMode, cookieDomain } = value;
+  const { key, transfer, handoff } = value.cookies;
+  if (typeof api !== 'string' || !PUBLIC_API_BASE_RE.test(api)) return null;
+  if (typeof cookieMode !== 'string' || !COOKIE_MODES.has(cookieMode)) return null;
+  if (cookieDomain !== null && (typeof cookieDomain !== 'string' || !COOKIE_DOMAIN_RE.test(cookieDomain))) return null;
+  const names = [key, transfer, handoff];
+  if (!names.every((n) => typeof n === 'string' && COOKIE_NAME_RE.test(n))) return null;
+  return {
+    api,
+    cookies: { key: key as string, transfer: transfer as string, handoff: handoff as string },
+    cookieMode: cookieMode as BootAccess['cookieMode'],
+    cookieDomain,
+  };
+}
+
 /** Parses the boot JSON text; null when it is missing or structurally invalid. */
 export function parseBootJson(text: string | null | undefined): SiteBoot | null {
   if (!text) return null;
@@ -102,7 +127,7 @@ export function parseBootJson(text: string | null | undefined): SiteBoot | null 
     return null;
   }
   if (!isRecord(raw)) return null;
-  const { basePath, locale, route, manifestVersion, timelineV, day, profile } = raw;
+  const { basePath, locale, route, manifestVersion, timelineV, day, profile, access } = raw;
   if (typeof basePath !== 'string' || !BASE_PATH_RE.test(basePath)) return null;
   if (!isKnownLocale(locale)) return null;
 
@@ -124,6 +149,7 @@ export function parseBootJson(text: string | null | undefined): SiteBoot | null 
     timelineV: typeof timelineV === 'string' && HASH_RE.test(timelineV) ? timelineV : null,
     day: isRecord(day) && typeof day.date === 'string' && Array.isArray(day.entries) ? (day as DayDetail) : null,
     profile: parseBootProfile(profile),
+    access: parseBootAccess(access),
     source: 'document',
     raw,
   };
@@ -141,6 +167,7 @@ export function fallbackBoot(pathname: string, basePath = '/'): SiteBoot {
     timelineV: null,
     day: null,
     profile: null,
+    access: null,
     source: 'fallback',
   };
 }

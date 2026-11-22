@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/PanicLinkCreated.json",
+  "title": "PanicLinkCreated",
+  "additionalProperties": false,
+  "properties": {
+    "url": {
+      "format": "uri",
+      "type": "string"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "type": "object"
+}

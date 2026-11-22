@@ -36,6 +36,11 @@
       "types": "./dist/app-inbox.d.ts",
       "default": "./dist/app-inbox.js"
     },
+    "./access": {
+      "@omw/source": "./src/access.ts",
+      "types": "./dist/access.d.ts",
+      "default": "./dist/access.js"
+    },
     "./policy": {
       "@omw/source": "./src/policy.ts",
       "types": "./dist/policy.d.ts",

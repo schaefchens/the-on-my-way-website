@@ -209,3 +209,73 @@ export async function scanAssets(outDir: string): Promise<Set<string>> {
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Gate bundle (spec-wave5 §5.4, §6.1)
+
+/** Vite manifest entry of the gate bundle (frontend/site/vite.gate.config.ts). */
+export const GATE_ENTRY = 'src/gate/main.ts';
+
+/** The built gate bundle (frontend/site/dist/gate) the gate pages load from /_/assets/. */
+export interface GateBuild {
+  dir: string;
+  /** Short sha of the Vite manifest (GateBoot.build; part of the generator state hash). */
+  hash: string;
+  /** Build-relative paths ("assets/gate-abc.js"). */
+  script: string;
+  css: string[];
+  /** Static imports of the entry (modulepreload). */
+  modulepreload: string[];
+  /** Every file to copy to /_/assets/ (build-relative "assets/…", no source maps). */
+  files: string[];
+}
+
+/**
+ * Reads <siteDistDir>/gate/.vite/manifest.json (entry "src/gate/main.ts": file, css[], imported
+ * chunks). SiteBuildError when it is missing or inconsistent (gate mode cannot generate without
+ * it; WP3's `pnpm --filter @omw/site build` produces it).
+ */
+export async function readGateBuild(siteDistDir: string): Promise<GateBuild> {
+  const dir = join(siteDistDir, 'gate');
+  const manifestPath = join(dir, '.vite', 'manifest.json');
+  let bytes: Buffer;
+  try {
+    bytes = readFileSync(manifestPath);
+  } catch {
+    throw new SiteBuildError(
+      `Gate bundle not found (${manifestPath}). Build it with: pnpm --filter @omw/site build (ACCESS_MODE=gate needs it)`,
+    );
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(bytes.toString('utf8'));
+  } catch {
+    throw new SiteBuildError(`Invalid gate Vite manifest (${manifestPath}): not JSON`);
+  }
+  const parsed = ViteManifest.safeParse(raw);
+  if (!parsed.success) throw new SiteBuildError(`Invalid gate Vite manifest: ${z.prettifyError(parsed.error)}`);
+  const manifest = parsed.data;
+  const entry = manifest[GATE_ENTRY];
+  if (!entry?.isEntry) throw new SiteBuildError(`Gate Vite manifest has no entry "${GATE_ENTRY}"`);
+  const css: string[] = [];
+  const preload: string[] = [];
+  const seen = new Set<string>();
+  const visit = (key: string, isEntry: boolean) => {
+    if (seen.has(key)) return;
+    seen.add(key);
+    const chunk = manifest[key];
+    if (!chunk) throw new SiteBuildError(`Gate Vite manifest references missing chunk "${key}"`);
+    if (!isEntry) preload.push(checkRel(chunk.file));
+    for (const c of chunk.css ?? []) if (!css.includes(c)) css.push(checkRel(c));
+    for (const imp of chunk.imports ?? []) visit(imp, false);
+  };
+  visit(GATE_ENTRY, true);
+  const all: string[] = [];
+  await walk(join(dir, 'assets'), dir, all);
+  const files = all.filter((f) => !f.endsWith('.map')).sort();
+  for (const f of [entry.file, ...css, ...preload]) {
+    if (!files.includes(f)) throw new SiteBuildError(`Gate build file missing in ${dir}: ${f}`);
+  }
+  for (const f of files) checkRel(f);
+  return { dir, hash: shortSha(bytes), script: checkRel(entry.file), css, modulepreload: preload, files };
+}

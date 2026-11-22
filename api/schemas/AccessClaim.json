@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AccessClaim.json",
+  "title": "AccessClaim",
+  "additionalProperties": false,
+  "properties": {
+    "epoch": {
+      "pattern": "^[0-9a-f]{16}$",
+      "type": "string"
+    },
+    "lease": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "until": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "until"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "listingWanted": {
+      "type": "boolean"
+    },
+    "ops": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "exclusive": {
+            "type": "boolean"
+          },
+          "id": {
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "type": "integer"
+          },
+          "op": {
+            "enum": [
+              "init",
+              "put",
+              "delete",
+              "delete_prefix",
+              "delete_tree"
+            ],
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "op",
+          "path",
+          "content",
+          "exclusive"
+        ],
+        "type": "object"
+      },
+      "maxItems": 200,
+      "type": "array"
+    },
+    "storeId": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{16}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "lease",
+    "storeId",
+    "epoch",
+    "ops",
+    "listingWanted"
+  ],
+  "type": "object"
+}

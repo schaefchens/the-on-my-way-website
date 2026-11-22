@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/PrivacyState.json",
+  "title": "PrivacyState",
+  "additionalProperties": false,
+  "properties": {
+    "current": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "controller": {
+              "additionalProperties": false,
+              "properties": {
+                "address": {
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                "email": {
+                  "format": "email",
+                  "maxLength": 254,
+                  "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                  "type": "string"
+                },
+                "name": {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "email"
+              ],
+              "type": "object"
+            },
+            "publishedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+              "type": "string"
+            },
+            "texts": {
+              "additionalProperties": {
+                "additionalProperties": false,
+                "properties": {
+                  "audience": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "collected": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "intro": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "retention": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "rights": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "intro",
+                  "collected",
+                  "audience",
+                  "purpose",
+                  "retention",
+                  "rights"
+                ],
+                "type": "object"
+              },
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "de",
+                  "en",
+                  "ar"
+                ],
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "version": {
+              "maximum": 9007199254740991,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "controller",
+            "texts",
+            "version",
+            "publishedAt"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "draft": {
+      "additionalProperties": false,
+      "properties": {
+        "controller": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "type": "string"
+            },
+            "email": {
+              "maxLength": 254,
+              "type": "string"
+            },
+            "name": {
+              "maxLength": 120,
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "email"
+          ],
+          "type": "object"
+        },
+        "texts": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "audience": {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "collected": {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "intro": {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "purpose": {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "retention": {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "rights": {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "title": {
+                "maxLength": 120,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "propertyNames": {
+            "enum": [
+              "de",
+              "en",
+              "ar"
+            ],
+            "type": "string"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "controller",
+        "texts"
+      ],
+      "type": "object"
+    },
+    "draftSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "problems": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "versions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "publishedAt": {
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "version": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "publishedAt",
+          "sha256"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "draft",
+    "draftSha256",
+    "current",
+    "versions",
+    "problems"
+  ],
+  "type": "object"
+}

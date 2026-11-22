@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/MeDataResponse.json",
+  "title": "MeDataResponse",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "ended",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "additionalProperties": false,
+          "properties": {
+            "categories": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "count": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "key": {
+                    "enum": [
+                      "devices",
+                      "consents",
+                      "visits",
+                      "views",
+                      "reactions",
+                      "messages",
+                      "email"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key",
+                  "count"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "consents": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "confirmedAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                    "type": "string"
+                  },
+                  "locale": {
+                    "enum": [
+                      "de",
+                      "en",
+                      "ar"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "maximum": 9007199254740991,
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "version",
+                  "confirmedAt",
+                  "locale"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "devices": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "createdAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                    "type": "string"
+                  },
+                  "id": {
+                    "pattern": "^[a-z2-7]{8}$",
+                    "type": "string"
+                  },
+                  "label": {
+                    "maxLength": 60,
+                    "type": "string"
+                  },
+                  "lastSeenAt": {
+                    "anyOf": [
+                      {
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "state": {
+                    "enum": [
+                      "pending",
+                      "active",
+                      "revoked",
+                      "declined"
+                    ],
+                    "type": "string"
+                  },
+                  "thisDevice": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "state",
+                  "createdAt",
+                  "lastSeenAt",
+                  "thisDevice"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "follower": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "pattern": "^[a-z2-7]{12}$",
+                  "type": "string"
+                },
+                "name": {
+                  "maxLength": 60,
+                  "minLength": 1,
+                  "pattern": "^[^\\p{Cc}\\p{Z}](?:[^\\p{Cc}]*[^\\p{Cc}\\p{Z}])?$",
+                  "type": "string"
+                },
+                "since": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                  "type": "string"
+                },
+                "state": {
+                  "enum": [
+                    "active",
+                    "revoked"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "since",
+                "state"
+              ],
+              "type": "object"
+            },
+            "noticeVersion": {
+              "anyOf": [
+                {
+                  "maximum": 9007199254740991,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "follower",
+            "devices",
+            "consents",
+            "categories",
+            "noticeVersion"
+          ],
+          "type": "object"
+        },
+        "status": {
+          "const": "ok",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "data"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "additionalProperties": false,
+          "properties": {
+            "createdAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+              "type": "string"
+            },
+            "label": {
+              "maxLength": 60,
+              "type": "string"
+            },
+            "state": {
+              "enum": [
+                "pending",
+                "active",
+                "revoked",
+                "declined"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "state",
+            "createdAt"
+          ],
+          "type": "object"
+        },
+        "status": {
+          "const": "limited",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "device"
+      ],
+      "type": "object"
+    }
+  ]
+}

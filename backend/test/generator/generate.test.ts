@@ -70,7 +70,7 @@ describe.skipIf(!present)('generator: full run on the fixtures', () => {
       ...['de', 'en'].flatMap((l) => [
         `${l}/index.html`,
         `${l}/trip/vietnam-2026/index.html`,
-        `${l}/day/2026-11-15/story/p_s01lantern/index.html`,
+        `${l}/day/2026-11-15/story/p_bhhhs5v54ykcijn3/index.html`,
         ...days.map((d) => `${l}/day/${d}/index.html`),
       ]),
     ].sort();
@@ -101,9 +101,10 @@ describe.skipIf(!present)('generator: full run on the fixtures', () => {
     // Revoked (on_revoke=hide) photo left out; the night photo is moved here by localDateOverride.
     expect(ids('2026-11-15')).not.toContain(key('hoian-photo-revoked').publicId);
     expect(ids('2026-11-15')).toContain(key('hoian-photo-night').publicId);
-    expect(ids('2026-11-15')).toContain('p_s01lantern');
+    // Posts are published under their hashed id (E16): publishedPostIdOf('p_s01lantern').
+    expect(ids('2026-11-15')).toContain('p_bhhhs5v54ykcijn3');
     // Hidden by the owner, unsupported kind.
-    expect(ids('2026-11-16')).toEqual([key('hoian-video-hevc').publicId, 'p_n02hoian26']);
+    expect(ids('2026-11-16')).toEqual([key('hoian-video-hevc').publicId, 'p_2vzeoldlt3wsgp7f']);
     // Download pending / media lost are not ready.
     expect(ids('2026-11-17')).toEqual([key('saigon-photo').publicId, key('saigon-text-plain').publicId]);
   });
@@ -134,9 +135,11 @@ describe.skipIf(!present)('generator: full run on the fixtures', () => {
     expect(page).toContain('<link rel="canonical" href="https://example.org/en/day/2026-11-15/">');
     expect(page).toContain('<link rel="alternate" hreflang="de" href="https://example.org/de/day/2026-11-15/">');
     expect(page).toContain('<link rel="alternate" hreflang="x-default" href="https://example.org/de/day/2026-11-15/">');
-    expect(page).toMatch(
-      /<meta property="og:image" content="https:\/\/example\.org\/media\/[0-9a-f]{2}\/[0-9a-f]{16}_og\.jpg">/,
+    // Neutral link previews (spec-wave5 §5.2, E7/E10): no picture, description, URL or name.
+    expect(page).toContain(
+      '<meta name="description" content="Private">\n<meta property="og:type" content="website">\n<meta property="og:title" content="Private">\n<meta name="twitter:card" content="summary">\n',
     );
+    expect(page).not.toMatch(/og:image|og:description|og:url|og:site_name|og:locale|name="author"/);
     expect(page).toContain('<link rel="stylesheet" href="/assets/index-a1x3.css">');
     expect(page).toContain('<link rel="stylesheet" href="/assets/shared-a1x4.css">');
     expect(page).toContain('<link rel="modulepreload" href="/assets/shared-a1x2.js" crossorigin>');
@@ -159,18 +162,18 @@ describe.skipIf(!present)('generator: full run on the fixtures', () => {
     expect(twinOf(page).match(/fetchpriority="high"/g)?.length).toBe(1);
     expect(page).toContain('<a rel="prev" href="/en/day/2026-11-14/">');
     expect(page).toContain('<a rel="next" href="/en/day/2026-11-16/">');
-    expect(page).toContain('href="/en/day/2026-11-15/story/p_s01lantern/">Read the story</a>');
+    expect(page).toContain('href="/en/day/2026-11-15/story/p_bhhhs5v54ykcijn3/">Read the story</a>');
     expect(page).toContain('Yellow houses, bougainvillea and the first coffee of the day.');
     const boot = bootOf(page);
     expect(boot).toMatchObject({ basePath: '/', locale: 'en', route: { name: 'day', params: { date: '2026-11-15' } } });
     expect(boot.manifestVersion).toBe(1);
     expect((boot.day as { date: string }).date).toBe('2026-11-15');
     // Story page renders markdown (raw HTML off).
-    const story = readOut(h, 'de/day/2026-11-15/story/p_s01lantern/index.html');
+    const story = readOut(h, 'de/day/2026-11-15/story/p_bhhhs5v54ykcijn3/index.html');
     expect(story).toContain('<h2>Vollmond über dem Thu Bồn</h2>');
     expect(story).toContain('rel="nofollow noopener noreferrer"');
     expect(bootOf(story)).toMatchObject({
-      route: { name: 'story', params: { date: '2026-11-15', id: 'p_s01lantern' } },
+      route: { name: 'story', params: { date: '2026-11-15', id: 'p_bhhhs5v54ykcijn3' } },
     });
     // Fallback labels: an English-only text on the German page says "Original: Englisch".
     const de16 = readOut(h, 'de/day/2026-11-16/index.html');
@@ -402,8 +405,8 @@ describe.skipIf(!present)('generator: incremental runs equal full runs', () => {
     expect(r.full).toBe(false);
     expect(r.removed).toEqual(
       expect.arrayContaining([
-        'de/day/2026-11-15/story/p_s01lantern/index.html',
-        'en/day/2026-11-15/story/p_s01lantern/index.html',
+        'de/day/2026-11-15/story/p_bhhhs5v54ykcijn3/index.html',
+        'en/day/2026-11-15/story/p_bhhhs5v54ykcijn3/index.html',
       ]),
     );
     expect(existsSync(join(h.outDir, 'de/day/2026-11-15/story'))).toBe(false);
@@ -540,7 +543,7 @@ describe.skipIf(!present)('generator: escaping and XSS attempts', () => {
       '<title>&lt;/title&gt;&lt;script&gt;alert(2)&lt;/script&gt; · 12. Nov. 2026 · On My Way</title>',
     );
     expect(day).toContain('&lt;b&gt;fett&lt;/b&gt; &amp; &quot;zitiert&quot;');
-    const story = readOut(h, 'de/day/2026-11-12/story/p_evilstory/index.html');
+    const story = readOut(h, 'de/day/2026-11-12/story/p_7vauwbtsd66exr7z/index.html');
     expect(story).toContain('&lt;script&gt;alert(4)&lt;/script&gt;');
     expect(story).toContain('[x](javascript:alert(5))');
   });
@@ -592,7 +595,7 @@ describe.skipIf(!present)('generator: locales, base path, indexing', () => {
         'User-agent: *\nAllow: /\nSitemap: https://example.org/travel/sitemap.xml\n',
       );
       const sitemap = readOut(h, 'sitemap.xml');
-      expect(sitemap).toContain('<loc>https://example.org/travel/en/day/2026-11-15/story/p_s01lantern/</loc>');
+      expect(sitemap).toContain('<loc>https://example.org/travel/en/day/2026-11-15/story/p_bhhhs5v54ykcijn3/</loc>');
       expect(sitemap).toContain('<xhtml:link rel="alternate" hreflang="de" href="https://example.org/travel/de/"/>');
       expect(readOut(h, 'index.html')).toContain(
         '<link rel="alternate" hreflang="x-default" href="https://example.org/travel/">',

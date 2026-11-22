@@ -31,6 +31,13 @@
  * | OMW_VERSION         | backend/package.json version     | (Docker build arg)     |
  * | APP_PUBLISH         | false (archive-only, Q8 a)       | false                  |
  * | APP_INBOX_POLL_SECONDS | 60                            | 60                     |
+ * | ACCESS_MODE         | open                             | gate (live hosting)    |
+ * | API_PUBLIC_URL      | API_BASE_URL                     | required in gate mode  |
+ * | ACCESS_STORE_DIR    | –                                | required in gate mode  |
+ * | ACCESS_COOKIE_MODE  | headers                          | headers / co / parent  |
+ * | ACCESS_COOKIE_DOMAIN| –                                | co: site host; parent  |
+ * | ACCESS_HTTPS_REDIRECT | false                          | true when P0b-10 passed|
+ * | GATE_OUT_DIR        | backend/data/out-gate            | same                   |
  *
  * Relative paths are resolved against backend/. DEFAULT_TIMEZONE is used until the mirrored
  * setting "timezone.current" arrives from the API.
@@ -67,9 +74,30 @@
  *
  * TRAVELER_LID: the traveler's WhatsApp LID (digits). Normally learned by the helper (`traveler`
  * event), persisted by Node and passed to the helper as -traveler-lid; set it only to override.
+ *
+ * Access gate (spec-wave5 §5.1). ACCESS_MODE=gate turns on the gate tree (GATE_OUT_DIR: root
+ * .htaccess, neutral page, /_/ gate pages), the gated content .htaccess, the two-root publisher
+ * and the anonymous-refused check; "open" is today's output (dev, fixtures, Docker e2e), with the
+ * P0 fixes. In gate mode SITE_PUBLIC_URL is "https://<site host>/<secret>/" with <secret> =
+ * [a-z0-9]{20} (exactly one path segment, generated once; backend/README.md has a one-liner), its
+ * origin is the site origin and its path the content basePath.
+ * API_PUBLIC_URL: the API base the browser calls (default API_BASE_URL); the gate pages call
+ * "<API_PUBLIC_URL>api/v1/public/" and the CSP's connect-src names its origin. ACCESS_STORE_DIR:
+ * the session-file store as Apache sees it (absolute, [A-Za-z0-9._/-], no "..", no "//"); it is
+ * baked into both .htaccess files. ACCESS_COOKIE_MODE / ACCESS_COOKIE_DOMAIN must equal the API's
+ * (headers: __Host- cookies, no domain; co: F1, the site host; parent: F2, the shared parent
+ * domain). The whole config is checked with siteAccessProblems() (@omw/contracts/access). Nothing
+ * in backend/src names a real host: every origin comes from here (Q9).
  */
 import { readFileSync } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { isAbsolute, join, relative, resolve } from 'node:path';
+import {
+  type AccessMode,
+  CONTENT_PATH_RE,
+  type CookieMode,
+  SiteAccessConfig,
+  siteAccessProblems,
+} from '@omw/contracts/access';
 import { isValidTimeZone } from '@omw/contracts/time';
 import { z } from 'zod';
 import { BACKEND_ROOT, REPO_ROOT } from './paths.js';
@@ -143,6 +171,13 @@ const EnvSchema = z.object({
   OMW_VERSION: optionalString,
   APP_PUBLISH: booleanFlag,
   APP_INBOX_POLL_SECONDS: z.preprocess(emptyToUndefined, z.coerce.number().int().min(10).max(3600).default(60)),
+  ACCESS_MODE: z.preprocess(emptyToUndefined, z.enum(['open', 'gate']).default('open')),
+  API_PUBLIC_URL: optionalUrl,
+  ACCESS_STORE_DIR: optionalString,
+  ACCESS_COOKIE_MODE: z.preprocess(emptyToUndefined, z.enum(['headers', 'co', 'parent']).default('headers')),
+  ACCESS_COOKIE_DOMAIN: optionalString,
+  ACCESS_HTTPS_REDIRECT: booleanFlag,
+  GATE_OUT_DIR: optionalString,
 });
 
 export type WaMode = 'observer' | 'self' | 'fixture';
@@ -184,6 +219,36 @@ export interface Config {
    * means archive-only (app entries are never published) and a 60 s poll.
    */
   app?: { publish: boolean; pollSeconds: number };
+  /** Access gate (spec-wave5 §5.1); absent in hand-built configs = open mode (accessOf()). */
+  access?: AccessSettings;
+}
+
+export interface AccessSettings {
+  mode: AccessMode;
+  /**
+   * The site/API/cookie configuration (checked with siteAccessProblems). Always set in gate mode;
+   * in open mode only when SITE_PUBLIC_URL and an API URL are known (heartbeat `site`).
+   */
+  site: SiteAccessConfig | null;
+  /** Gate mode: the content folder ("<secret>", the one segment of SITE_PUBLIC_URL's path). */
+  secret: string | null;
+  /** Where the gate tree is generated (GATE_OUT_DIR; a sibling of OUT_DIR, never inside it). */
+  gateOutDir: string;
+}
+
+/** The access settings of a config (hand-built configs without them are open mode). */
+export function accessOf(config: Pick<Config, 'access' | 'dirs'>): AccessSettings {
+  return (
+    config.access ?? { mode: 'open', site: null, secret: null, gateOutDir: join(config.dirs.out, '..', 'out-gate') }
+  );
+}
+
+/** True for a config in gate mode (with its site configuration, which gate mode guarantees). */
+export function isGateMode(config: Pick<Config, 'access' | 'dirs'>): config is Pick<Config, 'dirs'> & {
+  access: AccessSettings & { mode: 'gate'; site: SiteAccessConfig; secret: string };
+} {
+  const a = accessOf(config);
+  return a.mode === 'gate' && a.site !== null && a.secret !== null;
 }
 
 /** backend/package.json version ("0.0.0" if unreadable). */
@@ -267,6 +332,8 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   for (const h of controlAllowedHosts) {
     if (!/^[a-z0-9.-]+$|^\[[0-9a-f:]+\]$/.test(h)) problems.push(`CONTROL_ALLOWED_HOSTS: invalid host name "${h}"`);
   }
+  const outDir = resolvePath(e.OUT_DIR, 'data/out');
+  const access = accessSettings(e, basePath, outDir, problems);
   if (problems.length > 0) throw new ConfigError(`Invalid environment:\n  ${problems.join('\n  ')}`);
 
   const dataDefault = production ? '/data' : 'data/state';
@@ -291,7 +358,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     dirs: {
       data: resolvePath(e.DATA_DIR, dataDefault),
       archive: resolvePath(e.ARCHIVE_DIR, 'data/archive'),
-      out: resolvePath(e.OUT_DIR, 'data/out'),
+      out: outDir,
       config: resolvePath(e.CONFIG_DIR, 'data/config'),
       media: resolvePath(e.MEDIA_DIR, 'data/media'),
     },
@@ -299,7 +366,65 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     siteDistDir: resolvePath(e.SITE_DIST_DIR, join(REPO_ROOT, 'frontend', 'site', 'dist')),
     controlAllowedHosts,
     app: { publish: e.APP_PUBLISH, pollSeconds: e.APP_INBOX_POLL_SECONDS },
+    access,
   };
+}
+
+function isInside(child: string, parent: string): boolean {
+  const rel = relative(parent, child);
+  return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
+}
+
+/** The access gate settings (spec-wave5 §5.1); pushes every problem found. */
+function accessSettings(
+  e: z.infer<typeof EnvSchema>,
+  basePath: string,
+  outDir: string,
+  problems: string[],
+): AccessSettings {
+  const mode: AccessMode = e.ACCESS_MODE;
+  const gateOutDir = resolvePath(e.GATE_OUT_DIR, 'data/out-gate');
+  if (mode === 'gate' && (isInside(gateOutDir, outDir) || isInside(outDir, gateOutDir))) {
+    problems.push('GATE_OUT_DIR must be a sibling of OUT_DIR (neither inside the other)');
+  }
+  const apiUrl = e.API_PUBLIC_URL ?? e.API_BASE_URL;
+  if (mode === 'gate') {
+    if (!e.SITE_PUBLIC_URL) problems.push('ACCESS_MODE=gate needs SITE_PUBLIC_URL (https://<site host>/<secret>/)');
+    if (!apiUrl) problems.push('ACCESS_MODE=gate needs API_PUBLIC_URL (or API_BASE_URL)');
+  }
+  if (!e.SITE_PUBLIC_URL || !apiUrl) return { mode, site: null, secret: null, gateOutDir };
+  const api = new URL(apiUrl);
+  const apiBase = `${api.origin}${api.pathname.endsWith('/') ? api.pathname : `${api.pathname}/`}`;
+  const candidate = {
+    mode,
+    siteOrigin: new URL(e.SITE_PUBLIC_URL).origin,
+    contentPath: basePath,
+    apiPublicBase: `${apiBase}api/v1/public/`,
+    cookieMode: e.ACCESS_COOKIE_MODE as CookieMode,
+    ...(e.ACCESS_COOKIE_DOMAIN ? { cookieDomain: e.ACCESS_COOKIE_DOMAIN.toLowerCase() } : {}),
+    ...(e.ACCESS_STORE_DIR ? { storeDir: e.ACCESS_STORE_DIR } : {}),
+    httpsRedirect: e.ACCESS_HTTPS_REDIRECT,
+  };
+  if (api.search || api.hash || api.username || api.password) {
+    problems.push('API_PUBLIC_URL must not have a query, fragment or credentials');
+  }
+  const parsed = SiteAccessConfig.safeParse(candidate);
+  if (!parsed.success) {
+    // Only gate mode depends on these values; in open mode they merely describe the site.
+    if (mode === 'gate') {
+      problems.push(...parsed.error.issues.map((i) => `access config: ${i.path.join('.')}: ${i.message}`));
+    }
+    return { mode, site: null, secret: null, gateOutDir };
+  }
+  const site = parsed.data;
+  const found = siteAccessProblems(site);
+  if (found.length > 0) {
+    // Gate mode refuses an inconsistent config; open mode merely leaves the description out.
+    if (mode === 'gate') problems.push(...found.map((p) => `access config: ${p}`));
+    return { mode, site: null, secret: null, gateOutDir };
+  }
+  const secret = mode === 'gate' && CONTENT_PATH_RE.test(basePath) ? basePath.slice(1, -1) : null;
+  return { mode, site, secret, gateOutDir };
 }
 
 /** Config without secrets, for logs and the control UI. */

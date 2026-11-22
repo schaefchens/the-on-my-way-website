@@ -1,4 +1,4 @@
-> **Status 2026-11-19:** plan approved · Step 0 done (rename, git init) · next: Phase 0 (WhatsApp capture spike)
+> **Status 2026-11-21:** plan approved · Step 0 done · waves 1–4 committed · wave 5 (approval-only followers, access gate, data rights, safety options, password change) built and tested locally, live deploy pending · Phase 0 (WhatsApp capture on the real phone) not started
 
 # Plan: "On My Way": WhatsApp status → static travel timeline
 
@@ -29,6 +29,23 @@ The project directory is empty (greenfield). All project files stay inside it.
 | Publishing | **Instant** by default ("delayed" and "review first" are settings). Any item can be hidden at any time; hidden items and their media are removed from the static host. |
 | Languages | **de + en** at launch, **RTL-ready** for ar/he/fa later. |
 | Project dir | Renamed to `the-on-my-way-website` (Step 0). |
+
+### Decisions of wave 5 (owner, 2026-11-20: approval-only followers)
+
+| Topic | Decision |
+|---|---|
+| Who sees the site (D1–D3) | **Only people the traveler invited.** No public layer, no shared password; without access nothing personal or fetchable leaks (link previews, robots, sitemap and error pages included): one neutral page. |
+| Gate (Q0 → b) | **Strictly API-only:** the site host runs only Apache + `.htaccess`, which checks the device's cookie against an empty session file in a hidden store; the PHP API does all logic and writes the store (directly when it shares the site's filesystem, else SFTP, else the Mac). Cookies are set by Apache via `mod_headers` (`__Host-`), with the `CO` flag (F1) and a parent-domain cookie (F2) as tested fallbacks. Live: `direct` + `headers` (host probe P0b, 2026-11-20, 13/13). |
+| Followers (D6, D2, D8) | A stable, never reused random id per person; devices and sessions are its children. Revoking a device or a person ends access only; data stays. |
+| Further devices (Q3 → c) | The first device of a person joins with the personal link; **every further device waits for the owner's OK** (pending list, push without names). Up to 5 active devices per person. Residual: whoever opens a fresh link first gets the first device. |
+| Lock (Q6 → a) | One admin login (no co-admin, Q8 a). A lock switch in the admin, an optional panic link (locks without login) and a lock button on the Mac. |
+| Information first (D11, Q7 → configurable) | The invite link opens an information screen first; joining = "Weiter" (never pre-ticked). Responsible person, contact and texts (de/en) are owner settings, versioned; every confirmation is recorded; a changed text is confirmed again. Templates marked "not legal advice". |
+| Data rights (D12) | "Your data" on the site: view, export, "delete me" with a deliberate confirmation; leaves a nameless tombstone and a notice to the owner. The admin has the same delete action. |
+| Release timing (Q1 → configurable) | Unchanged default (instant). New settings, all off: release slots (e.g. twice a day) and a departure hold (≤ 7 days, "she moved on" tap). |
+| Here-now badge (Q2 → a + hide) | City + "here now" badge as before, with the choice city without badge / country only / nothing; times optionally only as part of day. |
+| Domain (Q9 → configurable) | Nothing hardcodes a host; the existing domain stays for now. Only the parent-domain fallback needs site and API on one registrable domain; any domain change loses every cookie (people reopen their links). |
+| Owner password | Change in the admin (≥ 12 characters, ends every other session); recovery with `deploy-api.ts --reset-admin-password`. |
+| Wave 6 (not built) | Request-access form + inbox, follower messages (no replies, Q5 a), optional e-mail notifications with double opt-in (Q4), reactions (counts only for followers), first-party views and activity overview (D7, D9, D10). |
 
 ---
 
@@ -78,16 +95,26 @@ Traveler's phone ─ status ─▶ WhatsApp ─▶ Observer number (spare phone 
 | Captured WhatsApp facts: kind, time, caption, text style, media, revoked | **Backend** | API (so the admin can browse and annotate) |
 | Owner content: notes, stories, descriptions, visibility overrides, day moves, day titles/places, trips, settings | **API** | Backend (via the change feed) |
 
+| Followers, devices, personal-link hashes, consents, privacy notice versions, lock, tombstones (wave 5) | **API** | Session-file store on the site host (a projection: empty session files, lock, tombstones that survive an API restore); the backend never receives names |
+
 The generator merges both. This has three consequences:
 - The site **keeps publishing new statuses even if the API is down**, using the last-known settings.
 - Owner edits are accepted while the backend sleeps, and they go live when it returns.
 - With no API configured at all, the backend still publishes a captures-only site. That is a useful MVP.
 
+**With the access gate (wave 5)** the static host serves two trees: the gate tree at the web root
+(root `.htaccess`, neutral page, the `/_/` join/info/wait/ended/your-data/panic pages and their
+small vanilla-TS bundle) and the timeline under `/<secret>/` with the same gate block. Viewing
+still never needs the API; joining, approving, revoking and "Your data" do (followers call the
+API's public routes with CORS, owner actions go through the admin). Details:
+[HOSTING.md §11](HOSTING.md#11-access-gate-wave-5-approval-only-followers),
+[PRIVACY.md](PRIVACY.md).
+
 ### Repository layout
 
 ```
 the-on-my-way-website/
-├─ docs/                PLAN.md · OBSERVER.md · HOSTING.md (static + PHP host setup) · OPERATIONS.md
+├─ docs/                PLAN.md · OBSERVER.md · HOSTING.md (static + PHP host, access gate) · OPERATIONS.md · PRIVACY.md
 ├─ packages/contracts/  zod 4: static data files (manifest, timeline, day, trip) + backend↔API sync + admin API
 │                       → TS types + exported JSON Schema (PHP validates with opis/json-schema)
 ├─ backend/

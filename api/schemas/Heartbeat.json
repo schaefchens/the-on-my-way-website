@@ -101,6 +101,48 @@
       ],
       "type": "object"
     },
+    "site": {
+      "additionalProperties": false,
+      "properties": {
+        "access": {
+          "enum": [
+            "open",
+            "gate"
+          ],
+          "type": "string"
+        },
+        "cookieMode": {
+          "enum": [
+            "headers",
+            "co",
+            "parent"
+          ],
+          "type": "string"
+        },
+        "origin": {
+          "pattern": "^https?:\\/\\/[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::\\d{1,5})?$",
+          "type": "string"
+        },
+        "storeDir": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "origin",
+        "access",
+        "cookieMode",
+        "storeDir"
+      ],
+      "type": "object"
+    },
     "stats": {
       "additionalProperties": {
         "type": "number"

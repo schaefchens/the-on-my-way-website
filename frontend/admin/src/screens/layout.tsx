@@ -1,17 +1,18 @@
 /**
  * App shell of the signed-in admin: a floating tab bar on phones (Home · Inbox · Write · Days ·
- * Settings; Trips live next to Days), a side navigation from 1024 px, the offline banner and a
- * "sending…" pill for queued writes.
+ * Settings; Trips live next to Days, People inside Settings), a side navigation from 1024 px
+ * (with People and the number of waiting devices), the offline banner and a "sending…" pill for
+ * queued writes.
  */
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { SPRINGS } from '@omw/ui/motion';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Outlet, useNavigate, useRouteContext, useRouterState } from '@tanstack/react-router';
 import * as m from 'motion/react-m';
 import { useState } from 'react';
-import { capturesQuery } from '../api/queries';
+import { capturesQuery, statusQuery } from '../api/queries';
 import { OfflineBanner, SyncPill } from '../components/feedback';
 import {
   CalendarIcon,
@@ -19,6 +20,7 @@ import {
   HomeIcon,
   InboxIcon,
   LogOutIcon,
+  PeopleIcon,
   PlaneIcon,
   PlusIcon,
   SettingsIcon,
@@ -31,7 +33,7 @@ import { useStore } from '../lib/store';
 import { logout } from '../session';
 import { SiteStatusMini } from './home';
 
-type NavTo = '/' | '/inbox' | '/days' | '/trips' | '/settings';
+type NavTo = '/' | '/inbox' | '/days' | '/trips' | '/people' | '/settings';
 
 interface NavItem {
   to: NavTo;
@@ -46,6 +48,7 @@ const SIDE_NAV: NavItem[] = [
   { to: '/inbox', label: msg`Inbox`, icon: InboxIcon },
   { to: '/days', label: msg`Days`, icon: CalendarIcon },
   { to: '/trips', label: msg`Trips`, icon: SuitcaseIcon },
+  { to: '/people', label: msg`People`, icon: PeopleIcon },
   { to: '/settings', label: msg`Settings`, icon: SettingsIcon },
 ];
 
@@ -53,7 +56,12 @@ const TAB_NAV: NavItem[] = [
   { to: '/', label: msg`Home`, icon: HomeIcon },
   { to: '/inbox', label: msg`Inbox`, icon: InboxIcon },
   { to: '/days', label: msg`Days`, icon: CalendarIcon, also: ['/trips'] },
-  { to: '/settings', label: msg({ message: 'Settings', context: 'tab bar, keep short' }), icon: SettingsIcon },
+  {
+    to: '/settings',
+    label: msg({ message: 'Settings', context: 'tab bar, keep short' }),
+    icon: SettingsIcon,
+    also: ['/people'],
+  },
 ];
 
 function useActive() {
@@ -72,6 +80,12 @@ function useNewCount(): number {
   return first.filter((c) => isNew(c.occurredAt, seenAt)).length;
 }
 
+/** Devices waiting for the owner's OK (counts only, from the persisted status query). */
+function usePendingDevices(): number {
+  const q = useQuery(statusQuery());
+  return q.data?.access?.pendingDevices ?? 0;
+}
+
 function CountDot({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
@@ -85,6 +99,7 @@ function TabBar() {
   const { i18n, t } = useLingui();
   const isActive = useActive();
   const newCount = useNewCount();
+  const pendingDevices = usePendingDevices();
   const composing = useRouterState({ select: (s) => s.location.pathname.includes('/compose') });
   const tab = (item: NavItem) => {
     const active = isActive(item);
@@ -106,7 +121,15 @@ function TabBar() {
         <span className={cx('relative', active ? 'text-accent-strong' : 'text-muted')}>
           <IconCmp className="size-[1.4rem]" />
           {item.to === '/inbox' && <CountDot count={newCount} />}
+          {item.to === '/settings' && pendingDevices > 0 && (
+            <span
+              data-testid="settings-pending-dot"
+              aria-hidden="true"
+              className="absolute -end-1 -top-0.5 size-2.5 rounded-pill bg-accent ring-2 ring-surface"
+            />
+          )}
         </span>
+        {item.to === '/settings' && pendingDevices > 0 && <span className="sr-only">{t`A device is waiting`}</span>}
         <span className={cx('relative', active ? 'text-ink' : 'text-muted')}>{i18n._(item.label)}</span>
       </Link>
     );
@@ -139,6 +162,7 @@ function SideNav() {
   const { i18n, t } = useLingui();
   const isActive = useActive();
   const newCount = useNewCount();
+  const pendingDevices = usePendingDevices();
   const { me } = useRouteContext({ from: '/authed' });
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -196,6 +220,14 @@ function SideNav() {
                   {item.to === '/inbox' && newCount > 0 && (
                     <span className="relative rounded-pill bg-accent px-2 py-0.5 text-xs font-extrabold text-on-accent">
                       {newCount}
+                    </span>
+                  )}
+                  {item.to === '/people' && pendingDevices > 0 && (
+                    <span
+                      data-testid="people-pending-badge"
+                      className="relative rounded-pill bg-accent px-2 py-0.5 text-xs font-extrabold text-on-accent"
+                    >
+                      {pendingDevices}
                     </span>
                   )}
                 </Link>

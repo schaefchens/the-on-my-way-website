@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Omw\Api\Http\Backend;
 
 use finfo;
+use Omw\Api\Config;
+use Omw\Api\Domain\Access\AccessState;
 use Omw\Api\Domain\BackendStatus;
 use Omw\Api\Domain\Captures;
 use Omw\Api\Domain\ChangeLog;
@@ -13,6 +15,7 @@ use Omw\Api\Http\ApiException;
 use Omw\Api\Http\Input;
 use Omw\Api\Http\Responder;
 use Omw\Api\Infra\Backups;
+use Omw\Api\Infra\Db;
 use Omw\Api\Infra\Doctor;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,9 +30,9 @@ use Slim\Psr7\Stream;
  *                                        (204 but discarded for a revoked capture while ingest.on_revoke = hide)
  *   POST /captures/{sourceKey}/revoke    CaptureRevoke -> 204; 404 capture_not_mirrored (on_revoke = hide:
  *                                        its private preview and poster are deleted)
- *   GET  /changes?after=&limit=          ChangesResponse; 409 feed_reset
- *   POST /heartbeat                      Heartbeat -> 204
- *   POST /published                      PublishedReport -> 204
+ *   GET  /changes?after=&limit=          ChangesResponse (+ access.needsWriter, spec-wave5 §3.6); 409 feed_reset
+ *   POST /heartbeat                      Heartbeat -> 204 (site: origin / storeDir are compared by the alerts)
+ *   POST /published                      PublishedReport -> 204 (gateCheck: stored as the newest gate check)
  *   GET  /backup/latest                  newest snapshot (application/vnd.sqlite3) | 304 | 404
  */
 final class BackendController
@@ -44,6 +47,9 @@ final class BackendController
         private readonly ChangeLog $changes,
         private readonly BackendStatus $status,
         private readonly Backups $backups,
+        private readonly AccessState $access,
+        private readonly Db $db,
+        private readonly Config $config,
     ) {
     }
 
@@ -128,7 +134,10 @@ final class BackendController
             throw ApiException::validation('Unknown query parameter(s): ' . mb_scrub(implode(', ', $unknown), 'UTF-8'));
         }
 
-        return $this->responder->json($response, $this->changes->page($after, $limit), 'ChangesResponse');
+        $page = $this->changes->page($after, $limit);
+        $page->access = (object) ['needsWriter' => AccessSyncController::needsWriter($this->db, $this->config)];
+
+        return $this->responder->json($response, $page, 'ChangesResponse');
     }
 
     public function heartbeat(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -140,7 +149,17 @@ final class BackendController
 
     public function published(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $this->status->recordPublished($this->input->body($request, 'PublishedReport'));
+        $report = $this->input->body($request, 'PublishedReport');
+        $this->status->recordPublished($report);
+        $check = $report->gateCheck ?? null;
+        if ($check instanceof \stdClass) {
+            $this->access->recordGateCheck([
+                'at' => \Omw\Api\Domain\Time::toIsoUtc((string) $check->at),
+                'by' => (string) $check->by,
+                'result' => (string) $check->result,
+                'detail' => is_string($check->detail ?? null) ? mb_substr($check->detail, 0, 300) : null,
+            ]);
+        }
 
         return $this->responder->noContent($response);
     }

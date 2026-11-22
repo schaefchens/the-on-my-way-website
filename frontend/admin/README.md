@@ -39,6 +39,7 @@ Design screenshots (not a test; needs the mock on 51750 and `vite --port 51752 -
 | Visibility | `src/lib/captures.ts`, `lib/mode-since.ts` | Un-hiding returns to the publish setting (`visibility: null`; explicit `public` only when the policy itself hides it), "Jetzt veröffentlichen" is the explicit release. Settings mirror the API's `publish.mode_since` rule and ask before a switch publishes waiting statuses. |
 | Screens | `src/screens/*` | Login, Home, Inbox (+ item sheet), Days (+ editor), Composer, Trips (+ editor), Settings. Editors are lazy chunks. |
 | About you | `src/screens/settings-profile.tsx`, `components/portrait.tsx`, `lib/profile.ts` | Name, greeting (de/en tabs, counter in code points like the contract) and portrait (`site.author`, `site.intro`, `site.avatar`), cleaned before sending; empty removes (null). The portrait picker pages through `GET /captures?kind=photo` (private previews, newest first; deleted, lost and processing photos are left out). The item sheet of a photo has "Use as portrait" (undo toast); a portrait hidden in the timeline gets a hint. A 422 on a profile write shows at its field while the section is open (`handleProfileWriteFailure`), else as the usual toast. Trips without a public day say they are not on the site yet. |
+| People and access (wave 5) | `src/api/access.ts`, `screens/{people,person,safety,privacy}.tsx`, `components/{effect-badge,link-sheet,confirm-sheet,lock-card,password-sheet}.tsx`, `lib/{held-days,people,password-strength}.ts` | Immediate requests (spec-wave5 §7.2), never the offline queue: mutation keys outside `MUTATION_NAMES`, `retry: 0`, `networkMode: 'always'`; passwords only in a request's closure. The persister writes only queued owner writes and never a query with `meta.persist: false` (everything under `qk.access`), so names, devices and the Home pending cards (`GET /admin/access`) never reach IndexedDB; the persisted `/status` carries counts only. Each store-changing result shows its effect: "Wirksam ✓", "Noch nicht wirksam ⏳" (+ retry; polls `/admin/access` until no op is pending) or "Nicht gesendet – keine Verbindung". The departure-hold card and the portrait hint use the contracts' `leftPlaceAt`/`holdEndAt`/`portraitReleaseAt`. The common-password list of the strength hint is a lazy chunk. |
 | UI kit | `src/components/ui.tsx`, `icons.tsx` | Tokens from `@omw/ui` (dawn/dusk), Fraunces SOFT headings, Playpen notes, native `<dialog>` sheets, native radios/checkboxes behind the pills and switches. Motion springs via `LazyMotion` (`reducedMotion: 'user'`). |
 
 ## Mock API (`e2e/mock/`)
@@ -49,7 +50,11 @@ enforces the session cookie, CSRF, `ifUpdatedAt` (409), idempotent post creates,
 (422), settings cross-field rules, the portrait rule of `site.avatar` (422 like the PHP API) and `publish.mode_since`, and simulates the backend: a publish
 report that catches up `--publish-after` ms after the last write. Control endpoints for tests:
 `POST /__mock/reset | publish | day/<date> | alerts | capture ({minutesAgo, caption}) | settings (stored as is) | revoke/<sourceKey>`,
-`GET /__mock/state | log`. `e2e/owner-ux.spec.ts` covers the phone UX (save bars, drafts, toasts,
+`GET /__mock/state | log`. People and access (`e2e/mock/access.ts`, seeded with Oma, Paul, a revoked and a deleted
+person, notice v1 and a set-up store; writer "direct" applies every action at once): `POST /__mock/access` (state as is:
+`writerMode` `none` keeps ops pending, `storeId: null`, `gateCheck`, `noticeVersions: 0`, …) | `access/ack` (the Mac
+applied everything) | `device` ({fid, label?, minutesAgo?, state?}: a join) | `notice` ({kind}) | `self-delete/<fid>`.
+`e2e/people.spec.ts` covers the people and access screens. `e2e/owner-ux.spec.ts` covers the phone UX (save bars, drafts, toasts,
 time-zone nudge, focus, delayed un-hiding, mode switches, error home).
 
 The stack e2e takes `OMW_STACK_ROOT` too (default `.cache/e2e-stack`), so two runs never share a

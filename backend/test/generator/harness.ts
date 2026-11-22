@@ -5,8 +5,9 @@
  */
 import { createHash } from 'node:crypto';
 import { cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
-import { type Config, loadConfig } from '../../src/config.js';
+import { dirname, join, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { accessOf, type Config, loadConfig } from '../../src/config.js';
 import { type SeedResult, seedFromFixtures } from '../../src/generator/dev/fixtures.js';
 import { createGenerator, type Generator } from '../../src/generator/index.js';
 import { type PreviewServer, startPreviewServer } from '../../src/generator/serve.js';
@@ -108,6 +109,25 @@ export function writeFakeSiteBuild(dir: string, opts: FakeBuildOptions = {}): vo
   writeFileSync(join(dir, '.vite', 'manifest.json'), JSON.stringify(manifest, null, 2));
 }
 
+/**
+ * The stub gate bundle (test/generator/fixtures/gate-build: the Vite manifest shape of
+ * frontend/site/dist/gate, entry src/gate/main.ts with CSS and one imported chunk). `.vite/` is
+ * git-ignored, so the fixture keeps the manifest as manifest.json; this copies it to
+ * <dist>/gate/.vite/manifest.json and the assets to <dist>/gate/assets/. Its files must stay free
+ * of the words the gate leak test forbids.
+ */
+export const GATE_BUILD_FIXTURE = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'gate-build');
+
+export function writeFakeGateBuild(siteDist: string): void {
+  const dir = join(siteDist, 'gate');
+  mkdirSync(join(dir, '.vite'), { recursive: true });
+  cpSync(join(GATE_BUILD_FIXTURE, 'manifest.json'), join(dir, '.vite', 'manifest.json'));
+  cpSync(join(GATE_BUILD_FIXTURE, 'assets'), join(dir, 'assets'), { recursive: true });
+}
+
+/** The content folder of gate-mode harnesses. */
+export const GATE_SECRET = 'k3j9x0m2p7q4r8s1t5u6';
+
 export interface Harness {
   dir: string;
   config: Config;
@@ -118,6 +138,8 @@ export interface Harness {
   siteDist: string;
   outDir: string;
   mediaDir: string;
+  /** GATE_OUT_DIR (written only in gate mode). */
+  gateOutDir: string;
   /** Another generator on the same store writing to a different OUT_DIR. */
   generatorFor(outDir: string): Generator;
   cleanup(): void;
@@ -132,6 +154,12 @@ export interface HarnessOptions {
   siteDist?: string;
   outDir?: string;
   htaccess?: boolean;
+  /**
+   * Gate mode (ACCESS_MODE=gate): SITE_PUBLIC_URL https://site.example.org/<GATE_SECRET>/ (or the
+   * given origin), API https://api.example.org/, store /srv/omw-store/site1 (or `storeDir`),
+   * GATE_OUT_DIR next to OUT_DIR, the stub gate bundle. Extra env overrides with `env`.
+   */
+  gate?: boolean | { origin?: string; storeDir?: string; env?: Record<string, string> };
 }
 
 export async function createHarness(opts: HarnessOptions = {}): Promise<Harness> {
@@ -143,7 +171,13 @@ export async function createHarness(opts: HarnessOptions = {}): Promise<Harness>
     dist: opts.siteDist ?? join(tmp.dir, 'dist'),
   };
   if (!opts.siteDist) writeFakeSiteBuild(dirs.dist);
-  const publicUrl = opts.publicUrl === undefined ? 'https://example.org/' : opts.publicUrl;
+  const gate = opts.gate ? (opts.gate === true ? {} : opts.gate) : null;
+  if (gate && !opts.siteDist) writeFakeGateBuild(dirs.dist);
+  const publicUrl = gate
+    ? `${gate.origin ?? 'https://site.example.org'}/${GATE_SECRET}/`
+    : opts.publicUrl === undefined
+      ? 'https://example.org/'
+      : opts.publicUrl;
   const config = loadConfig({
     NODE_ENV: 'test',
     DATA_DIR: dirs.data,
@@ -152,6 +186,15 @@ export async function createHarness(opts: HarnessOptions = {}): Promise<Harness>
     ARCHIVE_DIR: join(tmp.dir, 'archive'),
     CONFIG_DIR: join(tmp.dir, 'config'),
     ...(publicUrl ? { SITE_PUBLIC_URL: publicUrl } : {}),
+    ...(gate
+      ? {
+          ACCESS_MODE: 'gate',
+          API_PUBLIC_URL: gate.origin?.startsWith('http:') ? 'http://127.0.0.1:8081/' : 'https://api.example.org/',
+          ACCESS_STORE_DIR: gate.storeDir ?? '/srv/omw-store/site1',
+          GATE_OUT_DIR: join(tmp.dir, 'out-gate'),
+          ...gate.env,
+        }
+      : {}),
   });
   const clock = fakeClock(NOW);
   const store = Store.memory({ now: clock });
@@ -183,6 +226,7 @@ export async function createHarness(opts: HarnessOptions = {}): Promise<Harness>
     siteDist: dirs.dist,
     outDir: dirs.out,
     mediaDir: dirs.media,
+    gateOutDir: accessOf(config).gateOutDir,
     generatorFor: make,
     cleanup: () => {
       store.close();

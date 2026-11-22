@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/JoinCheckRequest.json",
+  "title": "JoinCheckRequest",
+  "additionalProperties": false,
+  "properties": {
+    "k": {
+      "pattern": "^[A-Za-z0-9_-]{43}$",
+      "type": "string"
+    },
+    "t": {
+      "pattern": "^[A-Za-z0-9_-]{43}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "t"
+  ],
+  "type": "object"
+}

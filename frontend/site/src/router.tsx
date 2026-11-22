@@ -37,8 +37,8 @@ import { parseRoutePath } from './route-path';
 import { DayRoute } from './routes/day';
 import { HomeRoute } from './routes/home';
 import { LocaleLayout } from './routes/locale-layout';
-import { ErrorScreen, NotFoundScreen } from './routes/not-found';
-import { RootLayout } from './routes/root';
+import { NotFoundScreen } from './routes/not-found';
+import { RootLayout, RouteErrorScreen } from './routes/root';
 import { StoryRoute } from './routes/story';
 import type { SiteContextValue } from './site';
 import { preloadOverviewRows } from './timeline/rows';
@@ -59,7 +59,8 @@ export { type HomeSearch, validateHomeSearch, ZOOM_LEVELS, type ZoomLevel } from
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
   notFoundComponent: NotFoundScreen,
-  errorComponent: ErrorScreen,
+  // A refused data request (gate mode: access ended or locked) goes to the access layer.
+  errorComponent: RouteErrorScreen,
 });
 
 const rootIndexRoute = createRoute({

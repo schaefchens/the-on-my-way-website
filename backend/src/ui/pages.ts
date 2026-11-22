@@ -449,13 +449,20 @@ export function queuePage(fragment: SafeHtml, csrf: string | null, apiEnabled: b
 // ---------------------------------------------------------------------------------------------
 // Publish
 
+function accessSummary(t: Record<string, unknown>): SafeHtml {
+  const gate = str(t, 'gateRoot') ?? str(t, 'gateDir');
+  const store = str(t, 'accessStoreRoot') ?? str(t, 'accessStoreDir');
+  if (!gate && !store && t.publish !== false) return html``;
+  return html`<div class="muted small">${t.publish === false ? 'store only · ' : ''}${gate ? html`web root <code>${gate}</code>` : ''}${gate && store ? ' · ' : ''}${store ? html`access store <code>${store}</code>` : ''}</div>`;
+}
+
 function targetSummary(t: Record<string, unknown>): SafeHtml {
   const kind = str(t, 'kind');
-  if (kind === 'local') return html`folder <code>${str(t, 'dir') ?? '?'}</code>`;
+  if (kind === 'local') return html`folder <code>${str(t, 'dir') ?? '?'}</code>${accessSummary(t)}`;
   const auth = str(t, 'auth');
   const pins = Array.isArray(t.hostKeys) ? t.hostKeys.length : 0;
   return html`<code>${str(t, 'username') ?? '?'}@${str(t, 'host') ?? '?'}:${str(t, 'port') ?? '22'}${str(t, 'remoteRoot') ?? '/'}</code>
-    <div class="muted small">auth: ${auth ?? 'unknown'}${bool(t, 'hasPassword') ? ' · password set' : ''}${bool(t, 'hasPrivateKey') ? ' · key set' : ''}${str(t, 'privateKeyPath') ? ` · key file ${str(t, 'privateKeyPath')}` : ''} · ${pins} pinned host key${pins === 1 ? '' : 's'}${bool(t, 'trustOnFirstUse') ? ' · trust on first use' : ''}</div>`;
+    <div class="muted small">auth: ${auth ?? 'unknown'}${bool(t, 'hasPassword') ? ' · password set' : ''}${bool(t, 'hasPrivateKey') ? ' · key set' : ''}${str(t, 'privateKeyPath') ? ` · key file ${str(t, 'privateKeyPath')}` : ''} · ${pins} pinned host key${pins === 1 ? '' : 's'}${bool(t, 'trustOnFirstUse') ? ' · trust on first use' : ''}</div>${accessSummary(t)}`;
 }
 
 function targetStatus(t: Record<string, unknown>, now: number, checkUrl: string | undefined): SafeHtml {
@@ -501,14 +508,18 @@ export function targetForm(t: Record<string, unknown> | null, csrf: string | nul
     <label>Label <input name="label" value="${v('label')}" placeholder="Hetzner static host"></label>
     <label>Public URL of the site <input name="publicBaseUrl" type="url" value="${v('publicBaseUrl')}" placeholder="https://example.org/"> <span class="muted small">used for the post-deploy check</span></label>
     <label class="check"><input type="checkbox" name="enabled" ${raw(!t || bool(t, 'enabled') ? 'checked' : '')}> enabled</label>
+    <input type="hidden" name="publish_field" value="1">
+    <label class="check"><input type="checkbox" name="publish" ${raw(t?.publish !== false ? 'checked' : '')}> deploy the site here <span class="muted small">(off = store-only target for the access store writer and the lock button)</span></label>
     <fieldset data-kind="local" ${raw(kind === 'local' ? '' : 'class="dim"')}>
       <legend>Local folder</legend>
       <label>Directory <input name="dir" value="${v('dir')}" placeholder="/srv/www/omw"></label>
+      <label>Web root (gate mode) <input name="gateDir" value="${v('gateDir')}" placeholder="/srv/www"> <span class="muted small">the directory must then be web root + "/" + the content folder</span></label>
+      <label>Access store folder <input name="accessStoreDir" value="${v('accessStoreDir')}" placeholder="/srv/omw-store/site1"></label>
     </fieldset>
     <fieldset data-kind="sftp" ${raw(kind === 'sftp' ? '' : 'class="dim"')}>
       <legend>SFTP</legend>
       <div class="row">
-        <label>Host <input name="host" value="${v('host')}" placeholder="www99.your-server.de"></label>
+        <label>Host <input name="host" value="${v('host')}" placeholder="sftp.example.org"></label>
         <label class="narrow">Port <input name="port" inputmode="numeric" value="${v('port')}" placeholder="22"></label>
       </div>
       <label>User <input name="username" autocomplete="off" value="${v('username')}"></label>
@@ -522,9 +533,31 @@ export function targetForm(t: Record<string, unknown> | null, csrf: string | nul
         <label>Remote root <input name="remoteRoot" value="${v('remoteRoot')}" placeholder="/"></label>
         <label class="narrow">Parallel transfers <input name="concurrency" inputmode="numeric" value="${v('concurrency')}" placeholder="4"></label>
       </div>
+      <div class="row">
+        <label>Web root (gate mode) <input name="gateRoot" value="${v('gateRoot')}" placeholder="/"> <span class="muted small">remote root must then be web root + "/" + the content folder</span></label>
+        <label>Access store path <input name="accessStoreRoot" value="${v('accessStoreRoot')}" placeholder="/omw-store/site1"> <span class="muted small">as this login sees it</span></label>
+      </div>
     </fieldset>
     <div class="actions"><button type="submit" class="btn btn-primary">${editing ? 'Save target' : 'Add target'}</button>${editing ? html` <a href="/publish" class="btn btn-secondary">Cancel</a>` : ''}</div>
   </form>`;
+}
+
+/**
+ * "Website sperren" (spec-wave5 §5.6.6): only with a store target. Locks the site for everyone by
+ * writing the store's `locked` file over this machine's own connection; works with the API down.
+ * Unlocking is only possible in the admin (password).
+ */
+function lockSection(targets: readonly Record<string, unknown>[], s: AppStatus, csrf: string | null): SafeHtml {
+  const store = targets.find(
+    (t) => t.enabled !== false && (str(t, 'accessStoreRoot') !== null || str(t, 'accessStoreDir') !== null),
+  );
+  if (!store) return html``;
+  const writer = s.access?.writer;
+  return html`<section class="card wide" id="access-lock"><h2>Zugang</h2>
+    <p class="hint">Sperrt die Website sofort für alle (über den Website-Speicher von <code>${str(store, 'id') ?? ''}</code>, auch wenn die API nicht erreichbar ist). Entsperren geht nur im Admin.</p>
+    ${writer ? html`<p class="muted small">Speicher-Schreiber: ${writer}</p>` : ''}
+    <div class="actions">${postButton('/actions/access/lock', 'Website sperren', csrf, { tone: 'danger', confirm: 'Website jetzt für alle sperren?' })}</div>
+  </section>`;
 }
 
 export function publishPage(
@@ -575,6 +608,7 @@ export function publishPage(
       </section>
     </div>
     <section class="card wide"><h2>Targets</h2>${list}</section>
+    ${lockSection(targets, s, csrf)}
     <section class="card wide" id="target-form"><h2>${safeEditing ? `Edit ${str(safeEditing, 'id') ?? ''}` : 'Add a target'}</h2>
       <p class="hint">Passwords, keys and passphrases are write-only: they are stored in CONFIG_DIR on this machine and never shown or sent anywhere else.</p>
       ${targetForm(safeEditing, csrf)}

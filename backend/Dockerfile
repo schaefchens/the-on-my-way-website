@@ -14,7 +14,9 @@
 #   $B --target test -t omw-backend:test .                 # unit tests on Node 24
 #
 # Stages: go (wa-helper, CGO_ENABLED=0, cross-compiled) · prod-deps (production node_modules only)
-# · web (full install; builds contracts, site, backend) · fixtures · test · runtime · demo.
+# · web (full install; builds contracts, site + gate bundle, backend) · fixtures · test · runtime · demo.
+# The web stage fails when the gate bundle (frontend/site/dist/gate/.vite/manifest.json, entry
+# src/gate/main.ts) is missing: ACCESS_MODE=gate cannot generate without it (spec-wave5 §6.1).
 # Measured 2026-11-20 on an M-series Mac (Docker Desktop, arm64): ~785 MB image (ffmpeg 7.1 + its
 # libraries ~415 MB); a cold test + runtime build took ~7 min, mostly downloads. Disk: a cold build
 # of both targets peaks at ~6-7 GB in Docker's VM (omw-builder cache ~4 GB + the loaded image);
@@ -69,6 +71,7 @@ RUN pnpm --filter @omw/contracts build \
  && pnpm --filter @omw/site build \
  && pnpm --filter @omw/backend build \
  && test -f frontend/site/dist/.vite/manifest.json \
+ && test -f frontend/site/dist/gate/.vite/manifest.json \
  && test -f backend/dist/main.js
 
 # ------------------------------------------------------------------------------------------------
@@ -77,7 +80,7 @@ FROM web AS fixtures
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ffmpeg \
  && rm -rf /var/lib/apt/lists/*
-COPY fixtures/generate.ts fixtures/tsconfig.json fixtures/
+COPY fixtures/generate.ts fixtures/vectors-w5.ts fixtures/tsconfig.json fixtures/
 COPY fixtures/vectors/ fixtures/vectors/
 RUN pnpm fixtures && test -f fixtures/generated/index.json
 
@@ -86,15 +89,17 @@ RUN pnpm fixtures && test -f fixtures/generated/index.json
 # Not part of any runtime image. Runs as root (tests write below /app/.cache/tmp):
 #   $B --target test -t omw-backend:test . && docker run --rm omw-backend:test     ($B: see the top)
 # The test image is ~1.2 GB; `docker rmi omw-backend:test` afterwards.
-# Left out here: only test/generator/e2e.test.ts (needs Playwright's Chromium; scripts/docker-e2e.sh
-# checks the image's generated site with Playwright on the host instead). The edge-media test runs:
+# Left out here: test/generator/e2e.test.ts (needs Playwright's Chromium; scripts/docker-e2e.sh
+# checks the image's generated site with Playwright on the host instead), test/scripts (tests
+# scripts/deploy-api.ts against api/src, neither is in the image) and test/gate (the Apache suite has
+# its own config and needs httpd; vitest.config.ts excludes it). The edge-media test runs:
 # trixie's ffmpeg 7.1 has `-display_rotation` (ffmpeg >= 6) for its rotated input.
 # --testTimeout: the in-process SSH server test needs > 5 s here.
 # Scratch files go to /app/.cache: `docker run --rm --tmpfs /app/.cache:exec omw-backend:test`.
 FROM fixtures AS test
 # The contracts test compares the JSON Schema export with the committed api/schemas.
 COPY api/schemas/ api/schemas/
-CMD ["sh", "-c", "node --version && ffmpeg -version | head -n 1 && pnpm --filter @omw/contracts test && pnpm --filter @omw/backend exec vitest run --exclude test/generator/e2e.test.ts --testTimeout=30000"]
+CMD ["sh", "-c", "node --version && ffmpeg -version | head -n 1 && pnpm --filter @omw/contracts test && pnpm --filter @omw/backend exec vitest run --exclude test/generator/e2e.test.ts --exclude 'test/scripts/**' --testTimeout=30000"]
 
 # ------------------------------------------------------------------------------------------------
 FROM ${NODE_IMAGE} AS runtime

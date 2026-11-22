@@ -28,17 +28,47 @@
  *   revoked while ingest.on_revoke = hide, or its crop could not be made or its files are missing.
  * - `v` = contentHash(file without v); timeline v = contentHash({ trips, days }), plus `profile`
  *   when there is one (so a site without a profile keeps its hashes).
+ *
+ * Wave 5 (spec-wave5 §5.2, §5.3):
+ * - No coordinates: DayDetail never carries lat/lng (the owner's Day.lat/lng stay in the mirror).
+ * - Post ids are hashed (E16): "p_" + base32(sha256("post:" + publicId))[0..16]
+ *   (publishedPostIdFromSha256Hex); story routes use that id, so a post's ULID (which encodes
+ *   its creation time) never reaches the site.
+ * - Release slots and the departure hold (settings publish.release_slots / departure_hold /
+ *   moved_on_at, off by default): HoldDays are built from every item of a date (captures of any
+ *   visibility except revoked-and-hidden, posts of any visibility); each item public by the rules
+ *   above is emitted only once entryReleaseAt(publishAt, holdEndAt(at, leftAt), settings) <= now.
+ *   Days, trips, covers and counts are built from emitted items only; nextPublishAt is the
+ *   smallest future release (plus the pending portrait's).
+ * - The portrait respects the delay (E17): published only once portraitReleaseAt() <= now;
+ *   until then the previously published portrait (store meta "portrait.published") stays when it
+ *   is still a valid ready photo whose own release has passed, else there is none.
+ * - Trip end clamp (E8): TripSummary/TripDetail `end` = min(trip.endDate, its last public day).
+ * - Here-now (site.here_now) on the current stay (the trailing run of emitted days at the newest
+ *   day's place): city_badge unchanged; city unchanged data; country strips `place`; none strips
+ *   `place` and `country`. With the departure hold on, city_badge is emitted as city.
+ * - Time buckets (site.time_precision = part_of_day): each entry's `at` is coarsened to its
+ *   3-hour local bucket (coarsenToBucket) with the index among the day's entries in that bucket;
+ *   entries are re-sorted by the coarsened time (mixed zones in one day keep a valid order).
  */
 
+import { createHash } from 'node:crypto';
 import { CONTRACT_VERSION } from '@omw/contracts';
 import type { Annotation, Day, Post, Settings, SiteAvatarSetting, Trip } from '@omw/contracts/api';
 import { type I18nText, type LocaleCode, pickText } from '@omw/contracts/i18n';
+import { publishedPostIdFromSha256Hex } from '@omw/contracts/ids';
 import {
   capturePublishAt,
   effectiveCaptureVisibility,
   effectiveLocalDate,
   effectivePostVisibility,
   effectiveTz,
+  entryReleaseAt,
+  type HoldDay,
+  holdEndAt,
+  leftPlaceAt,
+  placeKey,
+  portraitReleaseAt,
   publishedTrips,
   tripForDate,
 } from '@omw/contracts/policy';
@@ -48,13 +78,15 @@ import {
   type DayDetail,
   type DaySummary,
   Entry,
+  type HereNow,
   type ImageSet,
   SiteProfile,
   type TimelineIndex,
+  type TimePrecision,
   type TripDetail,
   type TripSummary,
 } from '@omw/contracts/site';
-import { toIsoUtc } from '@omw/contracts/time';
+import { coarsenToBucket, MAX_BUCKET_INDEX, toIsoUtc } from '@omw/contracts/time';
 import { argbToRgbaHex } from '@omw/contracts/wa';
 import { avatarSourceVariant } from '../pipeline/avatar.js';
 import type { CaptureRow, ProcessedVariant, Store } from '../store/index.js';
@@ -85,10 +117,13 @@ export interface ModelInputs {
   /** Whether a "media/…" variant exists in MEDIA_DIR. */
   mediaExists: (relPath: string) => boolean;
   /**
-   * The round crop of the portrait photo (setting site.avatar), made before the model is built
+   * The round crop of the portrait photo (decidePortrait(): setting site.avatar, or the previously
+   * published portrait while the new one waits for its release), made before the model is built
    * (generate.ts preparePortrait): its files, or why there are none. Absent: no portrait.
    */
   portraitCrop?: PortraitCrop | undefined;
+  /** The portrait the last run published (store meta "portrait.published"), if any. */
+  previousPortrait?: SiteAvatarSetting | null | undefined;
 }
 
 /** The portrait's own files for the photo `sourceKey` (see ModelInputs.portraitCrop). */
@@ -116,8 +151,14 @@ export interface SiteModel {
   timelineV: string;
   /** Sorted media paths referenced by public entries and the portrait. */
   media: string[];
-  /** Earliest future instant at which a pending capture becomes public (delayed mode). */
+  /**
+   * Earliest future instant at which a pending item is released (delayed mode, release slots,
+   * departure hold) or the configured portrait may appear.
+   */
   nextPublishAt: string | null;
+  /** Effective site.here_now (city_badge is emitted as city while the departure hold is on). */
+  hereNow: HereNow;
+  timePrecision: TimePrecision;
   warnings: string[];
   stats: {
     entries: number;
@@ -141,7 +182,13 @@ export function loadModelInputs(store: Store, now: Date, mediaExists: (relPath: 
     trips: store.owner.listTrips(),
     now,
     mediaExists,
+    previousPortrait: store.meta.portraitPublished(),
   };
+}
+
+/** Published id of an owner post (E16): never its ULID publicId, which encodes when it was written. */
+export function publishedPostIdOf(publicId: string): string {
+  return publishedPostIdFromSha256Hex(createHash('sha256').update(`post:${publicId}`).digest('hex'));
 }
 
 /** Drops blank values; undefined when nothing is left. */
@@ -233,7 +280,7 @@ export function postEntry(post: Post, tz: string): Entry | null {
       if (content && nonBlank(content.body)) note[code] = content.body;
     }
     if (Object.keys(note).length === 0) return null;
-    return { id: post.publicId, kind: 'note', at, tz, note, orig: post.origLocale };
+    return { id: publishedPostIdOf(post.publicId), kind: 'note', at, tz, note, orig: post.origLocale };
   }
   const story: Partial<Record<LocaleCode, { title: string; body: string }>> = {};
   for (const [code, content] of Object.entries(post.content) as [
@@ -243,7 +290,7 @@ export function postEntry(post: Post, tz: string): Entry | null {
     if (content && nonBlank(content.title)) story[code] = { title: content.title, body: content.body };
   }
   if (Object.keys(story).length === 0) return null;
-  return { id: post.publicId, kind: 'story', at, tz, story, orig: post.origLocale };
+  return { id: publishedPostIdOf(post.publicId), kind: 'story', at, tz, story, orig: post.origLocale };
 }
 
 /**
@@ -296,16 +343,110 @@ export function avatarFor(
   return avatar;
 }
 
+/**
+ * Release context of the departure hold (spec-wave5 §5.3 step 1): one HoldDay per effective
+ * local date with any item (captures of any visibility except revoked-and-hidden, posts of any
+ * visibility; held and pending days still count as "she is there"), and leftPlaceAt() of them.
+ */
+export function releaseContext(inputs: Pick<ModelInputs, 'captures' | 'annotations' | 'days' | 'posts' | 'settings'>): {
+  leftAt: Map<string, string | null>;
+  dateOf: (item: { occurredAt: string; tz: string; localDate: string }, annotation: Annotation | null) => string;
+} {
+  const dayTz = (storedDate: string) => inputs.days.get(storedDate)?.tz ?? null;
+  const dateOf = (item: { occurredAt: string; tz: string; localDate: string }, annotation: Annotation | null) =>
+    effectiveLocalDate(item, annotation, dayTz(item.localDate));
+  const first = new Map<string, number>();
+  const note = (date: string, at: string) => {
+    const ms = Date.parse(at);
+    const seen = first.get(date);
+    if (Number.isFinite(ms) && (seen === undefined || ms < seen)) first.set(date, ms);
+  };
+  const hideRevoked = inputs.settings['ingest.on_revoke'] === 'hide';
+  for (const c of inputs.captures) {
+    const annotation = inputs.annotations.get(c.sourceKey) ?? null;
+    if (c.revokedAt && hideRevoked && !annotation?.visibility) continue;
+    note(dateOf(c, annotation), c.occurredAt);
+  }
+  for (const post of inputs.posts) note(dateOf(post, null), post.occurredAt);
+  const holdDays: HoldDay[] = [...first.entries()].map(([date, ms]) => ({
+    date,
+    place: inputs.days.get(date)?.placeName ?? null,
+    firstAt: new Date(ms).toISOString(),
+  }));
+  return { leftAt: leftPlaceAt(holdDays), dateOf };
+}
+
+/** Which portrait a run publishes (decidePortrait). */
+export interface PortraitDecision {
+  /** The portrait to publish: site.avatar, or the previously published one while it waits. */
+  setting: SiteAvatarSetting | null;
+  /** Future release instant of the configured portrait (nextRunAt), else null. */
+  pendingAt: string | null;
+  /** Why the configured portrait is not published (a warning), else null. */
+  problem: string | null;
+}
+
+/** Release instant of the portrait cut from `setting`'s photo, or a problem (portraitSourceFor). */
+function portraitRelease(
+  setting: SiteAvatarSetting,
+  inputs: Pick<ModelInputs, 'captures' | 'annotations' | 'days' | 'posts' | 'settings'>,
+  ctx: ReturnType<typeof releaseContext>,
+): { releaseAt: string | null } | string {
+  const found = portraitSourceFor(setting, inputs);
+  if (typeof found === 'string') return found;
+  const c = found.capture;
+  const annotation = inputs.annotations.get(c.sourceKey) ?? null;
+  const date = ctx.dateOf(c, annotation);
+  const holdEnd = holdEndAt(c.occurredAt, ctx.leftAt.get(date) ?? null, inputs.settings);
+  return { releaseAt: portraitReleaseAt(c, annotation, inputs.settings, holdEnd) };
+}
+
+/**
+ * The portrait never appears before its photo could have been published (P0, E17): site.avatar
+ * when portraitReleaseAt() <= now; otherwise the previously published portrait (inputs
+ * .previousPortrait) when it is still a valid ready photo whose own release has passed; else none.
+ */
+export function decidePortrait(
+  inputs: Pick<ModelInputs, 'captures' | 'annotations' | 'days' | 'posts' | 'settings' | 'now' | 'previousPortrait'>,
+  ctx: ReturnType<typeof releaseContext> = releaseContext(inputs),
+): PortraitDecision {
+  const setting = inputs.settings['site.avatar'];
+  if (!setting) return { setting: null, pendingAt: null, problem: null };
+  const nowMs = inputs.now.getTime();
+  const own = portraitRelease(setting, inputs, ctx);
+  // Problems of the photo itself (not ready, not a photo, deleted) are reported by avatarFor().
+  if (typeof own === 'string') return { setting, pendingAt: null, problem: null };
+  if (own.releaseAt !== null && Date.parse(own.releaseAt) <= nowMs) return { setting, pendingAt: null, problem: null };
+  const pendingAt = own.releaseAt;
+  const problem =
+    pendingAt === null ? 'not published: its photo is not released by itself (review or a pending override)' : null;
+  const prev = inputs.previousPortrait;
+  if (prev && !(prev.sourceKey === setting.sourceKey && samePoint(prev.focus, setting.focus))) {
+    const theirs = portraitRelease(prev, inputs, ctx);
+    if (typeof theirs !== 'string' && theirs.releaseAt !== null && Date.parse(theirs.releaseAt) <= nowMs) {
+      return { setting: prev, pendingAt, problem };
+    }
+  }
+  return { setting: null, pendingAt, problem };
+}
+
+function samePoint(a: SiteAvatarSetting['focus'], b: SiteAvatarSetting['focus']): boolean {
+  return (a?.x ?? null) === (b?.x ?? null) && (a?.y ?? null) === (b?.y ?? null);
+}
+
 /** timeline.json `profile` from the site.* profile settings (null when nothing is set or usable). */
 export function profileFor(
   inputs: Pick<ModelInputs, 'captures' | 'settings' | 'mediaExists' | 'portraitCrop'>,
   warnings: string[],
+  portrait: PortraitDecision = { setting: inputs.settings['site.avatar'] ?? null, pendingAt: null, problem: null },
 ): SiteProfile | null {
   const { settings } = inputs;
   const author = settings['site.author'];
   const intro = cleanText(settings['site.intro']);
-  const setting = settings['site.avatar'];
+  const configured = settings['site.avatar'];
+  const setting = portrait.setting;
   let avatar: AvatarImage | undefined;
+  if (configured && portrait.problem) warnings.push(`site.avatar ${configured.sourceKey}: ${portrait.problem}`);
   if (setting) {
     const found = avatarFor(setting, inputs);
     if (typeof found === 'string') warnings.push(`site.avatar ${setting.sourceKey}: no portrait published: ${found}`);
@@ -326,6 +467,45 @@ export function profileFor(
   return profile;
 }
 
+/**
+ * Coarsens the entries of one day to their 3-hour local buckets (site.time_precision =
+ * part_of_day): index = position among the day's entries in the same bucket, by original
+ * (at, id); the result is re-sorted by the coarsened time (stable).
+ */
+export function coarsenDayEntries(entries: readonly Entry[]): Entry[] {
+  const seen = new Map<string, number>();
+  const out = entries.map((e, order) => {
+    const bucket = coarsenToBucket(e.at, e.tz, 0);
+    const index = seen.get(bucket) ?? 0;
+    seen.set(bucket, index + 1);
+    return { entry: { ...e, at: coarsenToBucket(e.at, e.tz, Math.min(index, MAX_BUCKET_INDEX)) } as Entry, order };
+  });
+  out.sort((a, b) => Date.parse(a.entry.at) - Date.parse(b.entry.at) || a.order - b.order);
+  return out.map((o) => o.entry);
+}
+
+/**
+ * The current stay (spec-wave5 §5.3 step 4): the trailing run of `dates` (ascending) whose
+ * placeKey equals the newest date's; just the newest date when it has no place.
+ */
+export function currentStay(
+  dates: readonly string[],
+  placeOf: (date: string) => string | null | undefined,
+): Set<string> {
+  const stay = new Set<string>();
+  const newest = dates.at(-1);
+  if (newest === undefined) return stay;
+  stay.add(newest);
+  const key = placeKey(placeOf(newest));
+  if (key === null) return stay;
+  for (let i = dates.length - 2; i >= 0; i--) {
+    const date = dates[i] as string;
+    if (placeKey(placeOf(date)) !== key) break;
+    stay.add(date);
+  }
+  return stay;
+}
+
 function emptyCounts(): DayCounts {
   return { photo: 0, video: 0, gif: 0, voice: 0, text: 0, note: 0, story: 0 };
 }
@@ -338,22 +518,40 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
   const placed: PlacedEntry[] = [];
   let nextPublishAt: number | null = null;
   const nowMs = now.getTime();
+  const noteFuture = (iso: string | null) => {
+    const ms = iso ? Date.parse(iso) : Number.NaN;
+    if (Number.isFinite(ms) && ms > nowMs && (nextPublishAt === null || ms < nextPublishAt)) nextPublishAt = ms;
+  };
+  const release = releaseContext(inputs);
+  /** When an item public by today's rules (released at publishAt) is emitted: slots + hold. */
+  const releaseAt = (publishAt: string, at: string, date: string) =>
+    entryReleaseAt(publishAt, holdEndAt(at, release.leftAt.get(date) ?? null, settings), settings);
 
   for (const c of inputs.captures) {
     if (c.state !== 'ready' || c.kind === 'unsupported') continue;
     const annotation = inputs.annotations.get(c.sourceKey) ?? null;
     const policyCapture = { occurredAt: c.occurredAt, revokedAt: c.revokedAt };
     const visibility = effectiveCaptureVisibility(policyCapture, annotation, settings, now);
-    if (visibility !== 'public') {
-      if (visibility === 'pending') {
-        stats.pending++;
-        const at = capturePublishAt(policyCapture, annotation, settings);
-        const ms = at ? Date.parse(at) : Number.NaN;
-        if (Number.isFinite(ms) && ms > nowMs && (nextPublishAt === null || ms < nextPublishAt)) nextPublishAt = ms;
-      } else stats.hidden++;
+    if (visibility === 'hidden') {
+      stats.hidden++;
       continue;
     }
     const fix = dayTz(c.localDate);
+    const date = effectiveLocalDate(c, annotation, fix);
+    const publishAt = capturePublishAt(policyCapture, annotation, settings);
+    if (visibility !== 'public') {
+      // Pending: review mode (no release by itself) or delayed (released at publishAt, then
+      // slots/hold).
+      stats.pending++;
+      if (publishAt) noteFuture(releaseAt(publishAt, c.occurredAt, date));
+      continue;
+    }
+    const released = releaseAt(publishAt ?? toIsoUtc(c.occurredAt), c.occurredAt, date);
+    if (released !== null && Date.parse(released) > nowMs) {
+      stats.pending++;
+      noteFuture(released);
+      continue;
+    }
     const tz = effectiveTz(c, annotation, fix);
     const entry = captureEntry(c, annotation, tz);
     if (typeof entry === 'string') {
@@ -374,12 +572,7 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
       continue;
     }
     stats.captures++;
-    placed.push({
-      date: effectiveLocalDate(c, annotation, fix),
-      entry,
-      sourceKey: c.sourceKey,
-      cover: coverOf(entry),
-    });
+    placed.push({ date, entry, sourceKey: c.sourceKey, cover: coverOf(entry) });
   }
 
   for (const post of inputs.posts) {
@@ -389,6 +582,13 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
       continue;
     }
     const fix = dayTz(post.localDate);
+    const date = effectiveLocalDate(post, null, fix);
+    const released = releaseAt(toIsoUtc(post.occurredAt), post.occurredAt, date);
+    if (released !== null && Date.parse(released) > nowMs) {
+      stats.pending++;
+      noteFuture(released);
+      continue;
+    }
     const entry = postEntry(post, effectiveTz(post, null, fix));
     if (!entry) {
       warnings.push(`post ${post.publicId} left out: no content`);
@@ -401,7 +601,7 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
       continue;
     }
     stats.posts++;
-    placed.push({ date: effectiveLocalDate(post, null, fix), entry, sourceKey: null, cover: null });
+    placed.push({ date, entry, sourceKey: null, cover: null });
   }
   placed.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : compareEntries(a, b)));
   stats.entries = placed.length;
@@ -421,11 +621,22 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
     a.startDate !== b.startDate ? (a.startDate < b.startDate ? -1 : 1) : a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0,
   );
 
+  // Here-now (Q2): the current stay's place (and country) are stripped from the data itself.
+  const configuredHereNow = settings['site.here_now'] ?? 'city_badge';
+  const hereNow: HereNow =
+    configuredHereNow === 'city_badge' && settings['publish.departure_hold']?.enabled ? 'city' : configuredHereNow;
+  const stay =
+    hereNow === 'country' || hereNow === 'none'
+      ? currentStay(dates, (d) => inputs.days.get(d)?.placeName)
+      : new Set<string>();
+  const timePrecision: TimePrecision = settings['site.time_precision'] ?? 'exact';
+
   const days: DayDetail[] = [];
   const summaries: DaySummary[] = [];
   dates.forEach((date, i) => {
     const items = byDate.get(date) ?? [];
-    const entries = items.map((p) => p.entry);
+    const placedEntries = items.map((p) => p.entry);
+    const entries = timePrecision === 'part_of_day' ? coarsenDayEntries(placedEntries) : placedEntries;
     const od = inputs.days.get(date);
     const title = cleanText(od?.title);
     const summary = cleanText(od?.summary);
@@ -434,16 +645,17 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
     const trip = tripForDate(date, trips) ?? undefined;
     const prev = dates[i - 1];
     const next = dates[i + 1];
+    const inStay = stay.has(date);
+    const place = nonBlank(od?.placeName) && !inStay ? od.placeName : undefined;
+    const country = od?.countryCode && !(inStay && hereNow === 'none') ? od.countryCode : undefined;
     const body = {
       contractVersion: CONTRACT_VERSION,
       date,
       ...(title ? { title } : {}),
       ...(summary ? { summary } : {}),
       ...(orig ? { orig } : {}),
-      ...(nonBlank(od?.placeName) ? { place: od.placeName } : {}),
-      ...(od?.countryCode ? { country: od.countryCode } : {}),
-      ...(typeof od?.lat === 'number' ? { lat: od.lat } : {}),
-      ...(typeof od?.lng === 'number' ? { lng: od.lng } : {}),
+      ...(place ? { place } : {}),
+      ...(country ? { country } : {}),
       tz,
       ...(trip ? { trip } : {}),
       ...(prev ? { prev } : {}),
@@ -471,8 +683,8 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
       v,
       ...(title ? { title } : {}),
       ...(orig ? { orig } : {}),
-      ...(nonBlank(od?.placeName) ? { place: od.placeName } : {}),
-      ...(od?.countryCode ? { country: od.countryCode } : {}),
+      ...(place ? { place } : {}),
+      ...(country ? { country } : {}),
       ...(trip ? { trip } : {}),
       tz,
       counts,
@@ -490,6 +702,9 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
       (t.coverSourceKey ? coverBySourceKey.get(t.coverSourceKey) : undefined) ?? tripDays.find((d) => d.cover)?.cover;
     const title = cleanText(t.title) ?? { [settings['site.default_locale']]: t.slug };
     const description = cleanText(t.description);
+    // E8: a planned end date in the future is never published (it would tell when she returns).
+    const lastDay = tripDays.at(-1)?.date ?? t.endDate;
+    const end = [lastDay, t.endDate].sort()[0] as string;
     const body = {
       contractVersion: CONTRACT_VERSION,
       slug: t.slug,
@@ -497,7 +712,7 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
       ...(description ? { description } : {}),
       ...(t.origLocale ? { orig: t.origLocale } : {}),
       start: t.startDate,
-      end: t.endDate,
+      end,
       ...(cover ? { cover } : {}),
       days: tripDays.map((d) => d.date),
     };
@@ -512,14 +727,16 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
       title,
       ...(t.origLocale ? { orig: t.origLocale } : {}),
       start: t.startDate,
-      end: t.endDate,
+      end,
       ...(cover ? { cover } : {}),
       countries,
       dayCount: tripDays.length,
     });
   }
 
-  const profile = profileFor(inputs, warnings);
+  const portrait = decidePortrait(inputs, release);
+  noteFuture(portrait.pendingAt);
+  const profile = profileFor(inputs, warnings, portrait);
   const timeline = { trips: tripSummaries, days: summaries, ...(profile ? { profile } : {}) };
   const media = new Set<string>();
   for (const day of days) dayMediaPaths(day, media);
@@ -538,6 +755,8 @@ export function buildSiteModel(inputs: ModelInputs): SiteModel {
     timelineV: contentHash(timeline),
     media: [...media].sort(),
     nextPublishAt: nextPublishAt === null ? null : new Date(nextPublishAt).toISOString(),
+    hereNow,
+    timePrecision,
     warnings,
     stats,
   };

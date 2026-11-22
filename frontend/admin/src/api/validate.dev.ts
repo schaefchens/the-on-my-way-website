@@ -1,4 +1,17 @@
 // Dev-only response checks against the shared contracts (dynamically imported; not in prod chunks).
+
+import {
+  AccessActionResult,
+  AccessStatus,
+  AdminFollower,
+  FollowerCreated,
+  FollowerDataExport,
+  FollowerListResponse,
+  OwnerNoticeList,
+  PanicLinkCreated,
+  PersonalLinkCreated,
+  PrivacyState,
+} from '@omw/contracts/access';
 import {
   AdminDayDetail,
   AdminPost,
@@ -32,14 +45,21 @@ const SCHEMAS = {
   Settings,
   TokenListResponse,
   TokenCreated,
+  AccessStatus,
+  AccessActionResult,
+  FollowerListResponse,
+  AdminFollower,
+  FollowerCreated,
+  PersonalLinkCreated,
+  FollowerDataExport,
+  PanicLinkCreated,
+  PrivacyState,
+  OwnerNoticeList,
 } as const;
 
 export function checkResponse(name: keyof typeof SCHEMAS, data: unknown, what: string): void {
   const result = SCHEMAS[name].safeParse(data);
   if (!result.success) {
-    console.error(
-      `${what}: response does not match @omw/contracts/api ${name}:\n${z.prettifyError(result.error)}`,
-      data,
-    );
+    console.error(`${what}: response does not match @omw/contracts ${name}:\n${z.prettifyError(result.error)}`, data);
   }
 }

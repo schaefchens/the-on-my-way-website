@@ -73,6 +73,46 @@ const SHOTS: Shot[] = [
   { name: 'trips', path: '/admin/trips' },
   { name: 'trip', path: '/admin/trips/vietnam-2026' },
   { name: 'settings', path: '/admin/settings', scrolls: [800, 1600, 2400] },
+  // Wave 5: people and access.
+  {
+    name: 'home-access',
+    path: '/admin/',
+    prepare: async (page) => {
+      await page.request.post(`${values.api}/__mock/device`, {
+        data: { fid: 'omaomaomaoma', label: 'Android · Chrome', minutesAgo: 4, state: 'pending' },
+      });
+      await page.request.post(`${values.api}/__mock/notice`, { data: { kind: 'follower_deleted' } });
+      await page.request.post(`${values.api}/__mock/settings`, {
+        data: { 'publish.departure_hold': { enabled: true, maxDays: 7 } },
+      });
+      // The restored status counts as fresh for 5 s: wait, so the reload fetches the new state.
+      await page.waitForTimeout(5500);
+      await page.reload();
+    },
+    scrolls: [700],
+  },
+  { name: 'people', path: '/admin/people' },
+  {
+    name: 'person',
+    path: '/admin/people/omaomaomaoma',
+    prepare: async (page) => {
+      await page.request.post(`${values.api}/__mock/device`, {
+        data: { fid: 'omaomaomaoma', label: 'Android · Chrome', minutesAgo: 4, state: 'pending' },
+      });
+      await page.reload();
+    },
+    scrolls: [800],
+  },
+  { name: 'safety', path: '/admin/settings/safety', scrolls: [900, 1800, 2700] },
+  { name: 'privacy', path: '/admin/settings/privacy', scrolls: [900, 1800] },
+  {
+    name: 'password',
+    path: '/admin/settings',
+    prepare: async (page) => {
+      await page.getByTestId('password-open').click();
+      await page.getByTestId('password-new').fill('Laternen-Fest-21');
+    },
+  },
   {
     name: 'conflict',
     path: '/admin/days/2026-11-15',

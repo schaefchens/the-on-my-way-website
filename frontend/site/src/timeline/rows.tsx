@@ -18,6 +18,7 @@ import { lazy, memo, Suspense } from 'react';
 import { LatestDayChip, PassportStamp, tilt } from '../components/decor';
 import { ArrowIcon, PaperPlane, PlayIcon } from '../components/icons';
 import { preloadJourneyPlayer } from '../routes/day';
+import { useSiteFlags } from '../site';
 import { useTimelineContext } from './context';
 import { Filmstrip } from './filmstrip';
 import {
@@ -184,6 +185,8 @@ const TripFootRowView = memo(function TripFootRowView({ row, m }: { row: TripFoo
 
 const DayRowView = memo(function DayRowView({ row, m }: { row: DayRow; m: Metrics }) {
   const { locale } = useTimelineContext();
+  // The "here now" chip only with the default "city_badge" (Q2, spec-wave5 §6.3).
+  const { hereNow } = useSiteFlags();
   const { day } = row;
   const title = pickText(day.title, locale, day.orig);
   const count = momentCount(day);
@@ -260,7 +263,7 @@ const DayRowView = memo(function DayRowView({ row, m }: { row: DayRow; m: Metric
               >
                 {title ? title.text : <time dateTime={day.date}>{formatLocalDate(day.date, locale, 'day-title')}</time>}
               </h3>
-              {!m.compact && row.latest && <LatestDayChip lastAt={day.lastAt} />}
+              {!m.compact && row.latest && hereNow === 'city_badge' && <LatestDayChip lastAt={day.lastAt} />}
             </div>
           </div>
           {!m.compact && row.stamp && (
@@ -306,7 +309,9 @@ const DayRowView = memo(function DayRowView({ row, m }: { row: DayRow; m: Metric
             </span>
           </span>
         </Link>
-        {m.compact && row.latest && <LatestDayChip lastAt={day.lastAt} className="min-w-0" />}
+        {m.compact && row.latest && hereNow === 'city_badge' && (
+          <LatestDayChip lastAt={day.lastAt} className="min-w-0" />
+        )}
       </div>
     </article>
   );
