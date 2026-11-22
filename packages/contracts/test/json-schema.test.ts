@@ -45,6 +45,53 @@ describe('JSON Schema export', () => {
     expect(JSON.stringify(schemas.PostCreate)).toContain('"minProperties":1');
   });
 
+  it('carries the wave 5 rules PHP must enforce (access payloads, new settings)', () => {
+    type Obj = { additionalProperties?: unknown; properties?: Record<string, Obj>; required?: string[] } & Record<
+      string,
+      unknown
+    >;
+    // Request bodies are closed, so a misspelled or extra field is refused (no silent defaults).
+    for (const name of [
+      'JoinCheckRequest',
+      'JoinRequest',
+      'DeviceKeyRequest',
+      'MeDeleteRequest',
+      'PasswordChange',
+    ] as const) {
+      expect((schemas[name] as Obj).additionalProperties, name).toBe(false);
+    }
+    const join = schemas.JoinRequest as Obj;
+    expect(join.required).toEqual(['locale']); // the t/resume combinations are a PHP rule (400)
+    expect(join.properties?.resume).toEqual({ const: true, type: 'boolean' });
+    const active = (schemas.JoinResponse.oneOf as Obj[]).find((v) => v.properties?.status?.const === 'active');
+    expect(active?.properties?.handoff).toEqual({ enum: ['/_/h/', '/'], type: 'string' });
+    expect(active?.required).toEqual(['status', 'handoff']); // session iff "/_/h/": PHP rule
+    const texts = (schemas.PrivacyNotice.properties as Record<string, Obj>).texts;
+    expect(texts?.minProperties).toBe(1);
+    expect(texts?.propertyNames).toEqual({ enum: ['de', 'en', 'ar'], type: 'string' });
+    const tombstone = ((schemas.FollowerListResponse.properties as Record<string, Obj>).tombstones?.items ?? {}) as Obj;
+    expect(Object.keys(tombstone.properties ?? {}).sort()).toEqual(['deletedAt', 'deletedBy', 'id', 'state']);
+    expect(tombstone.additionalProperties).toBe(false);
+    const confirm = (schemas.MeDeleteRequest.properties as Record<string, Obj>).confirm;
+    expect(confirm).toEqual({ const: 'delete-all-my-data', type: 'string' });
+    const slots = (schemas.Settings.properties as Record<string, Obj>)['publish.release_slots'];
+    expect(slots?.properties?.times).toMatchObject({ minItems: 1, maxItems: 6, uniqueItems: true });
+    expect(schemas.Settings.required).toEqual(
+      expect.arrayContaining([
+        'publish.release_slots',
+        'publish.departure_hold',
+        'site.here_now',
+        'site.time_precision',
+      ]),
+    );
+    expect(schemas.Settings.required).not.toContain('publish.moved_on_at');
+    const movedOn = (schemas.SettingsPatch.properties as Record<string, { anyOf?: { type?: string }[] }>)[
+      'publish.moved_on_at'
+    ];
+    expect(movedOn?.anyOf?.map((v) => v.type)).toEqual(['string', 'null']);
+    expect(((schemas.PasswordChange.properties as Record<string, Obj>).newPassword as Obj).minLength).toBe(12);
+  });
+
   it('matches the committed files in api/schemas (run `pnpm schemas` after changing contracts)', () => {
     for (const name of Object.keys(schemas) as ApiSchemaName[]) {
       const committed = readFileSync(resolve(schemasDir, `${name}.json`), 'utf8');

@@ -1,5 +1,5 @@
 {
-  "description": "publicId = \"e_\" + base32_rfc4648_lower(sha256(utf8(sourceKey)))[0..12] (D4)",
+  "description": "publicId = \"e_\" + base32_rfc4648_lower(sha256(utf8(sourceKey)))[0..12] (D4); publishedPost: the published id of an owner post = \"p_\" + base32_rfc4648_lower(sha256(utf8(\"post:\" + publicId)))[0..16] (E16)",
   "cases": [
     {
       "sourceKey": "wa:ABC123",
@@ -80,6 +80,28 @@
     {
       "sourceKey": "wa:3EB002FB95C8D4FA723E",
       "publicId": "e_6skcnqrdpc2d"
+    }
+  ],
+  "publishedPost": [
+    {
+      "publicId": "p_note0001",
+      "publishedId": "p_vmu7dr53gmkoxdf2"
+    },
+    {
+      "publicId": "p_story001",
+      "publishedId": "p_atkdc3xgrkkjji3n"
+    },
+    {
+      "publicId": "p_01JDAB3K9XQZ7Y8W6V5T4S3R2N",
+      "publishedId": "p_qogrt3nyp7fewwo6"
+    },
+    {
+      "publicId": "p_01KA0000000000000000000000",
+      "publishedId": "p_5zbhegbx732do5tn"
+    },
+    {
+      "publicId": "p_x-_y",
+      "publishedId": "p_w6yayej3qfqvx5lt"
     }
   ]
 }

@@ -6,12 +6,20 @@ import {
   effectiveLocalDate,
   effectivePostVisibility,
   effectiveTz,
+  entryReleaseAt,
+  type HoldDay,
+  holdEndAt,
+  leftPlaceAt,
   MODE_SINCE_EPOCH,
   modeForCapture,
   nextModeSince,
+  nextReleaseSlot,
   overlappingTrips,
   type PolicySettings,
+  placeKey,
+  portraitReleaseAt,
   publishedTrips,
+  type ReleaseSettings,
   tripForDate,
   tripRangesOverlap,
 } from '../src/policy.js';
@@ -241,5 +249,156 @@ describe('trips', () => {
     // A day of overlapping (forbidden) ranges counts for the trip tripForDate() picks.
     const overlap = { slug: 'a-hoi-an', startDate: '2026-11-15', endDate: '2026-11-16' };
     expect(publishedTrips([...all, overlap], ['2026-11-15'])).toEqual([vietnam]);
+  });
+});
+
+describe('release slots (Q1, publish.release_slots)', () => {
+  const twice = { enabled: true, times: ['08:00', '20:00'] };
+  const berlin = 'Europe/Berlin';
+
+  it('off (or no times): the instant itself, canonical ISO', () => {
+    expect(nextReleaseSlot('2026-11-20T10:17:33Z', { enabled: false, times: ['08:00'] }, berlin)).toBe(
+      '2026-11-20T10:17:33.000Z',
+    );
+    expect(nextReleaseSlot('2026-11-20T10:17:33.5Z', { enabled: true, times: [] }, berlin)).toBe(
+      '2026-11-20T10:17:33.500Z',
+    );
+  });
+
+  it('the first slot at or after the instant, in wall-clock time of the zone', () => {
+    // 08:00 Berlin in November = 07:00Z; 20:00 = 19:00Z.
+    expect(nextReleaseSlot('2026-11-20T06:59:59.999Z', twice, berlin)).toBe('2026-11-20T07:00:00.000Z');
+    expect(nextReleaseSlot('2026-11-20T07:00:00.000Z', twice, berlin)).toBe('2026-11-20T07:00:00.000Z');
+    expect(nextReleaseSlot('2026-11-20T07:00:00.001Z', twice, berlin)).toBe('2026-11-20T19:00:00.000Z');
+    expect(nextReleaseSlot('2026-11-20T19:00:00.001Z', twice, berlin)).toBe('2026-11-21T07:00:00.000Z');
+    // 00:30 Berlin on the 21st is still "after 20:00 on the 20th" in UTC terms.
+    expect(nextReleaseSlot('2026-11-20T23:30:00Z', twice, berlin)).toBe('2026-11-21T07:00:00.000Z');
+    // The traveler's zone, not Berlin: 12:00 in Ho Chi Minh City = 05:00Z.
+    expect(nextReleaseSlot('2026-11-15T05:00:01Z', { enabled: true, times: ['12:00'] }, 'Asia/Ho_Chi_Minh')).toBe(
+      '2026-11-16T05:00:00.000Z',
+    );
+  });
+
+  it('DST: a slot in the gap fires at the transition, an ambiguous slot at the earlier instant only', () => {
+    const at0230 = { enabled: true, times: ['02:30'] };
+    expect(nextReleaseSlot('2026-03-28T23:00:00Z', at0230, berlin)).toBe('2026-03-29T01:00:00.000Z');
+    expect(nextReleaseSlot('2026-10-24T22:00:00Z', at0230, berlin)).toBe('2026-10-25T00:30:00.000Z');
+    // After the first 02:30 the second one (CET) is not a slot: the next is the following day.
+    expect(nextReleaseSlot('2026-10-25T00:30:00.001Z', at0230, berlin)).toBe('2026-10-26T01:30:00.000Z');
+    expect(nextReleaseSlot('2026-03-08T05:00:00Z', at0230, 'America/New_York')).toBe('2026-03-08T07:00:00.000Z');
+  });
+
+  it('crosses a skipped calendar day', () => {
+    expect(nextReleaseSlot('2011-12-29T20:00:00Z', { enabled: true, times: ['08:00'] }, 'Pacific/Apia')).toBe(
+      '2011-12-30T10:00:00.000Z',
+    );
+  });
+});
+
+describe('departure hold (Q1, publish.departure_hold / publish.moved_on_at)', () => {
+  const base: ReleaseSettings = {
+    'publish.release_slots': { enabled: false, times: ['08:00', '20:00'] },
+    'publish.departure_hold': { enabled: false, maxDays: 7 },
+    'timezone.current': 'Europe/Berlin',
+  };
+  const hold = (maxDays = 7, movedOn?: string): ReleaseSettings => ({
+    ...base,
+    'publish.departure_hold': { enabled: true, maxDays },
+    ...(movedOn ? { 'publish.moved_on_at': movedOn } : {}),
+  });
+  const entryAt = '2026-11-15T02:12:00Z';
+
+  it('placeKey normalises place names', () => {
+    expect(placeKey('Hội An ')).toBe('hội an');
+    expect(placeKey('  Hội   An ')).toBe('hội an');
+    expect(placeKey('Ho\u0302\u0323i An')).toBe(placeKey('Hội An')); // decomposed = composed (NFC)
+    expect(placeKey('SAIGON')).toBe('saigon');
+    expect(placeKey('   ')).toBeNull();
+    expect(placeKey('')).toBeNull();
+    expect(placeKey(null)).toBeNull();
+    expect(placeKey(undefined)).toBeNull();
+  });
+
+  it('leftPlaceAt: first item of the next later date at ANOTHER known place', () => {
+    const days: HoldDay[] = [
+      { date: '2026-11-16', place: 'hội an', firstAt: '2026-11-16T00:30:00Z' },
+      { date: '2026-11-14', place: 'Hanoi', firstAt: '2026-11-14T01:00:00Z' },
+      { date: '2026-11-15', place: 'Hội An ', firstAt: '2026-11-15T02:12:00Z' },
+      { date: '2026-11-17', place: null, firstAt: '2026-11-17T03:00:00Z' },
+      { date: '2026-11-18', place: 'Saigon', firstAt: '2026-11-18T04:00:00Z' },
+    ];
+    expect(Object.fromEntries(leftPlaceAt(days))).toEqual({
+      '2026-11-14': '2026-11-15T02:12:00.000Z',
+      '2026-11-15': '2026-11-18T04:00:00.000Z', // the next day is the same place, the place-less day does not count
+      '2026-11-16': '2026-11-18T04:00:00.000Z',
+      '2026-11-17': null, // no place: never "left"
+      '2026-11-18': null, // nothing later
+    });
+    expect(leftPlaceAt([]).size).toBe(0);
+  });
+
+  it('holdEndAt = min(entry + maxDays, moved on (not before the entry), left)', () => {
+    expect(holdEndAt(entryAt, '2026-11-18T04:00:00Z', base)).toBeNull();
+    expect(holdEndAt(entryAt, null, hold())).toBe('2026-11-22T02:12:00.000Z');
+    expect(holdEndAt(entryAt, null, hold(1))).toBe('2026-11-16T02:12:00.000Z');
+    expect(holdEndAt(entryAt, '2026-11-18T04:00:00Z', hold())).toBe('2026-11-18T04:00:00.000Z');
+    expect(holdEndAt(entryAt, '2026-11-30T04:00:00Z', hold())).toBe('2026-11-22T02:12:00.000Z');
+    expect(holdEndAt(entryAt, null, hold(7, '2026-11-16T10:00:00.000Z'))).toBe('2026-11-16T10:00:00.000Z');
+    expect(holdEndAt(entryAt, null, hold(7, entryAt))).toBe('2026-11-15T02:12:00.000Z');
+    // A "moved on" tap BEFORE the entry is about an earlier place: it does not end this hold.
+    expect(holdEndAt(entryAt, null, hold(7, '2026-11-15T02:11:59.999Z'))).toBe('2026-11-22T02:12:00.000Z');
+  });
+
+  it('entryReleaseAt = the next slot after max(publishAt, holdEnd)', () => {
+    const slotted: ReleaseSettings = { ...base, 'publish.release_slots': { enabled: true, times: ['08:00', '20:00'] } };
+    expect(entryReleaseAt(null, null, slotted)).toBeNull();
+    expect(entryReleaseAt(entryAt, null, base)).toBe('2026-11-15T02:12:00.000Z');
+    expect(entryReleaseAt(entryAt, null, slotted)).toBe('2026-11-15T07:00:00.000Z');
+    expect(entryReleaseAt(entryAt, '2026-11-18T04:00:00.000Z', base)).toBe('2026-11-18T04:00:00.000Z');
+    expect(entryReleaseAt(entryAt, '2026-11-18T04:00:00.000Z', slotted)).toBe('2026-11-18T07:00:00.000Z');
+    // A hold that ended before the (delayed) publish instant does not pull it earlier.
+    expect(entryReleaseAt('2026-11-20T09:00:00Z', '2026-11-18T04:00:00.000Z', slotted)).toBe(
+      '2026-11-20T19:00:00.000Z',
+    );
+  });
+});
+
+describe('portraitReleaseAt (P0: the portrait never bypasses the delay)', () => {
+  const release: ReleaseSettings = {
+    'publish.release_slots': { enabled: false, times: ['08:00'] },
+    'publish.departure_hold': { enabled: false, maxDays: 7 },
+    'timezone.current': 'Europe/Berlin',
+  };
+  const s = (mode: PolicySettings['publish.mode'], onRevoke: PolicySettings['ingest.on_revoke'] = 'hide') => ({
+    ...settings(mode, onRevoke),
+    ...release,
+  });
+  const capture = { occurredAt, revokedAt: null };
+
+  it('follows the publish mode, except that review mode treats the pick as the review', () => {
+    expect(portraitReleaseAt(capture, null, s('instant'), null)).toBe('2026-11-18T02:00:00.000Z');
+    expect(portraitReleaseAt(capture, null, s('delayed'), null)).toBe('2026-11-18T14:00:00.000Z');
+    expect(portraitReleaseAt(capture, null, s('review'), null)).toBe('2026-11-18T02:00:00.000Z');
+  });
+
+  it('overrides: pending blocks, public releases at once, hidden is ignored', () => {
+    expect(portraitReleaseAt(capture, { visibility: 'pending' }, s('instant'), null)).toBeNull();
+    expect(portraitReleaseAt(capture, { visibility: 'public' }, s('delayed'), null)).toBe('2026-11-18T02:00:00.000Z');
+    expect(portraitReleaseAt(capture, { visibility: 'hidden' }, s('delayed'), null)).toBe('2026-11-18T14:00:00.000Z');
+  });
+
+  it('a revoked photo is never the portrait when revokes hide', () => {
+    const revoked = { occurredAt, revokedAt: '2026-11-18T03:00:00Z' };
+    expect(portraitReleaseAt(revoked, null, s('instant', 'hide'), null)).toBeNull();
+    expect(portraitReleaseAt(revoked, { visibility: 'public' }, s('instant', 'hide'), null)).toBeNull();
+    expect(portraitReleaseAt(revoked, null, s('instant', 'keep'), null)).toBe('2026-11-18T02:00:00.000Z');
+  });
+
+  it('waits for the departure hold and the next release slot', () => {
+    const slotted = { ...s('delayed'), 'publish.release_slots': { enabled: true, times: ['08:00', '20:00'] } };
+    // Delayed 12 h -> 14:00Z = 15:00 Berlin -> next slot 20:00 Berlin = 19:00Z.
+    expect(portraitReleaseAt(capture, null, slotted, null)).toBe('2026-11-18T19:00:00.000Z');
+    // A hold ending the next morning -> 08:00 Berlin on the 19th = 07:00Z.
+    expect(portraitReleaseAt(capture, null, slotted, '2026-11-19T06:00:00.000Z')).toBe('2026-11-19T07:00:00.000Z');
   });
 });

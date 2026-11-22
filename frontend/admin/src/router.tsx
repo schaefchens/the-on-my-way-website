@@ -7,7 +7,8 @@
  *   /days, /days/$date           day list and day editor
  *   /compose?kind=&post=&date=&draft=   composer (new note/story, edit post p_…, for a day, a stored draft)
  *   /trips, /trips/new, /trips/$slug
- *   /settings
+ *   /settings, /settings/safety, /settings/privacy
+ *   /people, /people/$fid        people with a personal link, one person (devices, access, data)
  * Everything except /login sits below the "authed" layout route, whose beforeLoad is the auth guard.
  */
 import { isPostPublicId } from '@omw/contracts/ids';
@@ -21,6 +22,7 @@ import {
   type RouterHistory,
 } from '@tanstack/react-router';
 import { authGuard } from './auth';
+import { isFollowerId } from './lib/people';
 import { HomeScreen } from './screens/home';
 import { type InboxFilter, InboxScreen } from './screens/inbox';
 import { AdminLayout } from './screens/layout';
@@ -39,6 +41,10 @@ const TripsScreen = lazyRouteComponent(loadTrips, 'TripsScreen');
 const TripNewScreen = lazyRouteComponent(loadTrips, 'TripNewScreen');
 const TripEditScreen = lazyRouteComponent(loadTrips, 'TripEditScreen');
 const SettingsScreen = lazyRouteComponent(() => import('./screens/settings'), 'SettingsScreen');
+const PeopleScreen = lazyRouteComponent(() => import('./screens/people'), 'PeopleScreen');
+const PersonScreen = lazyRouteComponent(() => import('./screens/person'), 'PersonScreen');
+const SafetyScreen = lazyRouteComponent(() => import('./screens/safety'), 'SafetyScreen');
+const PrivacyScreen = lazyRouteComponent(() => import('./screens/privacy'), 'PrivacyScreen');
 
 export interface AdminRouterContext {
   queryClient: QueryClient;
@@ -127,6 +133,26 @@ const tripEditRoute = createRoute({
   component: TripEditScreen,
 });
 const settingsRoute = createRoute({ getParentRoute: () => authedRoute, path: 'settings', component: SettingsScreen });
+const safetyRoute = createRoute({
+  getParentRoute: () => authedRoute,
+  path: 'settings/safety',
+  component: SafetyScreen,
+});
+const privacyRoute = createRoute({
+  getParentRoute: () => authedRoute,
+  path: 'settings/privacy',
+  component: PrivacyScreen,
+});
+const peopleRoute = createRoute({ getParentRoute: () => authedRoute, path: 'people', component: PeopleScreen });
+const personRoute = createRoute({
+  getParentRoute: () => authedRoute,
+  path: 'people/$fid',
+  params: {
+    parse: ({ fid }) => (isFollowerId(fid) ? { fid } : false),
+    stringify: ({ fid }) => ({ fid }),
+  },
+  component: PersonScreen,
+});
 
 export const routeTree = rootRoute.addChildren([
   loginRoute,
@@ -141,6 +167,10 @@ export const routeTree = rootRoute.addChildren([
     tripNewRoute,
     tripEditRoute,
     settingsRoute,
+    safetyRoute,
+    privacyRoute,
+    peopleRoute,
+    personRoute,
   ]),
 ]);
 

@@ -376,6 +376,10 @@ class Ssh2Remote implements SftpRemote {
     );
   }
 
+  async chmod(path: string, mode: number): Promise<void> {
+    await this.timed(`chmod ${path}`, (cb) => this.sftp.chmod(path, mode, cb));
+  }
+
   /** A host that refuses chmod keeps its own default modes: warn once, never fail the deploy. */
   private chmodFailed(path: string, err: unknown): void {
     if (this.chmodWarned) return;

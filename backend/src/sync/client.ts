@@ -12,7 +12,17 @@
  *     other 4xx (422, 413, 415, 400, …)        permanent for this payload
  *     invalid_response                         2xx with an unparseable body: transient
  */
+import {
+  type AccessAck,
+  AccessClaim,
+  type AccessClaimRequest,
+  AccessLease,
+  type AccessRenewRequest,
+  ServiceSession,
+  type StoreListingUpload,
+} from '@omw/contracts/access';
 import type { CaptureMirror, CaptureRevoke, Heartbeat, PreviewRole, PublishedReport } from '@omw/contracts/api';
+import type { z } from 'zod';
 
 export type ApiErrorKind = 'network' | 'timeout' | 'aborted' | 'http' | 'invalid_response';
 export type ApiErrorClass = 'transient' | 'auth' | 'ordering' | 'feed_reset' | 'permanent' | 'aborted';
@@ -154,6 +164,53 @@ export class ApiClient {
 
   async published(body: PublishedReport): Promise<void> {
     await this.request('POST', '/api/v1/backend/published', { json: body });
+  }
+
+  // --- access store writer fallback (spec-wave5 §3.6, §5.6.6) -----------------------------------
+
+  /** POST /backend/access/claim: the lease (≤ 60 s) and the first ≤ 200 pending store ops. */
+  async claim(body: AccessClaimRequest = { holder: 'mac' }): Promise<AccessClaim> {
+    return this.parsed('POST', '/api/v1/backend/access/claim', AccessClaim, body);
+  }
+
+  /** POST /backend/access/renew: extends the Mac's lease; `lease: null` = lost (stop at once). */
+  async renew(body: AccessRenewRequest): Promise<AccessLease> {
+    return this.parsed('POST', '/api/v1/backend/access/renew', AccessLease, body);
+  }
+
+  /** POST /backend/access/listing: the API reconciles the Mac's store listing and returns the ops. */
+  async uploadListing(body: StoreListingUpload): Promise<AccessClaim> {
+    return this.parsed('POST', '/api/v1/backend/access/listing', AccessClaim, body);
+  }
+
+  /** POST /backend/access/ack: ops ≤ appliedThrough applied (or `failed`); releases the lease. */
+  async ack(body: AccessAck): Promise<void> {
+    await this.request('POST', '/api/v1/backend/access/ack', { json: body });
+  }
+
+  /**
+   * GET /backend/access/service-session (?rotate=1): the publisher's own gate session for the
+   * post-deploy check. 503 busy until the API (or the Mac's writer) applied it.
+   */
+  async serviceSession(rotate: boolean): Promise<ServiceSession> {
+    return this.parsed(
+      'GET',
+      `/api/v1/backend/access/service-session${rotate ? '?rotate=1' : ''}`,
+      ServiceSession,
+      undefined,
+    );
+  }
+
+  private async parsed<T>(method: string, path: string, schema: z.ZodType<T>, json: unknown): Promise<T> {
+    const res = await this.request(method, path, json === undefined ? {} : { json });
+    const r = schema.safeParse(res.body);
+    if (!r.success) {
+      throw new ApiRequestError(`${method} ${path}: unexpected response (${r.error.issues[0]?.message ?? 'invalid'})`, {
+        kind: 'invalid_response',
+        status: res.status,
+      });
+    }
+    return r.data;
   }
 
   /** GET /api/v1/health (no auth needed; used by "test API connection"). */

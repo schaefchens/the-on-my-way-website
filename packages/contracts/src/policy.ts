@@ -51,11 +51,28 @@
  * hidden again disappears the same way.
  *
  * Note: kind "unsupported" is not special-cased here; the generator never renders it.
+ *
+ * Release slots and the departure hold (wave 5, Q1; settings "publish.release_slots",
+ * "publish.departure_hold", "publish.moved_on_at"; all off by default; vectors
+ * fixtures/vectors/release.json). They only delay WHEN the generator emits an item that is public
+ * by the rules above; they never change effectiveCaptureVisibility() (API and admin semantics stay)
+ * and removals stay immediate:
+ *   publishAt   = capturePublishAt() for captures, occurredAt for posts
+ *   holdEnd     = holdEndAt(entryAt, leftPlaceAt(days).get(date), settings): null when the hold is
+ *                 off, else the earliest of entryAt + maxDays·24 h, publish.moved_on_at (when it is
+ *                 not before the entry) and the first item of the next later date at another place
+ *   releaseAt   = entryReleaseAt(publishAt, holdEnd) = nextReleaseSlot(max(publishAt, holdEnd))
+ * The item is emitted once releaseAt <= now. HoldDays are built from EVERY item of a date (captures
+ * of any visibility except revoked-and-hidden, posts of any visibility), so held and pending days
+ * still count as "she is there". Slot times are wall-clock times in timezone.current; a slot in a
+ * DST gap fires at the first instant after the gap, an ambiguous one at the earlier instant.
+ * The portrait follows the same rules (portraitReleaseAt), so it never appears before its photo
+ * could have been published.
  */
 
 import type { OnRevoke, PublishMode } from './api.js';
 import type { Visibility } from './common.js';
-import { localDateFor } from './time.js';
+import { addDays, localDateFor, zonedWallTimeToUtc } from './time.js';
 
 /** Default of the setting "publish.mode_since": the mode applies to everything. */
 export const MODE_SINCE_EPOCH = '1970-01-01T00:00:00.000Z';
@@ -266,4 +283,148 @@ export function overlappingTrips(candidate: TripRange, trips: readonly TripRange
     .filter((t) => t.slug !== candidate.slug && tripRangesOverlap(candidate, t))
     .map((t) => t.slug)
     .sort();
+}
+
+// ---------------------------------------------------------------------------------------------
+// Release slots and departure hold (see the header)
+
+/** The settings the release rules read (contract keys). */
+export interface ReleaseSettings {
+  'publish.release_slots': { enabled: boolean; times: readonly string[] };
+  'publish.departure_hold': { enabled: boolean; maxDays: number };
+  'publish.moved_on_at'?: string | undefined;
+  'timezone.current': string;
+}
+
+const slotCache = new Map<string, number>();
+
+function slotInstant(date: string, hhmm: string, tz: string): number {
+  const key = `${tz}|${date}|${hhmm}`;
+  let ms = slotCache.get(key);
+  if (ms === undefined) {
+    if (slotCache.size >= 4096) slotCache.clear();
+    ms = Date.parse(zonedWallTimeToUtc(date, hhmm, tz));
+    slotCache.set(key, ms);
+  }
+  return ms;
+}
+
+/**
+ * First slot instant >= `at` (wall clock `times` in `tz`); `at` itself when slots are off (or no
+ * time is set). DST: a slot inside a gap fires at the first instant after it; an ambiguous one at
+ * the earlier. Returns a canonical ISO instant ("…T…:…:….mmmZ").
+ */
+export function nextReleaseSlot(at: Instant, slots: ReleaseSettings['publish.release_slots'], tz: string): string {
+  const t = toMillis(at, 'at');
+  if (!slots.enabled || slots.times.length === 0) return new Date(t).toISOString();
+  const today = localDateFor(t, tz);
+  let best = Number.POSITIVE_INFINITY;
+  // Today, tomorrow and the day after (a zone may skip a whole calendar day).
+  for (let i = 0; i <= 2 && best === Number.POSITIVE_INFINITY; i++) {
+    const date = addDays(today, i);
+    for (const time of slots.times) {
+      const ms = slotInstant(date, time, tz);
+      if (ms >= t && ms < best) best = ms;
+    }
+  }
+  if (best === Number.POSITIVE_INFINITY) throw new RangeError(`No release slot after ${new Date(t).toISOString()}`);
+  return new Date(best).toISOString();
+}
+
+/** "Hội An " / "hội an" → "hội an"; blank → null (NFC, trim, collapse spaces, toLowerCase). */
+export function placeKey(place: string | null | undefined): string | null {
+  if (typeof place !== 'string') return null;
+  const key = place.normalize('NFC').trim().replace(/\s+/gu, ' ').toLowerCase();
+  return key === '' ? null : key;
+}
+
+/** One local date with any item (see the header): its Day.placeName and its earliest item instant. */
+export interface HoldDay {
+  date: string;
+  place: string | null;
+  firstAt: string;
+}
+
+/**
+ * For each date: firstAt of the earliest LATER date whose placeKey is non-null and differs from
+ * this date's non-null placeKey; null when this date has no place or no such later date. Expects
+ * one HoldDay per date (with duplicates, the one with the earliest firstAt counts).
+ */
+export function leftPlaceAt(days: readonly HoldDay[]): Map<string, string | null> {
+  const byDate = new Map<string, HoldDay>();
+  for (const day of days) {
+    const seen = byDate.get(day.date);
+    if (!seen || toMillis(day.firstAt, 'firstAt') < toMillis(seen.firstAt, 'firstAt')) byDate.set(day.date, day);
+  }
+  const sorted = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const keys = sorted.map((d) => placeKey(d.place));
+  const out = new Map<string, string | null>();
+  sorted.forEach((day, i) => {
+    const key = keys[i];
+    let left: string | null = null;
+    if (key !== null && key !== undefined) {
+      for (let j = i + 1; j < sorted.length; j++) {
+        const other = keys[j];
+        if (other !== null && other !== undefined && other !== key) {
+          left = sorted[j]?.firstAt ?? null;
+          break;
+        }
+      }
+    }
+    out.set(day.date, left === null ? null : new Date(toMillis(left, 'firstAt')).toISOString());
+  });
+  return out;
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * End of the departure hold of an entry at `entryAt` (ISO), or null when the hold is off:
+ * min(entryAt + maxDays·24 h, moved_on_at if moved_on_at >= entryAt, leftAt).
+ */
+export function holdEndAt(entryAt: Instant, leftAt: string | null, s: ReleaseSettings): string | null {
+  const hold = s['publish.departure_hold'];
+  if (!hold.enabled) return null;
+  const at = toMillis(entryAt, 'entryAt');
+  const days = Number.isFinite(hold.maxDays) ? Math.min(Math.max(hold.maxDays, 0), 7) : 7;
+  let end = at + days * DAY_MS;
+  const movedOn = s['publish.moved_on_at'];
+  if (movedOn) {
+    const moved = toMillis(movedOn, 'publish.moved_on_at');
+    if (moved >= at) end = Math.min(end, moved);
+  }
+  if (leftAt !== null) end = Math.min(end, toMillis(leftAt, 'leftAt'));
+  return new Date(end).toISOString();
+}
+
+/** null when publishAt is null; else nextReleaseSlot(max(publishAt, holdEnd ?? publishAt)). */
+export function entryReleaseAt(publishAt: string | null, holdEnd: string | null, s: ReleaseSettings): string | null {
+  if (publishAt === null) return null;
+  const publish = toMillis(publishAt, 'publishAt');
+  const from = holdEnd === null ? publish : Math.max(publish, toMillis(holdEnd, 'holdEnd'));
+  return nextReleaseSlot(from, s['publish.release_slots'], s['timezone.current']);
+}
+
+/**
+ * When the portrait cut from `capture` may be published (P0: the portrait never bypasses the
+ * delay), or null when it may not by itself:
+ *   override "pending" → null; revoked + ingest.on_revoke "hide" → null; an override "hidden" is
+ *   ignored (a hidden photo may be the portrait); review mode → occurredAt (the pick is the
+ *   review); override "public" → occurredAt; else capturePublishAt(); then entryReleaseAt with
+ *   the departure hold `holdEnd` and the release slots.
+ */
+export function portraitReleaseAt(
+  capture: CapturePolicyInput,
+  annotation: AnnotationPolicyInput | null | undefined,
+  settings: PolicySettings & ReleaseSettings,
+  holdEnd: string | null,
+): string | null {
+  const override = annotation?.visibility;
+  if (override === 'pending') return null;
+  if (capture.revokedAt && settings['ingest.on_revoke'] === 'hide') return null;
+  const occurredAt = new Date(toMillis(capture.occurredAt, 'occurredAt')).toISOString();
+  let publishAt: string | null;
+  if (modeForCapture(capture, settings) === 'review' || override === 'public') publishAt = occurredAt;
+  else publishAt = capturePublishAt(capture, null, settings);
+  return entryReleaseAt(publishAt, holdEnd, settings);
 }

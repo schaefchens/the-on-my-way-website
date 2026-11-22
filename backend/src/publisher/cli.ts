@@ -12,6 +12,10 @@
  *   selftest [<target>] [--keep]          live smoke test in <root>/omw-selftest-<random>/
  *                                         (without <target>: the SFTP_* target from the env,
  *                                         not persisted)
+ *   migrate-to-gate <target> [--confirm]  one-off move of an open-mode site into gate mode
+ *                                         (spec-wave5 §5.6.4; generate in gate mode first): gate
+ *                                         tree, content into /<secret>/, gate check, then the
+ *                                         legacy root paths; deleted only with --confirm
  * Options:
  *   --env-file PATH   read KEY=value lines literally (never shell-sourced); real env wins
  *   --json            machine-readable output
@@ -28,7 +32,7 @@ import { loadConfig } from '../config.js';
 import { BACKEND_ROOT, REPO_ROOT, statePaths } from '../paths.js';
 import { Store } from '../store/index.js';
 import { mergeEnv, readDotenvFile } from './dotenv.js';
-import { createPublisher } from './index.js';
+import { createPublisher, type MigrationReport } from './index.js';
 import { runSelftest } from './selftest.js';
 import { bootstrapTargetFromEnv, TARGETS_FILE, TargetStore } from './targets.js';
 import type { DeployResult, PlanSummary, PublishTargetPublic, StoredTarget } from './types.js';
@@ -44,6 +48,7 @@ const USAGE = `Usage: publisher <command> [options]
   test <target> [--force]                log in and check that the remote root is writable
   deploy [<target>] [--out DIR] [--full] [--dry-run [--offline]]
   selftest [<target>] [--keep]           live smoke test in <root>/omw-selftest-<random>/
+  migrate-to-gate <target> [--confirm]   move an open-mode site into gate mode (generate first)
 Options: --env-file PATH  --json  --verbose  --help`;
 
 export async function main(argv: string[], io: CliIo): Promise<number> {
@@ -164,6 +169,16 @@ export async function main(argv: string[], io: CliIo): Promise<number> {
         else for (const r of results) io.out(describeResult(r));
         return results.length > 0 && results.every((r) => r.ok) ? 0 : 1;
       }
+      case 'migrate-to-gate': {
+        if (!targetArg) {
+          io.err(`migrate-to-gate needs a target id\n${USAGE}`);
+          return 2;
+        }
+        const report = await publisher.migrateToGate(targetArg, { confirm: values.confirm === true });
+        if (json) io.out(JSON.stringify(report, null, 2));
+        else io.out(describeMigration(report, values.confirm === true));
+        return report.deploy.ok ? 0 : 1;
+      }
       default:
         io.err(`Unknown command: ${command}\n${USAGE}`);
         return 2;
@@ -186,6 +201,7 @@ function parse(argv: string[]) {
       full: { type: 'boolean' },
       force: { type: 'boolean' },
       keep: { type: 'boolean' },
+      confirm: { type: 'boolean' },
       json: { type: 'boolean' },
       verbose: { type: 'boolean' },
       help: { type: 'boolean', short: 'h' },
@@ -223,8 +239,30 @@ function describePlan(p: PlanSummary): string {
   return lines.join('\n');
 }
 
+export function describeMigration(m: MigrationReport, confirm: boolean): string {
+  const lines = [describeResult(m.deploy)];
+  if (!m.deploy.ok) {
+    lines.push('migration stopped: the gate deploy failed; legacy files untouched');
+    return lines.join('\n');
+  }
+  if (m.legacy.length === 0) lines.push('no legacy root files listed in the old deploy record');
+  else if (confirm) {
+    lines.push(
+      `deleted ${m.deleted} of ${m.legacy.length} legacy root file(s); legacy record removed: ${m.recordRemoved}`,
+    );
+  } else {
+    lines.push(`legacy root files (deleted only with --confirm): ${m.legacy.length}`);
+    for (const p of m.legacy.slice(0, 200)) lines.push(`  - /${p}`);
+    if (m.legacy.length > 200) lines.push(`  … ${m.legacy.length - 200} more`);
+  }
+  return lines.join('\n');
+}
+
 function describeResult(r: DeployResult): string {
-  const head = `${r.targetId}: ${r.ok ? 'OK' : 'FAILED'} version ${r.version ?? '-'}; uploaded ${r.uploaded} (${r.bytes} B), deleted ${r.deleted}, unchanged ${r.unchanged ?? '-'}, deferred ${r.deferred ?? 0}; http ${r.httpCheck}${r.httpDetail ? ` (${r.httpDetail})` : ''}; ${r.durationMs} ms, ${r.connections ?? 0} login(s)`;
+  const gate = r.gate
+    ? `; gate tree: uploaded ${r.gate.uploaded}, deleted ${r.gate.deleted}${r.gate.htaccess ? ', /.htaccess' : ''}`
+    : '';
+  const head = `${r.targetId}: ${r.ok ? 'OK' : 'FAILED'} version ${r.version ?? '-'}; uploaded ${r.uploaded} (${r.bytes} B), deleted ${r.deleted}, unchanged ${r.unchanged ?? '-'}, deferred ${r.deferred ?? 0}; http ${r.httpCheck}${r.httpDetail ? ` (${r.httpDetail})` : ''}${gate}; ${r.durationMs} ms, ${r.connections ?? 0} login(s)`;
   return r.error ? `${head}\n  error [${r.errorCode ?? 'error'}]: ${r.error}` : head;
 }
 

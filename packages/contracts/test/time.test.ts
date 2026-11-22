@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDays,
+  coarsenToBucket,
   compareDates,
   dateRange,
   daysBetween,
@@ -8,8 +9,11 @@ import {
   isValidTimeZone,
   localDateFor,
   localTimeFor,
+  MAX_BUCKET_INDEX,
+  timeBucket,
   toIsoUtc,
   utcOffsetMinutes,
+  zonedWallTimeToUtc,
 } from '../src/time.js';
 
 describe('localDateFor / localTimeFor', () => {
@@ -138,5 +142,90 @@ describe('calendar date helpers', () => {
     expect(toIsoUtc('2026-11-18T02:12:00Z')).toBe('2026-11-18T02:12:00.000Z');
     expect(toIsoUtc('2026-11-18T09:12:00+07:00')).toBe('2026-11-18T02:12:00.000Z');
     expect(() => toIsoUtc('nope')).toThrow(RangeError);
+  });
+});
+
+describe('zonedWallTimeToUtc (release slots)', () => {
+  it('maps a wall time to its instant in zones without a transition', () => {
+    expect(zonedWallTimeToUtc('2026-11-20', '08:00', 'Europe/Berlin')).toBe('2026-11-20T07:00:00.000Z');
+    expect(zonedWallTimeToUtc('2026-07-01', '08:00', 'Europe/Berlin')).toBe('2026-07-01T06:00:00.000Z');
+    expect(zonedWallTimeToUtc('2026-11-15', '00:00', 'Asia/Ho_Chi_Minh')).toBe('2026-11-14T17:00:00.000Z');
+    expect(zonedWallTimeToUtc('2026-11-18', '23:59', 'Asia/Kathmandu')).toBe('2026-11-18T18:14:00.000Z');
+    expect(zonedWallTimeToUtc('2026-01-01', '00:00', 'UTC')).toBe('2026-01-01T00:00:00.000Z');
+  });
+
+  it('a wall time in a spring-forward gap maps to the transition (the first instant after the gap)', () => {
+    // Berlin 2026-03-29: 02:00 CET (01:00Z) jumps to 03:00 CEST.
+    expect(zonedWallTimeToUtc('2026-03-29', '01:59', 'Europe/Berlin')).toBe('2026-03-29T00:59:00.000Z');
+    expect(zonedWallTimeToUtc('2026-03-29', '02:00', 'Europe/Berlin')).toBe('2026-03-29T01:00:00.000Z');
+    expect(zonedWallTimeToUtc('2026-03-29', '02:30', 'Europe/Berlin')).toBe('2026-03-29T01:00:00.000Z');
+    expect(zonedWallTimeToUtc('2026-03-29', '03:00', 'Europe/Berlin')).toBe('2026-03-29T01:00:00.000Z');
+    expect(zonedWallTimeToUtc('2026-03-29', '03:01', 'Europe/Berlin')).toBe('2026-03-29T01:01:00.000Z');
+    // New York 2026-03-08: 02:00 EST (07:00Z) jumps to 03:00 EDT.
+    expect(zonedWallTimeToUtc('2026-03-08', '02:30', 'America/New_York')).toBe('2026-03-08T07:00:00.000Z');
+    // Lord Howe: a 30-minute shift (02:00 +10:30 -> 02:30 +11).
+    expect(zonedWallTimeToUtc('2026-10-04', '02:15', 'Australia/Lord_Howe')).toBe('2026-10-03T15:30:00.000Z');
+    // Samoa skipped 2011-12-30 entirely: the next instant is 2011-12-31 00:00 (+14).
+    expect(zonedWallTimeToUtc('2011-12-30', '08:00', 'Pacific/Apia')).toBe('2011-12-30T10:00:00.000Z');
+  });
+
+  it('an ambiguous wall time (fall back) maps to the earlier instant', () => {
+    // Berlin 2026-10-25: 03:00 CEST (01:00Z) falls back to 02:00 CET; 02:30 happens twice.
+    expect(zonedWallTimeToUtc('2026-10-25', '02:30', 'Europe/Berlin')).toBe('2026-10-25T00:30:00.000Z');
+    expect(zonedWallTimeToUtc('2026-10-25', '02:00', 'Europe/Berlin')).toBe('2026-10-25T00:00:00.000Z');
+    expect(zonedWallTimeToUtc('2026-10-25', '03:00', 'Europe/Berlin')).toBe('2026-10-25T02:00:00.000Z');
+    // New York 2026-11-01: 01:30 EDT (05:30Z) and 01:30 EST (06:30Z).
+    expect(zonedWallTimeToUtc('2026-11-01', '01:30', 'America/New_York')).toBe('2026-11-01T05:30:00.000Z');
+  });
+
+  it('rejects invalid input', () => {
+    expect(() => zonedWallTimeToUtc('2026-02-30', '08:00', 'Europe/Berlin')).toThrow(RangeError);
+    expect(() => zonedWallTimeToUtc('2026-11-20', '8:00', 'Europe/Berlin')).toThrow(RangeError);
+    expect(() => zonedWallTimeToUtc('2026-11-20', '24:00', 'Europe/Berlin')).toThrow(RangeError);
+    expect(() => zonedWallTimeToUtc('2026-11-20', '08:00', 'Mars/Olympus')).toThrow(RangeError);
+  });
+});
+
+describe('timeBucket / coarsenToBucket (site.time_precision = part_of_day)', () => {
+  it('assigns every local hour to its 3-hour bucket and part of day', () => {
+    const expected = ['night', 'night', 'morning', 'morning', 'midday', 'afternoon', 'evening', 'night'];
+    for (let hour = 0; hour < 24; hour++) {
+      // Ho Chi Minh City is UTC+7 without DST.
+      const at = new Date(Date.UTC(2026, 10, 15, hour - 7, 59, 59)).toISOString();
+      const bucket = timeBucket(at, 'Asia/Ho_Chi_Minh');
+      expect(bucket.startHour, `${hour}:59`).toBe(Math.floor(hour / 3) * 3);
+      expect(bucket.partOfDay, `${hour}:59`).toBe(expected[Math.floor(hour / 3)]);
+    }
+  });
+
+  it('coarsens to the local bucket start plus index seconds, dropping milliseconds', () => {
+    const tz = 'Asia/Ho_Chi_Minh';
+    // 12:47:12.345 local -> 12:00:00 local (05:00Z) + index seconds.
+    expect(coarsenToBucket('2026-11-15T05:47:12.345Z', tz, 0)).toBe('2026-11-15T05:00:00.000Z');
+    expect(coarsenToBucket('2026-11-15T05:47:12.345Z', tz, 1)).toBe('2026-11-15T05:00:01.000Z');
+    expect(coarsenToBucket('2026-11-15T07:59:59Z', tz, 2)).toBe('2026-11-15T05:00:02.000Z');
+    // Local midnight starts a bucket; the minute before it belongs to the 21:00 bucket.
+    expect(coarsenToBucket('2026-11-15T17:00:00Z', tz, 0)).toBe('2026-11-15T17:00:00.000Z');
+    expect(coarsenToBucket('2026-11-15T16:59:59.999Z', tz, 0)).toBe('2026-11-15T14:00:00.000Z');
+    // Quarter-hour offsets: Kathmandu is +05:45.
+    expect(coarsenToBucket('2026-11-18T18:14:00Z', 'Asia/Kathmandu', 0)).toBe('2026-11-18T15:15:00.000Z');
+  });
+
+  it("keeps the order of a bucket's entries when the index follows (at, id)", () => {
+    const tz = 'Europe/Berlin';
+    // Fall back: 02:30 CEST (00:30Z) and 02:30 CET (01:30Z) share the 00:00 bucket.
+    const ats = ['2026-10-24T22:10:00Z', '2026-10-25T00:30:00Z', '2026-10-25T01:30:00Z'];
+    const coarse = ats.map((at, i) => coarsenToBucket(at, tz, i));
+    expect([...coarse].sort()).toEqual(coarse);
+    expect(new Set(coarse).size).toBe(coarse.length);
+    for (const c of coarse) expect(timeBucket(c, tz).startHour).toBe(0);
+  });
+
+  it('rejects an index outside 0..MAX_BUCKET_INDEX', () => {
+    expect(MAX_BUCKET_INDEX).toBe(3599);
+    expect(() => coarsenToBucket('2026-11-15T05:00:00Z', 'UTC', -1)).toThrow(RangeError);
+    expect(() => coarsenToBucket('2026-11-15T05:00:00Z', 'UTC', 1.5)).toThrow(RangeError);
+    expect(() => coarsenToBucket('2026-11-15T05:00:00Z', 'UTC', MAX_BUCKET_INDEX + 1)).toThrow(RangeError);
+    expect(coarsenToBucket('2026-11-15T05:00:00Z', 'UTC', MAX_BUCKET_INDEX)).toBe('2026-11-15T03:59:59.000Z');
   });
 });

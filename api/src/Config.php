@@ -48,6 +48,7 @@ final class Config
         public readonly int $sessionDays = 30,
         public readonly bool $devInsecureCookie = false,
         public readonly string $ntfyServer = self::DEFAULT_NTFY_SERVER,
+        public readonly AccessConfig $access = new AccessConfig(),
     ) {
     }
 
@@ -148,6 +149,7 @@ final class Config
             sessionDays: self::int($get('SESSION_DAYS', '30'), 'SESSION_DAYS', 1, 365),
             devInsecureCookie: $devInsecureCookie,
             ntfyServer: self::ntfyServer($get('NTFY_SERVER', self::DEFAULT_NTFY_SERVER)),
+            access: AccessConfig::fromEnv($rootDir, $env, self::origin($get('SITE_ORIGIN')), rtrim($get('APP_URL'), '/')),
         );
     }
 
@@ -159,6 +161,7 @@ final class Config
             'LOG_PATH', 'LOG_LEVEL', 'MAIL_DSN', 'MAIL_FROM', 'CRON_KEY', 'SITE_ORIGIN', 'APP_URL',
             'NTFY_TOKEN', 'BACKUP_KEEP', 'BACKUP_HOUR', 'ALERT_REPEAT_MINUTES', 'PUBLISH_FAIL_THRESHOLD',
             'SESSION_DAYS', 'DEV_INSECURE_COOKIE', 'NTFY_SERVER',
+            ...AccessConfig::KEYS,
         ];
     }
 

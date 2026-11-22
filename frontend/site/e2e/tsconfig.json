@@ -14,6 +14,9 @@
     "player-boot.spec.ts",
     "player-server.ts",
     "../playwright.generated.config.ts",
-    "../playwright.player.config.ts"
+    "../playwright.player.config.ts",
+    "gate.spec.ts",
+    "gate-mock.ts",
+    "../playwright.gate.config.ts"
   ]
 }

@@ -41,6 +41,7 @@ afterwards. Then, depending on what you want to do:
 | Static host and PHP API: setup, deploy, cron, restore | [docs/HOSTING.md](docs/HOSTING.md), [api/README.md](api/README.md) |
 | Backend development, configuration, CLI, control UI | [backend/README.md](backend/README.md) |
 | Site and admin development | [frontend/README.md](frontend/README.md) |
+| Followers and the access gate: hosting, runbooks, what is stored | [docs/HOSTING.md §11](docs/HOSTING.md#11-access-gate-wave-5-approval-only-followers), [docs/OPERATIONS.md](docs/OPERATIONS.md#followers-and-access), [docs/PRIVACY.md](docs/PRIVACY.md) |
 
 Checks: `pnpm typecheck`, `pnpm test`, `pnpm lint` (Biome), `pnpm schemas:check` (contracts →
 `api/schemas`); PHP: `scripts/composer test` and `scripts/composer stan`.
@@ -50,7 +51,7 @@ Secrets live only in the repo's `.env` (read literally by the tools, never `sour
 
 ## Status
 
-As of 2026-11-20.
+As of 2026-11-21.
 
 **Works without a phone** (fixtures; all checks above pass, plus the Go helper's `make check` in
 `backend/wa-helper`): capture → media pipeline → static site → local or SFTP publish; the PHP API
@@ -59,9 +60,23 @@ with the admin PWA; the backend ⇄ API sync. End-to-end runs:
 | What | Command |
 |---|---|
 | Public site (timeline, player) | `pnpm --filter @omw/site e2e`, `pnpm exec playwright test -c frontend/site/playwright.player.config.ts` |
+| Gate pages (join, info, wait, your data, panic) against a mock API | `pnpm --filter @omw/site e2e:gate` |
 | Generated site from real backend output | recipe in [backend/README.md](backend/README.md#local-end-to-end-run-fixtures-no-phone-no-api) |
-| Admin PWA against a mock / the whole local stack (PHP API + backend + site) | `pnpm --filter @omw/admin e2e` / `pnpm --filter @omw/admin e2e:stack` |
+| The gate rules on a real Apache (127.0.0.1) | `pnpm --filter @omw/backend test:apache` |
+| Admin PWA against a mock / the whole local stack (PHP API + backend + site; also the access gate with Apache in both store modes) | `pnpm --filter @omw/admin e2e` / `pnpm --filter @omw/admin e2e:stack` |
 | Backend in Docker (fixtures) | `scripts/docker-e2e.sh` |
+
+**Wave 5 (approval-only followers), built and tested locally, not deployed yet:** the access gate
+(Apache `.htaccess` + a session-file store written by the API; neutral page for everyone else),
+personal links with an information screen and consent records, device approval, revoke and lock
+(admin, panic link, Mac button), "Your data" with export and delete-me, privacy notice versions,
+the safety options (release slots, departure hold, here-now and time precision; all off by
+default), the P0 privacy fixes (no coordinates, hashed post ids, neutral link previews, portrait
+waits for its photo's release) and changing the admin password. The live host probe (P0b,
+2026-11-20) passed 13/13: the live setup is `ACCESS_STORE_MODE=direct` with `__Host-` cookies.
+Go-live order and acceptance checklist: [docs/HOSTING.md §11.11](docs/HOSTING.md#1111-go-live-order-and-acceptance-checklist);
+runbooks: [docs/OPERATIONS.md](docs/OPERATIONS.md#followers-and-access); what is stored about
+followers: [docs/PRIVACY.md](docs/PRIVACY.md).
 
 **Needs the phone (Phase 0, not started):** the WhatsApp helper has never run against WhatsApp.
 Linking the observer number (QR or pairing code), receiving real statuses and media, and the
@@ -69,7 +84,7 @@ open questions in `backend/wa-helper/NOTES.md` §12 are next ([docs/OBSERVER.md]
 [docs/PLAN.md](docs/PLAN.md)).
 
 **Live hosts:** the site host serves a preview built from the fixtures plus synthetic owner content
-(`noindex`), deployed over SFTP on 2026-11-20. The API host still runs an earlier build: deploy
+(`noindex`, still **open**: no gate yet), deployed over SFTP on 2026-11-20. The API host still runs an earlier build: deploy
 the current one with `scripts/deploy-api.ts` (`--skip-http-checks` while HTTPS is blocked) and set
 the real admin e-mail (`--set-admin-email=…`; it is still a placeholder). Since 2026-11-20 the
 shared host drops HTTPS from the development machine's IP (SFTP still works, see Troubleshooting

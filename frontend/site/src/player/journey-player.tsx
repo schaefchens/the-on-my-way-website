@@ -30,7 +30,7 @@ import {
 } from 'react';
 import { useTimeline } from '../data/hooks';
 import { findDay, prefetchAdjacentDays } from '../data/queries';
-import { useSite } from '../site';
+import { useSite, useSiteFlags } from '../site';
 import {
   CaptionBlock,
   CloseButton,
@@ -255,7 +255,11 @@ function PlayerSession({
   const { t } = useLingui();
   const kindLabels = useKindLabels();
   const fwd = forwardSign(locale);
-  const items = useMemo(() => buildItems(day, locale, { dataSaver: prefs.dataSaver }), [day, locale, prefs.dataSaver]);
+  const { timePrecision } = useSiteFlags();
+  const items = useMemo(
+    () => buildItems(day, locale, { dataSaver: prefs.dataSaver, timePrecision }),
+    [day, locale, prefs.dataSaver, timePrecision],
+  );
   const [stored, dispatch] = useReducer(
     reducer,
     {

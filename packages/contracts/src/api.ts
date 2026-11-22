@@ -26,12 +26,63 @@
  * - TripUpsert: endDate >= startDate; ranges of different trips must not overlap
  *   (overlappingTrips() in ./policy).
  * - PostCreate: content has at least one locale and contains origLocale.
+ * - Settings: "publish.release_slots".times ascending and unique (settingsProblems()).
+ * - The access payloads (./access) list their own rules in that module's header.
  *
  * API error codes (ApiError.error.code): validation_failed (422), conflict (409), feed_reset (409),
  * not_found (404), capture_not_mirrored (404), unsupported_media_type (415), payload_too_large
  * (413), unauthorized (401), forbidden / csrf (403), rate_limited (429), internal (500).
+ * Wave 5 (spec-wave5 §3): config_missing (409), device_limit (409), notice_incomplete (422),
+ * wrong_password (403), busy (503), maintenance (503).
  */
 import { z } from 'zod';
+import {
+  AccessAck,
+  AccessActionResult,
+  AccessClaim,
+  AccessClaimRequest,
+  AccessLease,
+  AccessRenewRequest,
+  AccessStatus,
+  AccessSummary,
+  AdminFollower,
+  DeviceKeyRequest,
+  DevicePollResponse,
+  FollowerCreate,
+  FollowerCreated,
+  FollowerDataExport,
+  FollowerDeleteRequest,
+  FollowerListResponse,
+  FollowerPatch,
+  GateCheckResult,
+  JoinCheckRequest,
+  JoinCheckResponse,
+  JoinRequest,
+  JoinResponse,
+  LockRequest,
+  MeConsentRequest,
+  MeDataResponse,
+  MeDeleteRequest,
+  MeHelloResponse,
+  MeNoticeResponse,
+  MeSimpleResponse,
+  NoticeReadRequest,
+  OwnerNoticeList,
+  PanicLinkCreated,
+  PanicRequest,
+  PanicResponse,
+  PersonalLinkCreated,
+  PrivacyNotice,
+  PrivacyNoticeDraft,
+  PrivacyPublishRequest,
+  PrivacyState,
+  ServiceSession,
+  SiteHeartbeat,
+  StoreListingUpload,
+  StoreLock,
+  StoreMarker,
+  StoreTombstone,
+} from './access.js';
 import {
   Base64,
   CaptureKind,
@@ -51,7 +102,7 @@ import {
   Visibility,
 } from './common.js';
 import { I18nText, LocaleCode } from './i18n.js';
-import { AuthorName, FocusPoint, IntroI18n, TextStyle } from './site.js';
+import { AuthorName, FocusPoint, HereNow, IntroI18n, TextStyle, TimePrecision } from './site.js';
 import { WaState } from './wa.js';
 
 /** change_log seq of an entity's latest write (0 = never written). */
@@ -157,6 +208,12 @@ export const Heartbeat = z.object({
     lastAt: IsoUtc.optional(),
     lastError: z.string().optional(),
   }),
+  /**
+   * The site the backend generates (wave 5): the API compares `origin` with SITE_ORIGIN (alert
+   * site_origin_mismatch) and, with ACCESS_STORE_MODE=direct, `storeDir` with its own
+   * ACCESS_STORE_DIR (alert access_store_unverified). Absent from older backends.
+   */
+  site: SiteHeartbeat.optional(),
 });
 export type Heartbeat = z.infer<typeof Heartbeat>;
 
@@ -182,6 +239,11 @@ export const PublishedReport = z.object({
    */
   capturesThrough: IsoUtc.nullable(),
   error: z.string().optional(),
+  /**
+   * The Mac's post-deploy gate check (gate mode, spec-wave5 §5.6.3). `error`/`skipped` never fail
+   * the report; `store_unverified` and `gate_open` raise critical alerts.
+   */
+  gateCheck: GateCheckResult.optional(),
 });
 export type PublishedReport = z.infer<typeof PublishedReport>;
 
@@ -274,6 +336,33 @@ export type OnRevoke = z.infer<typeof OnRevoke>;
 
 const uniqueStrings = (values: readonly string[]) => new Set(values).size === values.length;
 
+/** Wall-clock time "HH:MM" (24 h). */
+const HHMM = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, { message: 'Expected HH:MM' });
+
+/**
+ * Setting "publish.release_slots" (Q1, off by default): public items are emitted at the next of
+ * these wall-clock times in timezone.current (nextReleaseSlot in ./policy). Times ascending and
+ * unique (settingsProblems()).
+ */
+export const ReleaseSlots = z.object({
+  enabled: z.boolean(),
+  times: z
+    .array(HHMM)
+    .min(1)
+    .max(6)
+    .refine(uniqueStrings, { message: 'Times must be unique' })
+    .meta({ uniqueItems: true }),
+});
+export type ReleaseSlots = z.infer<typeof ReleaseSlots>;
+
+/**
+ * Setting "publish.departure_hold" (Q1, off by default): an entry waits until she has left the
+ * place (a later day at another place), she taps "moved on" (publish.moved_on_at), or maxDays
+ * have passed, whichever comes first (holdEndAt in ./policy).
+ */
+export const DepartureHold = z.object({ enabled: z.boolean(), maxDays: z.int().min(1).max(7) });
+export type DepartureHold = z.infer<typeof DepartureHold>;
+
 /**
  * Setting "site.avatar": the owner's portrait, picked from the captured photos. Only a small
  * round crop of that photo (AvatarImage in ./site: at most AVATAR_MAX_WIDTH px, transparent
@@ -291,6 +380,12 @@ const SettingsShape = {
   /** Set by the API whenever publish.mode changes (not writable via SettingsPatch). */
   'publish.mode_since': IsoUtc,
   'publish.delay_minutes': z.int().min(0).max(525_600),
+  /** Release slots (Q1; default off, 08:00 and 20:00). */
+  'publish.release_slots': ReleaseSlots,
+  /** Departure hold (Q1; default off, 7 days). */
+  'publish.departure_hold': DepartureHold,
+  /** Set to now by the admin's "moved on" button; ends the departure hold of earlier entries. */
+  'publish.moved_on_at': IsoUtc.optional(),
   'ingest.on_revoke': OnRevoke,
   'timezone.current': TimeZone,
   'site.title': z.string().min(1).max(120),
@@ -302,6 +397,10 @@ const SettingsShape = {
     .meta({ uniqueItems: true }),
   'site.default_locale': LocaleCode,
   'site.indexable': z.boolean(),
+  /** How the current stay is shown (Q2; HereNow in ./site). */
+  'site.here_now': HereNow,
+  /** Exact entry times or 3-hour parts of the day (TimePrecision in ./site). */
+  'site.time_precision': TimePrecision,
   /** Display name of the traveler ("Lea"): one trimmed line (AuthorName in ./site). */
   'site.author': AuthorName.optional(),
   /** Short greeting per locale, plain text (IntroI18n in ./site). */
@@ -328,6 +427,7 @@ export function isSettingKey(value: unknown): value is SettingKey {
 
 /** Optional keys without a default: a SettingsPatch value null removes them (feed: "delete"). */
 export const CLEARABLE_SETTING_KEYS = [
+  'publish.moved_on_at',
   'site.author',
   'site.intro',
   'site.avatar',
@@ -340,12 +440,16 @@ const DEFAULTS: Settings = {
   'publish.mode': 'instant',
   'publish.mode_since': '1970-01-01T00:00:00.000Z',
   'publish.delay_minutes': 720,
+  'publish.release_slots': { enabled: false, times: ['08:00', '20:00'] },
+  'publish.departure_hold': { enabled: false, maxDays: 7 },
   'ingest.on_revoke': 'hide',
   'timezone.current': 'Europe/Berlin',
   'site.title': 'On My Way',
   'site.locales': ['de', 'en'],
   'site.default_locale': 'de',
   'site.indexable': false,
+  'site.here_now': 'city_badge',
+  'site.time_precision': 'exact',
   'alerts.heartbeat_stale_minutes': 15,
 };
 export const SETTINGS_DEFAULTS: Readonly<Settings> = Object.freeze(DEFAULTS);
@@ -357,6 +461,10 @@ export function settingsProblems(settings: Settings): string[] {
     problems.push('site.default_locale must be one of site.locales');
   }
   if (!uniqueStrings(settings['site.locales'])) problems.push('site.locales must be unique');
+  const times = settings['publish.release_slots'].times;
+  if (times.some((time, i) => i > 0 && !((times[i - 1] ?? '') < time))) {
+    problems.push('publish.release_slots times must be ascending and unique');
+  }
   return problems;
 }
 
@@ -437,6 +545,13 @@ export type ChangeItem = z.infer<typeof ChangeItem>;
 
 const NextSeq = z.int().min(0);
 
+/**
+ * Wave 5: `needsWriter` = the API wants the Mac to apply site-store ops (ACCESS_STORE_MODE=none,
+ * the oldest pending op is older than 60 s, the writer is blocked, or a reconcile is due that the
+ * API cannot list itself). Absent from older APIs.
+ */
+export const ChangesAccess = z.object({ needsWriter: z.boolean() });
+
 /** What the API returns (PHP validates its output against this). */
 export const ChangesResponse = z.object({
   feedId: FeedId,
@@ -445,6 +560,7 @@ export const ChangesResponse = z.object({
   /** Cursor for the next request (= last seq, or the request's `after` when empty). */
   nextSeq: NextSeq,
   hasMore: z.boolean(),
+  access: ChangesAccess.optional(),
 });
 export type ChangesResponse = z.infer<typeof ChangesResponse>;
 
@@ -454,6 +570,7 @@ export const ChangesPage = z.object({
   items: z.array(z.unknown()),
   nextSeq: NextSeq,
   hasMore: z.boolean(),
+  access: ChangesAccess.optional(),
 });
 export type ChangesPage = z.infer<typeof ChangesPage>;
 
@@ -701,6 +818,7 @@ export type TripListResponse = z.infer<typeof TripListResponse>;
 export const SettingsPatch = Settings.omit({ 'publish.mode_since': true })
   .partial()
   .extend({
+    'publish.moved_on_at': IsoUtc.nullable().optional(),
     'site.author': AuthorName.nullable().optional(),
     'site.intro': IntroI18n.nullable().optional(),
     'site.avatar': SiteAvatarSetting.nullable().optional(),
@@ -782,8 +900,26 @@ export const StatusResponse = z.object({
   /** One entry per publish target, ordered by target name. */
   publish: z.array(TargetPublishStatus),
   alerts: z.array(Alert),
+  /** Wave 5: lock, writer and pending counts (no names: the admin persists this response). */
+  access: AccessSummary.optional(),
 });
 export type StatusResponse = z.infer<typeof StatusResponse>;
+
+/** Minimum length of a new admin password (PHP Passwords::MIN_LENGTH). */
+export const PASSWORD_MIN_LENGTH = 12;
+
+/**
+ * PUT /api/v1/admin/me/password (session + CSRF; app tokens get 403) -> 204. 403 "wrong_password"
+ * when currentPassword does not verify; 422 when newPassword is weak, equals the current one or
+ * the e-mail address. Every other session of the user ends; revokeAppTokens also revokes the
+ * user's app tokens (never backend tokens). Rate-limited like a login.
+ */
+export const PasswordChange = z.object({
+  currentPassword: z.string().min(1).max(1000),
+  newPassword: z.string().min(PASSWORD_MIN_LENGTH).max(4096),
+  revokeAppTokens: z.boolean(),
+});
+export type PasswordChange = z.infer<typeof PasswordChange>;
 
 export const ApiError = z.object({
   error: z.object({
@@ -886,5 +1022,52 @@ export const API_SCHEMAS = {
   TargetPublishStatus: [TargetPublishStatus, 'output'],
   StatusResponse: [StatusResponse, 'output'],
   ApiError: [ApiError, 'output'],
+  PasswordChange: [PasswordChange, 'input'],
+  // access: public (site -> API)
+  JoinCheckRequest: [JoinCheckRequest, 'input'],
+  JoinCheckResponse: [JoinCheckResponse, 'output'],
+  JoinRequest: [JoinRequest, 'input'],
+  JoinResponse: [JoinResponse, 'output'],
+  DeviceKeyRequest: [DeviceKeyRequest, 'input'],
+  DevicePollResponse: [DevicePollResponse, 'output'],
+  MeHelloResponse: [MeHelloResponse, 'output'],
+  MeNoticeResponse: [MeNoticeResponse, 'output'],
+  MeConsentRequest: [MeConsentRequest, 'input'],
+  MeDeleteRequest: [MeDeleteRequest, 'input'],
+  MeSimpleResponse: [MeSimpleResponse, 'output'],
+  MeDataResponse: [MeDataResponse, 'output'],
+  FollowerDataExport: [FollowerDataExport, 'output'],
+  PanicRequest: [PanicRequest, 'input'],
+  PanicResponse: [PanicResponse, 'output'],
+  // access: admin
+  FollowerListResponse: [FollowerListResponse, 'output'],
+  AdminFollower: [AdminFollower, 'output'],
+  FollowerCreate: [FollowerCreate, 'input'],
+  FollowerPatch: [FollowerPatch, 'input'],
+  FollowerCreated: [FollowerCreated, 'output'],
+  PersonalLinkCreated: [PersonalLinkCreated, 'output'],
+  FollowerDeleteRequest: [FollowerDeleteRequest, 'input'],
+  AccessActionResult: [AccessActionResult, 'output'],
+  AccessStatus: [AccessStatus, 'output'],
+  LockRequest: [LockRequest, 'input'],
+  PanicLinkCreated: [PanicLinkCreated, 'output'],
+  PrivacyNoticeDraft: [PrivacyNoticeDraft, 'input'],
+  PrivacyNotice: [PrivacyNotice, 'output'],
+  PrivacyState: [PrivacyState, 'output'],
+  PrivacyPublishRequest: [PrivacyPublishRequest, 'input'],
+  OwnerNoticeList: [OwnerNoticeList, 'output'],
+  NoticeReadRequest: [NoticeReadRequest, 'input'],
+  // access: backend (store writer fallback)
+  AccessClaimRequest: [AccessClaimRequest, 'input'],
+  AccessClaim: [AccessClaim, 'output'],
+  AccessRenewRequest: [AccessRenewRequest, 'input'],
+  AccessLease: [AccessLease, 'output'],
+  StoreListingUpload: [StoreListingUpload, 'input'],
+  AccessAck: [AccessAck, 'input'],
+  ServiceSession: [ServiceSession, 'output'],
+  // access: site-store files
+  StoreMarker: [StoreMarker, 'output'],
+  StoreTombstone: [StoreTombstone, 'output'],
+  StoreLock: [StoreLock, 'output'],
 } as const satisfies Record<string, readonly [z.ZodType, SchemaIo]>;
 export type ApiSchemaName = keyof typeof API_SCHEMAS;

@@ -107,6 +107,7 @@ function boot(partial: Partial<SiteBoot> = {}): SiteBoot {
     timelineV: null,
     day: null,
     profile: null,
+    access: null,
     source: 'document',
     ...partial,
   };

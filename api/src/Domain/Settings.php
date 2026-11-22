@@ -31,6 +31,11 @@ use stdClass;
  * of kind photo that is not revoked and whose media is not lost ({@see avatarProblem()}); a later
  * revoke leaves the setting alone (the backend's generator then publishes no portrait). Text
  * values are validated as sent (the contract requires them trimmed); nothing is rewritten.
+ *
+ * Wave 5 (spec-wave5 §4.2; rows seeded by migrations/0002_settings_w5.sql): publish.release_slots,
+ * publish.departure_hold (both off by default), publish.moved_on_at (optional, cleared with null;
+ * the admin's "moved on" button sets it), site.here_now and site.time_precision. Release slot
+ * times must be ascending and unique ({@see problems()}).
  */
 final class Settings
 {
@@ -39,20 +44,26 @@ final class Settings
         'publish.mode' => 'instant',
         'publish.mode_since' => Policy::MODE_SINCE_EPOCH,
         'publish.delay_minutes' => 720,
+        'publish.release_slots' => ['enabled' => false, 'times' => ['08:00', '20:00']],
+        'publish.departure_hold' => ['enabled' => false, 'maxDays' => 7],
         'ingest.on_revoke' => 'hide',
         'timezone.current' => 'Europe/Berlin',
         'site.title' => 'On My Way',
         'site.locales' => ['de', 'en'],
         'site.default_locale' => 'de',
         'site.indexable' => false,
+        'site.here_now' => 'city_badge',
+        'site.time_precision' => 'exact',
         'alerts.heartbeat_stale_minutes' => 15,
     ];
 
     /** Every key of the contract's Settings object, in contract order. */
     public const KEYS = [
-        'publish.mode', 'publish.mode_since', 'publish.delay_minutes', 'ingest.on_revoke', 'timezone.current',
-        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'site.author', 'site.intro',
-        'site.avatar', 'alerts.email', 'alerts.ntfy_url', 'alerts.heartbeat_stale_minutes',
+        'publish.mode', 'publish.mode_since', 'publish.delay_minutes', 'publish.release_slots',
+        'publish.departure_hold', 'publish.moved_on_at', 'ingest.on_revoke', 'timezone.current',
+        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'site.here_now',
+        'site.time_precision', 'site.author', 'site.intro', 'site.avatar', 'alerts.email', 'alerts.ntfy_url',
+        'alerts.heartbeat_stale_minutes',
     ];
 
     /**
@@ -60,13 +71,17 @@ final class Settings
      * mode last (see the class comment), everything else in contract order.
      */
     public const WRITE_ORDER = [
-        'publish.mode_since', 'publish.delay_minutes', 'publish.mode', 'ingest.on_revoke', 'timezone.current',
-        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'site.author', 'site.intro',
-        'site.avatar', 'alerts.email', 'alerts.ntfy_url', 'alerts.heartbeat_stale_minutes',
+        'publish.mode_since', 'publish.delay_minutes', 'publish.mode', 'publish.release_slots',
+        'publish.departure_hold', 'publish.moved_on_at', 'ingest.on_revoke', 'timezone.current',
+        'site.title', 'site.locales', 'site.default_locale', 'site.indexable', 'site.here_now',
+        'site.time_precision', 'site.author', 'site.intro', 'site.avatar', 'alerts.email', 'alerts.ntfy_url',
+        'alerts.heartbeat_stale_minutes',
     ];
 
     /** Keys a PATCH may clear with null (optional in the contract: CLEARABLE_SETTING_KEYS). */
-    public const CLEARABLE = ['site.author', 'site.intro', 'site.avatar', 'alerts.email', 'alerts.ntfy_url'];
+    public const CLEARABLE = [
+        'publish.moved_on_at', 'site.author', 'site.intro', 'site.avatar', 'alerts.email', 'alerts.ntfy_url',
+    ];
 
     public function __construct(
         private readonly Db $db,
@@ -211,6 +226,18 @@ final class Settings
         }
         if (count($locales) !== count(array_unique($locales))) {
             $problems[] = 'site.locales must be unique';
+        }
+        $slots = $settings['publish.release_slots'] ?? null;
+        $times = $slots instanceof stdClass ? ($slots->times ?? null) : (is_array($slots) ? ($slots['times'] ?? null) : null);
+        if (is_array($times)) {
+            $previous = null;
+            foreach ($times as $time) {
+                if (!is_string($time) || ($previous !== null && strcmp($previous, $time) >= 0)) {
+                    $problems[] = 'publish.release_slots times must be ascending and unique';
+                    break;
+                }
+                $previous = $time;
+            }
         }
 
         return $problems;

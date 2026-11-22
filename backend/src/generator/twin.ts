@@ -26,9 +26,11 @@ import type {
   DayDetail,
   DaySummary,
   Entry,
+  HereNow,
   ImageSet,
   RouteRef,
   SiteProfile,
+  TimePrecision,
   TripSummary,
 } from '@omw/contracts/site';
 import { routePath } from '@omw/contracts/site';
@@ -41,14 +43,22 @@ import {
   formatClock,
   formatDate,
   formatDateRange,
+  formatEntryTime,
   formatRelative,
-  formatTime,
   stringsFor,
 } from './strings.js';
 
 /** What a page's twin needs from the generator (a subset of pages.ts SiteContext). */
 export interface TwinContext {
-  site: { title: string; locales: readonly LocaleCode[]; basePath: string };
+  site: {
+    title: string;
+    locales: readonly LocaleCode[];
+    basePath: string;
+    /** site.here_now (absent = city_badge): the "Now in"/"Here now" badge only with city_badge. */
+    hereNow?: HereNow | undefined;
+    /** site.time_precision (absent = exact): part_of_day shows the part of the day, not a time. */
+    timePrecision?: TimePrecision | undefined;
+  };
   summaries: readonly DaySummary[];
   days: ReadonlyMap<string, DayDetail>;
   tripSummaries: readonly TripSummary[];
@@ -257,11 +267,13 @@ function hero(ctx: TwinContext, styles: PageStyles, locale: LocaleCode): Html {
   const moments = ctx.summaries.reduce((a, d) => a + momentCount(d), 0);
   let chips: Html | string = '';
   if (latest) {
-    const live = isLive(latest.lastAt, ctx.now);
+    // site.here_now other than city_badge: no "Now in"/"Here now" wording and no live accent.
+    const badge = (ctx.site.hereNow ?? 'city_badge') === 'city_badge';
+    const live = badge && isLive(latest.lastAt, ctx.now);
     const latestTitle = pickText(latest.title, locale, latest.orig)?.text;
     const place =
       latest.place || latestTitle
-        ? html`<span class="inline-flex max-w-full items-center gap-1.5 rounded-pill py-1.5 ps-2.5 pe-3 font-bold ${live ? 'bg-accent text-on-accent' : 'bg-surface text-ink shadow-soft'}">${icon('pin', 'size-4 shrink-0')}<span class="truncate">${live ? t.nowIn : t.lastIn} <bdi>${latest.place ?? latestTitle}</bdi>${latest.country ? ` ${countryFlag(latest.country)}` : ''}</span><span class="shrink-0 font-semibold ${live ? 'opacity-85' : 'text-muted'}">· ${formatRelative(latest.lastAt, locale, ctx.now)}</span></span>`
+        ? html`<span class="inline-flex max-w-full items-center gap-1.5 rounded-pill py-1.5 ps-2.5 pe-3 font-bold ${live ? 'bg-accent text-on-accent' : 'bg-surface text-ink shadow-soft'}">${icon('pin', 'size-4 shrink-0')}<span class="truncate">${badge ? `${live ? t.nowIn : t.lastIn} ` : ''}<bdi>${latest.place ?? latestTitle}</bdi>${latest.country ? ` ${countryFlag(latest.country)}` : ''}</span><span class="shrink-0 font-semibold ${live ? 'opacity-85' : 'text-muted'}">· ${formatRelative(latest.lastAt, locale, ctx.now)}</span></span>`
         : '';
     chips = html`<div class="mt-3 flex flex-wrap items-center gap-2 text-sm md:max-w-[calc(100%-18rem)]">${place}<span class="inline-flex items-center gap-1 rounded-pill bg-surface/70 px-3 py-1.5 font-semibold text-muted">${t.days(ctx.summaries.length)} · ${t.countries(countries.size)} · ${t.moments(moments)}</span></div>`;
   }
@@ -549,6 +561,11 @@ function filmstrip(
   };
 }
 
+/** The "Here now" badge exists only with site.here_now = city_badge (absent = city_badge). */
+function hereNowBadge(ctx: TwinContext): boolean {
+  return (ctx.site.hereNow ?? 'city_badge') === 'city_badge';
+}
+
 function hereNowChip(locale: LocaleCode, lastAt: string, now: Date, cls = ''): Html {
   const t = stringsFor(locale).spa;
   const live = isLive(lastAt, now);
@@ -618,7 +635,7 @@ function dayRow(
       })
     : '';
   const stampCompactTop = styles.geometry('stp', { top: COMPACT.dayHeader + 8 + COMPACT.filmstrip - 46 });
-  const html_ = html`<article aria-labelledby="${headingId}" class="day-row relative h-full"><span aria-hidden="true" class="thread ${opts.inTrip ? 'thread-trip' : ''} ${threadFrom}"></span><div class="relative ${upper}"><header data-sticky class="day-header sticky top-0 z-[2] flex items-center gap-3 ${header}"><a href="${dayHref}" tabindex="-1" aria-hidden="true" class="press relative block size-11 shrink-0 overflow-hidden rounded-full bg-blush ring-[3px] ring-bg shadow-soft ${opts.latest ? 'outline-2 outline-offset-2 outline-accent' : ''}"><span data-anchor="${summary.date}" class="block size-full">${avatar}</span></a><div class="min-w-0 flex-1"><p class="flex items-center gap-1.5 overflow-hidden text-[0.8rem] font-bold whitespace-nowrap text-muted">${meta}</p><div class="flex min-w-0 items-center gap-3">${compactOnly(styles, heading(true))}${regularOnly(styles, html`${heading(false)}${opts.latest ? hereNowChip(locale, summary.lastAt, ctx.now) : ''}`)}</div></div>${
+  const html_ = html`<article aria-labelledby="${headingId}" class="day-row relative h-full"><span aria-hidden="true" class="thread ${opts.inTrip ? 'thread-trip' : ''} ${threadFrom}"></span><div class="relative ${upper}"><header data-sticky class="day-header sticky top-0 z-[2] flex items-center gap-3 ${header}"><a href="${dayHref}" tabindex="-1" aria-hidden="true" class="press relative block size-11 shrink-0 overflow-hidden rounded-full bg-blush ring-[3px] ring-bg shadow-soft ${opts.latest ? 'outline-2 outline-offset-2 outline-accent' : ''}"><span data-anchor="${summary.date}" class="block size-full">${avatar}</span></a><div class="min-w-0 flex-1"><p class="flex items-center gap-1.5 overflow-hidden text-[0.8rem] font-bold whitespace-nowrap text-muted">${meta}</p><div class="flex min-w-0 items-center gap-3">${compactOnly(styles, heading(true))}${regularOnly(styles, html`${heading(false)}${opts.latest && hereNowBadge(ctx) ? hereNowChip(locale, summary.lastAt, ctx.now) : ''}`)}</div></div>${
     opts.stamp ? regularOnly(styles, passportStamp(styles, locale, opts.stamp, summary.date, 'me-2 shrink-0')) : ''
   }</header><div class="relative ms-14 -me-gutter mt-2 ${stripBox}">${strip.html}</div></div>${
     opts.stamp
@@ -633,7 +650,7 @@ function dayRow(
           ),
         )
       : ''
-  }<div class="ms-14 mt-4 flex h-11 items-center gap-3"><a href="${dayHref}" data-day-cta class="press inline-flex h-11 shrink-0 items-center gap-2 rounded-pill bg-accent ps-3.5 pe-4.5 font-bold whitespace-nowrap text-on-accent shadow-soft hover:bg-accent-strong">${icon('play', 'size-4')}<span>${t.watchDay}<span class="sr-only">: ${formatDate(summary.date, locale, 'header')}</span></span></a>${opts.latest ? compactOnly(styles, hereNowChip(locale, summary.lastAt, ctx.now, 'min-w-0')) : ''}</div></article>`;
+  }<div class="ms-14 mt-4 flex h-11 items-center gap-3"><a href="${dayHref}" data-day-cta class="press inline-flex h-11 shrink-0 items-center gap-2 rounded-pill bg-accent ps-3.5 pe-4.5 font-bold whitespace-nowrap text-on-accent shadow-soft hover:bg-accent-strong">${icon('play', 'size-4')}<span>${t.watchDay}<span class="sr-only">: ${formatDate(summary.date, locale, 'header')}</span></span></a>${opts.latest && hereNowBadge(ctx) ? compactOnly(styles, hereNowChip(locale, summary.lastAt, ctx.now, 'min-w-0')) : ''}</div></article>`;
   return { html: rowBox(styles, 'day', (m) => m.dayRow, html_, summary.date), image: strip.image };
 }
 
@@ -809,7 +826,7 @@ export function playerTwin(ctx: TwinContext, styles: PageStyles, locale: LocaleC
         )}</div>`;
   const meta: (Html | string)[] = [];
   if (ownerTitle) meta.push(formatDate(day.date, locale, 'header'));
-  if (first) meta.push(formatTime(first.at, first.tz, locale));
+  if (first) meta.push(formatEntryTime(first.at, first.tz, locale, ctx.site.timePrecision));
   if (day.place || day.country) {
     meta.push(
       html`${day.place ? html`<bdi>${day.place}</bdi>` : ''}${day.country ? `${day.place ? ' ' : ''}${countryFlag(day.country)}` : ''}`,

@@ -30,9 +30,7 @@ import {
   EntryId,
   HexColor,
   IsoUtc,
-  Latitude,
   LocalDate,
-  Longitude,
   PostPublicId,
   RelPath,
   RgbaColor,
@@ -296,8 +294,6 @@ export const DayDetail = z.object({
   orig: LocaleCode.optional(),
   place: z.string().optional(),
   country: CountryCode.optional(),
-  lat: Latitude.optional(),
-  lng: Longitude.optional(),
   tz: TimeZone,
   trip: Slug.optional(),
   prev: LocalDate.optional(),
@@ -326,12 +322,32 @@ export const BasePath = z.string().regex(/^\/(?:[A-Za-z0-9._~-]+\/)*$/, {
   message: 'Expected "/" or "/segment/…/"',
 });
 
+/**
+ * Setting "site.here_now" (Q2): how the current stay (the trailing run of published days at the
+ * newest day's place) is shown. city_badge = city + "here now" badge (default, wave 4); city =
+ * city without badge; country = the current stay's days lose their place (country kept); none =
+ * they lose place and country. The generator strips the data, not just the UI.
+ */
+export const HereNow = z.enum(['city_badge', 'city', 'country', 'none']);
+export type HereNow = z.infer<typeof HereNow>;
+
+/**
+ * Setting "site.time_precision": exact = published entry times as captured (default); part_of_day
+ * = coarsened to 3-hour local buckets (coarsenToBucket in ./time), the SPA shows the part of day.
+ */
+export const TimePrecision = z.enum(['exact', 'part_of_day']);
+export type TimePrecision = z.infer<typeof TimePrecision>;
+
 export const SiteInfo = z.object({
   title: z.string().min(1).max(120),
   locales: z.array(LocaleCode).min(1),
   defaultLocale: LocaleCode,
   basePath: BasePath,
   indexable: z.boolean(),
+  /** Absent = "city_badge". */
+  hereNow: HereNow.optional(),
+  /** Absent = "exact". */
+  timePrecision: TimePrecision.optional(),
 });
 export type SiteInfo = z.infer<typeof SiteInfo>;
 
@@ -351,6 +367,28 @@ export type Manifest = z.infer<typeof Manifest>;
  */
 export const RouteName = z.enum(['home', 'day', 'story', 'trip', 'notFound']);
 export type RouteName = z.infer<typeof RouteName>;
+
+/**
+ * Boot.access (gate mode). Defined here rather than imported from ./access (which imports this
+ * module): `api` has the PublicApiBase pattern, `cookieMode` the CookieMode values and
+ * `cookieDomain` the GateBoot.cookieDomain pattern (test/access.test.ts guards the copies).
+ * cookieDomain: F1/F2 only, the Domain the SPA uses when it deletes the transfer/handoff
+ * cookies; null = host-only.
+ */
+export const BootAccess = z.object({
+  api: z.string().regex(/^https?:\/\/[^\s/?#]+(?:\/[^\s?#]*)?\/api\/v1\/public\/$/),
+  cookies: z.object({
+    key: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
+    transfer: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
+    handoff: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
+  }),
+  cookieMode: z.enum(['headers', 'co', 'parent']),
+  cookieDomain: z
+    .string()
+    .regex(/^[a-z0-9.-]+$/)
+    .nullable(),
+});
+export type BootAccess = z.infer<typeof BootAccess>;
 
 /** Per-page boot data in <script id="omw-boot" type="application/json">. */
 export const Boot = z.object({
@@ -372,6 +410,8 @@ export const Boot = z.object({
    * timeline.json has arrived and shows the portrait at once (absent when there is no profile).
    */
   profile: SiteProfile.optional(),
+  /** Present in gate mode only (spec-wave5 §5.4): how the SPA talks to the API about its device. */
+  access: BootAccess.optional(),
 });
 export type Boot = z.infer<typeof Boot>;
 

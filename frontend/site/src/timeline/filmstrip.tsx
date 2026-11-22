@@ -18,7 +18,9 @@ import { Link } from '@tanstack/react-router';
 import { type CSSProperties, memo, useCallback, useMemo, useRef, useState } from 'react';
 import { tilt } from '../components/decor';
 import { BookIcon, ChevronIcon, MicIcon, PlayIcon } from '../components/icons';
+import { partOfDayLabel } from '../components/time-labels';
 import { useDay } from '../data/hooks';
+import { useSiteFlags } from '../site';
 import { entriesLayout, excerpt, type StripCell, type StripLayout, stripLayout } from './strip-layout';
 
 /** Gap between items (px), in both directions of the mosaic. */
@@ -81,9 +83,22 @@ function itemText(entry: Entry, locale: LocaleCode): string | undefined {
   }
 }
 
-function StripItem({ entry, date, locale, cell }: { entry: Entry; date: string; locale: LocaleCode; cell: StripCell }) {
+function StripItem({
+  entry,
+  date,
+  locale,
+  cell,
+  partOfDay,
+}: {
+  entry: Entry;
+  date: string;
+  locale: LocaleCode;
+  cell: StripCell;
+  /** site.time_precision = part_of_day: "morgens" instead of "08:40". */
+  partOfDay: boolean;
+}) {
   const { t } = useLingui();
-  const time = formatTime(entry.at, entry.tz, locale);
+  const time = partOfDay ? partOfDayLabel(entry.at, entry.tz) : formatTime(entry.at, entry.tz, locale);
   const labels: Record<Entry['kind'], string> = {
     photo: t`Photo`,
     video: t`Video`,
@@ -335,6 +350,7 @@ export const Filmstrip = memo(function Filmstrip({
 }) {
   const { t } = useLingui();
   const { data, error, refetch } = useDay(summary.date);
+  const partOfDay = useSiteFlags().timePrecision === 'part_of_day';
   /** The strip pads 0.75rem above and below (room for shadows and washi tape). */
   const itemHeight = height - 24;
   const ref = useRef<HTMLDivElement>(null);
@@ -417,7 +433,14 @@ export const Filmstrip = memo(function Filmstrip({
             entries.map((entry, i) => {
               const cell = layout.cells[i];
               return cell ? (
-                <StripItem key={entry.id} entry={entry} date={summary.date} locale={locale} cell={cell} />
+                <StripItem
+                  key={entry.id}
+                  entry={entry}
+                  date={summary.date}
+                  locale={locale}
+                  cell={cell}
+                  partOfDay={partOfDay}
+                />
               ) : null;
             })
           ) : (

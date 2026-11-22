@@ -12,6 +12,14 @@ msgstr ""
 msgid "…/trip/{0}/"
 msgstr "…/trip/{0}/"
 
+#: src/screens/person.tsx
+msgid "“{label}” sees only the neutral page from now on. To use it again, {name} opens the link again and you allow the device."
+msgstr "„{label}“ sieht ab sofort nur noch die neutrale Seite. Um es wieder zu nutzen, öffnet {name} den Link erneut und du erlaubst das Gerät."
+
+#: src/screens/safety.tsx
+msgid "“Here now” on the site"
+msgstr "„Hier gerade“-Anzeige"
+
 #: src/components/status.tsx
 msgid "(by the publish setting)"
 msgstr "(durch die Veröffentlichungs-Einstellung)"
@@ -20,10 +28,30 @@ msgstr "(durch die Veröffentlichungs-Einstellung)"
 msgid "(empty)"
 msgstr "(leer)"
 
+#. placeholder {0}: report.deleted
+#: src/screens/safety.tsx
+msgid "{0, plural, =0 {nothing to fix} one {# file fixed} other {# files fixed}}"
+msgstr "{0, plural, =0 {nichts zu reparieren} one {# Datei repariert} other {# Dateien repariert}}"
+
 #. placeholder {0}: active.length
 #: src/screens/home.tsx
 msgid "{0, plural, one {# alert} other {# alerts}}"
 msgstr "{0, plural, one {# Warnung} other {# Warnungen}}"
+
+#. placeholder {0}: status.pendingOps
+#: src/screens/safety.tsx
+msgid "{0, plural, one {# change} other {# changes}}"
+msgstr "{0, plural, one {# Änderung} other {# Änderungen}}"
+
+#. placeholder {0}: summary.devices
+#: src/screens/people.tsx
+msgid "{0, plural, one {# device has to join again with a new link ({names}).} other {# devices have to join again with a new link ({names}).}}"
+msgstr "{0, plural, one {# Gerät muss mit einem neuen Link neu beitreten ({names}).} other {# Geräte müssen mit einem neuen Link neu beitreten ({names}).}}"
+
+#. placeholder {0}: report.missing.length
+#: src/screens/safety.tsx
+msgid "{0, plural, one {# device missing} other {# devices missing}}"
+msgstr "{0, plural, one {# Gerät fehlt} other {# Geräte fehlen}}"
 
 #. placeholder {0}: drafts.length
 #: src/screens/home.tsx
@@ -34,6 +62,11 @@ msgstr "{0, plural, one {# Entwurf auf diesem Gerät} other {# Entwürfe auf die
 #: src/screens/days.tsx
 msgid "{0, plural, one {# hidden} other {# hidden}}"
 msgstr "{0, plural, one {# versteckt} other {# versteckt}}"
+
+#. placeholder {0}: summary.people
+#: src/screens/people.tsx
+msgid "{0, plural, one {# person is missing from the backup and has to be invited again.} other {# people are missing from the backup and have to be invited again.}}"
+msgstr "{0, plural, one {# Person fehlt in der Sicherung und muss neu eingeladen werden.} other {# Personen fehlen in der Sicherung und müssen neu eingeladen werden.}}"
 
 #. placeholder {0}: g.items.length
 #: src/screens/inbox.tsx
@@ -47,11 +80,24 @@ msgstr "{0, plural, one {# Status} other {# Status}}"
 msgid "{0, plural, one {# waiting} other {# waiting}}"
 msgstr "{0, plural, one {# wartet} other {# warten}}"
 
+#. placeholder {0}: q.data?.pendingDevices ?? count
+#: src/screens/home.tsx
+msgid "{0, plural, one {A new device is waiting} other {# new devices are waiting}}"
+msgstr "{0, plural, one {Ein neues Gerät wartet} other {# neue Geräte warten}}"
+
 #. placeholder {0}: zoneOffset(current)
 #. placeholder {1}: formatTime(new Date(), current, locale)
 #: src/screens/settings.tsx
 msgid "{0} · it is {1} there"
 msgstr "{0} · dort ist es {1}"
+
+#: src/screens/people.tsx
+msgid "{active, plural, =0 {no device yet} one {# device} other {# devices}}"
+msgstr "{active, plural, =0 {noch kein Gerät} one {# Gerät} other {# Geräte}}"
+
+#: src/components/password-sheet.tsx
+msgid "{appTokens, plural, one {Also end all app access (# token)} other {Also end all app access (# tokens)}}"
+msgstr "{appTokens, plural, one {Auch alle App-Zugänge beenden (# Token)} other {Auch alle App-Zugänge beenden (# Tokens)}}"
 
 #: src/components/conflict-dialog.tsx
 msgid "{autoMerged, plural, one {# other change of yours does not collide and is kept.} other {# other changes of yours do not collide and are kept.}}"
@@ -109,6 +155,14 @@ msgstr "noch {left}"
 msgid "{lost, plural, one {# status could not be downloaded from WhatsApp.} other {# statuses could not be downloaded from WhatsApp.}}"
 msgstr "{lost, plural, one {# Status konnte nicht von WhatsApp geladen werden.} other {# Status konnten nicht von WhatsApp geladen werden.}}"
 
+#: src/screens/safety.tsx
+msgid "{MAX_SLOTS, plural, other {Up to # times a day.}}"
+msgstr "{MAX_SLOTS, plural, other {Bis zu # Uhrzeiten am Tag.}}"
+
+#: src/screens/safety.tsx
+msgid "{maxDays, plural, one {At most # day} other {At most # days}}"
+msgstr "{maxDays, plural, one {Höchstens # Tag} other {Höchstens # Tage}}"
+
 #: src/screens/days.tsx
 msgid "{moments, plural, one {# moment} other {# moments}}"
 msgstr "{moments, plural, one {# Moment} other {# Momente}}"
@@ -116,6 +170,22 @@ msgstr "{moments, plural, one {# Moment} other {# Momente}}"
 #: src/components/conflict-dialog.tsx
 msgid "{more, plural, one {# more conflict after this one.} other {# more conflicts after this one.}}"
 msgstr "{more, plural, one {Danach folgt noch # Konflikt.} other {Danach folgen noch # Konflikte.}}"
+
+#: src/screens/home.tsx
+msgid "{more, plural, one {+ # more} other {+ # more}}"
+msgstr "{more, plural, one {+ # weiteres} other {+ # weitere}}"
+
+#: src/screens/home.tsx
+msgid "{n, plural, one {{place}: # day waits until she has moved on (at the latest {until})} other {{place}: # days wait until she has moved on (at the latest {until})}}"
+msgstr "{n, plural, one {{place}: # Tag wartet, bis sie weitergereist ist (spätestens {until})} other {{place}: # Tage warten, bis sie weitergereist ist (spätestens {until})}}"
+
+#: src/screens/person.tsx
+msgid "{name} already has {n} devices. Remove one first."
+msgstr "{name} hat schon {n} Geräte. Entferne zuerst eines."
+
+#: src/screens/person.tsx
+msgid "{name} sees only the neutral page from now on. What {name} has already seen stays with them. Stored data is kept."
+msgstr "{name} sieht ab sofort nur noch die neutrale Seite. Was {name} schon gesehen hat, bleibt bei ihr/ihm. Gespeicherte Daten bleiben erhalten."
 
 #: src/components/portrait.tsx
 msgid "{notOffered, plural, one {# photo is not offered: deleted on WhatsApp, lost or still processing.} other {# photos are not offered: deleted on WhatsApp, lost or still processing.}}"
@@ -135,8 +205,16 @@ msgid "{pending, plural, one {Sending # change…} other {Sending # changes…}}
 msgstr "{pending, plural, one {Sende # Änderung…} other {Sende # Änderungen…}}"
 
 #: src/screens/home.tsx
+msgid "{people, plural, one {# person} other {# people}}"
+msgstr "{people, plural, one {# Mensch} other {# Menschen}}"
+
+#: src/screens/home.tsx
 msgid "{unsent, plural, one {# update could not be sent to the server yet; it keeps trying.} other {# updates could not be sent to the server yet; it keeps trying.}}"
 msgstr "{unsent, plural, one {# Änderung ging noch nicht an den Server; es wird weiter versucht.} other {# Änderungen gingen noch nicht an den Server; es wird weiter versucht.}}"
+
+#: src/screens/people.tsx
+msgid "{waiting, plural, one {# waiting} other {# waiting}}"
+msgstr "{waiting, plural, one {# wartet} other {# warten}}"
 
 #: src/components/conflict-dialog.tsx
 msgid "{your} “<0>{short}</0>” from {when}"
@@ -154,6 +232,10 @@ msgstr "0 bis 8760 Stunden"
 msgid "1 to 10080 minutes"
 msgstr "1 bis 10080 Minuten"
 
+#: src/screens/layout.tsx
+msgid "A device is waiting"
+msgstr "Ein Gerät wartet"
+
 #: src/screens/trips.tsx
 msgid "a new chapter"
 msgstr "ein neues Kapitel"
@@ -169,6 +251,18 @@ msgstr "eine Seite für dein Tagebuch"
 #: src/screens/composer.tsx
 msgid "a page of your journal"
 msgstr "eine Seite deines Tagebuchs"
+
+#: src/screens/safety.tsx
+msgid "A panic link exists."
+msgstr "Es gibt einen Panik-Link."
+
+#: src/screens/home.tsx
+msgid "A person deleted their data · {date}"
+msgstr "Eine Person hat ihre Daten gelöscht · {date}"
+
+#: src/screens/safety.tsx
+msgid "A secret link that locks the website without logging in, e.g. for someone you trust. Unlocking works only here."
+msgstr "Ein geheimer Link, der die Website ohne Anmeldung sperrt, z. B. für eine Vertrauensperson. Entsperren geht nur hier."
 
 #: src/screens/days.tsx
 msgid "A sentence or two for the day page."
@@ -186,13 +280,69 @@ msgstr "Eine Reise fasst Tage zu einem Kapitel der Zeitleiste zusammen – mit e
 msgid "About you"
 msgstr "Über dich"
 
+#: src/screens/person.tsx
+msgid "Access"
+msgstr "Zugang"
+
+#: src/screens/safety.tsx
+msgid "Access checked on {provenOn}"
+msgstr "Zugang geprüft am {provenOn}"
+
+#: src/screens/person.tsx
+msgid "access ended"
+msgstr "Zugang beendet"
+
+#: src/screens/people.tsx
+msgid "Access ended"
+msgstr "Zugang beendet"
+
+#: src/screens/people.tsx
+msgid "Access ended {endedOn}"
+msgstr "Zugang beendet am {endedOn}"
+
+#: src/screens/person.tsx
+msgid "Access ended for {name}"
+msgstr "Zugang für {name} beendet"
+
+#: src/screens/person.tsx
+msgid "Access ended on {endedOn}."
+msgstr "Zugang beendet am {endedOn}."
+
+#: src/screens/safety.tsx
+msgid "Access not checked yet"
+msgstr "Zugang noch nicht geprüft"
+
+#: src/screens/safety.tsx
+msgid "access not confirmed!"
+msgstr "Zugang nicht bestätigt!"
+
+#: src/screens/safety.tsx
+msgid "Access proven"
+msgstr "Ende-zu-Ende-Prüfung"
+
+#: src/screens/safety.tsx
+msgid "Access status"
+msgstr "Zugangsstatus"
+
 #: src/screens/settings.tsx
 msgid "Account"
 msgstr "Konto"
 
+#: src/screens/person.tsx
+msgid "Active"
+msgstr "Aktiv"
+
+#: src/screens/safety.tsx
+msgid "Add"
+msgstr "Hinzufügen"
+
 #: src/screens/days.tsx
 msgid "Add a note to this day"
 msgstr "Notiz zu diesem Tag schreiben"
+
+#: src/screens/safety.tsx
+msgid "Add a time"
+msgstr "Uhrzeit hinzufügen"
 
 #: src/screens/home.tsx
 msgid "Add a title and the place."
@@ -202,9 +352,33 @@ msgstr "Gib ihm einen Titel und den Ort."
 msgid "Add to your home screen"
 msgstr "Zum Home-Bildschirm hinzufügen"
 
+#: src/screens/privacy.tsx
+msgid "Address"
+msgstr "Adresse"
+
+#: src/screens/people.tsx
+msgid "After a restore"
+msgstr "Nach einer Wiederherstellung"
+
+#: src/api/access.ts
+msgid "After a restore, access is still being checked. Try again in a minute."
+msgstr "Nach einer Wiederherstellung wird der Zugang noch geprüft. Versuch es in einer Minute noch einmal."
+
+#: src/screens/people.tsx
+msgid "After a restore: checking access…"
+msgstr "Nach einer Wiederherstellung: Zugang wird geprüft …"
+
+#: src/screens/home.tsx
+msgid "After a restore: please look at People · {date}"
+msgstr "Nach einer Wiederherstellung: Schau bitte bei „Menschen“ nach · {date}"
+
 #: src/components/labels.ts
 msgid "After review"
 msgstr "Nach Freigabe"
+
+#: src/components/password-sheet.tsx
+msgid "Afterwards every other device that is logged in has to log in again."
+msgstr "Danach müssen sich alle anderen angemeldeten Geräte neu anmelden."
 
 #: src/screens/settings.tsx
 msgid "Alert after (minutes without heartbeat)"
@@ -222,13 +396,34 @@ msgstr "Warnungen"
 msgid "All"
 msgstr "Alle"
 
+#: src/screens/person.tsx
+msgid "All data of a person deleted"
+msgstr "Alle Daten einer Person gelöscht"
+
+#: src/screens/person.tsx
+msgid "All devices of {name} see only the neutral page."
+msgstr "Alle Geräte von {name} sehen nur noch die neutrale Seite."
+
+#: src/screens/person.tsx
+msgid "All people"
+msgstr "Alle Menschen"
+
 #: src/screens/home.tsx
 msgid "All statuses"
 msgstr "Alle Status"
 
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Allow"
+msgstr "Erlauben"
+
 #: src/screens/settings.tsx
 msgid "Already captured statuses keep their day; fix single days in the day editor."
 msgstr "Bereits erfasste Status behalten ihren Tag; einzelne Tage korrigierst du im Tag-Editor."
+
+#: src/screens/person.tsx
+msgid "Also remove {name} from your WhatsApp status audience."
+msgstr "Nimm {name} auch in WhatsApp aus deinem Status-Publikum."
 
 #: src/screens/trips.tsx
 msgid "Another trip already uses this address."
@@ -267,6 +462,10 @@ msgstr "Gilt für Status seit {0}. Alles vorher Veröffentlichte bleibt online."
 msgid "Apply"
 msgstr "Übernehmen"
 
+#: src/screens/privacy.tsx
+msgid "As people see it on the info screen."
+msgstr "So sehen es die Menschen auf dem Infobildschirm."
+
 #: src/screens/inbox.tsx
 msgid "As soon as you post a WhatsApp status, it shows up here."
 msgstr "Sobald du einen WhatsApp-Status postest, erscheint er hier."
@@ -275,9 +474,29 @@ msgstr "Sobald du einen WhatsApp-Status postest, erscheint er hier."
 msgid "As soon as your computer at home publishes, you will see it here."
 msgstr "Sobald dein Rechner zu Hause veröffentlicht, siehst du es hier."
 
+#: src/screens/people.tsx
+msgid "As they will see it: “This link is for {shown}.”"
+msgstr "So sieht die Person es: „Dieser Link ist für {shown}.“"
+
 #: src/screens/settings-profile.tsx
 msgid "At most {max} characters"
 msgstr "Höchstens {max} Zeichen"
+
+#: src/screens/people.tsx
+msgid "At most {NAME_MAX} characters"
+msgstr "Höchstens {NAME_MAX} Zeichen"
+
+#: src/screens/people.tsx
+msgid "At most {NOTE_MAX} characters"
+msgstr "Höchstens {NOTE_MAX} Zeichen"
+
+#: src/screens/person.tsx
+msgid "At most 200 characters"
+msgstr "Höchstens 200 Zeichen"
+
+#: src/screens/person.tsx
+msgid "At most 60 characters"
+msgstr "Höchstens 60 Zeichen"
 
 #: src/screens/days.tsx
 #: src/screens/item.tsx
@@ -300,6 +519,10 @@ msgstr "Wieder an seinem eigenen Tag"
 msgid "Back to the day it was captured"
 msgstr "Zurück zum Aufnahmetag"
 
+#: src/screens/people.tsx
+msgid "Before anyone can join, publish the privacy notice."
+msgstr "Bevor jemand beitreten kann, veröffentliche die Datenschutzhinweise."
+
 #: src/screens/days.tsx
 msgid "Between -180 and 180"
 msgstr "Zwischen -180 und 180"
@@ -308,7 +531,23 @@ msgstr "Zwischen -180 und 180"
 msgid "Between -90 and 90"
 msgstr "Zwischen -90 und 90"
 
+#: src/screens/people.tsx
+msgid "by themselves"
+msgstr "von der Person selbst"
+
+#: src/screens/people.tsx
+msgid "by you"
+msgstr "von dir"
+
+#: src/components/lock-card.tsx
+msgid "by you in the admin"
+msgstr "von dir im Admin"
+
+#: src/components/confirm-sheet.tsx
+#: src/components/password-sheet.tsx
 #: src/components/portrait.tsx
+#: src/screens/people.tsx
+#: src/screens/person.tsx
 #: src/screens/trips.tsx
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -316,6 +555,11 @@ msgstr "Abbrechen"
 #: src/screens/settings-profile.tsx
 msgid "Change"
 msgstr "Ändern"
+
+#: src/components/password-sheet.tsx
+#: src/screens/settings.tsx
+msgid "Change password"
+msgstr "Passwort ändern"
 
 #: src/api/conflicts.ts
 msgid "Changed elsewhere, and the newer version could not be loaded."
@@ -325,6 +569,10 @@ msgstr "Woanders geändert – und die neuere Version konnte nicht geladen werde
 msgid "Changed on another device"
 msgstr "Auf einem anderen Gerät geändert"
 
+#: src/components/lock-card.tsx
+msgid "Changes not in effect yet"
+msgstr "Änderungen noch nicht wirksam"
+
 #: src/screens/layout.tsx
 #: src/screens/settings.tsx
 msgid "Changes not sent yet"
@@ -333,6 +581,10 @@ msgstr "Noch nicht gesendete Änderungen"
 #: src/screens/composer.tsx
 msgid "Changes saved"
 msgstr "Änderungen gespeichert"
+
+#: src/screens/safety.tsx
+msgid "Changes waiting"
+msgstr "Wartende Änderungen"
 
 #: src/screens/trips.tsx
 msgid "chapter by chapter"
@@ -366,12 +618,18 @@ msgstr "Dein Porträt auswählen"
 msgid "Chosen from the day covers of the trip."
 msgstr "Ausgewählt aus den Titelbildern der Reisetage."
 
+#: src/components/confirm-sheet.tsx
 #: src/components/conflict-dialog.tsx
+#: src/components/effect-badge.tsx
 #: src/components/install.tsx
+#: src/components/link-sheet.tsx
+#: src/components/lock-card.tsx
+#: src/components/password-sheet.tsx
 #: src/components/portrait.tsx
 #: src/components/unsaved.tsx
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
+#: src/screens/people.tsx
 #: src/screens/settings.tsx
 #: src/screens/trips.tsx
 msgid "Close"
@@ -398,6 +656,7 @@ msgstr "Verbindet…"
 msgid "Coordinates (optional)"
 msgstr "Koordinaten (optional)"
 
+#: src/components/link-sheet.tsx
 #: src/screens/settings.tsx
 msgid "Copied"
 msgstr "Kopiert"
@@ -405,6 +664,10 @@ msgstr "Kopiert"
 #: src/screens/settings.tsx
 msgid "Copy"
 msgstr "Kopieren"
+
+#: src/components/link-sheet.tsx
+msgid "Copy link"
+msgstr "Link kopieren"
 
 #: src/components/ui.tsx
 msgid "Could not load this."
@@ -447,6 +710,26 @@ msgstr "Titelbild (automatisch)"
 msgid "Cover removed"
 msgstr "Titelbild entfernt"
 
+#: src/screens/person.tsx
+msgid "Create a new link?"
+msgstr "Neuen Link erstellen?"
+
+#: src/screens/safety.tsx
+msgid "Create a new one"
+msgstr "Neu erstellen"
+
+#: src/screens/people.tsx
+msgid "Create link"
+msgstr "Link erstellen"
+
+#: src/screens/person.tsx
+msgid "Create new link"
+msgstr "Neuen Link erstellen"
+
+#: src/screens/safety.tsx
+msgid "Create panic link"
+msgstr "Panik-Link erstellen"
+
 #: src/screens/settings.tsx
 msgid "Create token"
 msgstr "Token erstellen"
@@ -458,6 +741,10 @@ msgstr "Reise anlegen"
 #: src/screens/settings.tsx
 msgid "Current"
 msgstr "Aktuell"
+
+#: src/components/password-sheet.tsx
+msgid "Current password"
+msgstr "Aktuelles Passwort"
 
 #: src/screens/trips.tsx
 msgid "Dates"
@@ -491,6 +778,15 @@ msgstr "Tage erscheinen, sobald es einen Status oder eine Notiz gibt."
 msgid "Days or trips"
 msgstr "Tage oder Reisen"
 
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Decline"
+msgstr "Ablehnen"
+
+#: src/screens/person.tsx
+msgid "Declined"
+msgstr "Abgelehnt"
+
 #: src/screens/settings.tsx
 msgid "default"
 msgstr "Standard"
@@ -516,6 +812,18 @@ msgstr "Verzögert"
 msgid "Delete"
 msgstr "Löschen"
 
+#: src/screens/person.tsx
+msgid "Delete all data of {name}?"
+msgstr "Alle Daten von {name} löschen?"
+
+#: src/screens/person.tsx
+msgid "Delete all data of this person"
+msgstr "Alle Daten dieser Person löschen"
+
+#: src/screens/person.tsx
+msgid "Delete for good"
+msgstr "Jetzt endgültig löschen"
+
 #: src/screens/composer.tsx
 msgid "Delete this note?"
 msgstr "Diese Notiz löschen?"
@@ -532,13 +840,35 @@ msgstr "Diese Reise löschen?"
 msgid "Delete trip"
 msgstr "Reise löschen"
 
+#: src/screens/person.tsx
+msgid "Delete…"
+msgstr "Löschen …"
+
 #: src/screens/composer.tsx
+#: src/screens/people.tsx
 msgid "Deleted"
 msgstr "Gelöscht"
 
 #: src/screens/inbox.tsx
 msgid "Deleted on WhatsApp"
 msgstr "Auf WhatsApp gelöscht"
+
+#: src/screens/home.tsx
+#: src/screens/safety.tsx
+msgid "Departure hold"
+msgstr "Warten aufs Weiterreisen"
+
+#: src/screens/safety.tsx
+msgid "Departure hold off"
+msgstr "Warten aufs Weiterreisen aus"
+
+#: src/screens/safety.tsx
+msgid "Departure hold on"
+msgstr "Warten aufs Weiterreisen an"
+
+#: src/screens/safety.tsx
+msgid "Departure hold saved"
+msgstr "Gespeichert"
 
 #: src/screens/inbox.tsx
 msgid "Describe"
@@ -560,12 +890,31 @@ msgstr "Beschreibung gespeichert"
 
 #: src/components/feedback.tsx
 #: src/components/ui.tsx
+#: src/screens/home.tsx
 msgid "Details"
 msgstr "Details"
 
 #: src/screens/home.tsx
 msgid "Details are on the control page of your computer at home."
 msgstr "Einzelheiten stehen auf der Steuerseite deines Rechners zu Hause."
+
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Device allowed for {name}"
+msgstr "Gerät für {name} erlaubt"
+
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Device declined"
+msgstr "Gerät abgelehnt"
+
+#: src/screens/person.tsx
+msgid "Device removed"
+msgstr "Gerät entfernt"
+
+#: src/screens/person.tsx
+msgid "Devices"
+msgstr "Geräte"
 
 #: src/components/unsaved.tsx
 #: src/screens/days.tsx
@@ -590,11 +939,16 @@ msgstr "Getrennt"
 msgid "Dismiss"
 msgstr "Ausblenden"
 
+#: src/components/link-sheet.tsx
+msgid "Done"
+msgstr "Fertig"
+
 #: src/screens/settings.tsx
 msgid "Done, I saved it"
 msgstr "Erledigt, ist gespeichert"
 
 #: src/screens/composer.tsx
+#: src/screens/privacy.tsx
 msgid "Draft saved"
 msgstr "Entwurf gespeichert"
 
@@ -611,11 +965,16 @@ msgstr "Entwürfe werden beim Schreiben auf diesem Gerät gespeichert."
 msgid "Drafts stay on this device."
 msgstr "Entwürfe bleiben auf diesem Gerät."
 
+#: src/screens/people.tsx
+msgid "during a restore"
+msgstr "bei Wiederherstellung"
+
 #: src/screens/settings.tsx
 msgid "Dusk"
 msgstr "Dunkel"
 
 #: src/screens/login.tsx
+#: src/screens/privacy.tsx
 #: src/screens/settings.tsx
 msgid "E-mail"
 msgstr "E-Mail"
@@ -627,6 +986,10 @@ msgstr "E-Mail oder Passwort stimmt nicht."
 #: src/screens/settings.tsx
 msgid "e.g. Computer at home"
 msgstr "z. B. Rechner zu Hause"
+
+#: src/screens/people.tsx
+msgid "e.g. Grandma"
+msgstr "z. B. Oma"
 
 #: src/screens/days.tsx
 msgid "e.g. Hội An"
@@ -652,6 +1015,10 @@ msgstr "Bearbeiten"
 msgid "Edit an existing post from its day"
 msgstr "Bestehende Einträge bearbeitest du über ihren Tag"
 
+#: src/screens/person.tsx
+msgid "Edit name and note"
+msgstr "Name und Notiz bearbeiten"
+
 #: src/screens/composer.tsx
 msgid "Edit note"
 msgstr "Notiz bearbeiten"
@@ -673,6 +1040,18 @@ msgstr "Editor-Modus"
 msgid "End"
 msgstr "Ende"
 
+#: src/screens/person.tsx
+msgid "End access"
+msgstr "Zugang beenden"
+
+#: src/screens/person.tsx
+msgid "End access for {name}?"
+msgstr "Zugang für {name} beenden?"
+
+#: src/components/lock-card.tsx
+msgid "Enter your password. Invited people then see the journey again right away."
+msgstr "Gib dein Passwort ein. Eingeladene Personen sehen die Reise dann sofort wieder."
+
 #: src/components/labels.ts
 msgid "Error"
 msgstr "Fehler"
@@ -685,9 +1064,45 @@ msgstr "Jeder Tag in diesem Zeitraum gehört zur Reise."
 msgid "Every new status appears on the site within about a minute."
 msgstr "Jeder neue Status erscheint nach etwa einer Minute auf der Seite."
 
+#: src/components/lock-card.tsx
+msgid "Everyone else sees a neutral page."
+msgstr "Alle anderen sehen eine neutrale Seite."
+
+#: src/components/lock-card.tsx
+msgid "Everyone immediately sees only the neutral page, invited people too. Nothing is deleted."
+msgstr "Alle sehen sofort nur die neutrale Seite, auch eingeladene Personen. Nichts wird gelöscht."
+
+#: src/components/lock-card.tsx
+msgid "Everyone sees only the neutral page, invited people too."
+msgstr "Alle sehen nur die neutrale Seite, auch eingeladene Personen."
+
+#: src/screens/privacy.tsx
+msgid "Everyone sees the new text on their next visit and confirms it."
+msgstr "Alle Personen sehen den neuen Text beim nächsten Besuch und bestätigen ihn."
+
 #: src/screens/home.tsx
 msgid "Everything is live"
 msgstr "Alles ist live"
+
+#: src/screens/person.tsx
+msgid "Everything stored about {name}, as a file."
+msgstr "Alles, was über {name} gespeichert ist, als Datei."
+
+#: src/screens/safety.tsx
+msgid "Exact"
+msgstr "Genau"
+
+#: src/screens/safety.tsx
+msgid "Exact times or only the part of the day."
+msgstr "Genaue Uhrzeiten oder nur die Tageszeit."
+
+#: src/screens/settings-profile.tsx
+msgid "Expected: {expectedAt}"
+msgstr "Voraussichtlich: {expectedAt}"
+
+#: src/screens/person.tsx
+msgid "Export data"
+msgstr "Daten exportieren"
 
 #: src/screens/days.tsx
 msgid "Fill in both coordinates or none."
@@ -700,6 +1115,18 @@ msgstr "Für Suchmaschinen auffindbar"
 #: src/screens/trips.tsx
 msgid "First day"
 msgstr "Erster Tag"
+
+#: src/screens/person.tsx
+msgid "first device"
+msgstr "erstes Gerät"
+
+#: src/screens/safety.tsx
+msgid "Followers see only “in the morning”, “in the evening” …"
+msgstr "Man sieht nur „morgens“, „abends“ …"
+
+#: src/screens/safety.tsx
+msgid "Followers see the time, e.g. 08:40."
+msgstr "Man sieht die Uhrzeit, z. B. 08:40."
 
 #: src/lib/captures.ts
 msgid "Follows the publish setting again"
@@ -726,9 +1153,25 @@ msgstr "Folgt deiner Veröffentlichungs-Einstellung."
 msgid "For"
 msgstr "Für"
 
+#: src/screens/person.tsx
+msgid "For a lost link. Connected devices stay connected."
+msgstr "Für einen verlorenen Link. Verbundene Geräte bleiben verbunden."
+
+#: src/screens/person.tsx
+msgid "For a request that reaches you some other way. Cannot be undone."
+msgstr "Für eine Bitte, die dich auf anderem Weg erreicht. Lässt sich nicht rückgängig machen."
+
+#: src/screens/people.tsx
+msgid "For safety, every personal link was reset: a link you replaced after the backup must not work again. Connected devices stay connected. For a new device, create a new link:"
+msgstr "Zur Sicherheit wurden alle persönlichen Links zurückgesetzt: Ein Link, den du nach der Sicherung ersetzt hast, soll nicht wieder funktionieren. Verbundene Geräte bleiben verbunden. Für ein neues Gerät erstellst du einen neuen Link:"
+
 #: src/screens/settings.tsx
 msgid "For your computer at home and future apps. A token is shown only once."
 msgstr "Für deinen Rechner zu Hause und künftige Apps. Ein Token wird nur einmal angezeigt."
+
+#: src/screens/safety.tsx
+msgid "Gate check not possible (since {blindOn})"
+msgstr "Gate-Prüfung nicht möglich (seit {blindOn})"
 
 #: src/components/labels.ts
 msgid "GIF"
@@ -778,6 +1221,10 @@ msgstr "Begrüßung entfernt"
 msgid "Greeting saved"
 msgstr "Begrüßung gespeichert"
 
+#: src/screens/person.tsx
+msgid "Has not confirmed a privacy notice yet"
+msgstr "Hat noch keine Datenschutzhinweise bestätigt"
+
 #: src/screens/home.tsx
 msgid "Hello, <0>{name}</0>"
 msgstr "Hallo, <0>{name}</0>"
@@ -785,6 +1232,10 @@ msgstr "Hallo, <0>{name}</0>"
 #: src/screens/settings-profile.tsx
 msgid "Hello, lovely people! So glad you are coming along."
 msgstr "Hallo ihr Lieben! Schön, dass ihr mitreist."
+
+#: src/screens/safety.tsx
+msgid "here now"
+msgstr "jetzt hier"
 
 #: src/components/labels.ts
 #: src/screens/composer.tsx
@@ -805,6 +1256,7 @@ msgstr "Auf der Seite versteckt"
 msgid "Hide"
 msgstr "Verstecken"
 
+#: src/components/password-sheet.tsx
 #: src/screens/login.tsx
 msgid "Hide password"
 msgstr "Passwort verbergen"
@@ -817,6 +1269,14 @@ msgstr "Auf WhatsApp gelöschte Status verstecken"
 msgid "Home"
 msgstr "Start"
 
+#: src/screens/privacy.tsx
+msgid "How long"
+msgstr "Wie lange"
+
+#: src/screens/safety.tsx
+msgid "How much of the current place the start of your site shows."
+msgstr "Wie viel vom aktuellen Ort der Anfang deiner Seite zeigt."
+
 #: src/screens/home.tsx
 msgid "How was your day?"
 msgstr "Wie war dein Tag?"
@@ -825,9 +1285,21 @@ msgstr "Wie war dein Tag?"
 msgid "how your journal behaves"
 msgstr "wie sich dein Tagebuch verhält"
 
+#: src/screens/person.tsx
+msgid "I understand that everything is deleted for good"
+msgstr "Ich verstehe, dass alles endgültig gelöscht wird"
+
 #: src/screens/days.tsx
 msgid "If items of this day were sorted in with the wrong time zone, choose the right one here."
 msgstr "Wurden Einträge dieses Tages mit der falschen Zeitzone einsortiert, wähle hier die richtige."
+
+#: src/screens/people.tsx
+msgid "If you had a panic link, create it again under Safety."
+msgstr "Falls du einen Panik-Link hattest: Erstelle ihn unter Sicherheit neu."
+
+#: src/components/effect-badge.tsx
+msgid "In effect ✓"
+msgstr "Wirksam ✓"
 
 #: src/screens/home.tsx
 #: src/screens/inbox.tsx
@@ -840,9 +1312,37 @@ msgstr "Eingang"
 msgid "Install as an app"
 msgstr "Als App installieren"
 
+#: src/screens/safety.tsx
+msgid "Instant, delayed or after your review: in Settings → Publishing."
+msgstr "Sofort, verzögert oder nach deiner Freigabe: unter Einstellungen → Veröffentlichen."
+
 #: src/components/labels.ts
 msgid "Instantly"
 msgstr "Sofort"
+
+#: src/screens/privacy.tsx
+msgid "Introduction"
+msgstr "Einleitung"
+
+#: src/screens/people.tsx
+msgid "Invite a person"
+msgstr "Person einladen"
+
+#: src/screens/people.tsx
+msgid "Invite the people who may follow your journey. Each of them gets their own link."
+msgstr "Lade die Menschen ein, die deine Reise verfolgen dürfen. Jede Person bekommt ihren eigenen Link."
+
+#: src/screens/settings.tsx
+msgid "Invite, allow devices, end access"
+msgstr "Einladen, Geräte erlauben, Zugang beenden"
+
+#: src/screens/people.tsx
+msgid "Invited"
+msgstr "Eingeladen"
+
+#: src/screens/person.tsx
+msgid "Invited on {invitedOn}"
+msgstr "Eingeladen am {invitedOn}"
 
 #: src/screens/composer.tsx
 msgid "It disappears from the site with the next publish. This cannot be undone."
@@ -875,6 +1375,10 @@ msgstr "Weiter bearbeiten"
 msgid "Keep it private"
 msgstr "Privat lassen"
 
+#: src/components/lock-card.tsx
+msgid "Keep locked"
+msgstr "Gesperrt lassen"
+
 #: src/components/conflict-dialog.tsx
 msgid "Keep newer version"
 msgstr "Neuere Version behalten"
@@ -894,6 +1398,7 @@ msgstr "Art"
 #: src/screens/composer.tsx
 #: src/screens/days.tsx
 #: src/screens/item.tsx
+#: src/screens/privacy.tsx
 #: src/screens/trips.tsx
 msgid "Language"
 msgstr "Sprache"
@@ -901,6 +1406,14 @@ msgstr "Sprache"
 #: src/screens/settings-profile.tsx
 msgid "Language of the greeting"
 msgstr "Sprache der Begrüßung"
+
+#: src/components/link-sheet.tsx
+msgid "Language of the message"
+msgstr "Sprache der Nachricht"
+
+#: src/screens/privacy.tsx
+msgid "Language of the notice"
+msgstr "Sprache der Hinweise"
 
 #: src/screens/settings.tsx
 msgid "Language of this app"
@@ -914,14 +1427,34 @@ msgstr "Sprachen geändert"
 msgid "Languages of the site"
 msgstr "Sprachen der Website"
 
+#: src/screens/safety.tsx
+msgid "Last “moved on”: {movedOnAt}"
+msgstr "Zuletzt „weitergereist“: {movedOnAt}"
+
+#: src/screens/safety.tsx
+msgid "Last change applied"
+msgstr "Letzte Änderung übernommen"
+
 #: src/screens/trips.tsx
 msgid "Last day"
 msgstr "Letzter Tag"
+
+#: src/screens/safety.tsx
+msgid "Last gate check"
+msgstr "Letzte Gate-Prüfung"
 
 #. placeholder {0}: ago(seen)
 #: src/screens/home.tsx
 msgid "Last heartbeat {0}"
 msgstr "Gemeldet {0}"
+
+#: src/screens/safety.tsx
+msgid "Last in {name}"
+msgstr "Zuletzt in {name}"
+
+#: src/screens/safety.tsx
+msgid "Last in {place}"
+msgstr "Zuletzt in {place}"
 
 #: src/screens/home.tsx
 msgid "Last known publish {knownAt}."
@@ -930,6 +1463,14 @@ msgstr "Zuletzt bekannte Veröffentlichung {knownAt}."
 #: src/screens/home.tsx
 msgid "Last published {lastAt}."
 msgstr "Zuletzt veröffentlicht {lastAt}."
+
+#: src/screens/safety.tsx
+msgid "Last repair check"
+msgstr "Letzte Reparaturprüfung"
+
+#: src/screens/person.tsx
+msgid "last seen {seen}"
+msgstr "zuletzt {seen}"
 
 #: src/screens/home.tsx
 msgid "Last status {lastStatus}"
@@ -951,6 +1492,22 @@ msgstr "Live"
 #: src/screens/inbox.tsx
 msgid "Load older statuses"
 msgstr "Ältere Status laden"
+
+#: src/components/lock-card.tsx
+msgid "Lock now"
+msgstr "Jetzt sperren"
+
+#: src/components/lock-card.tsx
+msgid "Lock the website now?"
+msgstr "Website jetzt sperren?"
+
+#: src/components/lock-card.tsx
+msgid "Locked"
+msgstr "Gesperrt"
+
+#: src/components/lock-card.tsx
+msgid "Locked since {lockedSince}"
+msgstr "Gesperrt seit {lockedSince}"
 
 #: src/screens/login.tsx
 msgid "Log in"
@@ -979,18 +1536,35 @@ msgstr "Längengrad"
 msgid "Main"
 msgstr "Hauptnavigation"
 
+#: src/screens/home.tsx
+#: src/screens/safety.tsx
+msgid "Marked as moved on"
+msgstr "Als weitergereist markiert"
+
 #: src/screens/settings.tsx
 msgid "Matches this device"
 msgstr "Passt zu diesem Gerät"
+
+#: src/screens/safety.tsx
+msgid "Maximum number of days"
+msgstr "Höchstzahl an Tagen"
 
 #: src/components/capture.tsx
 #: src/screens/item.tsx
 msgid "Media lost"
 msgstr "Medien verloren"
 
+#: src/components/password-sheet.tsx
+msgid "Medium"
+msgstr "Mittel"
+
 #: src/api/conflicts.ts
 msgid "Merged with a newer version from another device."
 msgstr "Mit einer neueren Version von einem anderen Gerät zusammengeführt."
+
+#: src/components/link-sheet.tsx
+msgid "Message in"
+msgstr "Nachricht auf"
 
 #: src/screens/item.tsx
 msgid "Move"
@@ -1009,6 +1583,9 @@ msgstr "Von dir hierher verschoben. Aufgenommen am {0}."
 msgid "Moved to another day"
 msgstr "Auf einen anderen Tag verschoben"
 
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+#: src/screens/privacy.tsx
 #: src/screens/settings.tsx
 msgid "Name"
 msgstr "Name"
@@ -1037,6 +1614,14 @@ msgstr "nie benutzt"
 msgid "new"
 msgstr "neu"
 
+#: src/screens/home.tsx
+msgid "New device for <0>{name}</0> · {label} · {ago}"
+msgstr "Neues Gerät für <0>{name}</0> · {label} · {ago}"
+
+#: src/screens/safety.tsx
+msgid "New entries wait until she has left the place (a later day at another place), until you tap “She has moved on”, or at most {maxDays} days."
+msgstr "Neue Einträge warten, bis sie den Ort verlassen hat (ein späterer Tag an einem anderen Ort), bis du „Sie ist weitergereist“ tippst oder höchstens {maxDays} Tage."
+
 #: src/screens/layout.tsx
 msgid "New entry"
 msgstr "Neuer Eintrag"
@@ -1044,6 +1629,14 @@ msgstr "Neuer Eintrag"
 #: src/screens/composer.tsx
 msgid "New note"
 msgstr "Neue Notiz"
+
+#: src/components/password-sheet.tsx
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: src/screens/person.tsx
+msgid "New personal link"
+msgstr "Neuer persönlicher Link"
 
 #: src/screens/settings.tsx
 msgid "New statuses appear after a delay, so nobody can see where you are right now. Hide something in the meantime and it never appears."
@@ -1068,6 +1661,10 @@ msgstr "Neue Status warten im Eingang, bis du sie einzeln freigibst."
 #: src/screens/composer.tsx
 msgid "New story"
 msgstr "Neue Geschichte"
+
+#: src/screens/safety.tsx
+msgid "New things appear only at these times ({zone}). Removing something works at once."
+msgstr "Neues erscheint nur zu diesen Uhrzeiten ({zone}). Entfernen wirkt sofort."
 
 #: src/screens/trips.tsx
 msgid "New trip"
@@ -1113,9 +1710,17 @@ msgstr "Noch keine Tage"
 msgid "No description yet"
 msgstr "Noch keine Beschreibung"
 
+#: src/screens/person.tsx
+msgid "No device yet. As soon as {name} opens the link, the device appears here."
+msgstr "Noch kein Gerät. Sobald {name} den Link öffnet, erscheint das Gerät hier."
+
 #: src/screens/home.tsx
 msgid "No news from your computer at home yet"
 msgstr "Noch keine Nachricht von zu Hause"
+
+#: src/screens/safety.tsx
+msgid "No panic link yet."
+msgstr "Noch kein Panik-Link."
 
 #: src/components/portrait.tsx
 msgid "No photos yet"
@@ -1149,13 +1754,49 @@ msgstr "Noch keine Tokens."
 msgid "No trips yet"
 msgstr "Noch keine Reisen"
 
+#: src/screens/privacy.tsx
+msgid "No version published yet. Nobody can join until you publish the first one."
+msgstr "Noch keine Version veröffentlicht. Niemand kann beitreten, bevor du die erste veröffentlichst."
+
+#: src/screens/safety.tsx
+msgid "Nobody sees where she is right now, only where she has been."
+msgstr "Niemand sieht, wo sie gerade ist, nur wo sie war."
+
+#: src/screens/people.tsx
+msgid "Nobody yet"
+msgstr "Noch niemand"
+
+#: src/screens/safety.tsx
+msgid "none"
+msgstr "keine"
+
 #: src/screens/trips.tsx
 msgid "None"
 msgstr "Keine"
 
+#: src/screens/safety.tsx
+msgid "not checked"
+msgstr "nicht geprüft"
+
 #: src/screens/home.tsx
 msgid "Not checking in"
 msgstr "Meldet sich nicht"
+
+#: src/screens/privacy.tsx
+msgid "Not complete yet:"
+msgstr "Noch nicht vollständig:"
+
+#: src/screens/person.tsx
+msgid "Not here any more"
+msgstr "Nicht mehr da"
+
+#: src/components/effect-badge.tsx
+msgid "Not in effect yet ⏳ – the website storage cannot be reached right now"
+msgstr "Noch nicht wirksam ⏳ – der Website-Speicher ist gerade nicht erreichbar"
+
+#: src/components/effect-badge.tsx
+msgid "Not in effect yet ⏳ – your computer at home applies it as soon as it runs"
+msgstr "Noch nicht wirksam ⏳ – dein Computer zu Hause überträgt es, sobald er läuft"
 
 #: src/components/install.tsx
 #: src/screens/home.tsx
@@ -1171,9 +1812,23 @@ msgstr "Noch nicht veröffentlicht"
 msgid "Not saved yet"
 msgstr "Noch nicht gespeichert"
 
+#: src/screens/privacy.tsx
+msgid "Not saved yet. Save the draft first, then publish it."
+msgstr "Noch nicht gespeichert. Speichere zuerst den Entwurf, dann veröffentliche ihn."
+
 #: src/lib/rescue.ts
 msgid "Not saved: {reason}. Your text is back in your drafts."
 msgstr "Nicht gespeichert: {reason}. Dein Text liegt wieder bei deinen Entwürfen."
+
+#: src/api/access.ts
+#: src/components/effect-badge.tsx
+#: src/components/lock-card.tsx
+#: src/components/password-sheet.tsx
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+#: src/screens/privacy.tsx
+msgid "Not sent – no connection"
+msgstr "Nicht gesendet – keine Verbindung"
 
 #: src/screens/days.tsx
 #: src/screens/item.tsx
@@ -1193,6 +1848,10 @@ msgstr "Erscheint auf der Seite erst mit dem ersten öffentlichen Tag"
 msgid "Not supported"
 msgstr "Nicht unterstützt"
 
+#: src/screens/safety.tsx
+msgid "not yet"
+msgstr "noch nicht"
+
 #: src/components/labels.ts
 #: src/screens/composer.tsx
 #: src/screens/home.tsx
@@ -1202,6 +1861,10 @@ msgstr "Notiz"
 #: src/screens/composer.tsx
 msgid "Note ({tab})"
 msgstr "Notiz ({tab})"
+
+#: src/screens/safety.tsx
+msgid "Nothing"
+msgstr "Nichts"
 
 #: src/screens/inbox.tsx
 msgid "Nothing here"
@@ -1219,6 +1882,10 @@ msgstr "Noch nichts für die Vorschau."
 msgid "Nothing yet: the site shows its usual line."
 msgstr "Noch nichts: Die Seite zeigt ihre übliche Zeile."
 
+#: src/screens/home.tsx
+msgid "Notices"
+msgstr "Hinweise"
+
 #: src/components/feedback.tsx
 msgid "Notifications"
 msgstr "Benachrichtigungen"
@@ -1232,33 +1899,82 @@ msgstr "jetzt"
 msgid "Now your portrait"
 msgstr "Jetzt dein Porträt"
 
+#: src/screens/safety.tsx
+msgid "Off by default: everything appears as your publish mode says."
+msgstr "Standardmäßig aus: Alles erscheint so, wie dein Veröffentlichungsmodus es sagt."
+
 #: src/screens/settings.tsx
 msgid "Off: only people with the link find the site."
 msgstr "Aus: Nur wer den Link hat, findet die Seite."
+
+#: src/screens/privacy.tsx
+msgid "Offline: saving needs a connection."
+msgstr "Offline: Speichern braucht eine Verbindung."
+
+#: src/screens/safety.tsx
+msgid "ok"
+msgstr "ok"
+
+#: src/screens/home.tsx
+#: src/screens/people.tsx
+msgid "OK"
+msgstr "OK"
 
 #: src/screens/days.tsx
 msgid "On this day"
 msgstr "An diesem Tag"
 
+#: src/components/lock-card.tsx
+msgid "on your computer at home"
+msgstr "an deinem Computer zu Hause"
+
 #: src/screens/settings-profile.tsx
 msgid "On your site"
 msgstr "Auf deiner Seite"
+
+#: src/screens/people.tsx
+msgid "Once, before the first person joins: the website then knows which devices may enter."
+msgstr "Einmal, bevor die erste Person beitritt: Dann weiß die Website, welche Geräte hinein dürfen."
 
 #: src/components/install.tsx
 msgid "One tap to write, full screen, and it works offline."
 msgstr "Mit einem Tipp schreiben, im Vollbild – und auch offline."
 
+#: src/screens/person.tsx
+msgid "Only allow devices you can match to this person. If in doubt, ask them quickly."
+msgstr "Erlaube nur Geräte, die du dieser Person zuordnen kannst. Im Zweifel kurz nachfragen."
+
+#: src/screens/safety.tsx
+msgid "Only at fixed times"
+msgstr "Nur zu festen Uhrzeiten"
+
 #: src/screens/days.tsx
 msgid "Only days that need love"
 msgstr "Nur Tage, die Liebe brauchen"
+
+#: src/screens/people.tsx
+msgid "Only for you, optional."
+msgstr "Nur für dich, freiwillig."
+
+#: src/screens/person.tsx
+msgid "Only for you."
+msgstr "Nur für dich."
 
 #: src/screens/login.tsx
 msgid "Only for you. You stay logged in on this device."
 msgstr "Nur für dich. Du bleibst auf diesem Gerät angemeldet."
 
+#: src/components/lock-card.tsx
+msgid "Only invited people see the journey"
+msgstr "Nur eingeladene Personen sehen die Reise"
+
 #: src/screens/trips.tsx
 msgid "Only lowercase letters, digits and dashes."
 msgstr "Nur Kleinbuchstaben, Ziffern und Bindestriche."
+
+#: src/screens/safety.tsx
+msgid "Only the country"
+msgstr "Nur das Land"
 
 #: src/screens/inbox.tsx
 msgid "Open {kind} from {time}"
@@ -1272,9 +1988,21 @@ msgstr "Entwurf öffnen"
 msgid "Open the day"
 msgstr "Tag öffnen"
 
+#: src/screens/people.tsx
+msgid "Open the privacy notice"
+msgstr "Datenschutzhinweise öffnen"
+
 #: src/components/install.tsx
 msgid "Open this page in Safari and tap <0/> <1>Share</1>."
 msgstr "Öffne diese Seite in Safari und tippe auf <0/> <1>Teilen</1>."
+
+#: src/screens/safety.tsx
+msgid "open!"
+msgstr "offen!"
+
+#: src/screens/privacy.tsx
+msgid "Optional."
+msgstr "Freiwillig."
 
 #: src/screens/composer.tsx
 #: src/screens/days.tsx
@@ -1304,9 +2032,49 @@ msgstr "Seite für Seite"
 msgid "Pairing…"
 msgstr "Koppeln…"
 
+#: src/screens/safety.tsx
+msgid "Panic link"
+msgstr "Panik-Link"
+
+#: src/screens/safety.tsx
+msgid "Part of the day only"
+msgstr "Nur Tageszeit"
+
+#: src/components/lock-card.tsx
 #: src/screens/login.tsx
 msgid "Password"
 msgstr "Passwort"
+
+#: src/components/password-sheet.tsx
+msgid "Password changed. Other devices were logged out."
+msgstr "Passwort geändert. Andere Geräte wurden abgemeldet."
+
+#: src/screens/home.tsx
+#: src/screens/layout.tsx
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+msgid "People"
+msgstr "Menschen"
+
+#: src/screens/settings.tsx
+msgid "People & access"
+msgstr "Menschen & Zugang"
+
+#: src/screens/safety.tsx
+msgid "People and access"
+msgstr "Menschen und Zugang"
+
+#: src/screens/people.tsx
+msgid "Person · deleted on {date}"
+msgstr "Person · gelöscht am {date}"
+
+#: src/screens/people.tsx
+msgid "Personal link for {name}"
+msgstr "Persönlicher Link für {name}"
+
+#: src/screens/person.tsx
+msgid "personally invited"
+msgstr "persönlich eingeladen"
 
 #: src/components/labels.ts
 msgid "Photo"
@@ -1321,9 +2089,21 @@ msgstr "Such dir eins deiner Fotos aus. Auf der Seite erscheint nur eine kleine 
 msgid "Place"
 msgstr "Ort"
 
+#: src/screens/safety.tsx
+msgid "Place + badge (as before)"
+msgstr "Ort + Badge (wie bisher)"
+
+#: src/screens/safety.tsx
+msgid "Place without badge"
+msgstr "Ort ohne Badge"
+
 #: src/screens/settings-profile.tsx
 msgid "Plain text, shown handwritten under your name. Write it in one language or both."
 msgstr "Einfacher Text, handschriftlich unter deinem Namen. Schreib ihn in einer Sprache oder in beiden."
+
+#: src/screens/privacy.tsx
+msgid "Plain text. A blank line starts a new paragraph."
+msgstr "Reiner Text. Eine Leerzeile beginnt einen neuen Absatz."
 
 #: src/screens/trips.tsx
 msgid "Plan the first trip"
@@ -1347,12 +2127,27 @@ msgid "Portrait removed"
 msgstr "Porträt entfernt"
 
 #: src/screens/composer.tsx
+#: src/screens/privacy.tsx
 msgid "Preview"
 msgstr "Vorschau"
 
 #: src/screens/days.tsx
 msgid "Previous day"
 msgstr "Vorheriger Tag"
+
+#: src/screens/privacy.tsx
+#: src/screens/settings.tsx
+msgid "Privacy notice"
+msgstr "Datenschutzhinweise"
+
+#: src/screens/person.tsx
+msgid "Privacy notice v{consentVersion} confirmed on {consentOn}"
+msgstr "Hinweise v{consentVersion} bestätigt am {consentOn}"
+
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+msgid "Private note"
+msgstr "Private Notiz"
 
 #: src/components/capture.tsx
 msgid "Processing…"
@@ -1366,9 +2161,15 @@ msgid "Public"
 msgstr "Öffentlich"
 
 #: src/screens/composer.tsx
+#: src/screens/privacy.tsx
 msgid "Publish"
 msgstr "Veröffentlichen"
 
+#: src/screens/privacy.tsx
+msgid "Publish as version {nextVersion}"
+msgstr "Als Version {nextVersion} veröffentlichen"
+
+#: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Publish mode"
 msgstr "Veröffentlichungsmodus"
@@ -1385,6 +2186,10 @@ msgstr "Jetzt veröffentlichen"
 #: src/screens/settings.tsx
 msgid "Publish the older waiting statuses?"
 msgstr "Ältere wartende Status veröffentlichen?"
+
+#: src/screens/privacy.tsx
+msgid "Publish version {nextVersion}?"
+msgstr "Version {nextVersion} veröffentlichen?"
 
 #: src/screens/settings.tsx
 msgid "Publish what is waiting?"
@@ -1424,6 +2229,10 @@ msgstr "Push-Nachrichten über ntfy.sh, z. B. https://ntfy.sh/mein-geheimes-topi
 msgid "Re-sort this day in this device's zone ({0})"
 msgstr "Diesen Tag in der Zeitzone dieses Geräts einsortieren ({0})"
 
+#: src/screens/privacy.tsx
+msgid "Ready to publish"
+msgstr "Bereit zum Veröffentlichen"
+
 #: src/screens/home.tsx
 msgid "Recently captured"
 msgstr "Zuletzt erfasst"
@@ -1432,13 +2241,42 @@ msgstr "Zuletzt erfasst"
 msgid "Recommended. Otherwise a deleted status stays in the journal."
 msgstr "Empfohlen. Sonst bleibt ein gelöschter Status im Tagebuch."
 
+#: src/components/password-sheet.tsx
+msgid "Recommended. Your computer at home keeps its access."
+msgstr "Empfohlen. Dein Computer zu Hause behält seinen Zugang."
+
+#: src/screens/safety.tsx
+msgid "Release times"
+msgstr "Uhrzeiten zum Erscheinen"
+
+#: src/screens/safety.tsx
+msgid "Release times off"
+msgstr "Feste Uhrzeiten aus"
+
+#: src/screens/safety.tsx
+msgid "Release times on"
+msgstr "Feste Uhrzeiten an"
+
+#: src/screens/safety.tsx
+msgid "Release times saved"
+msgstr "Uhrzeiten gespeichert"
+
+#: src/screens/settings.tsx
+msgid "Release times, departure hold, lock, panic link"
+msgstr "Feste Uhrzeiten, Warten aufs Weiterreisen, Sperre, Panik-Link"
+
 #: src/components/feedback.tsx
 msgid "Reload"
 msgstr "Neu laden"
 
+#: src/screens/person.tsx
 #: src/screens/settings-profile.tsx
 msgid "Remove"
 msgstr "Entfernen"
+
+#: src/screens/safety.tsx
+msgid "Remove {time}"
+msgstr "{time} entfernen"
 
 #: src/screens/item.tsx
 msgid "Remove as cover"
@@ -1456,9 +2294,25 @@ msgstr "Nicht mehr Titelbild des Tages"
 msgid "Remove correction"
 msgstr "Korrektur entfernen"
 
+#: src/screens/person.tsx
+msgid "Remove device"
+msgstr "Gerät entfernen"
+
 #: src/screens/settings-profile.tsx
 msgid "Remove greeting"
 msgstr "Begrüßung entfernen"
+
+#: src/screens/person.tsx
+msgid "Remove this device?"
+msgstr "Dieses Gerät entfernen?"
+
+#: src/screens/person.tsx
+msgid "Removed"
+msgstr "Entfernt"
+
+#: src/components/password-sheet.tsx
+msgid "Repeat the new password"
+msgstr "Neues Passwort wiederholen"
 
 #: src/components/labels.ts
 msgid "Replaced by another session"
@@ -1468,11 +2322,26 @@ msgstr "Von einer anderen Sitzung ersetzt"
 msgid "Reset"
 msgstr "Zurücksetzen"
 
+#: src/screens/privacy.tsx
+msgid "Responsible"
+msgstr "Verantwortlich"
+
+#: src/screens/privacy.tsx
+msgid "Responsible: e-mail"
+msgstr "Verantwortlich: E-Mail"
+
+#: src/screens/privacy.tsx
+msgid "Responsible: name"
+msgstr "Verantwortlich: Name"
+
 #: src/components/conflict-dialog.tsx
 msgid "Restore with my change"
 msgstr "Mit meiner Änderung wiederherstellen"
 
+#: src/components/effect-badge.tsx
+#: src/components/lock-card.tsx
 #: src/components/ui.tsx
+#: src/screens/safety.tsx
 msgid "Retry"
 msgstr "Erneut versuchen"
 
@@ -1489,12 +2358,26 @@ msgstr "{0} widerrufen"
 msgid "Revoke this token?"
 msgstr "Diesen Token widerrufen?"
 
+#: src/screens/privacy.tsx
+msgid "Rights"
+msgstr "Rechte"
+
 #: src/screens/home.tsx
 msgid "Running"
 msgstr "Läuft"
 
+#: src/screens/safety.tsx
+#: src/screens/settings.tsx
+msgid "Safety"
+msgstr "Sicherheit"
+
+#: src/screens/privacy.tsx
+msgid "Same as version {currentVersion}. Change the text to publish a new version."
+msgstr "Gleich wie Version {currentVersion}. Ändere den Text, um eine neue Version zu veröffentlichen."
+
 #: src/components/unsaved.tsx
 #: src/screens/item.tsx
+#: src/screens/person.tsx
 #: src/screens/settings-profile.tsx
 #: src/screens/settings.tsx
 msgid "Save"
@@ -1504,6 +2387,10 @@ msgstr "Speichern"
 msgid "Save alerts"
 msgstr "Benachrichtigungen speichern"
 
+#: src/screens/privacy.tsx
+msgid "Save and publish"
+msgstr "Speichern und veröffentlichen"
+
 #: src/screens/composer.tsx
 msgid "Save changes"
 msgstr "Änderungen speichern"
@@ -1511,6 +2398,10 @@ msgstr "Änderungen speichern"
 #: src/screens/days.tsx
 msgid "Save day"
 msgstr "Tag speichern"
+
+#: src/screens/privacy.tsx
+msgid "Save draft"
+msgstr "Entwurf speichern"
 
 #: src/screens/settings-profile.tsx
 msgid "Save greeting"
@@ -1532,6 +2423,8 @@ msgstr "Reise speichern"
 msgid "Save your changes?"
 msgstr "Änderungen speichern?"
 
+#: src/screens/person.tsx
+#: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Saved"
 msgstr "Gespeichert"
@@ -1561,6 +2454,14 @@ msgstr "Speichert…"
 msgid "Scroll down and tap <0/> <1>Add to Home Screen</1>."
 msgstr "Scrolle nach unten und tippe auf <0/> <1>Zum Home-Bildschirm</1>."
 
+#: src/screens/people.tsx
+msgid "seen {seen}"
+msgstr "zuletzt {seen}"
+
+#: src/screens/people.tsx
+msgid "Send it to {name} yourself, e.g. in WhatsApp."
+msgstr "Schick ihn {name} selbst, z. B. per WhatsApp."
+
 #: src/screens/item.tsx
 msgid "Set as cover"
 msgstr "Als Titelbild festlegen"
@@ -1569,7 +2470,23 @@ msgstr "Als Titelbild festlegen"
 msgid "Set as the day's cover"
 msgstr "Als Titelbild des Tages"
 
+#: src/screens/safety.tsx
+msgid "set up"
+msgstr "eingerichtet"
+
+#: src/screens/people.tsx
+msgid "Set up"
+msgstr "Einrichten"
+
+#: src/screens/people.tsx
+#: src/screens/safety.tsx
+msgid "Set up the website storage"
+msgstr "Website-Speicher einrichten"
+
 #: src/screens/layout.tsx
+#: src/screens/people.tsx
+#: src/screens/privacy.tsx
+#: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Settings"
 msgstr "Einstellungen"
@@ -1578,6 +2495,19 @@ msgstr "Einstellungen"
 msgctxt "tab bar, keep short"
 msgid "Settings"
 msgstr "Einstellungen"
+
+#: src/components/link-sheet.tsx
+msgid "Share"
+msgstr "Teilen"
+
+#: src/components/link-sheet.tsx
+msgid "Sharing did not work. Copy the link instead."
+msgstr "Teilen hat nicht geklappt. Kopiere den Link stattdessen."
+
+#: src/screens/home.tsx
+#: src/screens/safety.tsx
+msgid "She has moved on"
+msgstr "Sie ist weitergereist"
 
 #: src/screens/inbox.tsx
 msgid "Show"
@@ -1591,6 +2521,7 @@ msgstr "Mehr Fotos zeigen"
 msgid "Show on"
 msgstr "Zeigen am"
 
+#: src/components/password-sheet.tsx
 #: src/screens/login.tsx
 msgid "Show password"
 msgstr "Passwort zeigen"
@@ -1599,15 +2530,27 @@ msgstr "Passwort zeigen"
 msgid "Show this photo as your portrait on the site, as a small circle next to your name."
 msgstr "Zeig dieses Foto als dein Porträt auf der Seite, als kleinen Kreis neben deinem Namen."
 
+#: src/screens/privacy.tsx
+msgid "Shown at the end of the notice."
+msgstr "Steht am Ende der Hinweise."
+
 #. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
 #: src/screens/item.tsx
 msgid "Shown on {0}."
 msgstr "Erscheint am {0}."
 
+#: src/screens/person.tsx
+msgid "Signed out"
+msgstr "Abgemeldet"
+
 #. placeholder {0}: ago(a.since)
 #: src/screens/home.tsx
 msgid "since {0}"
 msgstr "seit {0}"
+
+#: src/screens/person.tsx
+msgid "since {since}"
+msgstr "seit {since}"
 
 #: src/screens/home.tsx
 msgid "Site is live"
@@ -1669,6 +2612,10 @@ msgstr "Text der Geschichte in Markdown ({tab})"
 msgid "straight from WhatsApp"
 msgstr "frisch von WhatsApp"
 
+#: src/components/password-sheet.tsx
+msgid "Strong"
+msgstr "Stark"
+
 #: src/components/labels.ts
 #: src/screens/days.tsx
 msgid "Summary"
@@ -1698,6 +2645,10 @@ msgstr "Tippe auf <0>Hinzufügen</0>. Das Reisetagebuch öffnet sich jetzt über
 msgid "Tell the story… (Markdown: **bold**, _italic_, ## heading, - list)"
 msgstr "Erzähl die Geschichte… (Markdown: **fett**, _kursiv_, ## Überschrift, - Liste)"
 
+#: src/screens/privacy.tsx
+msgid "Template – not legal advice. Please check and adapt it."
+msgstr "Vorlage – keine Rechtsberatung. Bitte prüfen und anpassen."
+
 #: src/components/labels.ts
 msgid "Temporarily banned"
 msgstr "Vorübergehend gesperrt"
@@ -1710,6 +2661,10 @@ msgstr "Text"
 #: src/components/labels.ts
 msgid "Text status"
 msgstr "Textstatus"
+
+#: src/screens/privacy.tsx
+msgid "Texts"
+msgstr "Texte"
 
 #: src/screens/composer.tsx
 msgid "The {lang} note is {over} characters too long."
@@ -1727,6 +2682,10 @@ msgstr "Die Adresse lässt sich nach dem Anlegen nicht mehr ändern."
 msgid "The caption comes from WhatsApp and cannot be changed here."
 msgstr "Die Bildunterschrift kommt von WhatsApp und lässt sich hier nicht ändern."
 
+#: src/api/access.ts
+msgid "The current password is not right."
+msgstr "Das aktuelle Passwort stimmt nicht."
+
 #: src/components/conflict-dialog.tsx
 msgid "the day {date}"
 msgstr "der Tag {date}"
@@ -1743,13 +2702,53 @@ msgstr "Das Ende darf nicht vor dem Anfang liegen."
 msgid "The items of this day were sorted in by the time zone set when they were captured ({capturedLabels}). If that was wrong (a flight, a forgotten setting), choose the right zone: they are re-dated and may move to the day before or after."
 msgstr "Die Einträge dieses Tages wurden nach der Zeitzone einsortiert, die beim Erfassen eingestellt war ({capturedLabels}). War das falsch (ein Flug, eine vergessene Einstellung), wähle die richtige Zone: Die Einträge werden neu datiert und rutschen eventuell auf den Tag davor oder danach."
 
+#: src/screens/safety.tsx
+msgid "The link is shown only now. A new one replaces it; the old one stops working."
+msgstr "Der Link wird nur jetzt angezeigt. Ein neuer ersetzt ihn; der alte funktioniert dann nicht mehr."
+
+#: src/screens/people.tsx
+msgid "The link is shown only now. If it gets lost, create a new one; connected devices stay connected."
+msgstr "Der Link wird nur jetzt angezeigt. Geht er verloren, erstelle einen neuen; verbundene Geräte bleiben verbunden."
+
+#: src/screens/safety.tsx
+msgid "The link stops working at once."
+msgstr "Der Link funktioniert dann sofort nicht mehr."
+
 #: src/components/capture.tsx
 msgid "The media could not be downloaded from WhatsApp."
 msgstr "Die Medien konnten nicht von WhatsApp geladen werden."
 
+#: src/screens/person.tsx
+msgid "The name, all devices and confirmations are deleted for good, and every device loses access at once. Only an anonymous entry without a name remains."
+msgstr "Name, alle Geräte und Bestätigungen werden endgültig gelöscht, und jedes Gerät verliert sofort den Zugang. Übrig bleibt nur ein anonymer Eintrag ohne Namen."
+
+#: src/components/password-sheet.tsx
+msgid "The new password is the same as the current one."
+msgstr "Das neue Passwort ist dasselbe wie das aktuelle."
+
+#: src/screens/person.tsx
+msgid "The old link stops working then."
+msgstr "Der alte Link funktioniert dann nicht mehr."
+
 #: src/screens/item.tsx
 msgid "The other language is shown as a translation."
 msgstr "Die andere Sprache wird als Übersetzung gezeigt."
+
+#: src/api/access.ts
+msgid "The password is not right."
+msgstr "Das Passwort stimmt nicht."
+
+#: src/screens/settings-profile.tsx
+msgid "The portrait appears only once the photo is published (delay/review)."
+msgstr "Das Porträt erscheint erst, wenn das Foto veröffentlicht ist (Verzögerung/Freigabe)."
+
+#: src/api/access.ts
+msgid "The privacy notice is not complete yet."
+msgstr "Die Datenschutzhinweise sind noch nicht vollständig."
+
+#: src/components/password-sheet.tsx
+msgid "The server did not accept the new password: {reason}"
+msgstr "Der Server hat das neue Passwort nicht angenommen: {reason}"
 
 #: src/lib/errors.ts
 msgid "The server did not accept this"
@@ -1758,6 +2757,14 @@ msgstr "Der Server hat das nicht angenommen"
 #: src/screens/home.tsx
 msgid "The server did not answer. Your site is probably fine."
 msgstr "Der Server hat nicht geantwortet. Deine Seite ist vermutlich in Ordnung."
+
+#: src/api/access.ts
+msgid "The server does not know the address of your website yet (SITE_ORIGIN in its settings)."
+msgstr "Der Server kennt die Adresse deiner Website noch nicht (SITE_ORIGIN in seinen Einstellungen)."
+
+#: src/screens/safety.tsx
+msgid "The server does not offer access control yet. Update the API first."
+msgstr "Der Server kann noch keine Zugänge verwalten. Aktualisiere zuerst die API."
 
 #: src/lib/errors.ts
 msgid "The server has a problem right now"
@@ -1771,9 +2778,29 @@ msgstr "Der Server ist gerade nicht erreichbar"
 msgid "The server is not reachable right now. You can still log in once it answers again."
 msgstr "Der Server ist gerade nicht erreichbar. Sobald er wieder antwortet, kannst du dich anmelden."
 
+#: src/screens/safety.tsx
+msgid "The server stopped writing after a failed login. Check the access data, then try again."
+msgstr "Der Server schreibt nach einer fehlgeschlagenen Anmeldung nicht mehr. Prüfe die Zugangsdaten und versuch es dann erneut."
+
+#: src/screens/safety.tsx
+msgid "The server, directly"
+msgstr "Der Server, direkt"
+
+#: src/screens/safety.tsx
+msgid "The server, via SFTP"
+msgstr "Der Server, per SFTP"
+
 #: src/components/conflict-dialog.tsx
 msgid "the trip “{slug}”"
 msgstr "die Reise „{slug}“"
+
+#: src/components/password-sheet.tsx
+msgid "The two new passwords are not the same."
+msgstr "Die beiden neuen Passwörter sind nicht gleich."
+
+#: src/screens/home.tsx
+msgid "The website storage does not match its set-up: see Safety · {date}"
+msgstr "Der Website-Speicher passt nicht zur Einrichtung: siehe Sicherheit · {date}"
 
 #: src/components/install.tsx
 msgid "Then the journal opens like an app, without the browser around it."
@@ -1813,6 +2840,14 @@ msgstr "Das sortiert nur diesen einen Tag neu. Wo du gerade bist (für neue Stat
 msgid "This page does not exist. Maybe it moved, like you."
 msgstr "Diese Seite gibt es nicht. Vielleicht ist sie weitergezogen – wie du."
 
+#: src/api/access.ts
+msgid "This person already has the most devices allowed. Remove one first."
+msgstr "Diese Person hat schon so viele Geräte wie erlaubt. Entferne zuerst eines."
+
+#: src/screens/person.tsx
+msgid "This person no longer exists"
+msgstr "Diese Person gibt es nicht mehr"
+
 #: src/screens/settings-profile.tsx
 msgid "This photo is gone (deleted on WhatsApp or lost), so the site shows no portrait. Pick another one."
 msgstr "Dieses Foto ist weg (auf WhatsApp gelöscht oder verloren), deshalb zeigt die Seite kein Porträt. Such dir ein anderes aus."
@@ -1840,6 +2875,10 @@ msgstr "diesen Status"
 #: src/screens/trips.tsx
 msgid "This trip does not exist (any more)."
 msgstr "Diese Reise gibt es nicht (mehr)."
+
+#: src/api/access.ts
+msgid "This was changed elsewhere in the meantime. Look at it again, then try once more."
+msgstr "Das wurde inzwischen woanders geändert. Schau es dir noch einmal an und versuch es dann erneut."
 
 #: src/components/conflict-dialog.tsx
 msgid "This was deleted elsewhere"
@@ -1869,8 +2908,13 @@ msgstr "Zeitzone dieses Tages"
 msgid "Time zone updated"
 msgstr "Zeitzone aktualisiert"
 
+#: src/screens/safety.tsx
+msgid "Times on the site"
+msgstr "Uhrzeiten"
+
 #: src/components/labels.ts
 #: src/screens/days.tsx
+#: src/screens/privacy.tsx
 #: src/screens/trips.tsx
 msgid "Title"
 msgstr "Titel"
@@ -1903,6 +2947,14 @@ msgstr "In einer anderen Sprache zu lang: {otherLocales}"
 msgid "Too many attempts. Please wait a few minutes."
 msgstr "Zu viele Versuche. Bitte warte ein paar Minuten."
 
+#: src/api/access.ts
+msgid "Too many attempts. Please wait a little and try again."
+msgstr "Zu viele Versuche. Bitte warte kurz und versuch es dann erneut."
+
+#: src/components/password-sheet.tsx
+msgid "Too short: at least 12 characters"
+msgstr "Zu kurz: mindestens 12 Zeichen"
+
 #: src/screens/layout.tsx
 msgid "travel journal"
 msgstr "Reisetagebuch"
@@ -1934,11 +2986,31 @@ msgstr "Reisen"
 msgid "Try again"
 msgstr "Noch einmal versuchen"
 
+#: src/screens/safety.tsx
+msgid "Turn off"
+msgstr "Deaktivieren"
+
+#: src/screens/safety.tsx
+msgid "Turn off the panic link?"
+msgstr "Panik-Link deaktivieren?"
+
 #: src/components/portrait.tsx
 #: src/screens/inbox.tsx
 #: src/screens/item.tsx
 msgid "Undo"
 msgstr "Rückgängig"
+
+#: src/screens/person.tsx
+msgid "Unknown device"
+msgstr "Unbekanntes Gerät"
+
+#: src/components/lock-card.tsx
+msgid "Unlock"
+msgstr "Entsperren"
+
+#: src/components/lock-card.tsx
+msgid "Unlock the website?"
+msgstr "Website entsperren?"
 
 #: src/screens/days.tsx
 msgid "Unsaved changes"
@@ -1984,6 +3056,18 @@ msgstr "Zeitzone dieses Geräts nehmen ({0})"
 msgid "used {0}"
 msgstr "benutzt {0}"
 
+#: src/screens/privacy.tsx
+msgid "Version {version}"
+msgstr "Version {version}"
+
+#: src/screens/privacy.tsx
+msgid "Version published"
+msgstr "Version veröffentlicht"
+
+#: src/screens/privacy.tsx
+msgid "Versions"
+msgstr "Versionen"
+
 #: src/components/labels.ts
 msgid "Video"
 msgstr "Video"
@@ -2002,9 +3086,14 @@ msgstr "Auf der Seite sichtbar"
 msgid "Voice message"
 msgstr "Sprachnachricht"
 
+#: src/screens/safety.tsx
+msgid "Wait until she has moved on"
+msgstr "Warten, bis sie weitergereist ist"
+
 #: src/components/labels.ts
 #: src/screens/inbox.tsx
 #: src/screens/item.tsx
+#: src/screens/person.tsx
 msgid "Waiting"
 msgstr "Wartet"
 
@@ -2024,6 +3113,10 @@ msgstr "Wartet auf den ersten Status, um die Reisende zu erkennen."
 msgid "Waiting for your release"
 msgstr "Wartet auf deine Freigabe"
 
+#: src/components/password-sheet.tsx
+msgid "Weak – easy to guess. Longer is better, e.g. a few words."
+msgstr "Schwach – leicht zu erraten. Länger ist besser, z. B. ein paar Wörter."
+
 #: src/screens/trips.tsx
 msgid "Web address"
 msgstr "Webadresse"
@@ -2031,6 +3124,23 @@ msgstr "Webadresse"
 #: src/screens/settings.tsx
 msgid "Website"
 msgstr "Website"
+
+#: src/components/lock-card.tsx
+msgid "Website locked"
+msgstr "Website gesperrt"
+
+#: src/screens/safety.tsx
+msgid "Website storage"
+msgstr "Website-Speicher"
+
+#: src/screens/people.tsx
+#: src/screens/safety.tsx
+msgid "Website storage set up"
+msgstr "Website-Speicher eingerichtet"
+
+#: src/components/lock-card.tsx
+msgid "Website unlocked"
+msgstr "Website entsperrt"
 
 #: src/screens/item.tsx
 msgid "What happened here?"
@@ -2043,6 +3153,22 @@ msgstr "Was mit neuen WhatsApp-Status passiert. Deine Notizen und Geschichten ha
 #: src/screens/composer.tsx
 msgid "What is on your mind right now?"
 msgstr "Was geht dir gerade durch den Kopf?"
+
+#: src/screens/privacy.tsx
+msgid "What is stored"
+msgstr "Was gespeichert wird"
+
+#: src/screens/safety.tsx
+msgid "what others can see"
+msgstr "was andere sehen können"
+
+#: src/screens/privacy.tsx
+msgid "what people read before they join"
+msgstr "was Menschen vor dem Beitreten lesen"
+
+#: src/screens/settings.tsx
+msgid "What people read before they join"
+msgstr "Was Menschen vor dem Beitreten lesen"
 
 #. placeholder {0}: revoking?.name
 #: src/screens/settings.tsx
@@ -2064,6 +3190,38 @@ msgstr "Während du bearbeitet hast, wurde <0/> woanders geändert. Wähle, welc
 #: src/components/conflict-dialog.tsx
 msgid "While you were editing, <0/> was deleted (maybe on another device)."
 msgstr "Während du bearbeitet hast, wurde <0/> gelöscht (vielleicht auf einem anderen Gerät)."
+
+#: src/screens/privacy.tsx
+msgid "Who sees what"
+msgstr "Wer was sieht"
+
+#: src/screens/people.tsx
+msgid "who sees your journey"
+msgstr "wer deine Reise sieht"
+
+#: src/screens/settings.tsx
+msgid "Who sees your journey"
+msgstr "Wer deine Reise sieht"
+
+#: src/screens/safety.tsx
+msgid "Who writes the access list"
+msgstr "Wer die Zugangsliste schreibt"
+
+#: src/screens/safety.tsx
+msgid "Whoever opens it can lock the website with one tap."
+msgstr "Wer ihn öffnet, kann die Website mit einem Tipp sperren."
+
+#: src/screens/privacy.tsx
+msgid "Why"
+msgstr "Wozu"
+
+#: src/components/lock-card.tsx
+msgid "with the panic link"
+msgstr "mit dem Panik-Link"
+
+#: src/screens/home.tsx
+msgid "Without a place"
+msgstr "Ohne Ort"
 
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
@@ -2108,6 +3266,10 @@ msgstr "Du hast hier etwas geändert und noch nicht gespeichert."
 msgid "You deleted this status on WhatsApp."
 msgstr "Du hast diesen Status auf WhatsApp gelöscht."
 
+#: src/screens/people.tsx
+msgid "You get a personal link for this person. Only they can join with it."
+msgstr "Du bekommst einen persönlichen Link für diese Person. Nur sie kann damit beitreten."
+
 #: src/components/conflict-dialog.tsx
 msgid "Your change"
 msgstr "Deine Änderung"
@@ -2115,6 +3277,10 @@ msgstr "Deine Änderung"
 #: src/screens/item.tsx
 msgid "Your choice overrides the publish setting."
 msgstr "Deine Wahl überstimmt die Veröffentlichungs-Einstellung."
+
+#: src/screens/safety.tsx
+msgid "Your computer at home"
+msgstr "Dein Computer zu Hause"
 
 #: src/screens/home.tsx
 msgid "Your computer at home could not upload the last version. It keeps retrying."
@@ -2147,6 +3313,14 @@ msgstr "Dein Name, ein paar liebe Worte und ein Porträt: So sehen alle, wer da 
 #: src/screens/settings.tsx
 msgid "Your new token — copy it now, it will not be shown again:"
 msgstr "Dein neuer Token – kopiere ihn jetzt, er wird nicht noch einmal angezeigt:"
+
+#: src/screens/safety.tsx
+msgid "Your own titles and captions are not changed."
+msgstr "Eigene Titel und Bildunterschriften werden nicht verändert."
+
+#: src/screens/safety.tsx
+msgid "Your panic link"
+msgstr "Dein Panik-Link"
 
 #: src/components/conflict-dialog.tsx
 msgid "your photo"

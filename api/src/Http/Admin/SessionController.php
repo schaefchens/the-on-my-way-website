@@ -6,7 +6,10 @@ namespace Omw\Api\Http\Admin;
 
 use Omw\Api\Domain\Auth\ApiTokens;
 use Omw\Api\Domain\Auth\Csrf;
+use Omw\Api\Domain\Auth\LoginThrottle;
+use Omw\Api\Domain\Auth\Passwords;
 use Omw\Api\Domain\Auth\Sessions;
+use Omw\Api\Domain\Auth\Users;
 use Omw\Api\Http\ApiException;
 use Omw\Api\Http\AuthContext;
 use Omw\Api\Http\Input;
@@ -15,12 +18,16 @@ use Omw\Api\Http\SessionCookie;
 use Omw\Api\Infra\SchemaValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use stdClass;
 
 /**
  *   POST   /api/v1/admin/session  LoginRequest -> Me + Set-Cookie (__Host-omw_session, see Http\SessionCookie); 401 generic; 429
  *   DELETE /api/v1/admin/session  204, clears the cookie (needs X-CSRF-Token while the session is valid)
  *   GET    /api/v1/admin/me       Me
+ *   PUT    /api/v1/admin/me/password  PasswordChange -> 204 (session only, CSRF; spec-wave5 §3.12): rate
+ *          limited like a login; 403 wrong_password; 422 validation_failed for a weak new password
+ *          (Passwords::MIN_LENGTH), the current one or the e-mail address; other sessions end
  */
 final class SessionController
 {
@@ -30,7 +37,47 @@ final class SessionController
         private readonly ApiTokens $tokens,
         private readonly SchemaValidator $schemas,
         private readonly SessionCookie $cookies,
+        private readonly Input $input,
+        private readonly LoginThrottle $throttle,
+        private readonly Users $users,
+        private readonly LoggerInterface $logger,
     ) {
+    }
+
+    public function password(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $auth = self::auth($request);
+        if ($auth->kind !== 'session' || $auth->userId === null) {
+            throw ApiException::forbidden('The password can only be changed in the admin (logged in with the password).');
+        }
+        $body = $this->input->body($request, 'PasswordChange');
+        $user = $this->users->findByEmail((string) $auth->email);
+        $hash = $user === null ? null : $this->users->passwordHash($user['id']);
+        $attempt = $this->throttle->begin(Input::clientIp($request), $auth->email);
+        if ($attempt['attemptId'] === null) {
+            throw new ApiException(429, 'rate_limited', 'Too many failed attempts. Try again later.', ['retryAfter' => $attempt['retryAfter']]);
+        }
+        $current = (string) $body->currentPassword;
+        if ($user === null || $hash === null || $user['id'] !== $auth->userId || !Passwords::verify($current, $hash)) {
+            $this->logger->notice('Password change refused: wrong current password', ['userId' => $auth->userId]);
+            throw ApiException::forbidden('The current password is not correct.', 'wrong_password');
+        }
+        $this->throttle->succeeded($attempt['attemptId']);
+        $new = (string) $body->newPassword;
+        $problem = Passwords::weakness($new);
+        if ($problem === null && hash_equals($current, $new)) {
+            $problem = 'The new password must differ from the current one.';
+        }
+        if ($problem === null && mb_strtolower(trim($new)) === mb_strtolower((string) $auth->email)) {
+            $problem = 'The new password must not be the e-mail address.';
+        }
+        if ($problem !== null) {
+            throw ApiException::validation($problem, ['errors' => ['/newPassword: ' . $problem]]);
+        }
+        $this->users->setPassword($auth->userId, Passwords::hash($new), $auth->tokenId, $body->revokeAppTokens === true);
+        $this->logger->info('Admin password changed', ['userId' => $auth->userId, 'appTokensRevoked' => $body->revokeAppTokens === true]);
+
+        return $this->responder->noContent($response);
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface

@@ -61,6 +61,14 @@ msgstr ""
 msgid "{nextCount, plural, one {# moment} other {# moments}}"
 msgstr ""
 
+#: src/components/time-labels.ts
+msgid "at midday"
+msgstr ""
+
+#: src/components/time-labels.ts
+msgid "at night"
+msgstr ""
+
 #: src/player/story-sheet.tsx
 msgid "Back to the day"
 msgstr ""
@@ -128,6 +136,18 @@ msgstr ""
 
 #: src/timeline/rows-overview.tsx
 msgid "In between: {range}"
+msgstr ""
+
+#: src/components/time-labels.ts
+msgid "in the afternoon"
+msgstr ""
+
+#: src/components/time-labels.ts
+msgid "in the evening"
+msgstr ""
+
+#: src/components/time-labels.ts
+msgid "in the morning"
 msgstr ""
 
 #: src/player/journey-player.tsx
@@ -216,6 +236,10 @@ msgstr ""
 msgid "Now in"
 msgstr ""
 
+#: src/access/ended-screen.tsx
+msgid "One moment …"
+msgstr ""
+
 #. placeholder {0}: languageName(description.locale, locale)
 #: src/routes/trip.tsx
 msgid "Original: {0}"
@@ -254,6 +278,7 @@ msgstr ""
 msgid "Player options"
 msgstr ""
 
+#: src/access/ended-screen.tsx
 #: src/routes/not-found.tsx
 msgid "Please try again in a moment."
 msgstr ""
@@ -279,6 +304,10 @@ msgstr ""
 msgid "See the trip"
 msgstr ""
 
+#: src/components/site-header.tsx
+msgid "Shared personally with <0>{name}</0>"
+msgstr ""
+
 #: src/player/story-sheet.tsx
 msgid "Show in {alternativeLanguage}"
 msgstr ""
@@ -289,6 +318,10 @@ msgstr ""
 
 #: src/player/story-sheet.tsx
 msgid "Show original"
+msgstr ""
+
+#: src/components/site-header.tsx
+msgid "Sign out on this device"
 msgstr ""
 
 #: src/player/journey-player.tsx
@@ -358,6 +391,10 @@ msgstr ""
 
 #: src/timeline/home-timeline.tsx
 msgid "The journey is about to begin. Come back soon ✨"
+msgstr ""
+
+#: src/access/ended-screen.tsx
+msgid "The journey is not available right now."
 msgstr ""
 
 #: src/timeline/home-timeline.tsx
@@ -430,6 +467,7 @@ msgstr ""
 msgid "Trip"
 msgstr ""
 
+#: src/access/ended-screen.tsx
 #: src/routes/not-found.tsx
 #: src/timeline/filmstrip.tsx
 #: src/timeline/home-timeline.tsx
@@ -475,6 +513,15 @@ msgstr ""
 
 #: src/timeline/timeline.tsx
 msgid "Years and trips"
+msgstr ""
+
+#: src/components/site-header.tsx
+msgid "Your access"
+msgstr ""
+
+#: src/access/ended-screen.tsx
+#: src/components/site-header.tsx
+msgid "Your data"
 msgstr ""
 
 #: src/timeline/zoom-pill.tsx

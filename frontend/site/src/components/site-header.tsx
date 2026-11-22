@@ -1,22 +1,24 @@
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { LOCALES, type LocaleCode, pickText } from '@omw/contracts/i18n';
-import type { DaySummary, ImageSet, SiteProfile, TimelineIndex } from '@omw/contracts/site';
-import { countryFlag, formatRelative } from '@omw/ui/locale';
+import type { DaySummary, HereNow, ImageSet, SiteProfile, TimelineIndex, TimePrecision } from '@omw/contracts/site';
+import { countryFlag, countryName, formatRelative } from '@omw/ui/locale';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from '@tanstack/react-router';
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useFollowerName } from '../access/hello';
 import { useTimeline } from '../data/hooks';
 import { manifestQueryOptions } from '../data/queries';
 import { siteUrl } from '../data/urls';
 import { siteLocales } from '../locales';
 import { greetingFor, HeroPortrait, useProfile } from '../profile';
-import { useSite } from '../site';
+import { useSite, useSiteFlags } from '../site';
 import { daysNewestFirst, momentCount, monthOf, type ZoomLevel } from '../timeline/model';
 import { distinctCovers, Polaroid } from '../timeline/rows-common';
 import { isLive } from './decor';
-import { PaperPlane, PinIcon } from './icons';
+import { PaperPlane, PersonIcon, PinIcon } from './icons';
 import { useNow } from './now';
 import { ThemeToggle } from './theme-toggle';
+import { formatRelativeDays } from './time-labels';
 
 /** The site's title from the manifest (a neutral default until it is loaded). */
 export function siteTitleOf(manifest: { site: { title: string } } | undefined | null): string {
@@ -43,6 +45,7 @@ function HeaderBar({
   brand,
   languageHref,
   locales,
+  extra,
 }: {
   locale: LocaleCode;
   title: string;
@@ -50,6 +53,8 @@ function HeaderBar({
   brand: (content: ReactNode, className: string) => ReactNode;
   languageHref: (target: LocaleCode) => string;
   locales: readonly LocaleCode[];
+  /** Gate mode: the "your access" menu. */
+  extra?: ReactNode;
 }) {
   const { t } = useLingui();
   const TitleTag = titleTag;
@@ -86,6 +91,7 @@ function HeaderBar({
         ))}
       </nav>
       <ThemeToggle />
+      {extra}
     </header>
   );
 }
@@ -102,6 +108,7 @@ export function SiteHeader({ locale }: { locale: LocaleCode }) {
       titleTag="h1"
       locales={siteLocales(manifest?.site.locales)}
       languageHref={(target) => localeHref(site.basePath, pathname, searchStr, target)}
+      extra={site.boot.access ? <AccessMenu /> : null}
       brand={(content, className) => (
         <Link to="/$locale/" params={{ locale }} search={{}} replace className={className}>
           {content}
@@ -131,12 +138,96 @@ export function ScreenHeader({ locale }: { locale: LocaleCode }) {
       titleTag="p"
       locales={siteLocales(manifest?.site.locales)}
       languageHref={(target) => localeHref(site.basePath, pathname, search, target)}
+      extra={site.boot.access ? <AccessMenu /> : null}
       brand={(content, className) => (
         <a href={siteUrl(site.basePath, `${locale}/`)} className={className}>
           {content}
         </a>
       )}
     />
+  );
+}
+
+/**
+ * Gate mode (spec-wave5 §6.3): "Your data" and "Sign out on this device", both on the static
+ * /_/me/ page (full page loads: they leave the SPA). A disclosure, closed by Escape and outside
+ * clicks.
+ */
+export function AccessMenu() {
+  const { t } = useLingui();
+  const name = useFollowerName();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
+  useEffect(() => {
+    if (!open) return;
+    const outside = (event: PointerEvent) => {
+      if (!box.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      button.current?.focus();
+    };
+    document.addEventListener('pointerdown', outside);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', outside);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+  const item = 'block rounded-tile px-3 py-2.5 font-semibold text-ink hover:bg-blush';
+  return (
+    <div ref={box} className="relative" data-testid="access-menu">
+      <button
+        ref={button}
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={t`Your access`}
+        title={t`Your access`}
+        onClick={() => setOpen((o) => !o)}
+        className="press grid size-10 place-items-center rounded-full text-muted hover:bg-blush hover:text-ink aria-expanded:bg-blush aria-expanded:text-ink"
+      >
+        <PersonIcon className="size-5" />
+      </button>
+      <div
+        id={panelId}
+        hidden={!open}
+        className="absolute end-0 top-full z-20 mt-2 w-64 rounded-card bg-surface p-2 shadow-lift"
+      >
+        {name && (
+          <p className="px-3 pt-1.5 pb-2 text-sm text-muted">
+            <Trans>
+              Shared personally with <bdi>{name}</bdi>
+            </Trans>
+          </p>
+        )}
+        <a href="/_/me/" className={item}>
+          <Trans>Your data</Trans>
+        </a>
+        <a href="/_/me/#signout" className={item}>
+          <Trans>Sign out on this device</Trans>
+        </a>
+      </div>
+    </div>
+  );
+}
+
+/** Gate mode: "Shared personally with {name}" under the timeline, once the name is known. */
+export function SiteFooter() {
+  const site = useSite();
+  const name = useFollowerName();
+  if (!site.boot.access || !name) return null;
+  return (
+    <footer className="mx-auto max-w-[68rem] px-gutter pt-6 pb-10 text-center text-sm text-muted sm:px-gutter-wide">
+      <p>
+        <Trans>
+          Shared personally with <bdi>{name}</bdi>
+        </Trans>
+      </p>
+    </footer>
   );
 }
 
@@ -267,35 +358,82 @@ export function ProfileIntro({ profile, locale }: { profile: SiteProfile; locale
  * Intro under the header: who travels (when the owner set a profile) or a handwritten line, the
  * latest place and a few numbers.
  */
+/**
+ * The latest place in the hero, per "site.here_now" (Q2, spec-wave5 §6.3):
+ *   city_badge  today's pill: "Now in" (live styling) / "Last in" + relative time;
+ *   city        "Last in {place}", no live styling, no relative time;
+ *   country     "Last in {flag} {country}" (the generator already removed the current place);
+ *   none        no pill.
+ * With part-of-day precision the relative time names whole days only ("heute", "gestern").
+ */
+export function LatestPlace({
+  day,
+  locale,
+  now,
+  hereNow,
+  timePrecision,
+}: {
+  day: DaySummary;
+  locale: LocaleCode;
+  now: number;
+  hereNow: HereNow;
+  timePrecision: TimePrecision;
+}) {
+  if (hereNow === 'none') return null;
+  const quiet = 'inline-flex max-w-full items-center gap-1.5 rounded-pill py-1.5 ps-2.5 pe-3 font-bold';
+  if (hereNow === 'country') {
+    if (!day.country) return null;
+    return (
+      <span data-testid="latest-place" className={`${quiet} bg-surface text-ink shadow-soft`}>
+        <PinIcon className="size-4 shrink-0" />
+        <span className="truncate">
+          <Trans>Last in</Trans> {countryFlag(day.country)} <bdi>{countryName(day.country, locale)}</bdi>
+        </span>
+      </span>
+    );
+  }
+  const title = pickText(day.title, locale, day.orig)?.text;
+  const place = day.place ?? title;
+  if (!place) return null;
+  const live = hereNow === 'city_badge' && isLive(day.lastAt, now);
+  return (
+    <span
+      data-testid="latest-place"
+      data-live={live ? '' : undefined}
+      className={`${quiet} ${live ? 'bg-accent text-on-accent' : 'bg-surface text-ink shadow-soft'}`}
+    >
+      <PinIcon className="size-4 shrink-0" />
+      <span className="truncate">
+        {live ? <Trans>Now in</Trans> : <Trans>Last in</Trans>} <bdi>{place}</bdi>
+        {day.country && ` ${countryFlag(day.country)}`}
+      </span>
+      {hereNow === 'city_badge' && (
+        <span className={`shrink-0 font-semibold ${live ? 'opacity-85' : 'text-muted'}`}>
+          ·{' '}
+          {timePrecision === 'part_of_day'
+            ? formatRelativeDays(day.lastAt, locale, now)
+            : formatRelative(day.lastAt, locale, now)}
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function Hero({ locale, level }: { locale: LocaleCode; level: ZoomLevel }) {
   const { data: timeline } = useTimeline();
   const profile = useProfile();
   const now = useNow();
+  const { hereNow, timePrecision } = useSiteFlags();
   const stats = useMemo(() => (timeline ? timelineStats(timeline) : null), [timeline]);
   const latest = timeline?.days.at(-1);
-  const live = latest ? isLive(latest.lastAt, now) : false;
-  const latestTitle = latest ? pickText(latest.title, locale, latest.orig)?.text : undefined;
   const covers = useMemo(() => (timeline ? heroCovers(timeline, level) : []), [timeline, level]);
   return (
     <div className="relative mx-auto max-w-[68rem] px-gutter pt-3 pb-6 sm:px-gutter-wide sm:pb-8">
       {profile ? <ProfileIntro profile={profile} locale={locale} /> : <Tagline />}
       {stats && stats.days > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-2 text-sm md:max-w-[calc(100%-18rem)]">
-          {latest && (latest.place || latestTitle) && (
-            <span
-              className={`inline-flex max-w-full items-center gap-1.5 rounded-pill py-1.5 ps-2.5 pe-3 font-bold ${
-                live ? 'bg-accent text-on-accent' : 'bg-surface text-ink shadow-soft'
-              }`}
-            >
-              <PinIcon className="size-4 shrink-0" />
-              <span className="truncate">
-                {live ? <Trans>Now in</Trans> : <Trans>Last in</Trans>} <bdi>{latest.place ?? latestTitle}</bdi>
-                {latest.country && ` ${countryFlag(latest.country)}`}
-              </span>
-              <span className={`shrink-0 font-semibold ${live ? 'opacity-85' : 'text-muted'}`}>
-                · {formatRelative(latest.lastAt, locale, now)}
-              </span>
-            </span>
+          {latest && (
+            <LatestPlace day={latest} locale={locale} now={now} hereNow={hereNow} timePrecision={timePrecision} />
           )}
           <span className="inline-flex items-center gap-1 rounded-pill bg-surface/70 px-3 py-1.5 font-semibold text-muted">
             <Plural value={stats.days} one="# day" other="# days" /> ·{' '}

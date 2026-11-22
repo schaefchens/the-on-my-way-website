@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/MeSimpleResponse.json",
+  "title": "MeSimpleResponse",
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "enum": [
+        "signed_out",
+        "deleted",
+        "ended"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "status"
+  ],
+  "type": "object"
+}

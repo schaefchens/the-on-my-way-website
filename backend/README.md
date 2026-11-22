@@ -91,7 +91,7 @@ Validated by `src/config.ts` (zod); invalid values stop the backend with a clear
 | `CONTROL_HOST` / `CONTROL_PORT` | `127.0.0.1` / `8787` | control UI (Docker: `0.0.0.0`, published on 127.0.0.1 only) |
 | `CONTROL_TOKEN` | dev token (warns; refused unless `CONTROL_HOST` is loopback) / **required ≥ 16 chars** | control UI + CLI credential |
 | `CONTROL_ALLOWED_HOSTS` | – | extra Host names for the control UI (reverse proxy / VPN name) |
-| `SITE_PUBLIC_URL` | – | public URL of the static site (canonical/OG URLs, basePath) |
+| `SITE_PUBLIC_URL` | – | public URL of the static site (canonical/hreflang URLs, basePath; link previews are always neutral) |
 | `DEFAULT_TIMEZONE` | `Europe/Berlin` | until the API's `timezone.current` arrives |
 | `NTFY_URL` | – | local alerts (WhatsApp logged out/banned > 2 min, ≥ 3 failed deploys in a row) when NO API is configured; with an API, its cron alerts |
 | `DATA_DIR` | `backend/data/state` / `/data` | `store.db`, WhatsApp session, inbox |
@@ -99,6 +99,45 @@ Validated by `src/config.ts` (zod); invalid values stop the backend with a clear
 | `SITE_DIST_DIR` | `frontend/site/dist` | Vite build of `@omw/site` |
 | `OMW_VERSION` | `package.json` version | reported in heartbeat and UI |
 | `SFTP_HOST`, `SFTP_USER`, `SFTP_PASSWORD`, `SFTP_PORT`, `SITE_BASE_URL`, … | – | bootstrap ONE sftp target when `CONFIG_DIR/targets.json` does not exist (see `src/publisher/targets.ts`) |
+
+### Access gate (wave 5, `ACCESS_MODE=gate`)
+
+Gate mode (live hosting) generates a second tree, the **gate tree** (`GATE_OUT_DIR`): the root
+`.htaccess` that checks every request against the session-file store, the neutral page, the
+`/_/` gate pages (join, info, wait, ended, your data, panic) with the gate bundle
+(`frontend/site/dist/gate`), `robots.txt`, `favicon.svg` and `/_/403.txt`. The content tree
+(`OUT_DIR`) is published to `/<secret>/` with the same gate block in its own `.htaccess`, private
+caching, `Boot.access`, and a CSP with the API origin in `connect-src` and `worker-src 'none'`;
+no `robots.txt`/`sitemap.xml`, never indexable. `open` (default: dev, fixtures, Docker e2e) is
+today's single tree with the wave-5 privacy fixes. Spec: `.cache/design-w5/spec-wave5.md` §5.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `ACCESS_MODE` | `open` | `gate` turns on the gate tree, the two-root publisher and the post-deploy gate check |
+| `SITE_PUBLIC_URL` | – | gate mode: `https://<site host>/<secret>/`, `<secret>` = `[a-z0-9]{20}`, exactly one path segment. Generate it once: `node -e "const a='abcdefghijklmnopqrstuvwxyz0123456789';console.log(Array.from(crypto.getRandomValues(new Uint8Array(20)),(b)=>a[b%36]).join(''))"` |
+| `API_PUBLIC_URL` | `API_BASE_URL` | the API base the browser calls (`<API_PUBLIC_URL>api/v1/public/`); its origin is the CSP's `connect-src`. Required in gate mode |
+| `ACCESS_STORE_DIR` | – | the session-file store as Apache sees it (absolute, `[A-Za-z0-9._/-]`, no `..`, no `//`); baked into both `.htaccess` files and reported in the heartbeat. Required in gate mode |
+| `ACCESS_COOKIE_MODE` | `headers` | `headers` (`__Host-` cookies set by `mod_headers`), `co` (F1: the `CO` flag), `parent` (F2: the API sets parent-domain cookies). Must equal the API's |
+| `ACCESS_COOKIE_DOMAIN` | – | `co`: the site host; `parent`: the shared parent domain |
+| `ACCESS_HTTPS_REDIRECT` | `false` | emit the http→https redirect (only after the host probe showed `%{HTTPS}=on`) |
+| `GATE_OUT_DIR` | `backend/data/out-gate` | where the gate tree is generated (a sibling of `OUT_DIR`, never inside it) |
+
+The whole configuration is checked with `siteAccessProblems()` (`@omw/contracts/access`). Nothing
+in `backend/src` names a real host (a test greps for it): every origin comes from here (Q9).
+
+Publish targets in gate mode need the **web root** (`gateRoot` for SFTP, usually `/`; `gateDir`
+for a local folder), and the content root must be web root + `/<secret>` (`remoteRoot` / `dir`).
+Each deploy uploads the gate tree first (`/.htaccess` last, only when it changed; record
+`/.omw-gate.json`), then the content, then runs the anonymous-must-be-refused check (at most 5
+requests, 2 s apart; skipped when nothing changed and the last check passed < 6 h ago). A
+connection without `posix-rename@openssh.com` is refused. A target with `accessStoreRoot` /
+`accessStoreDir` (optionally store-only: "deploy the site here" off) is used by the **Mac fallback
+store writer** (when the API's change feed says `needsWriter`) and the control UI's
+**"Website sperren"** button. The one-off move of a live open-mode site:
+`backend publish --migrate-to-gate <target>` (lists the old root files) and again with
+`--confirm` (deletes them). `generator serve` in gate mode serves both trees **without** the gate;
+the gate is tested only with Apache: `pnpm --filter @omw/backend test:apache` (local httpd on
+127.0.0.1, store on a case-sensitive disk image on macOS; not part of `pnpm test`).
 
 ## CLI
 
@@ -110,6 +149,7 @@ Docker: `docker compose exec backend backend <command>`).
 | `start` (default) | run the backend |
 | `generate [--full]` | regenerate the site |
 | `publish [--target ID] [--force]` | deploy to every enabled target, or one (also a disabled one); `--force` overrides the mass-delete guard (a deploy deleting half of the target or every day is refused otherwise) |
+| `publish --migrate-to-gate ID [--confirm]` | gate mode, one-off: generate, deploy gate + content trees, gate check, list the legacy root files (deleted only with `--confirm`); the backend must not be running |
 | `reprocess [SOURCE_KEY]` | re-run the media pipeline from the archive (all, or `wa:<msgId>`) |
 | `status [--json]` | health summary |
 | `pair-code PHONE` | pairing code for the observer phone (backend must be running) |

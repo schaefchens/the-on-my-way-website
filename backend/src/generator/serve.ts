@@ -7,6 +7,10 @@
  * - unknown paths answer 404 with <basePath>404.html (like ErrorDocument 404 on Apache);
  * - dotfiles are never served; cache headers mirror the generated .htaccess.
  * Binds to 127.0.0.1 by default. Default port 4173 (D12).
+ *
+ * Gate mode (spec-wave5 §5.7, startGatePreviewServer): GATE_OUT_DIR at "/" and OUT_DIR at
+ * "/<secret>/", WITHOUT enforcing the gate (no cookie check, no neutral page for refusals): the
+ * gate's behaviour is only ever tested with Apache (backend/test/gate). It says so when it starts.
  */
 import { createReadStream, promises as fsp } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
@@ -158,10 +162,41 @@ export function createPreviewHandler(opts: { dir: string; basePath?: string }) {
   };
 }
 
+export interface GatePreviewOptions {
+  gateDir: string;
+  outDir: string;
+  /** The content folder: OUT_DIR is mounted at "/<secret>/". */
+  secret: string;
+  host?: string;
+  port?: number;
+}
+
+/** Gate mode preview (see the module header): two trees, no gate. */
+export function createGatePreviewHandler(opts: Omit<GatePreviewOptions, 'host' | 'port'>) {
+  if (!/^[a-z0-9]{20}$/.test(opts.secret)) throw new RangeError('Invalid content folder');
+  const content = createPreviewHandler({ dir: opts.outDir, basePath: `/${opts.secret}/` });
+  const gate = createPreviewHandler({ dir: opts.gateDir, basePath: '/' });
+  const prefix = `/${opts.secret}`;
+  return (req: IncomingMessage, res: ServerResponse): Promise<void> => {
+    const path = (req.url ?? '/').split('?')[0] ?? '/';
+    return path === prefix || path.startsWith(`${prefix}/`) ? content(req, res) : gate(req, res);
+  };
+}
+
+export async function startGatePreviewServer(opts: GatePreviewOptions): Promise<PreviewServer> {
+  return listen(createGatePreviewHandler(opts), { host: opts.host, port: opts.port, path: '/' });
+}
+
 export async function startPreviewServer(opts: PreviewServerOptions): Promise<PreviewServer> {
+  return listen(createPreviewHandler(opts), { host: opts.host, port: opts.port, path: opts.basePath ?? '/' });
+}
+
+async function listen(
+  handler: (req: IncomingMessage, res: ServerResponse) => Promise<void>,
+  opts: { host?: string | undefined; port?: number | undefined; path: string },
+): Promise<PreviewServer> {
   const host = opts.host ?? '127.0.0.1';
   const port = opts.port ?? 4173;
-  const handler = createPreviewHandler(opts);
   const server = createServer((req, res) => {
     handler(req, res).catch((err: unknown) => {
       if (!res.headersSent) res.statusCode = 500;
@@ -179,7 +214,7 @@ export async function startPreviewServer(opts: PreviewServerOptions): Promise<Pr
   const actualPort = typeof address === 'object' && address ? address.port : port;
   return {
     server,
-    url: `http://${host}:${actualPort}${opts.basePath ?? '/'}`,
+    url: `http://${host}:${actualPort}${opts.path}`,
     close: () =>
       new Promise<void>((resolveClose) => {
         server.closeAllConnections();

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/DevicePollResponse.json",
+  "title": "DevicePollResponse",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "ended",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "enum": [
+            "locked",
+            "restoring",
+            "notice_missing",
+            "too_many_pending",
+            "store"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "const": "unavailable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "deviceKey": {
+          "pattern": "^[A-Za-z0-9_-]{43}$",
+          "type": "string"
+        },
+        "handoff": {
+          "enum": [
+            "/_/h/",
+            "/"
+          ],
+          "type": "string"
+        },
+        "session": {
+          "pattern": "^[a-z2-7]{12}\\.[a-z2-7]{8}\\.[A-Za-z0-9_-]{43}$",
+          "type": "string"
+        },
+        "status": {
+          "const": "active",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "handoff"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "deviceKey": {
+          "pattern": "^[A-Za-z0-9_-]{43}$",
+          "type": "string"
+        },
+        "pollAfterMs": {
+          "maximum": 60000,
+          "minimum": 500,
+          "type": "integer"
+        },
+        "status": {
+          "const": "activating",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "pollAfterMs"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "deviceKey": {
+          "pattern": "^[A-Za-z0-9_-]{43}$",
+          "type": "string"
+        },
+        "pollAfterMs": {
+          "maximum": 60000,
+          "minimum": 500,
+          "type": "integer"
+        },
+        "status": {
+          "const": "pending",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "pollAfterMs"
+      ],
+      "type": "object"
+    }
+  ]
+}

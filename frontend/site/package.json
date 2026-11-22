@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && vite build -c vite.gate.config.ts",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json && tsc -p tsconfig.node.json && tsc -p e2e/tsconfig.json",
     "test": "vitest run",
@@ -14,7 +14,9 @@
     "dev-data:check": "TSX_DISABLE_CACHE=1 node --conditions=@omw/source --import tsx scripts/make-dev-data.ts --check",
     "dev-data:large": "TSX_DISABLE_CACHE=1 node --conditions=@omw/source --import tsx scripts/make-large-dev-data.ts",
     "i18n:extract": "lingui extract --clean",
-    "e2e": "playwright test -c e2e/playwright.config.ts"
+    "e2e": "playwright test -c e2e/playwright.config.ts",
+    "build:gate": "vite build -c vite.gate.config.ts",
+    "e2e:gate": "playwright test -c playwright.gate.config.ts"
   },
   "dependencies": {
     "@lingui/core": "6.12.0",
@@ -40,6 +42,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",
+    "jsdom": "26.1.0",
     "sharp": "0.35.5",
     "tailwindcss": "4.3.5",
     "thumbhash": "0.1.1",

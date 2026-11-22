@@ -1,5 +1,13 @@
-/** meta table: schema_version (managed by migrations) and the monotonic site_version counter. */
+/**
+ * meta table: schema_version (managed by migrations), the monotonic site_version counter and
+ * small generator facts such as "portrait.published" (the portrait the last run published, kept
+ * while a newly chosen one waits for its release, spec-wave5 §5.2).
+ */
+import { SiteAvatarSetting } from '@omw/contracts/api';
 import type { Db } from './db.js';
+
+/** Meta key of the portrait the last generator run published: {"sourceKey","focus"}. */
+export const PORTRAIT_PUBLISHED_KEY = 'portrait.published';
 
 export class MetaRepo {
   private readonly db: Db;
@@ -18,6 +26,31 @@ export class MetaRepo {
     this.db
       .prepare('INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value')
       .run(key, value);
+  }
+
+  /** The portrait the last run published, or null (unset or unreadable). */
+  portraitPublished(): SiteAvatarSetting | null {
+    const raw = this.get(PORTRAIT_PUBLISHED_KEY);
+    if (!raw) return null;
+    try {
+      const r = SiteAvatarSetting.safeParse(JSON.parse(raw));
+      return r.success ? r.data : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Records the portrait a run published (null forgets it: the run published none). */
+  setPortraitPublished(value: SiteAvatarSetting | null): void {
+    if (value === null) {
+      this.db.prepare('DELETE FROM meta WHERE key = ?').run(PORTRAIT_PUBLISHED_KEY);
+      return;
+    }
+    const v = SiteAvatarSetting.parse(value);
+    this.set(
+      PORTRAIT_PUBLISHED_KEY,
+      JSON.stringify({ sourceKey: v.sourceKey, ...(v.focus ? { focus: v.focus } : {}) }),
+    );
   }
 
   schemaVersion(): number {

@@ -15,6 +15,7 @@
     "cli:dev": "TSX_DISABLE_CACHE=1 node --conditions=@omw/source --import tsx src/cli.ts",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
+    "test:apache": "vitest run --config vitest.apache.config.ts",
     "docker:check": "docker build --check -f Dockerfile ..",
     "docker:build": "docker build -f Dockerfile -t omw-backend .."
   },

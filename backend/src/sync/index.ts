@@ -21,6 +21,11 @@
  * Without API_BASE_URL/API_TOKEN the sync is disabled: nothing is queued, every method is a no-op
  * (reportPublished still records the publish state for the control UI).
  *
+ * Access gate (spec-wave5 §3.6, §5.6.6): every change page may carry `access.needsWriter`; it is
+ * handed to SyncDeps.onAccess (the Mac fallback store writer runs when it is true). The heartbeat
+ * reports `site: {origin, access, cookieMode, storeDir}` and every PublishedReport the deploy's
+ * `gateCheck`.
+ *
  * Errors: 401/403 pause all API traffic for `authPauseMs` (the token is wrong or revoked; the
  * control UI shows it). Transient errors back off exponentially with jitter (Retry-After wins).
  * Permanent 4xx answers (e.g. 422 after a contract mismatch) are retried slowly (`permanentMs`),
@@ -29,6 +34,7 @@
  */
 import { promises as fsp } from 'node:fs';
 import { contractVersion } from '@omw/contracts';
+import type { GateCheckResult } from '@omw/contracts/access';
 import {
   CaptureMirror,
   CaptureRevoke,
@@ -81,6 +87,8 @@ export interface DeployReport {
   uploaded: number;
   deleted: number;
   error?: string | undefined;
+  /** Gate mode: the anonymous-must-be-refused check of this deploy (spec-wave5 §5.6.3). */
+  gateCheck?: GateCheckResult | undefined;
 }
 
 /** What the deployed files contain (see watermarks.ts); defaults to the last generate snapshot. */
@@ -154,6 +162,8 @@ export interface SyncDeps {
   diskFree?: (dirs: readonly string[]) => Promise<number | null>;
   /** Ids of the enabled publish targets (publish state and heartbeat judge all of them). */
   enabledTargets?: () => readonly string[];
+  /** Called with `access` of every change page that has one (the Mac fallback writer listens). */
+  onAccess?: (access: { needsWriter: boolean }) => void;
   options?: SyncOptions;
 }
 
@@ -202,6 +212,8 @@ export interface Sync {
   ): void;
   buildHeartbeat(): Promise<Heartbeat>;
   status(): SyncStatus;
+  /** The API client for the access routes; null without an API or while API traffic is paused. */
+  accessClient?(): ApiClient | null;
 }
 
 const DEFAULTS: Required<SyncOptions> = {
@@ -551,6 +563,13 @@ class SyncEngine implements Sync {
             kind: 'invalid_response',
           });
         }
+        if (envelope.data.access) {
+          try {
+            this.deps.onAccess?.(envelope.data.access);
+          } catch (err) {
+            this.log.error({ err }, 'access hook failed');
+          }
+        }
         const summary = this.store.owner.applyChanges(envelope.data);
         pages++;
         this.pullPages = pages;
@@ -716,6 +735,7 @@ class SyncEngine implements Sync {
         feedSeq: snap.feedSeq,
         capturesThrough: snap.capturesThrough,
         ...(r.error ? { error: r.error.slice(0, 2000) } : {}),
+        ...(r.gateCheck ? { gateCheck: r.gateCheck } : {}),
       });
       if (!report.success) {
         this.log.error({ target: r.targetId, error: report.error.message }, 'invalid publish report (not sent)');
@@ -946,7 +966,24 @@ class SyncEngine implements Sync {
         ...(publish.lastAt ? { lastAt: publish.lastAt } : {}),
         ...(publish.lastError ? { lastError: publish.lastError } : {}),
       },
+      // spec-wave5 §3.6: the API compares origin with SITE_ORIGIN and, with a direct writer,
+      // storeDir with its own ACCESS_STORE_DIR (alerts site_origin_mismatch / access_store_unverified).
+      ...(this.config.access?.site
+        ? {
+            site: {
+              origin: this.config.access.site.siteOrigin,
+              access: this.config.access.mode,
+              cookieMode: this.config.access.site.cookieMode,
+              storeDir: this.config.access.site.storeDir ?? null,
+            },
+          }
+        : {}),
     });
+  }
+
+  accessClient(): ApiClient | null {
+    if (!this.client || this.stopped || this.authPaused()) return null;
+    return this.client;
   }
 
   async heartbeatNow(): Promise<boolean> {

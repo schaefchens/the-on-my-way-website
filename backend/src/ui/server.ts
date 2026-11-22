@@ -576,6 +576,12 @@ export async function createControlServer(o: ControlServerOptions): Promise<Cont
     return { kind: r.ok ? 'ok' : 'error', text: r.detail };
   });
 
+  action('/actions/access/lock', '/publish', async () => {
+    if (!backend.lockSite) return { kind: 'error', text: 'Not supported by this backend.' };
+    const r = await backend.lockSite();
+    return { kind: r.ok ? 'ok' : 'error', text: r.detail };
+  });
+
   action('/actions/targets/save', '/publish', (f) => {
     const saved = backend.targets.save(targetInputFromForm(f));
     return { kind: 'ok', text: `Target ${str(saved, 'id') ?? ''} saved.` };

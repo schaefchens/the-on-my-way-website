@@ -7,14 +7,17 @@ import {
   DayDetail,
   dayDataPath,
   Entry,
+  HereNow,
   ImageSet,
   IntroI18n,
   IntroText,
   Manifest,
   resolveSitePath,
   routePath,
+  SiteInfo,
   SiteProfile,
   TimelineIndex,
+  TimePrecision,
   TripDetail,
   tripDataPath,
   withVersion,
@@ -82,12 +85,59 @@ describe('static data files reject invalid samples', () => {
     expect(DayDetail.safeParse({ ...dayDetail(), contractVersion: 2 }).success).toBe(false);
     expect(DayDetail.safeParse({ ...dayDetail(), date: '2026-02-30' }).success).toBe(false);
     expect(DayDetail.safeParse({ ...dayDetail(), country: 'vn' }).success).toBe(false);
-    expect(DayDetail.safeParse({ ...dayDetail(), lat: 91 }).success).toBe(false);
     expect(Manifest.safeParse({ ...manifest(), version: 0 }).success).toBe(false);
     expect(Manifest.safeParse({ ...manifest(), site: { ...manifest().site, basePath: 'travel' } }).success).toBe(false);
     expect(Manifest.safeParse({ ...manifest(), site: { ...manifest().site, locales: [] } }).success).toBe(false);
     const t = timeline();
     expect(TimelineIndex.safeParse({ ...t, trips: [{ ...t.trips[0], slug: 'Vietnam 2026' }] }).success).toBe(false);
+  });
+});
+
+describe('wave 5: no coordinates, here-now and time precision, gate boot', () => {
+  it('DayDetail never carries coordinates (P0 E4): lat/lng are not part of the contract', () => {
+    expect(DayDetail.shape).not.toHaveProperty('lat');
+    expect(DayDetail.shape).not.toHaveProperty('lng');
+    const parsed = DayDetail.parse({ ...dayDetail(), lat: 15.88, lng: 108.33 });
+    expect(parsed).not.toHaveProperty('lat');
+    expect(parsed).not.toHaveProperty('lng');
+  });
+
+  it('SiteInfo.hereNow / timePrecision are optional (absent = city_badge / exact)', () => {
+    expect(HereNow.options).toEqual(['city_badge', 'city', 'country', 'none']);
+    expect(TimePrecision.options).toEqual(['exact', 'part_of_day']);
+    const site = manifest().site;
+    expect(SiteInfo.parse(site)).toEqual(site);
+    expect(SiteInfo.parse(site)).not.toHaveProperty('hereNow');
+    for (const hereNow of HereNow.options) {
+      for (const timePrecision of TimePrecision.options) {
+        expect(SiteInfo.parse({ ...site, hereNow, timePrecision })).toEqual({ ...site, hereNow, timePrecision });
+      }
+    }
+    expect(SiteInfo.safeParse({ ...site, hereNow: 'badge' }).success).toBe(false);
+    expect(SiteInfo.safeParse({ ...site, timePrecision: 'hour' }).success).toBe(false);
+  });
+
+  it('Boot.access is present in gate mode only and carries no secret', () => {
+    const boot = {
+      basePath: '/abcdefghij0123456789/',
+      locale: 'de',
+      route: { name: 'home', params: {} },
+      manifestVersion: 42,
+      timelineV: 'abcdef12',
+    };
+    const access = {
+      api: 'https://api.example.org/api/v1/public/',
+      cookies: { key: '__Host-omw_k', transfer: '__Host-omw_s', handoff: '__Host-omw_h' },
+      cookieMode: 'headers',
+      cookieDomain: null,
+    };
+    expect(Boot.parse(boot)).not.toHaveProperty('access');
+    expect(Boot.parse({ ...boot, access })).toEqual({ ...boot, access });
+    expect(Boot.safeParse({ ...boot, access: { ...access, cookieMode: 'cookie' } }).success).toBe(false);
+    expect(Boot.safeParse({ ...boot, access: { ...access, cookieDomain: 'Example.org' } }).success).toBe(false);
+    expect(Boot.safeParse({ ...boot, access: { ...access, api: 'https://api.example.org/' } }).success).toBe(false);
+    // Only cookie NAMES and the API base: the session and key values never appear in boot data.
+    expect(Object.keys(access.cookies)).not.toContain('session');
   });
 });
 

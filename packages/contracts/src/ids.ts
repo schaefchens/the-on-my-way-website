@@ -6,7 +6,14 @@
  * - base32 = RFC 4648 alphabet (a–z, 2–7), no padding, applied to the 32 raw digest bytes;
  *   12 chars = 60 bits.
  * - sourceKey for WhatsApp = "wa:<msgId>". WhatsApp message ids never appear in static output.
- * - Posts keep the publicId issued by the API ("p_…").
+ * - Posts keep the publicId issued by the API ("p_…") inside the API and the admin; the static
+ *   site publishes a derived id instead (wave 5, E16), so the API's ids (ULIDs, which carry their
+ *   creation time) never appear in static output:
+ *
+ *     published post id = "p_" + base32(sha256(utf8("post:" + publicId)))[0..16], lowercase
+ *
+ *   16 chars = 80 bits; it matches the PostPublicId pattern, so story routes and NoteEntry /
+ *   StoryEntry ids keep their schema.
  *
  * Hashing choice: Web Crypto (`globalThis.crypto.subtle`), which exists in Node >= 20 and in
  * browsers, so this module never imports `node:crypto` and is safe in every bundle. Web Crypto
@@ -68,6 +75,18 @@ export function publicIdFromSha256Hex(digestHex: string): string {
 export async function publicIdForSourceKey(sourceKey: string): Promise<string> {
   if (!isSourceKey(sourceKey)) throw new RangeError(`Invalid sourceKey: ${sourceKey}`);
   return publicIdFromSha256Hex(await sha256Hex(sourceKey));
+}
+
+/** Published id of an owner post from an already computed sha256 hex digest of "post:" + publicId. */
+export function publishedPostIdFromSha256Hex(digestHex: string): string {
+  if (!/^[0-9a-f]{64}$/.test(digestHex)) throw new RangeError('Expected a sha256 hex digest');
+  return POST_ID_PREFIX + base32Lower(hexToBytes(digestHex)).slice(0, 16);
+}
+
+/** Published id of an owner post: "p_" + base32(sha256("post:" + publicId))[0..16] (E16; async, Web Crypto). */
+export async function publishedPostId(publicId: string): Promise<string> {
+  if (!isPostPublicId(publicId)) throw new RangeError(`Invalid post publicId: ${publicId}`);
+  return publishedPostIdFromSha256Hex(await sha256Hex(`post:${publicId}`));
 }
 
 const SOURCE_KEY_RE = /^([a-z]+):([A-Za-z0-9][A-Za-z0-9_-]{0,127})$/;

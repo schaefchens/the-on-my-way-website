@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AccessClaimRequest.json",
+  "title": "AccessClaimRequest",
+  "additionalProperties": false,
+  "properties": {
+    "holder": {
+      "const": "mac",
+      "type": "string"
+    }
+  },
+  "required": [
+    "holder"
+  ],
+  "type": "object"
+}

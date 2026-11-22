@@ -259,3 +259,111 @@ export function seedData(): SeedData {
   const settings: Settings = { ...SETTINGS_DEFAULTS, 'timezone.current': SAIGON, 'alerts.email': 'lena@example.org' };
   return { captures, annotations, days, trips, posts, settings };
 }
+
+// ---------------------------------------------------------------------------------------------
+// People and access (wave 5): times relative to "now", so "seen today" stays true.
+
+export interface SeedDevice {
+  id: string;
+  state: 'pending' | 'active' | 'revoked' | 'declined';
+  first: boolean;
+  label: string;
+  createdMinutesAgo: number;
+  lastSeenMinutesAgo: number | null;
+  revokedBy?: 'owner' | 'follower' | 'system';
+}
+
+export interface SeedFollower {
+  id: string;
+  state: 'active' | 'revoked' | 'deleted';
+  name: string | null;
+  note: string | null;
+  createdDaysAgo: number;
+  devices: SeedDevice[];
+  deletedBy?: 'follower' | 'owner' | 'restore';
+}
+
+export interface SeedAccess {
+  followers: SeedFollower[];
+  /** Notice v1 published (and consented by the active people) and the store set up. */
+  noticePublished: boolean;
+  storeReady: boolean;
+}
+
+export function seedAccess(): SeedAccess {
+  return {
+    noticePublished: true,
+    storeReady: true,
+    followers: [
+      {
+        id: 'omaomaomaoma',
+        state: 'active',
+        name: 'Oma',
+        note: 'Mamas Mama, liest abends auf dem iPad',
+        createdDaysAgo: 9,
+        devices: [
+          {
+            id: 'ipadoma2',
+            state: 'active',
+            first: true,
+            label: 'iPad · Safari',
+            createdMinutesAgo: 9 * 1440,
+            lastSeenMinutesAgo: 95,
+          },
+          {
+            id: 'phoneoma',
+            state: 'active',
+            first: false,
+            label: 'iPhone · WhatsApp',
+            createdMinutesAgo: 6 * 1440,
+            lastSeenMinutesAgo: 2 * 1440,
+          },
+        ],
+      },
+      {
+        id: 'paulpaulpaul',
+        state: 'active',
+        name: 'Paul',
+        note: null,
+        createdDaysAgo: 5,
+        devices: [
+          {
+            id: 'paulpix7',
+            state: 'active',
+            first: true,
+            label: 'Android · Chrome',
+            createdMinutesAgo: 5 * 1440,
+            lastSeenMinutesAgo: 30,
+          },
+        ],
+      },
+      {
+        id: 'uteuteuteute',
+        state: 'revoked',
+        name: 'Tante Ute',
+        note: null,
+        createdDaysAgo: 8,
+        devices: [
+          {
+            id: 'utemac22',
+            state: 'revoked',
+            first: true,
+            label: 'Mac · Safari',
+            createdMinutesAgo: 8 * 1440,
+            lastSeenMinutesAgo: 3 * 1440,
+            revokedBy: 'owner',
+          },
+        ],
+      },
+      {
+        id: 'gonegonegone',
+        state: 'deleted',
+        name: null,
+        note: null,
+        createdDaysAgo: 2,
+        devices: [],
+        deletedBy: 'follower',
+      },
+    ],
+  };
+}

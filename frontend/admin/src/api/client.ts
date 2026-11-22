@@ -2,7 +2,8 @@
  * Admin API client (plan B "Endpoints", api/src/Http/Routes.php):
  *   POST /api/v1/admin/session (LoginRequest -> Me, sets the session cookie), DELETE …/session,
  *   GET …/me, …/status, …/captures, …/posts, …/days, …/trips, …/settings, …/tokens
- *   (+ PATCH/PUT/POST/DELETE).
+ *   (+ PATCH/PUT/POST/DELETE). People, access, privacy and the password change (wave 5) use the
+ *   same request primitive from api/access.ts, outside the offline write queue.
  *
  * - Same origin, cookie session (`credentials: 'include'`); a Bearer token is never used in the
  *   browser. Mutating requests carry X-CSRF-Token = Me.csrfToken. A 403 "csrf" (session renewed
@@ -140,7 +141,18 @@ export type DevSchemaName =
   | 'AdminTrip'
   | 'Settings'
   | 'TokenListResponse'
-  | 'TokenCreated';
+  | 'TokenCreated'
+  // access (api/access.ts)
+  | 'AccessStatus'
+  | 'AccessActionResult'
+  | 'FollowerListResponse'
+  | 'AdminFollower'
+  | 'FollowerCreated'
+  | 'PersonalLinkCreated'
+  | 'FollowerDataExport'
+  | 'PanicLinkCreated'
+  | 'PrivacyState'
+  | 'OwnerNoticeList';
 
 function isApiErrorBody(v: unknown): v is { error: { code: string; message: string; details?: unknown } } {
   if (!v || typeof v !== 'object' || !('error' in v)) return false;

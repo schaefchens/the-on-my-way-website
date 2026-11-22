@@ -36,7 +36,23 @@ export function targetInputFromForm(form: FormFields): Record<string, unknown> {
     enabled: checked(form.enabled),
     publicBaseUrl: publicBaseUrl === '' ? null : publicBaseUrl,
   };
-  if (kind === 'local') return { ...base, dir: trimmed(form.dir) };
+  // The "publish" checkbox only counts when the form rendered it (older forms leave it unchanged).
+  if (form.publish_field === '1') base.publish = checked(form.publish);
+  /** Optional path field (spec-wave5 §5.6.1): empty = unset (null on edit, omitted on create). */
+  const optionalPath = (name: string) => {
+    const v = trimmed(form[name]);
+    if (v !== '') return v;
+    return creating ? undefined : null;
+  };
+  const paths = (names: string[]) => {
+    const out: Record<string, unknown> = {};
+    for (const n of names) {
+      const v = optionalPath(n);
+      if (v !== undefined && (v !== null || form[n] !== undefined)) out[n] = v;
+    }
+    return out;
+  };
+  if (kind === 'local') return { ...base, dir: trimmed(form.dir), ...paths(['gateDir', 'accessStoreDir']) };
   const out: Record<string, unknown> = {
     ...base,
     host: trimmed(form.host),
@@ -49,6 +65,7 @@ export function targetInputFromForm(form: FormFields): Record<string, unknown> {
   if (concurrency !== undefined) out.concurrency = concurrency;
   const remoteRoot = trimmed(form.remoteRoot);
   if (remoteRoot !== '') out.remoteRoot = remoteRoot;
+  Object.assign(out, paths(['gateRoot', 'accessStoreRoot']));
   const keyPath = trimmed(form.privateKeyPath);
   if (keyPath !== '') out.privateKeyPath = keyPath;
   else if (!creating) out.privateKeyPath = null;

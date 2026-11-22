@@ -8,6 +8,9 @@
  * - Requests are plain CORS-mode GETs with the default credentials mode ("same-origin") and no
  *   custom headers, so a generated page's `<link rel="preload" as="fetch" crossorigin>` for the
  *   same URL (timeline.json?v=…) is reused instead of downloaded twice.
+ * - Gate mode (spec-wave5 §6.3): a refused data request is an AccessEndedError: HTTP 403 (the
+ *   gate's answer for data and media), or a 200 that is not JSON (the neutral page). The access
+ *   layer (src/access) then asks the API what happened; it is never retried.
  */
 import type { DayDetail, Manifest, TimelineIndex, TripDetail } from '@omw/contracts/site';
 import { dayUrl, manifestUrl, timelineUrl, tripUrl } from './urls';
@@ -27,6 +30,18 @@ export class DataFetchError extends Error {
     this.url = url;
     this.status = status;
   }
+}
+
+/** The gate refused the request: this device's access ended, or the site is locked (§6.3). */
+export class AccessEndedError extends DataFetchError {
+  constructor(url: string, status: number) {
+    super(url, status, `GET ${url} was refused (HTTP ${status})`);
+    this.name = 'AccessEndedError';
+  }
+}
+
+function isJsonType(contentType: string | null): boolean {
+  return contentType !== null && /\bjson\b/i.test(contentType);
 }
 
 export interface SiteDataTypes {
@@ -90,11 +105,20 @@ async function getJson(
         } catch (err) {
           throw new DataFetchError(url, 0, `GET ${url} failed: ${(err as Error).message}`);
         }
+        if (res.status === 403) throw new AccessEndedError(url, 403);
         if (!res.ok) throw new DataFetchError(url, res.status);
+        let body: string;
         try {
-          return (await res.json()) as unknown;
+          body = await res.text();
         } catch {
           if (signal.aborted) throw signal.reason;
+          throw new DataFetchError(url, 0, `GET ${url} failed while reading the body`);
+        }
+        try {
+          return JSON.parse(body) as unknown;
+        } catch {
+          // The neutral page (HTML, 200) instead of data: the gate refused this request.
+          if (!isJsonType(res.headers.get('content-type'))) throw new AccessEndedError(url, res.status);
           throw new DataFetchError(url, res.status, `GET ${url} returned invalid JSON`);
         }
       },

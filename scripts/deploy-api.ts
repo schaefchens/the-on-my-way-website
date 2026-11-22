@@ -13,6 +13,11 @@
  *                           uploads var/bootstrap.json with {"adminEmail": {"from", "to"}}, which the app
  *                           applies on the next request like bin/set-admin-email.php (sessions stay
  *                           valid), and updates .secrets/api-admin.txt. Runs only when passed.
+ *   --set-env-file=FILE     merge the ACCESS_* keys of the local FILE (KEY=value lines, read literally)
+ *                           into the remote /.env before the upload: existing lines of those keys are
+ *                           replaced, new ones appended, everything else stays. Only key names are
+ *                           printed, never values. Unknown ACCESS_* names, other keys, values with a
+ *                           quote or a line break are refused. With --dry-run: shows new/changed keys.
  *   --concurrency=N         parallel SFTP uploads (default 4)
  *   --skip-http-checks      deploy over SFTP only; no HTTPS checks and no smoke round-trips (for when
  *                           this machine cannot reach the web server, e.g. a temporary IP block;
@@ -112,6 +117,8 @@ interface Options {
   rotateFeedId: boolean;
   /** --set-admin-email=NEW: new login e-mail for the admin (null = unchanged). */
   setAdminEmail: string | null;
+  /** --set-env-file=FILE: local file whose ACCESS_* keys are merged into the remote .env (null = none). */
+  setEnvFile: string | null;
   concurrency: number;
 }
 
@@ -164,6 +171,7 @@ export function parseArgs(argv: string[]): Options {
     resetAdminPassword: false,
     rotateFeedId: false,
     setAdminEmail: null,
+    setEnvFile: null,
     concurrency: 4,
   };
   for (const arg of argv) {
@@ -179,13 +187,17 @@ export function parseArgs(argv: string[]): Options {
       if (!EMAIL_RE.test(email) || email.length > 254)
         throw new DeployError('--set-admin-email needs an e-mail address');
       options.setAdminEmail = email;
+    } else if (arg.startsWith('--set-env-file=')) {
+      const file = arg.slice('--set-env-file='.length).trim();
+      if (file === '') throw new DeployError('--set-env-file needs a file name');
+      options.setEnvFile = resolve(file);
     } else if (arg.startsWith('--concurrency=')) {
       const n = Number(arg.slice('--concurrency='.length));
       if (!Number.isInteger(n) || n < 1 || n > 16) throw new DeployError('--concurrency must be 1..16');
       options.concurrency = n;
     } else if (arg === '--help' || arg === '-h') {
       log(
-        'Usage: node --import tsx scripts/deploy-api.ts [--dry-run] [--no-smoke] [--skip-composer] [--reset-admin-password] [--rotate-feed-id] [--set-admin-email=NEW] [--concurrency=N] [--skip-http-checks | --checks-only]',
+        'Usage: node --import tsx scripts/deploy-api.ts [--dry-run] [--no-smoke] [--skip-composer] [--reset-admin-password] [--rotate-feed-id] [--set-admin-email=NEW] [--set-env-file=FILE] [--concurrency=N] [--skip-http-checks | --checks-only]',
       );
       process.exit(0);
     } else throw new DeployError(`Unknown option: ${arg}`);
@@ -194,10 +206,14 @@ export function parseArgs(argv: string[]): Options {
     throw new DeployError('--checks-only and --skip-http-checks exclude each other');
   if (
     options.checksOnly &&
-    (options.dryRun || options.resetAdminPassword || options.rotateFeedId || options.setAdminEmail !== null)
+    (options.dryRun ||
+      options.resetAdminPassword ||
+      options.rotateFeedId ||
+      options.setAdminEmail !== null ||
+      options.setEnvFile !== null)
   ) {
     throw new DeployError(
-      '--checks-only does not deploy: drop --dry-run/--reset-admin-password/--rotate-feed-id/--set-admin-email',
+      '--checks-only does not deploy: drop --dry-run/--reset-admin-password/--rotate-feed-id/--set-admin-email/--set-env-file',
     );
   }
   return options;
@@ -221,6 +237,110 @@ export function parseDotEnv(text: string): Record<string, string> {
     out[match[1]] = value;
   }
   return out;
+}
+
+/**
+ * The access-gate keys of api/.env (api/src/AccessConfig.php AccessConfig::KEYS; a backend test
+ * keeps both lists equal). --set-env-file merges only these.
+ */
+export const ACCESS_ENV_KEYS = [
+  'ACCESS_STORE_MODE',
+  'ACCESS_STORE_DIR',
+  'ACCESS_STORE_SFTP_HOST',
+  'ACCESS_STORE_SFTP_PORT',
+  'ACCESS_STORE_SFTP_USER',
+  'ACCESS_STORE_SFTP_KEY_FILE',
+  'ACCESS_STORE_SFTP_KEY_PASSPHRASE',
+  'ACCESS_STORE_SFTP_PASSWORD',
+  'ACCESS_STORE_SFTP_HOSTKEYS',
+  'ACCESS_STORE_SFTP_ROOT',
+  'ACCESS_STORE_SFTP_ALLOW_SITE_LOGIN',
+  'ACCESS_STORE_DIR_MODE',
+  'ACCESS_STORE_FILE_MODE',
+  'ACCESS_COOKIE_MODE',
+  'ACCESS_COOKIE_DOMAIN',
+  'ACCESS_MAX_DEVICES',
+  'ACCESS_GATE_PROBE',
+] as const;
+
+/** Values written without quotes; anything else goes into single quotes (phpdotenv: literal). */
+const BARE_ENV_VALUE = /^[A-Za-z0-9._/:,+=@%-]*$/;
+
+/**
+ * Reads a --set-env-file: KEY=value lines (parseDotEnv), only ACCESS_* names of ACCESS_ENV_KEYS.
+ * Refuses (DeployError, naming the key, never the value) other keys, unknown ACCESS_* names, an
+ * empty file and values with a quote, a backslash or a control character (they cannot be written
+ * literally into a phpdotenv file).
+ */
+export function readAccessEnv(text: string): Record<string, string> {
+  const values = parseDotEnv(text);
+  const known = new Set<string>(ACCESS_ENV_KEYS);
+  const keys = Object.keys(values);
+  if (keys.length === 0) throw new DeployError('--set-env-file: the file sets no key');
+  for (const key of keys) {
+    if (!key.startsWith('ACCESS_'))
+      throw new DeployError(`--set-env-file: only ACCESS_* keys are merged, refusing ${key}`);
+    if (!known.has(key)) throw new DeployError(`--set-env-file: unknown key ${key} (typo?)`);
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: control characters are what is refused.
+    if (/['"\\\u0000-\u001f\u007f]/.test(values[key] ?? ''))
+      throw new DeployError(`--set-env-file: the value of ${key} contains a quote, backslash or control character`);
+  }
+  return values;
+}
+
+export interface EnvChange {
+  key: string;
+  change: 'new' | 'changed' | 'unchanged';
+}
+
+/**
+ * Merges `updates` into the text of a .env file: the last line that sets a key is replaced (earlier
+ * duplicates are dropped, so the file holds one value per key), keys not present are appended
+ * under one comment line; comments, blank lines and every other key stay byte for byte. Returns
+ * the new text and, per key, whether it is new, changed or unchanged (no values).
+ */
+export function mergeEnvText(
+  current: string,
+  updates: Record<string, string>,
+  note = `# Access gate keys (merged by scripts/deploy-api.ts --set-env-file, ${new Date().toISOString()})`,
+): { text: string; changes: EnvChange[] } {
+  const before = parseDotEnv(current);
+  const line = (key: string) => {
+    const value = updates[key] ?? '';
+    return `${key}=${BARE_ENV_VALUE.test(value) ? value : `'${value}'`}`;
+  };
+  const lines = current.split(/\r?\n/);
+  if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+  const lastIndex = new Map<string, number>();
+  lines.forEach((raw, i) => {
+    const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(raw);
+    if (m?.[1] && m[1] in updates) lastIndex.set(m[1], i);
+  });
+  const out: string[] = [];
+  lines.forEach((raw, i) => {
+    const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(raw);
+    const key = m?.[1];
+    if (key && key in updates) {
+      if (lastIndex.get(key) === i) out.push(line(key));
+      return;
+    }
+    out.push(raw);
+  });
+  const missing = Object.keys(updates).filter((key) => !lastIndex.has(key));
+  if (missing.length > 0) {
+    if (out.length > 0 && out[out.length - 1]?.trim() !== '') out.push('');
+    out.push(note, ...missing.map(line));
+  }
+  const changes: EnvChange[] = Object.keys(updates).map((key) => ({
+    key,
+    change: !(key in before) ? 'new' : before[key] === updates[key] ? 'unchanged' : 'changed',
+  }));
+  return { text: `${out.join('\n')}\n`, changes };
+}
+
+/** "ACCESS_STORE_MODE (changed), ACCESS_STORE_DIR (new)": key names only, never values. */
+export function describeEnvChanges(changes: EnvChange[]): string {
+  return changes.map((c) => `${c.key} (${c.change})`).join(', ');
 }
 
 function loadTarget(): Target {
@@ -536,11 +656,19 @@ export function maskEmail(email: string): string {
   return at <= 0 ? '***' : `${email[0]}***${email.slice(at)}`;
 }
 
+/**
+ * A new random admin password (first deploy, --reset-admin-password): 24 random bytes as base64url,
+ * 32 characters, well above the API's minimum of 12 (Passwords::MIN_LENGTH, PASSWORD_MIN_LENGTH).
+ */
+export function generateAdminPassword(): string {
+  return randomToken(24);
+}
+
 /** Creates (or reuses) the local secrets of the first admin and the backend token. */
 function prepareSecrets(target: Target, resetPassword: boolean): BootstrapSecrets {
   const existing = readAdminSecret();
   const email = existing?.email ?? target.adminEmail;
-  const password = existing && !resetPassword ? existing.password : randomToken(24);
+  const password = existing && !resetPassword ? existing.password : generateAdminPassword();
   const token = existsSync(TOKEN_SECRET) ? readFileSync(TOKEN_SECRET, 'utf8').trim() : `omw_${randomToken(32)}`;
   if (!/^omw_[A-Za-z0-9_-]{43}$/.test(token)) throw new DeployError(`${TOKEN_SECRET} does not contain a valid token`);
   writeAdminSecret(target, email, password);
@@ -841,6 +969,16 @@ async function main(): Promise<number> {
     `target: ${target.baseUrl} (sftp ${target.host}:${target.port}, root ${target.remoteRoot})${options.dryRun ? ' [dry run]' : ''}`,
   );
 
+  // Read and check the env file before anything is staged or connected (its values are never printed).
+  const accessEnv =
+    options.setEnvFile === null
+      ? null
+      : (() => {
+          if (!existsSync(options.setEnvFile))
+            throw new DeployError(`--set-env-file: ${options.setEnvFile} is missing`);
+          return readAccessEnv(readFileSync(options.setEnvFile, 'utf8'));
+        })();
+
   const { adminBuilt } = stage(options);
   const local = manifestOf(BUILD_DIR);
   log(`local: ${Object.keys(local).length} files`);
@@ -934,6 +1072,18 @@ async function main(): Promise<number> {
     if (upload.length > 15) log(`  … ${upload.length - 15} more`);
     for (const path of remove.slice(0, 15)) log(`  - ${path}`);
     if (!envExists) log('  first deploy: will create /.env (random CRON_KEY -> .secrets/api-cron-key)');
+    // The merge is computed against the current remote .env (or the one the first deploy creates).
+    let envMerge: { text: string; changes: EnvChange[] } | null = null;
+    if (accessEnv !== null) {
+      const remoteEnv = envExists ? await remote.readText('.env') : null;
+      if (envExists && remoteEnv === null) throw new DeployError('the remote .env exists but cannot be read');
+      envMerge = mergeEnvText(remoteEnv ?? '', accessEnv);
+      const changed = envMerge.changes.filter((c) => c.change !== 'unchanged');
+      log(
+        `  .env: ${changed.length === 0 ? 'access keys already set' : `merge ${describeEnvChanges(changed)}`}${changed.length < envMerge.changes.length ? `; unchanged: ${envMerge.changes.filter((c) => c.change === 'unchanged').length}` : ''} (values not shown)`,
+      );
+      if (changed.length === 0) envMerge = null;
+    }
     if (needsBootstrap) {
       log(
         `  bootstrap: var/bootstrap.json${!dbExists ? ` (admin ${readAdminSecret()?.email ?? target.adminEmail} + backend token -> .secrets/)` : ''}${options.resetAdminPassword ? ' (new admin password)' : ''}${options.rotateFeedId ? ' (rotate feed id)' : ''}${emailChange ? ` (admin e-mail ${maskEmail(emailChange.from)} -> ${maskEmail(emailChange.to)})` : ''}`,
@@ -950,6 +1100,14 @@ async function main(): Promise<number> {
       writeSecret(CRON_SECRET, `${cronKey}\n`);
       await remote.putAtomic('.env', productionEnv(target, cronKey), 0o600);
       log(`created remote .env (CRON_KEY saved to ${relative(ROOT, CRON_SECRET)})`);
+    }
+    if (envMerge !== null) {
+      // On a first deploy the .env just created is the base (it holds no access keys yet).
+      const base = envExists
+        ? envMerge.text
+        : mergeEnvText((await remote.readText('.env')) ?? '', accessEnv ?? {}).text;
+      await remote.putAtomic('.env', base, 0o600);
+      log(`merged ${envMerge.changes.filter((c) => c.change !== 'unchanged').length} access keys into the remote .env`);
     }
     if (!varExists) {
       await remote.ensureDir('var');

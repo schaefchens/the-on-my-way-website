@@ -2,6 +2,7 @@
 import type { CaptureListResponse } from '@omw/contracts/api';
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { lastChangeStore, statusPollMs } from '../lib/publish';
+import { accessApi } from './access';
 import { adminApi } from './client';
 import { type CaptureFilter, qk } from './keys';
 
@@ -69,3 +70,58 @@ export const capturesQuery = (filter: CaptureFilter = {}) =>
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
+
+// ---------------------------------------------------------------------------------------------
+// People and access (wave 5, spec §7.2): names, devices and last-seen times are never written to
+// IndexedDB (meta.persist = false), so they are fetched fresh and refetched on focus.
+
+const NOT_PERSISTED = { persist: false } as const;
+
+/** GET /admin/access: lock, writer, store, gate check and up to 3 pending devices WITH names. */
+export const accessStatusQuery = () =>
+  queryOptions({
+    queryKey: qk.access.status,
+    queryFn: ({ signal }) => accessApi.status(signal),
+    staleTime: 5_000,
+    refetchOnWindowFocus: 'always',
+    meta: NOT_PERSISTED,
+  });
+
+export const followersQuery = () =>
+  queryOptions({
+    queryKey: qk.access.followers,
+    queryFn: ({ signal }) => accessApi.followers(signal),
+    staleTime: 10_000,
+    refetchOnWindowFocus: 'always',
+    meta: NOT_PERSISTED,
+  });
+
+export const followerQuery = (fid: string) =>
+  queryOptions({
+    queryKey: qk.access.follower(fid),
+    queryFn: ({ signal }) => accessApi.follower(fid, signal),
+    staleTime: 10_000,
+    refetchOnWindowFocus: 'always',
+    meta: NOT_PERSISTED,
+  });
+
+export const privacyQuery = () =>
+  queryOptions({
+    queryKey: qk.access.privacy,
+    queryFn: ({ signal }) => accessApi.privacy(signal),
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    meta: NOT_PERSISTED,
+  });
+
+export const noticesQuery = () =>
+  queryOptions({
+    queryKey: qk.access.notices,
+    queryFn: ({ signal }) => accessApi.notices(signal),
+    staleTime: 30_000,
+    refetchOnWindowFocus: 'always',
+    meta: NOT_PERSISTED,
+  });
+
+/** Home polls the access status every minute while visible and devices are waiting (§7.5). */
+export const ACCESS_POLL_MS = 60_000;

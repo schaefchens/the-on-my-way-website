@@ -1,0 +1,27 @@
+{
+  "_comment": "Seeded as the privacy notice draft (spec-wave5 Appendix A). Template - not legal advice. {backupDays} is replaced with BACKUP_KEEP when the draft is seeded. Wave 6 must publish a new version before it stores views, reactions, messages or e-mail addresses.",
+  "controller": {
+    "name": "",
+    "email": ""
+  },
+  "texts": {
+    "de": {
+      "title": "Datenschutzhinweise",
+      "intro": "Diese Seite zeigt Reiseerlebnisse nur Menschen, die persönlich eingeladen wurden. Bevor du beitrittst, erklären wir kurz, was dabei gespeichert wird.",
+      "collected": "Unter einer zufälligen Kennung, die nur für dich angelegt wurde, speichern wir: den Namen, den die einladende Person für dich eingetragen hat; für jedes Gerät, mit dem du beitrittst, Gerätetyp und Browser (z. B. „iPhone · Safari“), wann es beigetreten ist und wann es die Seite zuletzt geöffnet hat; wann du welche Version dieser Hinweise bestätigt hast.\n\nAuf deinem Gerät speichern wir nur Cookies, die für den Zugang nötig sind: eine Sitzung, einen Geräteschlüssel und beim Beitreten kurzlebige Hilfs-Cookies. Der Webhoster protokolliert technisch bedingt IP-Adressen in Server-Logs.",
+      "audience": "Die einladende Person sieht deinen Namen, deine Geräte und wann sie zuletzt genutzt wurden. Andere eingeladene Personen sehen nichts davon.",
+      "purpose": "Die Daten dienen nur dazu, die Seite ausschließlich eingeladenen Personen zu zeigen, neue Geräte freizugeben und Missbrauch wie weitergeleitete Links zu erkennen.",
+      "retention": "Die Daten bleiben gespeichert, solange du eingeladen bist, und auch nachdem dein Zugang beendet wurde, bis du oder die einladende Person sie löscht. Sicherungskopien auf dem Server werden nach höchstens {backupDays} Tagen überschrieben; heruntergeladene Sicherungskopien löscht die einladende Person spätestens nach derselben Frist.",
+      "rights": "Du kannst jederzeit Auskunft verlangen, deine Daten exportieren, berichtigen und löschen lassen. Du kannst dich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren."
+    },
+    "en": {
+      "title": "Privacy information",
+      "intro": "This page shows travel moments only to people who were personally invited. Before you join, here is what is stored.",
+      "collected": "Under a random identifier created just for you, we store: the name the person who invited you entered for you; for each device you join with, its type and browser (e.g. “iPhone · Safari”), when it joined and when it last opened the page; when you confirmed which version of this information.\n\nYour device keeps only cookies that are needed for access: a session, a device key and, while joining, short-lived helper cookies. For technical reasons the web host logs IP addresses in its server logs.",
+      "audience": "The person who invited you sees your name, your devices and when they were last used. Other invited people see none of this.",
+      "purpose": "The data is used only to show the page to invited people, to approve new devices and to notice misuse such as forwarded links.",
+      "retention": "The data is kept while you are invited and also after your access has ended, until you or the person who invited you deletes it. Backups on the server are overwritten after at most {backupDays} days; the person who invited you deletes downloaded backup copies within the same period.",
+      "rights": "You can ask what is stored, export it, have it corrected and deleted at any time. You can also complain to a data protection authority."
+    }
+  }
+}

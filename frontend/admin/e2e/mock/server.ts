@@ -6,7 +6,10 @@
  *                  with Cache-Control: no-cache, hashed assets immutable
  *   /__mock/*      test control: POST reset | publish | day/<date> (edit elsewhere) | alerts |
  *                  capture ({minutesAgo, caption}: a fresh status) | settings (stored as is) |
- *                  revoke/<sourceKey> (deleted on WhatsApp), GET state | log
+ *                  revoke/<sourceKey> (deleted on WhatsApp), GET state | log;
+ *                  access (wave 5): POST access (writer mode, store, gate check, … as is) |
+ *                  access/ack (the Mac applied everything) | device ({fid, label?, minutesAgo?, state?}:
+ *                  a join; answers {did}) | notice ({kind}) | self-delete/<fid> (me/delete)
  *
  *   node --conditions=@omw/source --import tsx e2e/mock/server.ts --port 51750 [--dist <dir>]
  * Without --dist only the API is served (use it as OMW_API_DEV_URL for `vite` dev).
@@ -122,6 +125,20 @@ export async function startMockServer(opts: {
         else if (action.startsWith('revoke/')) {
           if (!api.revokeCapture(decodeURIComponent(action.slice('revoke/'.length)))) {
             return send(res, { status: 404, json: { error: 'unknown capture' } });
+          }
+        } else if (action === 'access') api.access.setState(parsed as never);
+        else if (action === 'access/ack') api.access.ack();
+        else if (action === 'device') {
+          const { fid, ...opts } = parsed as { fid: string; label?: string; minutesAgo?: number; state?: 'pending' };
+          return send(res, { status: 200, json: { did: api.access.addDevice(fid, opts) } });
+        } else if (action === 'notice') {
+          return send(res, {
+            status: 200,
+            json: { id: api.access.addNotice((parsed.kind as never) ?? 'follower_deleted') },
+          });
+        } else if (action.startsWith('self-delete/')) {
+          if (!api.access.selfDelete(action.slice('self-delete/'.length))) {
+            return send(res, { status: 404, json: { error: 'unknown follower' } });
           }
         } else if (action === 'state') return send(res, { status: 200, json: api.snapshot() });
         else if (action === 'log') return send(res, { status: 200, json: api.log });

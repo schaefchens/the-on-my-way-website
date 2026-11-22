@@ -1,3 +1,4 @@
+export * from './access.js';
 export * from './api.js';
 export * from './common.js';
 export * from './i18n.js';

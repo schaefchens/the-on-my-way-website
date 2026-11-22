@@ -1,6 +1,6 @@
 /**
  * The profile on the pre-rendered first screen (pages.ts, twin.ts): the home hero (portrait,
- * name, greeting), the player's avatar ring, <meta name="author">, the Boot JSON of day/story
+ * name, greeting), the player's avatar ring, no <meta name="author"> (neutral previews), the Boot JSON of day/story
  * pages and the no-JS article. The shared fixtures' demo owner has a profile ("Lea", a de and an
  * en greeting, the Hà Nội photo as portrait with focus {0.5, 0.4}).
  */
@@ -58,14 +58,15 @@ describe('PageStyles.objectPosition', () => {
 });
 
 describe.skipIf(!present)('profile on the first screen', SLOW, () => {
-  it('home: portrait, name and greeting in the twin; author meta; article lead', async () => {
+  it('home: portrait, name and greeting in the twin; no author meta; article lead', async () => {
     h = await createHarness();
     await h.generator.generate();
     const timeline = readJson<TimelineIndex>(h, 'data/timeline.json');
     const avatar = timeline.profile?.avatar;
     expect(avatar).toBeDefined();
     const de = readOut(h, 'de/index.html');
-    expect(de).toContain('<meta name="author" content="Lea">');
+    // Neutral link previews (spec-wave5 §5.2): the name is never in a meta tag.
+    expect(de).not.toContain('name="author"');
     const hero = heroOf(twinOf(de));
     expect(hero).toContain('>Lea</p>');
     expect(hero).toMatch(/<p lang="de" dir="auto" data-user-text class="[^"]*font-hand[^"]*">Hallo ihr Lieben!/);
@@ -120,7 +121,7 @@ describe.skipIf(!present)('profile on the first screen', SLOW, () => {
     const page = readOut(h, `de/day/${day.date}/index.html`);
     const boot = bootOf(page) as Boot;
     expect(boot.profile).toEqual(timeline.profile);
-    expect(page).toContain('<meta name="author" content="Lea">');
+    expect(page).not.toContain('name="author"');
     const header =
       /<span class="grid size-10 shrink-0 place-items-center rounded-pill bg-linear-to-br[\s\S]*?<\/span><\/span>/.exec(
         twinOf(page),

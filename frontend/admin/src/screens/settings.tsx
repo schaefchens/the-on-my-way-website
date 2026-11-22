@@ -1,8 +1,9 @@
 /**
- * Settings: one-tap time zone from this device, publish mode and delay (with what each means),
- * about you (name, greeting, portrait: settings-profile.tsx), site title, languages and
- * search-engine visibility, alert targets, this app's language and theme, API tokens (shown
- * once) and logout.
+ * Settings: people and access, safety options and the privacy notice (own screens), one-tap time
+ * zone from this device, publish mode and delay (with what each means), about you (name,
+ * greeting, portrait: settings-profile.tsx), site title, languages and search-engine visibility,
+ * alert targets, this app's language and theme, API tokens (shown once), password change and
+ * logout.
  */
 import { msg } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -12,16 +13,18 @@ import { effectiveCaptureVisibility } from '@omw/contracts/policy';
 import { formatDateTime, formatRelative, formatTime } from '@omw/ui/locale';
 import { type ThemePreference, useThemePreference } from '@omw/ui/theme';
 import { type QueryClient, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useRouteContext } from '@tanstack/react-router';
+import { Link, useNavigate, useRouteContext } from '@tanstack/react-router';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { cachedCaptures } from '../api/cache';
 import { adminApi } from '../api/client';
 import { qk } from '../api/keys';
-import { capturesQuery, settingsQuery, tokensQuery } from '../api/queries';
+import { capturesQuery, settingsQuery, statusQuery, tokensQuery } from '../api/queries';
 import {
   AlertIcon,
   BellIcon,
+  BookIcon,
   CheckIcon,
+  ChevronRightIcon,
   ClockIcon,
   CopyIcon,
   GlobeIcon,
@@ -29,12 +32,15 @@ import {
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
+  PeopleIcon,
   SendIcon,
+  ShieldIcon,
   SunIcon,
   TrashIcon,
 } from '../components/icons';
 import { InstallAction } from '../components/install';
 import { PUBLISH_MODE_LABEL } from '../components/labels';
+import { PasswordSheet } from '../components/password-sheet';
 import {
   Badge,
   Button,
@@ -854,6 +860,67 @@ function TokensSection() {
   );
 }
 
+function AccessLink({
+  to,
+  icon: IconCmp,
+  title,
+  description,
+  badge,
+}: {
+  to: '/people' | '/settings/safety' | '/settings/privacy';
+  icon: typeof PeopleIcon;
+  title: ReactNode;
+  description: ReactNode;
+  badge?: number;
+}) {
+  return (
+    <li>
+      <Link to={to} className="press flex items-center gap-3 rounded-tile bg-bg px-3.5 py-3 hover:bg-blush/60">
+        <span className="grid size-10 shrink-0 place-items-center rounded-pill bg-blush text-accent">
+          <IconCmp className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-bold">{title}</span>
+          <span className="block text-sm text-muted">{description}</span>
+        </span>
+        {badge ? <Badge tone="rose">{badge}</Badge> : null}
+        <ChevronRightIcon className="size-5 text-muted" flip />
+      </Link>
+    </li>
+  );
+}
+
+/** People and access, safety options, privacy notice (wave 5): their own screens. */
+function AccessSection() {
+  const status = useQuery(statusQuery());
+  const pending = status.data?.access?.pendingDevices ?? 0;
+  return (
+    <Section icon={ShieldIcon} title={<Trans>Who sees your journey</Trans>}>
+      <ul className="space-y-2">
+        <AccessLink
+          to="/people"
+          icon={PeopleIcon}
+          title={<Trans>People & access</Trans>}
+          description={<Trans>Invite, allow devices, end access</Trans>}
+          badge={pending}
+        />
+        <AccessLink
+          to="/settings/safety"
+          icon={ShieldIcon}
+          title={<Trans>Safety</Trans>}
+          description={<Trans>Release times, departure hold, lock, panic link</Trans>}
+        />
+        <AccessLink
+          to="/settings/privacy"
+          icon={BookIcon}
+          title={<Trans>Privacy notice</Trans>}
+          description={<Trans>What people read before they join</Trans>}
+        />
+      </ul>
+    </Section>
+  );
+}
+
 function AccountSection() {
   const { t } = useLingui();
   const { me } = useRouteContext({ from: '/authed' });
@@ -861,6 +928,7 @@ function AccountSection() {
   const navigate = useNavigate();
   const pending = usePendingWrites().length;
   const [confirm, setConfirm] = useState(false);
+  const [changing, setChanging] = useState(false);
   async function doLogout() {
     // Leave the signed-in screens first, so nothing refetches (401) while the data is wiped.
     await navigate({ to: '/login' });
@@ -873,14 +941,20 @@ function AccountSection() {
           <p className="font-bold">{me.displayName ?? me.email}</p>
           <p className="truncate text-sm text-muted">{me.email}</p>
         </div>
-        <Button
-          variant="secondary"
-          icon={LogOutIcon}
-          onClick={() => (pending > 0 ? setConfirm(true) : void doLogout())}
-        >
-          <Trans>Log out</Trans>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" icon={KeyIcon} data-testid="password-open" onClick={() => setChanging(true)}>
+            <Trans>Change password</Trans>
+          </Button>
+          <Button
+            variant="secondary"
+            icon={LogOutIcon}
+            onClick={() => (pending > 0 ? setConfirm(true) : void doLogout())}
+          >
+            <Trans>Log out</Trans>
+          </Button>
+        </div>
       </div>
+      <PasswordSheet open={changing} onClose={() => setChanging(false)} />
       <Dialog
         open={confirm}
         onClose={() => setConfirm(false)}
@@ -913,6 +987,9 @@ export function SettingsScreen() {
   return (
     <>
       <ScreenHeader eyebrow={<Trans>how your journal behaves</Trans>} title={<Trans>Settings</Trans>} />
+      <div className="mb-5">
+        <AccessSection />
+      </div>
       <QueryError error={q.error && !q.data ? q.error : null} onRetry={() => void q.refetch()} />
       {q.isPending && (
         <div className="space-y-4">

@@ -11,6 +11,7 @@
  *   fixtures/generated/index.json                                 what was generated (tz, dates, …)
  *   fixtures/vectors/{ids,time,policy,mode-switch,placement,trips}.json
  *                                                                 cross-runtime test vectors (PHP)
+ *   fixtures/vectors/{release,time-buckets,access-paths}.json    wave 5 vectors (vectors-w5.ts)
  *
  *   pnpm fixtures --owner-only
  *
@@ -68,6 +69,7 @@ import {
   RevokeRecord,
   type StatusSource,
 } from '@omw/contracts/wa';
+import { accessPathVectors, publishedPostVectors, releaseVectors, timeBucketVectors } from './vectors-w5.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'fixtures', 'generated');
@@ -822,8 +824,17 @@ async function writeVectors(entries: IndexEntry[]): Promise<void> {
   for (const sourceKey of keys) ids.push({ sourceKey, publicId: await publicIdForSourceKey(sourceKey) });
   writeFileSync(
     join(VECTORS, 'ids.json'),
-    json({ description: 'publicId = "e_" + base32_rfc4648_lower(sha256(utf8(sourceKey)))[0..12] (D4)', cases: ids }),
+    json({
+      description:
+        'publicId = "e_" + base32_rfc4648_lower(sha256(utf8(sourceKey)))[0..12] (D4); publishedPost: the ' +
+        'published id of an owner post = "p_" + base32_rfc4648_lower(sha256(utf8("post:" + publicId)))[0..16] (E16)',
+      cases: ids,
+      publishedPost: await publishedPostVectors(),
+    }),
   );
+  writeFileSync(join(VECTORS, 'release.json'), json(await releaseVectors()));
+  writeFileSync(join(VECTORS, 'time-buckets.json'), json(timeBucketVectors()));
+  writeFileSync(join(VECTORS, 'access-paths.json'), json(accessPathVectors()));
 
   const instants: [string, string][] = [
     ['2026-11-15T16:59:59Z', HCM],

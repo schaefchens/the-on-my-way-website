@@ -12,6 +12,14 @@ msgstr ""
 msgid "…/trip/{0}/"
 msgstr "…/trip/{0}/"
 
+#: src/screens/person.tsx
+msgid "“{label}” sees only the neutral page from now on. To use it again, {name} opens the link again and you allow the device."
+msgstr "“{label}” sees only the neutral page from now on. To use it again, {name} opens the link again and you allow the device."
+
+#: src/screens/safety.tsx
+msgid "“Here now” on the site"
+msgstr "“Here now” on the site"
+
 #: src/components/status.tsx
 msgid "(by the publish setting)"
 msgstr "(by the publish setting)"
@@ -20,10 +28,30 @@ msgstr "(by the publish setting)"
 msgid "(empty)"
 msgstr "(empty)"
 
+#. placeholder {0}: report.deleted
+#: src/screens/safety.tsx
+msgid "{0, plural, =0 {nothing to fix} one {# file fixed} other {# files fixed}}"
+msgstr "{0, plural, =0 {nothing to fix} one {# file fixed} other {# files fixed}}"
+
 #. placeholder {0}: active.length
 #: src/screens/home.tsx
 msgid "{0, plural, one {# alert} other {# alerts}}"
 msgstr "{0, plural, one {# alert} other {# alerts}}"
+
+#. placeholder {0}: status.pendingOps
+#: src/screens/safety.tsx
+msgid "{0, plural, one {# change} other {# changes}}"
+msgstr "{0, plural, one {# change} other {# changes}}"
+
+#. placeholder {0}: summary.devices
+#: src/screens/people.tsx
+msgid "{0, plural, one {# device has to join again with a new link ({names}).} other {# devices have to join again with a new link ({names}).}}"
+msgstr "{0, plural, one {# device has to join again with a new link ({names}).} other {# devices have to join again with a new link ({names}).}}"
+
+#. placeholder {0}: report.missing.length
+#: src/screens/safety.tsx
+msgid "{0, plural, one {# device missing} other {# devices missing}}"
+msgstr "{0, plural, one {# device missing} other {# devices missing}}"
 
 #. placeholder {0}: drafts.length
 #: src/screens/home.tsx
@@ -34,6 +62,11 @@ msgstr "{0, plural, one {# draft on this device} other {# drafts on this device}
 #: src/screens/days.tsx
 msgid "{0, plural, one {# hidden} other {# hidden}}"
 msgstr "{0, plural, one {# hidden} other {# hidden}}"
+
+#. placeholder {0}: summary.people
+#: src/screens/people.tsx
+msgid "{0, plural, one {# person is missing from the backup and has to be invited again.} other {# people are missing from the backup and have to be invited again.}}"
+msgstr "{0, plural, one {# person is missing from the backup and has to be invited again.} other {# people are missing from the backup and have to be invited again.}}"
 
 #. placeholder {0}: g.items.length
 #: src/screens/inbox.tsx
@@ -47,11 +80,24 @@ msgstr "{0, plural, one {# status} other {# statuses}}"
 msgid "{0, plural, one {# waiting} other {# waiting}}"
 msgstr "{0, plural, one {# waiting} other {# waiting}}"
 
+#. placeholder {0}: q.data?.pendingDevices ?? count
+#: src/screens/home.tsx
+msgid "{0, plural, one {A new device is waiting} other {# new devices are waiting}}"
+msgstr "{0, plural, one {A new device is waiting} other {# new devices are waiting}}"
+
 #. placeholder {0}: zoneOffset(current)
 #. placeholder {1}: formatTime(new Date(), current, locale)
 #: src/screens/settings.tsx
 msgid "{0} · it is {1} there"
 msgstr "{0} · it is {1} there"
+
+#: src/screens/people.tsx
+msgid "{active, plural, =0 {no device yet} one {# device} other {# devices}}"
+msgstr "{active, plural, =0 {no device yet} one {# device} other {# devices}}"
+
+#: src/components/password-sheet.tsx
+msgid "{appTokens, plural, one {Also end all app access (# token)} other {Also end all app access (# tokens)}}"
+msgstr "{appTokens, plural, one {Also end all app access (# token)} other {Also end all app access (# tokens)}}"
 
 #: src/components/conflict-dialog.tsx
 msgid "{autoMerged, plural, one {# other change of yours does not collide and is kept.} other {# other changes of yours do not collide and are kept.}}"
@@ -109,6 +155,14 @@ msgstr "{left} left"
 msgid "{lost, plural, one {# status could not be downloaded from WhatsApp.} other {# statuses could not be downloaded from WhatsApp.}}"
 msgstr "{lost, plural, one {# status could not be downloaded from WhatsApp.} other {# statuses could not be downloaded from WhatsApp.}}"
 
+#: src/screens/safety.tsx
+msgid "{MAX_SLOTS, plural, other {Up to # times a day.}}"
+msgstr "{MAX_SLOTS, plural, other {Up to # times a day.}}"
+
+#: src/screens/safety.tsx
+msgid "{maxDays, plural, one {At most # day} other {At most # days}}"
+msgstr "{maxDays, plural, one {At most # day} other {At most # days}}"
+
 #: src/screens/days.tsx
 msgid "{moments, plural, one {# moment} other {# moments}}"
 msgstr "{moments, plural, one {# moment} other {# moments}}"
@@ -116,6 +170,22 @@ msgstr "{moments, plural, one {# moment} other {# moments}}"
 #: src/components/conflict-dialog.tsx
 msgid "{more, plural, one {# more conflict after this one.} other {# more conflicts after this one.}}"
 msgstr "{more, plural, one {# more conflict after this one.} other {# more conflicts after this one.}}"
+
+#: src/screens/home.tsx
+msgid "{more, plural, one {+ # more} other {+ # more}}"
+msgstr "{more, plural, one {+ # more} other {+ # more}}"
+
+#: src/screens/home.tsx
+msgid "{n, plural, one {{place}: # day waits until she has moved on (at the latest {until})} other {{place}: # days wait until she has moved on (at the latest {until})}}"
+msgstr "{n, plural, one {{place}: # day waits until she has moved on (at the latest {until})} other {{place}: # days wait until she has moved on (at the latest {until})}}"
+
+#: src/screens/person.tsx
+msgid "{name} already has {n} devices. Remove one first."
+msgstr "{name} already has {n} devices. Remove one first."
+
+#: src/screens/person.tsx
+msgid "{name} sees only the neutral page from now on. What {name} has already seen stays with them. Stored data is kept."
+msgstr "{name} sees only the neutral page from now on. What {name} has already seen stays with them. Stored data is kept."
 
 #: src/components/portrait.tsx
 msgid "{notOffered, plural, one {# photo is not offered: deleted on WhatsApp, lost or still processing.} other {# photos are not offered: deleted on WhatsApp, lost or still processing.}}"
@@ -135,8 +205,16 @@ msgid "{pending, plural, one {Sending # change…} other {Sending # changes…}}
 msgstr "{pending, plural, one {Sending # change…} other {Sending # changes…}}"
 
 #: src/screens/home.tsx
+msgid "{people, plural, one {# person} other {# people}}"
+msgstr "{people, plural, one {# person} other {# people}}"
+
+#: src/screens/home.tsx
 msgid "{unsent, plural, one {# update could not be sent to the server yet; it keeps trying.} other {# updates could not be sent to the server yet; it keeps trying.}}"
 msgstr "{unsent, plural, one {# update could not be sent to the server yet; it keeps trying.} other {# updates could not be sent to the server yet; it keeps trying.}}"
+
+#: src/screens/people.tsx
+msgid "{waiting, plural, one {# waiting} other {# waiting}}"
+msgstr "{waiting, plural, one {# waiting} other {# waiting}}"
 
 #: src/components/conflict-dialog.tsx
 msgid "{your} “<0>{short}</0>” from {when}"
@@ -154,6 +232,10 @@ msgstr "0 to 8760 hours"
 msgid "1 to 10080 minutes"
 msgstr "1 to 10080 minutes"
 
+#: src/screens/layout.tsx
+msgid "A device is waiting"
+msgstr "A device is waiting"
+
 #: src/screens/trips.tsx
 msgid "a new chapter"
 msgstr "a new chapter"
@@ -169,6 +251,18 @@ msgstr "a page for your journal"
 #: src/screens/composer.tsx
 msgid "a page of your journal"
 msgstr "a page of your journal"
+
+#: src/screens/safety.tsx
+msgid "A panic link exists."
+msgstr "A panic link exists."
+
+#: src/screens/home.tsx
+msgid "A person deleted their data · {date}"
+msgstr "A person deleted their data · {date}"
+
+#: src/screens/safety.tsx
+msgid "A secret link that locks the website without logging in, e.g. for someone you trust. Unlocking works only here."
+msgstr "A secret link that locks the website without logging in, e.g. for someone you trust. Unlocking works only here."
 
 #: src/screens/days.tsx
 msgid "A sentence or two for the day page."
@@ -186,13 +280,69 @@ msgstr "A trip bundles days into a chapter of the timeline, with its own page."
 msgid "About you"
 msgstr "About you"
 
+#: src/screens/person.tsx
+msgid "Access"
+msgstr "Access"
+
+#: src/screens/safety.tsx
+msgid "Access checked on {provenOn}"
+msgstr "Access checked on {provenOn}"
+
+#: src/screens/person.tsx
+msgid "access ended"
+msgstr "access ended"
+
+#: src/screens/people.tsx
+msgid "Access ended"
+msgstr "Access ended"
+
+#: src/screens/people.tsx
+msgid "Access ended {endedOn}"
+msgstr "Access ended {endedOn}"
+
+#: src/screens/person.tsx
+msgid "Access ended for {name}"
+msgstr "Access ended for {name}"
+
+#: src/screens/person.tsx
+msgid "Access ended on {endedOn}."
+msgstr "Access ended on {endedOn}."
+
+#: src/screens/safety.tsx
+msgid "Access not checked yet"
+msgstr "Access not checked yet"
+
+#: src/screens/safety.tsx
+msgid "access not confirmed!"
+msgstr "access not confirmed!"
+
+#: src/screens/safety.tsx
+msgid "Access proven"
+msgstr "Access proven"
+
+#: src/screens/safety.tsx
+msgid "Access status"
+msgstr "Access status"
+
 #: src/screens/settings.tsx
 msgid "Account"
 msgstr "Account"
 
+#: src/screens/person.tsx
+msgid "Active"
+msgstr "Active"
+
+#: src/screens/safety.tsx
+msgid "Add"
+msgstr "Add"
+
 #: src/screens/days.tsx
 msgid "Add a note to this day"
 msgstr "Add a note to this day"
+
+#: src/screens/safety.tsx
+msgid "Add a time"
+msgstr "Add a time"
 
 #: src/screens/home.tsx
 msgid "Add a title and the place."
@@ -202,9 +352,33 @@ msgstr "Add a title and the place."
 msgid "Add to your home screen"
 msgstr "Add to your home screen"
 
+#: src/screens/privacy.tsx
+msgid "Address"
+msgstr "Address"
+
+#: src/screens/people.tsx
+msgid "After a restore"
+msgstr "After a restore"
+
+#: src/api/access.ts
+msgid "After a restore, access is still being checked. Try again in a minute."
+msgstr "After a restore, access is still being checked. Try again in a minute."
+
+#: src/screens/people.tsx
+msgid "After a restore: checking access…"
+msgstr "After a restore: checking access…"
+
+#: src/screens/home.tsx
+msgid "After a restore: please look at People · {date}"
+msgstr "After a restore: please look at People · {date}"
+
 #: src/components/labels.ts
 msgid "After review"
 msgstr "After review"
+
+#: src/components/password-sheet.tsx
+msgid "Afterwards every other device that is logged in has to log in again."
+msgstr "Afterwards every other device that is logged in has to log in again."
 
 #: src/screens/settings.tsx
 msgid "Alert after (minutes without heartbeat)"
@@ -222,13 +396,34 @@ msgstr "Alerts"
 msgid "All"
 msgstr "All"
 
+#: src/screens/person.tsx
+msgid "All data of a person deleted"
+msgstr "All data of a person deleted"
+
+#: src/screens/person.tsx
+msgid "All devices of {name} see only the neutral page."
+msgstr "All devices of {name} see only the neutral page."
+
+#: src/screens/person.tsx
+msgid "All people"
+msgstr "All people"
+
 #: src/screens/home.tsx
 msgid "All statuses"
 msgstr "All statuses"
 
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Allow"
+msgstr "Allow"
+
 #: src/screens/settings.tsx
 msgid "Already captured statuses keep their day; fix single days in the day editor."
 msgstr "Already captured statuses keep their day; fix single days in the day editor."
+
+#: src/screens/person.tsx
+msgid "Also remove {name} from your WhatsApp status audience."
+msgstr "Also remove {name} from your WhatsApp status audience."
 
 #: src/screens/trips.tsx
 msgid "Another trip already uses this address."
@@ -267,6 +462,10 @@ msgstr "Applies to statuses since {0}. Everything published before stays online.
 msgid "Apply"
 msgstr "Apply"
 
+#: src/screens/privacy.tsx
+msgid "As people see it on the info screen."
+msgstr "As people see it on the info screen."
+
 #: src/screens/inbox.tsx
 msgid "As soon as you post a WhatsApp status, it shows up here."
 msgstr "As soon as you post a WhatsApp status, it shows up here."
@@ -275,9 +474,29 @@ msgstr "As soon as you post a WhatsApp status, it shows up here."
 msgid "As soon as your computer at home publishes, you will see it here."
 msgstr "As soon as your computer at home publishes, you will see it here."
 
+#: src/screens/people.tsx
+msgid "As they will see it: “This link is for {shown}.”"
+msgstr "As they will see it: “This link is for {shown}.”"
+
 #: src/screens/settings-profile.tsx
 msgid "At most {max} characters"
 msgstr "At most {max} characters"
+
+#: src/screens/people.tsx
+msgid "At most {NAME_MAX} characters"
+msgstr "At most {NAME_MAX} characters"
+
+#: src/screens/people.tsx
+msgid "At most {NOTE_MAX} characters"
+msgstr "At most {NOTE_MAX} characters"
+
+#: src/screens/person.tsx
+msgid "At most 200 characters"
+msgstr "At most 200 characters"
+
+#: src/screens/person.tsx
+msgid "At most 60 characters"
+msgstr "At most 60 characters"
 
 #: src/screens/days.tsx
 #: src/screens/item.tsx
@@ -300,6 +519,10 @@ msgstr "Back on its own day"
 msgid "Back to the day it was captured"
 msgstr "Back to the day it was captured"
 
+#: src/screens/people.tsx
+msgid "Before anyone can join, publish the privacy notice."
+msgstr "Before anyone can join, publish the privacy notice."
+
 #: src/screens/days.tsx
 msgid "Between -180 and 180"
 msgstr "Between -180 and 180"
@@ -308,7 +531,23 @@ msgstr "Between -180 and 180"
 msgid "Between -90 and 90"
 msgstr "Between -90 and 90"
 
+#: src/screens/people.tsx
+msgid "by themselves"
+msgstr "by themselves"
+
+#: src/screens/people.tsx
+msgid "by you"
+msgstr "by you"
+
+#: src/components/lock-card.tsx
+msgid "by you in the admin"
+msgstr "by you in the admin"
+
+#: src/components/confirm-sheet.tsx
+#: src/components/password-sheet.tsx
 #: src/components/portrait.tsx
+#: src/screens/people.tsx
+#: src/screens/person.tsx
 #: src/screens/trips.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -316,6 +555,11 @@ msgstr "Cancel"
 #: src/screens/settings-profile.tsx
 msgid "Change"
 msgstr "Change"
+
+#: src/components/password-sheet.tsx
+#: src/screens/settings.tsx
+msgid "Change password"
+msgstr "Change password"
 
 #: src/api/conflicts.ts
 msgid "Changed elsewhere, and the newer version could not be loaded."
@@ -325,6 +569,10 @@ msgstr "Changed elsewhere, and the newer version could not be loaded."
 msgid "Changed on another device"
 msgstr "Changed on another device"
 
+#: src/components/lock-card.tsx
+msgid "Changes not in effect yet"
+msgstr "Changes not in effect yet"
+
 #: src/screens/layout.tsx
 #: src/screens/settings.tsx
 msgid "Changes not sent yet"
@@ -333,6 +581,10 @@ msgstr "Changes not sent yet"
 #: src/screens/composer.tsx
 msgid "Changes saved"
 msgstr "Changes saved"
+
+#: src/screens/safety.tsx
+msgid "Changes waiting"
+msgstr "Changes waiting"
 
 #: src/screens/trips.tsx
 msgid "chapter by chapter"
@@ -366,12 +618,18 @@ msgstr "Choose your portrait"
 msgid "Chosen from the day covers of the trip."
 msgstr "Chosen from the day covers of the trip."
 
+#: src/components/confirm-sheet.tsx
 #: src/components/conflict-dialog.tsx
+#: src/components/effect-badge.tsx
 #: src/components/install.tsx
+#: src/components/link-sheet.tsx
+#: src/components/lock-card.tsx
+#: src/components/password-sheet.tsx
 #: src/components/portrait.tsx
 #: src/components/unsaved.tsx
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
+#: src/screens/people.tsx
 #: src/screens/settings.tsx
 #: src/screens/trips.tsx
 msgid "Close"
@@ -398,6 +656,7 @@ msgstr "Connecting…"
 msgid "Coordinates (optional)"
 msgstr "Coordinates (optional)"
 
+#: src/components/link-sheet.tsx
 #: src/screens/settings.tsx
 msgid "Copied"
 msgstr "Copied"
@@ -405,6 +664,10 @@ msgstr "Copied"
 #: src/screens/settings.tsx
 msgid "Copy"
 msgstr "Copy"
+
+#: src/components/link-sheet.tsx
+msgid "Copy link"
+msgstr "Copy link"
 
 #: src/components/ui.tsx
 msgid "Could not load this."
@@ -447,6 +710,26 @@ msgstr "Cover (automatic)"
 msgid "Cover removed"
 msgstr "Cover removed"
 
+#: src/screens/person.tsx
+msgid "Create a new link?"
+msgstr "Create a new link?"
+
+#: src/screens/safety.tsx
+msgid "Create a new one"
+msgstr "Create a new one"
+
+#: src/screens/people.tsx
+msgid "Create link"
+msgstr "Create link"
+
+#: src/screens/person.tsx
+msgid "Create new link"
+msgstr "Create new link"
+
+#: src/screens/safety.tsx
+msgid "Create panic link"
+msgstr "Create panic link"
+
 #: src/screens/settings.tsx
 msgid "Create token"
 msgstr "Create token"
@@ -458,6 +741,10 @@ msgstr "Create trip"
 #: src/screens/settings.tsx
 msgid "Current"
 msgstr "Current"
+
+#: src/components/password-sheet.tsx
+msgid "Current password"
+msgstr "Current password"
 
 #: src/screens/trips.tsx
 msgid "Dates"
@@ -491,6 +778,15 @@ msgstr "Days appear as soon as there is a status or a note."
 msgid "Days or trips"
 msgstr "Days or trips"
 
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Decline"
+msgstr "Decline"
+
+#: src/screens/person.tsx
+msgid "Declined"
+msgstr "Declined"
+
 #: src/screens/settings.tsx
 msgid "default"
 msgstr "default"
@@ -516,6 +812,18 @@ msgstr "Delayed"
 msgid "Delete"
 msgstr "Delete"
 
+#: src/screens/person.tsx
+msgid "Delete all data of {name}?"
+msgstr "Delete all data of {name}?"
+
+#: src/screens/person.tsx
+msgid "Delete all data of this person"
+msgstr "Delete all data of this person"
+
+#: src/screens/person.tsx
+msgid "Delete for good"
+msgstr "Delete for good"
+
 #: src/screens/composer.tsx
 msgid "Delete this note?"
 msgstr "Delete this note?"
@@ -532,13 +840,35 @@ msgstr "Delete this trip?"
 msgid "Delete trip"
 msgstr "Delete trip"
 
+#: src/screens/person.tsx
+msgid "Delete…"
+msgstr "Delete…"
+
 #: src/screens/composer.tsx
+#: src/screens/people.tsx
 msgid "Deleted"
 msgstr "Deleted"
 
 #: src/screens/inbox.tsx
 msgid "Deleted on WhatsApp"
 msgstr "Deleted on WhatsApp"
+
+#: src/screens/home.tsx
+#: src/screens/safety.tsx
+msgid "Departure hold"
+msgstr "Departure hold"
+
+#: src/screens/safety.tsx
+msgid "Departure hold off"
+msgstr "Departure hold off"
+
+#: src/screens/safety.tsx
+msgid "Departure hold on"
+msgstr "Departure hold on"
+
+#: src/screens/safety.tsx
+msgid "Departure hold saved"
+msgstr "Departure hold saved"
 
 #: src/screens/inbox.tsx
 msgid "Describe"
@@ -560,12 +890,31 @@ msgstr "Description saved"
 
 #: src/components/feedback.tsx
 #: src/components/ui.tsx
+#: src/screens/home.tsx
 msgid "Details"
 msgstr "Details"
 
 #: src/screens/home.tsx
 msgid "Details are on the control page of your computer at home."
 msgstr "Details are on the control page of your computer at home."
+
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Device allowed for {name}"
+msgstr "Device allowed for {name}"
+
+#: src/screens/home.tsx
+#: src/screens/person.tsx
+msgid "Device declined"
+msgstr "Device declined"
+
+#: src/screens/person.tsx
+msgid "Device removed"
+msgstr "Device removed"
+
+#: src/screens/person.tsx
+msgid "Devices"
+msgstr "Devices"
 
 #: src/components/unsaved.tsx
 #: src/screens/days.tsx
@@ -590,11 +939,16 @@ msgstr "Disconnected"
 msgid "Dismiss"
 msgstr "Dismiss"
 
+#: src/components/link-sheet.tsx
+msgid "Done"
+msgstr "Done"
+
 #: src/screens/settings.tsx
 msgid "Done, I saved it"
 msgstr "Done, I saved it"
 
 #: src/screens/composer.tsx
+#: src/screens/privacy.tsx
 msgid "Draft saved"
 msgstr "Draft saved"
 
@@ -611,11 +965,16 @@ msgstr "Drafts are saved on this device while you write."
 msgid "Drafts stay on this device."
 msgstr "Drafts stay on this device."
 
+#: src/screens/people.tsx
+msgid "during a restore"
+msgstr "during a restore"
+
 #: src/screens/settings.tsx
 msgid "Dusk"
 msgstr "Dusk"
 
 #: src/screens/login.tsx
+#: src/screens/privacy.tsx
 #: src/screens/settings.tsx
 msgid "E-mail"
 msgstr "E-mail"
@@ -627,6 +986,10 @@ msgstr "E-mail or password is not right."
 #: src/screens/settings.tsx
 msgid "e.g. Computer at home"
 msgstr "e.g. Computer at home"
+
+#: src/screens/people.tsx
+msgid "e.g. Grandma"
+msgstr "e.g. Grandma"
 
 #: src/screens/days.tsx
 msgid "e.g. Hội An"
@@ -652,6 +1015,10 @@ msgstr "Edit"
 msgid "Edit an existing post from its day"
 msgstr "Edit an existing post from its day"
 
+#: src/screens/person.tsx
+msgid "Edit name and note"
+msgstr "Edit name and note"
+
 #: src/screens/composer.tsx
 msgid "Edit note"
 msgstr "Edit note"
@@ -673,6 +1040,18 @@ msgstr "Editor mode"
 msgid "End"
 msgstr "End"
 
+#: src/screens/person.tsx
+msgid "End access"
+msgstr "End access"
+
+#: src/screens/person.tsx
+msgid "End access for {name}?"
+msgstr "End access for {name}?"
+
+#: src/components/lock-card.tsx
+msgid "Enter your password. Invited people then see the journey again right away."
+msgstr "Enter your password. Invited people then see the journey again right away."
+
 #: src/components/labels.ts
 msgid "Error"
 msgstr "Error"
@@ -685,9 +1064,45 @@ msgstr "Every day in this range belongs to the trip."
 msgid "Every new status appears on the site within about a minute."
 msgstr "Every new status appears on the site within about a minute."
 
+#: src/components/lock-card.tsx
+msgid "Everyone else sees a neutral page."
+msgstr "Everyone else sees a neutral page."
+
+#: src/components/lock-card.tsx
+msgid "Everyone immediately sees only the neutral page, invited people too. Nothing is deleted."
+msgstr "Everyone immediately sees only the neutral page, invited people too. Nothing is deleted."
+
+#: src/components/lock-card.tsx
+msgid "Everyone sees only the neutral page, invited people too."
+msgstr "Everyone sees only the neutral page, invited people too."
+
+#: src/screens/privacy.tsx
+msgid "Everyone sees the new text on their next visit and confirms it."
+msgstr "Everyone sees the new text on their next visit and confirms it."
+
 #: src/screens/home.tsx
 msgid "Everything is live"
 msgstr "Everything is live"
+
+#: src/screens/person.tsx
+msgid "Everything stored about {name}, as a file."
+msgstr "Everything stored about {name}, as a file."
+
+#: src/screens/safety.tsx
+msgid "Exact"
+msgstr "Exact"
+
+#: src/screens/safety.tsx
+msgid "Exact times or only the part of the day."
+msgstr "Exact times or only the part of the day."
+
+#: src/screens/settings-profile.tsx
+msgid "Expected: {expectedAt}"
+msgstr "Expected: {expectedAt}"
+
+#: src/screens/person.tsx
+msgid "Export data"
+msgstr "Export data"
 
 #: src/screens/days.tsx
 msgid "Fill in both coordinates or none."
@@ -700,6 +1115,18 @@ msgstr "Findable by search engines"
 #: src/screens/trips.tsx
 msgid "First day"
 msgstr "First day"
+
+#: src/screens/person.tsx
+msgid "first device"
+msgstr "first device"
+
+#: src/screens/safety.tsx
+msgid "Followers see only “in the morning”, “in the evening” …"
+msgstr "Followers see only “in the morning”, “in the evening” …"
+
+#: src/screens/safety.tsx
+msgid "Followers see the time, e.g. 08:40."
+msgstr "Followers see the time, e.g. 08:40."
 
 #: src/lib/captures.ts
 msgid "Follows the publish setting again"
@@ -726,9 +1153,25 @@ msgstr "Follows your publish setting."
 msgid "For"
 msgstr "For"
 
+#: src/screens/person.tsx
+msgid "For a lost link. Connected devices stay connected."
+msgstr "For a lost link. Connected devices stay connected."
+
+#: src/screens/person.tsx
+msgid "For a request that reaches you some other way. Cannot be undone."
+msgstr "For a request that reaches you some other way. Cannot be undone."
+
+#: src/screens/people.tsx
+msgid "For safety, every personal link was reset: a link you replaced after the backup must not work again. Connected devices stay connected. For a new device, create a new link:"
+msgstr "For safety, every personal link was reset: a link you replaced after the backup must not work again. Connected devices stay connected. For a new device, create a new link:"
+
 #: src/screens/settings.tsx
 msgid "For your computer at home and future apps. A token is shown only once."
 msgstr "For your computer at home and future apps. A token is shown only once."
+
+#: src/screens/safety.tsx
+msgid "Gate check not possible (since {blindOn})"
+msgstr "Gate check not possible (since {blindOn})"
 
 #: src/components/labels.ts
 msgid "GIF"
@@ -778,6 +1221,10 @@ msgstr "Greeting removed"
 msgid "Greeting saved"
 msgstr "Greeting saved"
 
+#: src/screens/person.tsx
+msgid "Has not confirmed a privacy notice yet"
+msgstr "Has not confirmed a privacy notice yet"
+
 #: src/screens/home.tsx
 msgid "Hello, <0>{name}</0>"
 msgstr "Hello, <0>{name}</0>"
@@ -785,6 +1232,10 @@ msgstr "Hello, <0>{name}</0>"
 #: src/screens/settings-profile.tsx
 msgid "Hello, lovely people! So glad you are coming along."
 msgstr "Hello, lovely people! So glad you are coming along."
+
+#: src/screens/safety.tsx
+msgid "here now"
+msgstr "here now"
 
 #: src/components/labels.ts
 #: src/screens/composer.tsx
@@ -805,6 +1256,7 @@ msgstr "Hidden from the site"
 msgid "Hide"
 msgstr "Hide"
 
+#: src/components/password-sheet.tsx
 #: src/screens/login.tsx
 msgid "Hide password"
 msgstr "Hide password"
@@ -817,6 +1269,14 @@ msgstr "Hide statuses I delete on WhatsApp"
 msgid "Home"
 msgstr "Home"
 
+#: src/screens/privacy.tsx
+msgid "How long"
+msgstr "How long"
+
+#: src/screens/safety.tsx
+msgid "How much of the current place the start of your site shows."
+msgstr "How much of the current place the start of your site shows."
+
 #: src/screens/home.tsx
 msgid "How was your day?"
 msgstr "How was your day?"
@@ -825,9 +1285,21 @@ msgstr "How was your day?"
 msgid "how your journal behaves"
 msgstr "how your journal behaves"
 
+#: src/screens/person.tsx
+msgid "I understand that everything is deleted for good"
+msgstr "I understand that everything is deleted for good"
+
 #: src/screens/days.tsx
 msgid "If items of this day were sorted in with the wrong time zone, choose the right one here."
 msgstr "If items of this day were sorted in with the wrong time zone, choose the right one here."
+
+#: src/screens/people.tsx
+msgid "If you had a panic link, create it again under Safety."
+msgstr "If you had a panic link, create it again under Safety."
+
+#: src/components/effect-badge.tsx
+msgid "In effect ✓"
+msgstr "In effect ✓"
 
 #: src/screens/home.tsx
 #: src/screens/inbox.tsx
@@ -840,9 +1312,37 @@ msgstr "Inbox"
 msgid "Install as an app"
 msgstr "Install as an app"
 
+#: src/screens/safety.tsx
+msgid "Instant, delayed or after your review: in Settings → Publishing."
+msgstr "Instant, delayed or after your review: in Settings → Publishing."
+
 #: src/components/labels.ts
 msgid "Instantly"
 msgstr "Instantly"
+
+#: src/screens/privacy.tsx
+msgid "Introduction"
+msgstr "Introduction"
+
+#: src/screens/people.tsx
+msgid "Invite a person"
+msgstr "Invite a person"
+
+#: src/screens/people.tsx
+msgid "Invite the people who may follow your journey. Each of them gets their own link."
+msgstr "Invite the people who may follow your journey. Each of them gets their own link."
+
+#: src/screens/settings.tsx
+msgid "Invite, allow devices, end access"
+msgstr "Invite, allow devices, end access"
+
+#: src/screens/people.tsx
+msgid "Invited"
+msgstr "Invited"
+
+#: src/screens/person.tsx
+msgid "Invited on {invitedOn}"
+msgstr "Invited on {invitedOn}"
 
 #: src/screens/composer.tsx
 msgid "It disappears from the site with the next publish. This cannot be undone."
@@ -875,6 +1375,10 @@ msgstr "Keep editing"
 msgid "Keep it private"
 msgstr "Keep it private"
 
+#: src/components/lock-card.tsx
+msgid "Keep locked"
+msgstr "Keep locked"
+
 #: src/components/conflict-dialog.tsx
 msgid "Keep newer version"
 msgstr "Keep newer version"
@@ -894,6 +1398,7 @@ msgstr "Kind"
 #: src/screens/composer.tsx
 #: src/screens/days.tsx
 #: src/screens/item.tsx
+#: src/screens/privacy.tsx
 #: src/screens/trips.tsx
 msgid "Language"
 msgstr "Language"
@@ -901,6 +1406,14 @@ msgstr "Language"
 #: src/screens/settings-profile.tsx
 msgid "Language of the greeting"
 msgstr "Language of the greeting"
+
+#: src/components/link-sheet.tsx
+msgid "Language of the message"
+msgstr "Language of the message"
+
+#: src/screens/privacy.tsx
+msgid "Language of the notice"
+msgstr "Language of the notice"
 
 #: src/screens/settings.tsx
 msgid "Language of this app"
@@ -914,14 +1427,34 @@ msgstr "Languages changed"
 msgid "Languages of the site"
 msgstr "Languages of the site"
 
+#: src/screens/safety.tsx
+msgid "Last “moved on”: {movedOnAt}"
+msgstr "Last “moved on”: {movedOnAt}"
+
+#: src/screens/safety.tsx
+msgid "Last change applied"
+msgstr "Last change applied"
+
 #: src/screens/trips.tsx
 msgid "Last day"
 msgstr "Last day"
+
+#: src/screens/safety.tsx
+msgid "Last gate check"
+msgstr "Last gate check"
 
 #. placeholder {0}: ago(seen)
 #: src/screens/home.tsx
 msgid "Last heartbeat {0}"
 msgstr "Last heartbeat {0}"
+
+#: src/screens/safety.tsx
+msgid "Last in {name}"
+msgstr "Last in {name}"
+
+#: src/screens/safety.tsx
+msgid "Last in {place}"
+msgstr "Last in {place}"
 
 #: src/screens/home.tsx
 msgid "Last known publish {knownAt}."
@@ -930,6 +1463,14 @@ msgstr "Last known publish {knownAt}."
 #: src/screens/home.tsx
 msgid "Last published {lastAt}."
 msgstr "Last published {lastAt}."
+
+#: src/screens/safety.tsx
+msgid "Last repair check"
+msgstr "Last repair check"
+
+#: src/screens/person.tsx
+msgid "last seen {seen}"
+msgstr "last seen {seen}"
 
 #: src/screens/home.tsx
 msgid "Last status {lastStatus}"
@@ -951,6 +1492,22 @@ msgstr "Live"
 #: src/screens/inbox.tsx
 msgid "Load older statuses"
 msgstr "Load older statuses"
+
+#: src/components/lock-card.tsx
+msgid "Lock now"
+msgstr "Lock now"
+
+#: src/components/lock-card.tsx
+msgid "Lock the website now?"
+msgstr "Lock the website now?"
+
+#: src/components/lock-card.tsx
+msgid "Locked"
+msgstr "Locked"
+
+#: src/components/lock-card.tsx
+msgid "Locked since {lockedSince}"
+msgstr "Locked since {lockedSince}"
 
 #: src/screens/login.tsx
 msgid "Log in"
@@ -979,18 +1536,35 @@ msgstr "Longitude"
 msgid "Main"
 msgstr "Main"
 
+#: src/screens/home.tsx
+#: src/screens/safety.tsx
+msgid "Marked as moved on"
+msgstr "Marked as moved on"
+
 #: src/screens/settings.tsx
 msgid "Matches this device"
 msgstr "Matches this device"
+
+#: src/screens/safety.tsx
+msgid "Maximum number of days"
+msgstr "Maximum number of days"
 
 #: src/components/capture.tsx
 #: src/screens/item.tsx
 msgid "Media lost"
 msgstr "Media lost"
 
+#: src/components/password-sheet.tsx
+msgid "Medium"
+msgstr "Medium"
+
 #: src/api/conflicts.ts
 msgid "Merged with a newer version from another device."
 msgstr "Merged with a newer version from another device."
+
+#: src/components/link-sheet.tsx
+msgid "Message in"
+msgstr "Message in"
 
 #: src/screens/item.tsx
 msgid "Move"
@@ -1009,6 +1583,9 @@ msgstr "Moved here by you. Captured on {0}."
 msgid "Moved to another day"
 msgstr "Moved to another day"
 
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+#: src/screens/privacy.tsx
 #: src/screens/settings.tsx
 msgid "Name"
 msgstr "Name"
@@ -1037,6 +1614,14 @@ msgstr "never used"
 msgid "new"
 msgstr "new"
 
+#: src/screens/home.tsx
+msgid "New device for <0>{name}</0> · {label} · {ago}"
+msgstr "New device for <0>{name}</0> · {label} · {ago}"
+
+#: src/screens/safety.tsx
+msgid "New entries wait until she has left the place (a later day at another place), until you tap “She has moved on”, or at most {maxDays} days."
+msgstr "New entries wait until she has left the place (a later day at another place), until you tap “She has moved on”, or at most {maxDays} days."
+
 #: src/screens/layout.tsx
 msgid "New entry"
 msgstr "New entry"
@@ -1044,6 +1629,14 @@ msgstr "New entry"
 #: src/screens/composer.tsx
 msgid "New note"
 msgstr "New note"
+
+#: src/components/password-sheet.tsx
+msgid "New password"
+msgstr "New password"
+
+#: src/screens/person.tsx
+msgid "New personal link"
+msgstr "New personal link"
 
 #: src/screens/settings.tsx
 msgid "New statuses appear after a delay, so nobody can see where you are right now. Hide something in the meantime and it never appears."
@@ -1068,6 +1661,10 @@ msgstr "New statuses wait in the inbox until you release them one by one."
 #: src/screens/composer.tsx
 msgid "New story"
 msgstr "New story"
+
+#: src/screens/safety.tsx
+msgid "New things appear only at these times ({zone}). Removing something works at once."
+msgstr "New things appear only at these times ({zone}). Removing something works at once."
 
 #: src/screens/trips.tsx
 msgid "New trip"
@@ -1113,9 +1710,17 @@ msgstr "No days yet"
 msgid "No description yet"
 msgstr "No description yet"
 
+#: src/screens/person.tsx
+msgid "No device yet. As soon as {name} opens the link, the device appears here."
+msgstr "No device yet. As soon as {name} opens the link, the device appears here."
+
 #: src/screens/home.tsx
 msgid "No news from your computer at home yet"
 msgstr "No news from your computer at home yet"
+
+#: src/screens/safety.tsx
+msgid "No panic link yet."
+msgstr "No panic link yet."
 
 #: src/components/portrait.tsx
 msgid "No photos yet"
@@ -1149,13 +1754,49 @@ msgstr "No tokens yet."
 msgid "No trips yet"
 msgstr "No trips yet"
 
+#: src/screens/privacy.tsx
+msgid "No version published yet. Nobody can join until you publish the first one."
+msgstr "No version published yet. Nobody can join until you publish the first one."
+
+#: src/screens/safety.tsx
+msgid "Nobody sees where she is right now, only where she has been."
+msgstr "Nobody sees where she is right now, only where she has been."
+
+#: src/screens/people.tsx
+msgid "Nobody yet"
+msgstr "Nobody yet"
+
+#: src/screens/safety.tsx
+msgid "none"
+msgstr "none"
+
 #: src/screens/trips.tsx
 msgid "None"
 msgstr "None"
 
+#: src/screens/safety.tsx
+msgid "not checked"
+msgstr "not checked"
+
 #: src/screens/home.tsx
 msgid "Not checking in"
 msgstr "Not checking in"
+
+#: src/screens/privacy.tsx
+msgid "Not complete yet:"
+msgstr "Not complete yet:"
+
+#: src/screens/person.tsx
+msgid "Not here any more"
+msgstr "Not here any more"
+
+#: src/components/effect-badge.tsx
+msgid "Not in effect yet ⏳ – the website storage cannot be reached right now"
+msgstr "Not in effect yet ⏳ – the website storage cannot be reached right now"
+
+#: src/components/effect-badge.tsx
+msgid "Not in effect yet ⏳ – your computer at home applies it as soon as it runs"
+msgstr "Not in effect yet ⏳ – your computer at home applies it as soon as it runs"
 
 #: src/components/install.tsx
 #: src/screens/home.tsx
@@ -1171,9 +1812,23 @@ msgstr "Not published yet"
 msgid "Not saved yet"
 msgstr "Not saved yet"
 
+#: src/screens/privacy.tsx
+msgid "Not saved yet. Save the draft first, then publish it."
+msgstr "Not saved yet. Save the draft first, then publish it."
+
 #: src/lib/rescue.ts
 msgid "Not saved: {reason}. Your text is back in your drafts."
 msgstr "Not saved: {reason}. Your text is back in your drafts."
+
+#: src/api/access.ts
+#: src/components/effect-badge.tsx
+#: src/components/lock-card.tsx
+#: src/components/password-sheet.tsx
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+#: src/screens/privacy.tsx
+msgid "Not sent – no connection"
+msgstr "Not sent – no connection"
 
 #: src/screens/days.tsx
 #: src/screens/item.tsx
@@ -1193,6 +1848,10 @@ msgstr "Not shown on the site until its first public day"
 msgid "Not supported"
 msgstr "Not supported"
 
+#: src/screens/safety.tsx
+msgid "not yet"
+msgstr "not yet"
+
 #: src/components/labels.ts
 #: src/screens/composer.tsx
 #: src/screens/home.tsx
@@ -1202,6 +1861,10 @@ msgstr "Note"
 #: src/screens/composer.tsx
 msgid "Note ({tab})"
 msgstr "Note ({tab})"
+
+#: src/screens/safety.tsx
+msgid "Nothing"
+msgstr "Nothing"
 
 #: src/screens/inbox.tsx
 msgid "Nothing here"
@@ -1219,6 +1882,10 @@ msgstr "Nothing to preview yet."
 msgid "Nothing yet: the site shows its usual line."
 msgstr "Nothing yet: the site shows its usual line."
 
+#: src/screens/home.tsx
+msgid "Notices"
+msgstr "Notices"
+
 #: src/components/feedback.tsx
 msgid "Notifications"
 msgstr "Notifications"
@@ -1232,33 +1899,82 @@ msgstr "now"
 msgid "Now your portrait"
 msgstr "Now your portrait"
 
+#: src/screens/safety.tsx
+msgid "Off by default: everything appears as your publish mode says."
+msgstr "Off by default: everything appears as your publish mode says."
+
 #: src/screens/settings.tsx
 msgid "Off: only people with the link find the site."
 msgstr "Off: only people with the link find the site."
+
+#: src/screens/privacy.tsx
+msgid "Offline: saving needs a connection."
+msgstr "Offline: saving needs a connection."
+
+#: src/screens/safety.tsx
+msgid "ok"
+msgstr "ok"
+
+#: src/screens/home.tsx
+#: src/screens/people.tsx
+msgid "OK"
+msgstr "OK"
 
 #: src/screens/days.tsx
 msgid "On this day"
 msgstr "On this day"
 
+#: src/components/lock-card.tsx
+msgid "on your computer at home"
+msgstr "on your computer at home"
+
 #: src/screens/settings-profile.tsx
 msgid "On your site"
 msgstr "On your site"
+
+#: src/screens/people.tsx
+msgid "Once, before the first person joins: the website then knows which devices may enter."
+msgstr "Once, before the first person joins: the website then knows which devices may enter."
 
 #: src/components/install.tsx
 msgid "One tap to write, full screen, and it works offline."
 msgstr "One tap to write, full screen, and it works offline."
 
+#: src/screens/person.tsx
+msgid "Only allow devices you can match to this person. If in doubt, ask them quickly."
+msgstr "Only allow devices you can match to this person. If in doubt, ask them quickly."
+
+#: src/screens/safety.tsx
+msgid "Only at fixed times"
+msgstr "Only at fixed times"
+
 #: src/screens/days.tsx
 msgid "Only days that need love"
 msgstr "Only days that need love"
+
+#: src/screens/people.tsx
+msgid "Only for you, optional."
+msgstr "Only for you, optional."
+
+#: src/screens/person.tsx
+msgid "Only for you."
+msgstr "Only for you."
 
 #: src/screens/login.tsx
 msgid "Only for you. You stay logged in on this device."
 msgstr "Only for you. You stay logged in on this device."
 
+#: src/components/lock-card.tsx
+msgid "Only invited people see the journey"
+msgstr "Only invited people see the journey"
+
 #: src/screens/trips.tsx
 msgid "Only lowercase letters, digits and dashes."
 msgstr "Only lowercase letters, digits and dashes."
+
+#: src/screens/safety.tsx
+msgid "Only the country"
+msgstr "Only the country"
 
 #: src/screens/inbox.tsx
 msgid "Open {kind} from {time}"
@@ -1272,9 +1988,21 @@ msgstr "Open draft"
 msgid "Open the day"
 msgstr "Open the day"
 
+#: src/screens/people.tsx
+msgid "Open the privacy notice"
+msgstr "Open the privacy notice"
+
 #: src/components/install.tsx
 msgid "Open this page in Safari and tap <0/> <1>Share</1>."
 msgstr "Open this page in Safari and tap <0/> <1>Share</1>."
+
+#: src/screens/safety.tsx
+msgid "open!"
+msgstr "open!"
+
+#: src/screens/privacy.tsx
+msgid "Optional."
+msgstr "Optional."
 
 #: src/screens/composer.tsx
 #: src/screens/days.tsx
@@ -1304,9 +2032,49 @@ msgstr "page by page"
 msgid "Pairing…"
 msgstr "Pairing…"
 
+#: src/screens/safety.tsx
+msgid "Panic link"
+msgstr "Panic link"
+
+#: src/screens/safety.tsx
+msgid "Part of the day only"
+msgstr "Part of the day only"
+
+#: src/components/lock-card.tsx
 #: src/screens/login.tsx
 msgid "Password"
 msgstr "Password"
+
+#: src/components/password-sheet.tsx
+msgid "Password changed. Other devices were logged out."
+msgstr "Password changed. Other devices were logged out."
+
+#: src/screens/home.tsx
+#: src/screens/layout.tsx
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+msgid "People"
+msgstr "People"
+
+#: src/screens/settings.tsx
+msgid "People & access"
+msgstr "People & access"
+
+#: src/screens/safety.tsx
+msgid "People and access"
+msgstr "People and access"
+
+#: src/screens/people.tsx
+msgid "Person · deleted on {date}"
+msgstr "Person · deleted on {date}"
+
+#: src/screens/people.tsx
+msgid "Personal link for {name}"
+msgstr "Personal link for {name}"
+
+#: src/screens/person.tsx
+msgid "personally invited"
+msgstr "personally invited"
 
 #: src/components/labels.ts
 msgid "Photo"
@@ -1321,9 +2089,21 @@ msgstr "Pick one of your photos. Only a small round copy of it appears on the si
 msgid "Place"
 msgstr "Place"
 
+#: src/screens/safety.tsx
+msgid "Place + badge (as before)"
+msgstr "Place + badge (as before)"
+
+#: src/screens/safety.tsx
+msgid "Place without badge"
+msgstr "Place without badge"
+
 #: src/screens/settings-profile.tsx
 msgid "Plain text, shown handwritten under your name. Write it in one language or both."
 msgstr "Plain text, shown handwritten under your name. Write it in one language or both."
+
+#: src/screens/privacy.tsx
+msgid "Plain text. A blank line starts a new paragraph."
+msgstr "Plain text. A blank line starts a new paragraph."
 
 #: src/screens/trips.tsx
 msgid "Plan the first trip"
@@ -1347,12 +2127,27 @@ msgid "Portrait removed"
 msgstr "Portrait removed"
 
 #: src/screens/composer.tsx
+#: src/screens/privacy.tsx
 msgid "Preview"
 msgstr "Preview"
 
 #: src/screens/days.tsx
 msgid "Previous day"
 msgstr "Previous day"
+
+#: src/screens/privacy.tsx
+#: src/screens/settings.tsx
+msgid "Privacy notice"
+msgstr "Privacy notice"
+
+#: src/screens/person.tsx
+msgid "Privacy notice v{consentVersion} confirmed on {consentOn}"
+msgstr "Privacy notice v{consentVersion} confirmed on {consentOn}"
+
+#: src/screens/people.tsx
+#: src/screens/person.tsx
+msgid "Private note"
+msgstr "Private note"
 
 #: src/components/capture.tsx
 msgid "Processing…"
@@ -1366,9 +2161,15 @@ msgid "Public"
 msgstr "Public"
 
 #: src/screens/composer.tsx
+#: src/screens/privacy.tsx
 msgid "Publish"
 msgstr "Publish"
 
+#: src/screens/privacy.tsx
+msgid "Publish as version {nextVersion}"
+msgstr "Publish as version {nextVersion}"
+
+#: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Publish mode"
 msgstr "Publish mode"
@@ -1385,6 +2186,10 @@ msgstr "Publish now"
 #: src/screens/settings.tsx
 msgid "Publish the older waiting statuses?"
 msgstr "Publish the older waiting statuses?"
+
+#: src/screens/privacy.tsx
+msgid "Publish version {nextVersion}?"
+msgstr "Publish version {nextVersion}?"
 
 #: src/screens/settings.tsx
 msgid "Publish what is waiting?"
@@ -1424,6 +2229,10 @@ msgstr "Push notifications via ntfy.sh, e.g. https://ntfy.sh/my-secret-topic"
 msgid "Re-sort this day in this device's zone ({0})"
 msgstr "Re-sort this day in this device's zone ({0})"
 
+#: src/screens/privacy.tsx
+msgid "Ready to publish"
+msgstr "Ready to publish"
+
 #: src/screens/home.tsx
 msgid "Recently captured"
 msgstr "Recently captured"
@@ -1432,13 +2241,42 @@ msgstr "Recently captured"
 msgid "Recommended. Otherwise a deleted status stays in the journal."
 msgstr "Recommended. Otherwise a deleted status stays in the journal."
 
+#: src/components/password-sheet.tsx
+msgid "Recommended. Your computer at home keeps its access."
+msgstr "Recommended. Your computer at home keeps its access."
+
+#: src/screens/safety.tsx
+msgid "Release times"
+msgstr "Release times"
+
+#: src/screens/safety.tsx
+msgid "Release times off"
+msgstr "Release times off"
+
+#: src/screens/safety.tsx
+msgid "Release times on"
+msgstr "Release times on"
+
+#: src/screens/safety.tsx
+msgid "Release times saved"
+msgstr "Release times saved"
+
+#: src/screens/settings.tsx
+msgid "Release times, departure hold, lock, panic link"
+msgstr "Release times, departure hold, lock, panic link"
+
 #: src/components/feedback.tsx
 msgid "Reload"
 msgstr "Reload"
 
+#: src/screens/person.tsx
 #: src/screens/settings-profile.tsx
 msgid "Remove"
 msgstr "Remove"
+
+#: src/screens/safety.tsx
+msgid "Remove {time}"
+msgstr "Remove {time}"
 
 #: src/screens/item.tsx
 msgid "Remove as cover"
@@ -1456,9 +2294,25 @@ msgstr "Remove as the day's cover"
 msgid "Remove correction"
 msgstr "Remove correction"
 
+#: src/screens/person.tsx
+msgid "Remove device"
+msgstr "Remove device"
+
 #: src/screens/settings-profile.tsx
 msgid "Remove greeting"
 msgstr "Remove greeting"
+
+#: src/screens/person.tsx
+msgid "Remove this device?"
+msgstr "Remove this device?"
+
+#: src/screens/person.tsx
+msgid "Removed"
+msgstr "Removed"
+
+#: src/components/password-sheet.tsx
+msgid "Repeat the new password"
+msgstr "Repeat the new password"
 
 #: src/components/labels.ts
 msgid "Replaced by another session"
@@ -1468,11 +2322,26 @@ msgstr "Replaced by another session"
 msgid "Reset"
 msgstr "Reset"
 
+#: src/screens/privacy.tsx
+msgid "Responsible"
+msgstr "Responsible"
+
+#: src/screens/privacy.tsx
+msgid "Responsible: e-mail"
+msgstr "Responsible: e-mail"
+
+#: src/screens/privacy.tsx
+msgid "Responsible: name"
+msgstr "Responsible: name"
+
 #: src/components/conflict-dialog.tsx
 msgid "Restore with my change"
 msgstr "Restore with my change"
 
+#: src/components/effect-badge.tsx
+#: src/components/lock-card.tsx
 #: src/components/ui.tsx
+#: src/screens/safety.tsx
 msgid "Retry"
 msgstr "Retry"
 
@@ -1489,12 +2358,26 @@ msgstr "Revoke {0}"
 msgid "Revoke this token?"
 msgstr "Revoke this token?"
 
+#: src/screens/privacy.tsx
+msgid "Rights"
+msgstr "Rights"
+
 #: src/screens/home.tsx
 msgid "Running"
 msgstr "Running"
 
+#: src/screens/safety.tsx
+#: src/screens/settings.tsx
+msgid "Safety"
+msgstr "Safety"
+
+#: src/screens/privacy.tsx
+msgid "Same as version {currentVersion}. Change the text to publish a new version."
+msgstr "Same as version {currentVersion}. Change the text to publish a new version."
+
 #: src/components/unsaved.tsx
 #: src/screens/item.tsx
+#: src/screens/person.tsx
 #: src/screens/settings-profile.tsx
 #: src/screens/settings.tsx
 msgid "Save"
@@ -1504,6 +2387,10 @@ msgstr "Save"
 msgid "Save alerts"
 msgstr "Save alerts"
 
+#: src/screens/privacy.tsx
+msgid "Save and publish"
+msgstr "Save and publish"
+
 #: src/screens/composer.tsx
 msgid "Save changes"
 msgstr "Save changes"
@@ -1511,6 +2398,10 @@ msgstr "Save changes"
 #: src/screens/days.tsx
 msgid "Save day"
 msgstr "Save day"
+
+#: src/screens/privacy.tsx
+msgid "Save draft"
+msgstr "Save draft"
 
 #: src/screens/settings-profile.tsx
 msgid "Save greeting"
@@ -1532,6 +2423,8 @@ msgstr "Save trip"
 msgid "Save your changes?"
 msgstr "Save your changes?"
 
+#: src/screens/person.tsx
+#: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Saved"
 msgstr "Saved"
@@ -1561,6 +2454,14 @@ msgstr "Saving…"
 msgid "Scroll down and tap <0/> <1>Add to Home Screen</1>."
 msgstr "Scroll down and tap <0/> <1>Add to Home Screen</1>."
 
+#: src/screens/people.tsx
+msgid "seen {seen}"
+msgstr "seen {seen}"
+
+#: src/screens/people.tsx
+msgid "Send it to {name} yourself, e.g. in WhatsApp."
+msgstr "Send it to {name} yourself, e.g. in WhatsApp."
+
 #: src/screens/item.tsx
 msgid "Set as cover"
 msgstr "Set as cover"
@@ -1569,7 +2470,23 @@ msgstr "Set as cover"
 msgid "Set as the day's cover"
 msgstr "Set as the day's cover"
 
+#: src/screens/safety.tsx
+msgid "set up"
+msgstr "set up"
+
+#: src/screens/people.tsx
+msgid "Set up"
+msgstr "Set up"
+
+#: src/screens/people.tsx
+#: src/screens/safety.tsx
+msgid "Set up the website storage"
+msgstr "Set up the website storage"
+
 #: src/screens/layout.tsx
+#: src/screens/people.tsx
+#: src/screens/privacy.tsx
+#: src/screens/safety.tsx
 #: src/screens/settings.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -1578,6 +2495,19 @@ msgstr "Settings"
 msgctxt "tab bar, keep short"
 msgid "Settings"
 msgstr "Settings"
+
+#: src/components/link-sheet.tsx
+msgid "Share"
+msgstr "Share"
+
+#: src/components/link-sheet.tsx
+msgid "Sharing did not work. Copy the link instead."
+msgstr "Sharing did not work. Copy the link instead."
+
+#: src/screens/home.tsx
+#: src/screens/safety.tsx
+msgid "She has moved on"
+msgstr "She has moved on"
 
 #: src/screens/inbox.tsx
 msgid "Show"
@@ -1591,6 +2521,7 @@ msgstr "Show more photos"
 msgid "Show on"
 msgstr "Show on"
 
+#: src/components/password-sheet.tsx
 #: src/screens/login.tsx
 msgid "Show password"
 msgstr "Show password"
@@ -1599,15 +2530,27 @@ msgstr "Show password"
 msgid "Show this photo as your portrait on the site, as a small circle next to your name."
 msgstr "Show this photo as your portrait on the site, as a small circle next to your name."
 
+#: src/screens/privacy.tsx
+msgid "Shown at the end of the notice."
+msgstr "Shown at the end of the notice."
+
 #. placeholder {0}: formatLocalDate(c.effectiveLocalDate, locale, 'long')
 #: src/screens/item.tsx
 msgid "Shown on {0}."
 msgstr "Shown on {0}."
 
+#: src/screens/person.tsx
+msgid "Signed out"
+msgstr "Signed out"
+
 #. placeholder {0}: ago(a.since)
 #: src/screens/home.tsx
 msgid "since {0}"
 msgstr "since {0}"
+
+#: src/screens/person.tsx
+msgid "since {since}"
+msgstr "since {since}"
 
 #: src/screens/home.tsx
 msgid "Site is live"
@@ -1669,6 +2612,10 @@ msgstr "Story text in Markdown ({tab})"
 msgid "straight from WhatsApp"
 msgstr "straight from WhatsApp"
 
+#: src/components/password-sheet.tsx
+msgid "Strong"
+msgstr "Strong"
+
 #: src/components/labels.ts
 #: src/screens/days.tsx
 msgid "Summary"
@@ -1698,6 +2645,10 @@ msgstr "Tap <0>Add</0>. The journal now opens from its own icon, full screen."
 msgid "Tell the story… (Markdown: **bold**, _italic_, ## heading, - list)"
 msgstr "Tell the story… (Markdown: **bold**, _italic_, ## heading, - list)"
 
+#: src/screens/privacy.tsx
+msgid "Template – not legal advice. Please check and adapt it."
+msgstr "Template – not legal advice. Please check and adapt it."
+
 #: src/components/labels.ts
 msgid "Temporarily banned"
 msgstr "Temporarily banned"
@@ -1710,6 +2661,10 @@ msgstr "Text"
 #: src/components/labels.ts
 msgid "Text status"
 msgstr "Text status"
+
+#: src/screens/privacy.tsx
+msgid "Texts"
+msgstr "Texts"
 
 #: src/screens/composer.tsx
 msgid "The {lang} note is {over} characters too long."
@@ -1727,6 +2682,10 @@ msgstr "The address cannot change after the trip was created."
 msgid "The caption comes from WhatsApp and cannot be changed here."
 msgstr "The caption comes from WhatsApp and cannot be changed here."
 
+#: src/api/access.ts
+msgid "The current password is not right."
+msgstr "The current password is not right."
+
 #: src/components/conflict-dialog.tsx
 msgid "the day {date}"
 msgstr "the day {date}"
@@ -1743,13 +2702,53 @@ msgstr "The end must not be before the start."
 msgid "The items of this day were sorted in by the time zone set when they were captured ({capturedLabels}). If that was wrong (a flight, a forgotten setting), choose the right zone: they are re-dated and may move to the day before or after."
 msgstr "The items of this day were sorted in by the time zone set when they were captured ({capturedLabels}). If that was wrong (a flight, a forgotten setting), choose the right zone: they are re-dated and may move to the day before or after."
 
+#: src/screens/safety.tsx
+msgid "The link is shown only now. A new one replaces it; the old one stops working."
+msgstr "The link is shown only now. A new one replaces it; the old one stops working."
+
+#: src/screens/people.tsx
+msgid "The link is shown only now. If it gets lost, create a new one; connected devices stay connected."
+msgstr "The link is shown only now. If it gets lost, create a new one; connected devices stay connected."
+
+#: src/screens/safety.tsx
+msgid "The link stops working at once."
+msgstr "The link stops working at once."
+
 #: src/components/capture.tsx
 msgid "The media could not be downloaded from WhatsApp."
 msgstr "The media could not be downloaded from WhatsApp."
 
+#: src/screens/person.tsx
+msgid "The name, all devices and confirmations are deleted for good, and every device loses access at once. Only an anonymous entry without a name remains."
+msgstr "The name, all devices and confirmations are deleted for good, and every device loses access at once. Only an anonymous entry without a name remains."
+
+#: src/components/password-sheet.tsx
+msgid "The new password is the same as the current one."
+msgstr "The new password is the same as the current one."
+
+#: src/screens/person.tsx
+msgid "The old link stops working then."
+msgstr "The old link stops working then."
+
 #: src/screens/item.tsx
 msgid "The other language is shown as a translation."
 msgstr "The other language is shown as a translation."
+
+#: src/api/access.ts
+msgid "The password is not right."
+msgstr "The password is not right."
+
+#: src/screens/settings-profile.tsx
+msgid "The portrait appears only once the photo is published (delay/review)."
+msgstr "The portrait appears only once the photo is published (delay/review)."
+
+#: src/api/access.ts
+msgid "The privacy notice is not complete yet."
+msgstr "The privacy notice is not complete yet."
+
+#: src/components/password-sheet.tsx
+msgid "The server did not accept the new password: {reason}"
+msgstr "The server did not accept the new password: {reason}"
 
 #: src/lib/errors.ts
 msgid "The server did not accept this"
@@ -1758,6 +2757,14 @@ msgstr "The server did not accept this"
 #: src/screens/home.tsx
 msgid "The server did not answer. Your site is probably fine."
 msgstr "The server did not answer. Your site is probably fine."
+
+#: src/api/access.ts
+msgid "The server does not know the address of your website yet (SITE_ORIGIN in its settings)."
+msgstr "The server does not know the address of your website yet (SITE_ORIGIN in its settings)."
+
+#: src/screens/safety.tsx
+msgid "The server does not offer access control yet. Update the API first."
+msgstr "The server does not offer access control yet. Update the API first."
 
 #: src/lib/errors.ts
 msgid "The server has a problem right now"
@@ -1771,9 +2778,29 @@ msgstr "The server is not reachable right now"
 msgid "The server is not reachable right now. You can still log in once it answers again."
 msgstr "The server is not reachable right now. You can still log in once it answers again."
 
+#: src/screens/safety.tsx
+msgid "The server stopped writing after a failed login. Check the access data, then try again."
+msgstr "The server stopped writing after a failed login. Check the access data, then try again."
+
+#: src/screens/safety.tsx
+msgid "The server, directly"
+msgstr "The server, directly"
+
+#: src/screens/safety.tsx
+msgid "The server, via SFTP"
+msgstr "The server, via SFTP"
+
 #: src/components/conflict-dialog.tsx
 msgid "the trip “{slug}”"
 msgstr "the trip “{slug}”"
+
+#: src/components/password-sheet.tsx
+msgid "The two new passwords are not the same."
+msgstr "The two new passwords are not the same."
+
+#: src/screens/home.tsx
+msgid "The website storage does not match its set-up: see Safety · {date}"
+msgstr "The website storage does not match its set-up: see Safety · {date}"
 
 #: src/components/install.tsx
 msgid "Then the journal opens like an app, without the browser around it."
@@ -1813,6 +2840,14 @@ msgstr "This only re-sorts this one day. Where you are now (for new statuses) is
 msgid "This page does not exist. Maybe it moved, like you."
 msgstr "This page does not exist. Maybe it moved, like you."
 
+#: src/api/access.ts
+msgid "This person already has the most devices allowed. Remove one first."
+msgstr "This person already has the most devices allowed. Remove one first."
+
+#: src/screens/person.tsx
+msgid "This person no longer exists"
+msgstr "This person no longer exists"
+
 #: src/screens/settings-profile.tsx
 msgid "This photo is gone (deleted on WhatsApp or lost), so the site shows no portrait. Pick another one."
 msgstr "This photo is gone (deleted on WhatsApp or lost), so the site shows no portrait. Pick another one."
@@ -1840,6 +2875,10 @@ msgstr "this status"
 #: src/screens/trips.tsx
 msgid "This trip does not exist (any more)."
 msgstr "This trip does not exist (any more)."
+
+#: src/api/access.ts
+msgid "This was changed elsewhere in the meantime. Look at it again, then try once more."
+msgstr "This was changed elsewhere in the meantime. Look at it again, then try once more."
 
 #: src/components/conflict-dialog.tsx
 msgid "This was deleted elsewhere"
@@ -1869,8 +2908,13 @@ msgstr "Time zone of this day"
 msgid "Time zone updated"
 msgstr "Time zone updated"
 
+#: src/screens/safety.tsx
+msgid "Times on the site"
+msgstr "Times on the site"
+
 #: src/components/labels.ts
 #: src/screens/days.tsx
+#: src/screens/privacy.tsx
 #: src/screens/trips.tsx
 msgid "Title"
 msgstr "Title"
@@ -1903,6 +2947,14 @@ msgstr "Too long in another language: {otherLocales}"
 msgid "Too many attempts. Please wait a few minutes."
 msgstr "Too many attempts. Please wait a few minutes."
 
+#: src/api/access.ts
+msgid "Too many attempts. Please wait a little and try again."
+msgstr "Too many attempts. Please wait a little and try again."
+
+#: src/components/password-sheet.tsx
+msgid "Too short: at least 12 characters"
+msgstr "Too short: at least 12 characters"
+
 #: src/screens/layout.tsx
 msgid "travel journal"
 msgstr "travel journal"
@@ -1934,11 +2986,31 @@ msgstr "Trips"
 msgid "Try again"
 msgstr "Try again"
 
+#: src/screens/safety.tsx
+msgid "Turn off"
+msgstr "Turn off"
+
+#: src/screens/safety.tsx
+msgid "Turn off the panic link?"
+msgstr "Turn off the panic link?"
+
 #: src/components/portrait.tsx
 #: src/screens/inbox.tsx
 #: src/screens/item.tsx
 msgid "Undo"
 msgstr "Undo"
+
+#: src/screens/person.tsx
+msgid "Unknown device"
+msgstr "Unknown device"
+
+#: src/components/lock-card.tsx
+msgid "Unlock"
+msgstr "Unlock"
+
+#: src/components/lock-card.tsx
+msgid "Unlock the website?"
+msgstr "Unlock the website?"
 
 #: src/screens/days.tsx
 msgid "Unsaved changes"
@@ -1984,6 +3056,18 @@ msgstr "Use this device's zone ({0})"
 msgid "used {0}"
 msgstr "used {0}"
 
+#: src/screens/privacy.tsx
+msgid "Version {version}"
+msgstr "Version {version}"
+
+#: src/screens/privacy.tsx
+msgid "Version published"
+msgstr "Version published"
+
+#: src/screens/privacy.tsx
+msgid "Versions"
+msgstr "Versions"
+
 #: src/components/labels.ts
 msgid "Video"
 msgstr "Video"
@@ -2002,9 +3086,14 @@ msgstr "Visible on the site"
 msgid "Voice message"
 msgstr "Voice message"
 
+#: src/screens/safety.tsx
+msgid "Wait until she has moved on"
+msgstr "Wait until she has moved on"
+
 #: src/components/labels.ts
 #: src/screens/inbox.tsx
 #: src/screens/item.tsx
+#: src/screens/person.tsx
 msgid "Waiting"
 msgstr "Waiting"
 
@@ -2024,6 +3113,10 @@ msgstr "Waiting for the first status to recognise the traveller."
 msgid "Waiting for your release"
 msgstr "Waiting for your release"
 
+#: src/components/password-sheet.tsx
+msgid "Weak – easy to guess. Longer is better, e.g. a few words."
+msgstr "Weak – easy to guess. Longer is better, e.g. a few words."
+
 #: src/screens/trips.tsx
 msgid "Web address"
 msgstr "Web address"
@@ -2031,6 +3124,23 @@ msgstr "Web address"
 #: src/screens/settings.tsx
 msgid "Website"
 msgstr "Website"
+
+#: src/components/lock-card.tsx
+msgid "Website locked"
+msgstr "Website locked"
+
+#: src/screens/safety.tsx
+msgid "Website storage"
+msgstr "Website storage"
+
+#: src/screens/people.tsx
+#: src/screens/safety.tsx
+msgid "Website storage set up"
+msgstr "Website storage set up"
+
+#: src/components/lock-card.tsx
+msgid "Website unlocked"
+msgstr "Website unlocked"
 
 #: src/screens/item.tsx
 msgid "What happened here?"
@@ -2043,6 +3153,22 @@ msgstr "What happens with new WhatsApp statuses. Your notes and stories have the
 #: src/screens/composer.tsx
 msgid "What is on your mind right now?"
 msgstr "What is on your mind right now?"
+
+#: src/screens/privacy.tsx
+msgid "What is stored"
+msgstr "What is stored"
+
+#: src/screens/safety.tsx
+msgid "what others can see"
+msgstr "what others can see"
+
+#: src/screens/privacy.tsx
+msgid "what people read before they join"
+msgstr "what people read before they join"
+
+#: src/screens/settings.tsx
+msgid "What people read before they join"
+msgstr "What people read before they join"
 
 #. placeholder {0}: revoking?.name
 #: src/screens/settings.tsx
@@ -2064,6 +3190,38 @@ msgstr "While you were editing, <0/> was changed elsewhere. Choose which version
 #: src/components/conflict-dialog.tsx
 msgid "While you were editing, <0/> was deleted (maybe on another device)."
 msgstr "While you were editing, <0/> was deleted (maybe on another device)."
+
+#: src/screens/privacy.tsx
+msgid "Who sees what"
+msgstr "Who sees what"
+
+#: src/screens/people.tsx
+msgid "who sees your journey"
+msgstr "who sees your journey"
+
+#: src/screens/settings.tsx
+msgid "Who sees your journey"
+msgstr "Who sees your journey"
+
+#: src/screens/safety.tsx
+msgid "Who writes the access list"
+msgstr "Who writes the access list"
+
+#: src/screens/safety.tsx
+msgid "Whoever opens it can lock the website with one tap."
+msgstr "Whoever opens it can lock the website with one tap."
+
+#: src/screens/privacy.tsx
+msgid "Why"
+msgstr "Why"
+
+#: src/components/lock-card.tsx
+msgid "with the panic link"
+msgstr "with the panic link"
+
+#: src/screens/home.tsx
+msgid "Without a place"
+msgstr "Without a place"
 
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
@@ -2108,6 +3266,10 @@ msgstr "You changed this but did not save it yet."
 msgid "You deleted this status on WhatsApp."
 msgstr "You deleted this status on WhatsApp."
 
+#: src/screens/people.tsx
+msgid "You get a personal link for this person. Only they can join with it."
+msgstr "You get a personal link for this person. Only they can join with it."
+
 #: src/components/conflict-dialog.tsx
 msgid "Your change"
 msgstr "Your change"
@@ -2115,6 +3277,10 @@ msgstr "Your change"
 #: src/screens/item.tsx
 msgid "Your choice overrides the publish setting."
 msgstr "Your choice overrides the publish setting."
+
+#: src/screens/safety.tsx
+msgid "Your computer at home"
+msgstr "Your computer at home"
 
 #: src/screens/home.tsx
 msgid "Your computer at home could not upload the last version. It keeps retrying."
@@ -2147,6 +3313,14 @@ msgstr "Your name, a few warm words and a portrait: visitors see who is on the r
 #: src/screens/settings.tsx
 msgid "Your new token — copy it now, it will not be shown again:"
 msgstr "Your new token — copy it now, it will not be shown again:"
+
+#: src/screens/safety.tsx
+msgid "Your own titles and captions are not changed."
+msgstr "Your own titles and captions are not changed."
+
+#: src/screens/safety.tsx
+msgid "Your panic link"
+msgstr "Your panic link"
 
 #: src/components/conflict-dialog.tsx
 msgid "your photo"

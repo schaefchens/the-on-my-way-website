@@ -172,7 +172,7 @@ describe.skipIf(!fixturesPresent())('generated pages: head, twin and article', (
     for (const rel of [
       'de/index.html',
       'de/day/2026-11-15/index.html',
-      'de/day/2026-11-15/story/p_s01lantern/index.html',
+      'de/day/2026-11-15/story/p_bhhhs5v54ykcijn3/index.html',
       'en/trip/vietnam-2026/index.html',
     ]) {
       const p = page(rel);
@@ -261,7 +261,7 @@ describe.skipIf(!fixturesPresent())('generated pages: head, twin and article', (
     );
     expect(day).toContain(`data/timeline.json?v=${(bootOf(day) as { timelineV: string }).timelineV}`);
     expect(preloads(day).length).toBeLessThanOrEqual(6);
-    const story = page('de/day/2026-11-15/story/p_s01lantern/index.html');
+    const story = page('de/day/2026-11-15/story/p_bhhhs5v54ykcijn3/index.html');
     expect(modulepreloads(story)).toEqual([
       '/assets/shared-a1x2.js',
       '/assets/messages-de1.js',

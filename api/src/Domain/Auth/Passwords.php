@@ -7,10 +7,12 @@ namespace Omw\Api\Domain\Auth;
 /**
  * Password hashing: Argon2id when PHP was built with it, bcrypt (cost 12) otherwise.
  * Hashes made with the fallback are upgraded on the next successful login via {@see needsRehash()}.
+ * New passwords need at least {@see MIN_LENGTH} characters (contracts PASSWORD_MIN_LENGTH; wave 5
+ * raised it from 10 to 12 for the admin's "change password" and bin/create-admin.php).
  */
 final class Passwords
 {
-    public const MIN_LENGTH = 10;
+    public const MIN_LENGTH = 12;
     private const BCRYPT_COST = 12;
 
     public static function argon2idAvailable(): bool

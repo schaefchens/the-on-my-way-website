@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getRouteApi, Outlet, useChildMatches, useNavigate } from '@tanstack/react-router';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { NewMomentsToast } from '../components/new-moments';
-import { Hero, SiteHeader, siteTitleOf } from '../components/site-header';
+import { Hero, SiteFooter, SiteHeader, siteTitleOf } from '../components/site-header';
 import { manifestQueryOptions } from '../data/queries';
 import { applyDocumentTitle, documentTitle, type TitleView } from '../document-title';
 import { MotionBoundary, preloadMotion } from '../motion';
@@ -148,6 +148,7 @@ export function LocaleLayout() {
             <Hero locale={locale} level={search.z ?? DEFAULT_ZOOM} />
             <HomeTimeline locale={locale} search={search} active={!overlayOpen} />
           </main>
+          <SiteFooter />
         </div>
         <MotionBoundary>
           <Outlet />

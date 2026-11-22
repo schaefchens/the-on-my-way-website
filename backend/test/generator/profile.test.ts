@@ -334,7 +334,9 @@ describe.skipIf(!present)('planned trips: nothing public until their first publi
     expect(mentions(h)).toEqual([]); // no card, chip, sitemap entry, title anywhere
     expect((await verifyOutDir(h.outDir, { forbidden: forbidden() })).problems).toEqual([]);
 
-    // First public day: the trip, its data file, pages and sitemap entries appear.
+    // First public day: the trip, its data file, pages and sitemap entries appear. (The note is
+    // dated in 2027: a future-dated item waits for its time, spec-wave5 §5.3, so the clock moves.)
+    h.clock.set('2027-03-02T04:00:00.000Z');
     h.store.owner.upsertPost(note('public'));
     const shown = await h.generator.generate();
     expect(shown.full).toBe(false);

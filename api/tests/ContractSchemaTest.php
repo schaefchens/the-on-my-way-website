@@ -68,6 +68,31 @@ final class ContractSchemaTest extends TestCase
         }
     }
 
+    /**
+     * Wave 5 (spec-wave5 §4.1): the store files the API writes match StoreMarker / StoreTombstone /
+     * StoreLock, and the seeded privacy notice draft matches PrivacyNoticeDraft.
+     */
+    public function testStoreFilesAndTheNoticeTemplateMatchTheContract(): void
+    {
+        $validator = self::validator();
+        \Omw\Api\Infra\Clock::freeze('2026-11-20T10:00:00.000Z');
+        try {
+            $marker = \Omw\Api\Domain\Access\StoreApplier::markerJson('0123456789abcdef', 'fedcba9876543210', 42);
+        } finally {
+            \Omw\Api\Infra\Clock::unfreeze();
+        }
+        self::assertValid($validator, 'StoreMarker', json_decode($marker, false, 8, JSON_THROW_ON_ERROR));
+        $tombstone = \Omw\Api\Domain\Access\StoreOps::json(['s' => 'deleted', 'at' => '2026-11-20T10:00:00.000Z']);
+        self::assertValid($validator, 'StoreTombstone', json_decode($tombstone, false, 8, JSON_THROW_ON_ERROR));
+        $lock = \Omw\Api\Domain\Access\StoreOps::json(['at' => '2026-11-20T10:00:00.000Z', 'by' => 'panic']);
+        self::assertValid($validator, 'StoreLock', json_decode($lock, false, 8, JSON_THROW_ON_ERROR));
+
+        $template = json_decode(str_replace('{backupDays}', '14', (string) file_get_contents(\Omw\Api\Domain\Access\PrivacyNotices::TEMPLATE)), false, 16, JSON_THROW_ON_ERROR);
+        self::assertInstanceOf(\stdClass::class, $template);
+        unset($template->_comment);
+        self::assertValid($validator, 'PrivacyNoticeDraft', $template);
+    }
+
     private static function validator(): Validator
     {
         $dir = self::rootDir() . '/schemas';

@@ -189,7 +189,7 @@ describe.skipIf(!fixturesPresent())('generated site boots in a browser', () => {
     ['home (de)', `${BASE}de/`, 200],
     ['day (en)', `${BASE}en/day/2026-11-15/`, 200],
     ['day with XSS probes (de)', `${BASE}de/day/2026-11-12/`, 200],
-    ['story (de)', `${BASE}de/day/2026-11-15/story/p_s01lantern/`, 200],
+    ['story (de)', `${BASE}de/day/2026-11-15/story/p_bhhhs5v54ykcijn3/`, 200],
     ['trip (en)', `${BASE}en/trip/vietnam-2026/`, 200],
     ['404', `${BASE}de/nowhere/`, 404],
   ];

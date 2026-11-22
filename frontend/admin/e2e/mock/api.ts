@@ -11,9 +11,24 @@
  *   API's details.errors shape);
  * - effective visibility/date/zone and trips via the shared policy functions;
  * - a simulated backend: heartbeat and a publish report that catches up `publishAfterMs` after
- *   the last owner write (so the UI can show "publishing…" and then "Live").
+ *   the last owner write (so the UI can show "publishing…" and then "Live");
+ * - people, devices, lock, store, privacy notice, owner notices and the password change (wave 5,
+ *   e2e/mock/access.ts), with a simulated site store (applied at once, or pending while "the Mac"
+ *   writes).
  */
 import { createHash, randomBytes } from 'node:crypto';
+import {
+  AccessActionResult,
+  AccessStatus,
+  AdminFollower as AdminFollowerSchema,
+  FollowerCreated,
+  FollowerDataExport,
+  FollowerListResponse,
+  OwnerNoticeList,
+  PanicLinkCreated,
+  PersonalLinkCreated,
+  PrivacyState,
+} from '@omw/contracts/access';
 import {
   AdminDayDetail,
   AdminPost,
@@ -59,6 +74,7 @@ import {
 import { isValidLocalDate, localDateFor } from '@omw/contracts/time';
 import { z } from 'zod';
 import { modeSinceAfter } from '../../src/lib/mode-since';
+import { type AccessReply, MockAccess } from './access';
 import { previewSvg } from './previews';
 import { type SeedCapture, type SeedData, seedData } from './seed';
 
@@ -93,6 +109,19 @@ export interface MockOptions {
   /** The simulated backend publishes this long after the last owner write (default 2500 ms). */
   publishAfterMs?: number;
 }
+
+const ACCESS_SCHEMAS: Record<string, z.ZodType> = {
+  AccessStatus,
+  AccessActionResult,
+  FollowerListResponse,
+  AdminFollower: AdminFollowerSchema,
+  FollowerCreated,
+  PersonalLinkCreated,
+  FollowerDataExport,
+  PanicLinkCreated,
+  PrivacyState,
+  OwnerNoticeList,
+};
 
 const ApiErr = (status: number, code: string, message: string, details?: unknown): MockResponse => ({
   status,
@@ -132,10 +161,14 @@ export class MockAdminApi {
   #lastWriteAt = 0;
   #publish: TargetPublishStatus | null = null;
   #alerts: Alert[] = [];
+  #ownerPassword: string = MOCK_OWNER.password;
+  /** People and access (wave 5); test control through `access`. */
+  readonly access: MockAccess;
 
   constructor(opts: MockOptions = {}) {
     this.now = opts.now ?? Date.now;
     this.publishAfterMs = opts.publishAfterMs ?? 2500;
+    this.access = new MockAccess(this.now, () => this.#settings['site.locales']);
     this.reset();
   }
 
@@ -174,6 +207,8 @@ export class MockAdminApi {
       receivedAt: new Date(this.now() - 3 * 60_000).toISOString(),
     };
     this.#alerts = [];
+    this.#ownerPassword = MOCK_OWNER.password;
+    this.access.reset();
     this.log.length = 0;
   }
 
@@ -251,6 +286,10 @@ export class MockAdminApi {
       trips: [...this.#trips.values()].map((s) => s.value),
       settings: this.#settings,
       publish: this.#publish,
+      access: this.access.snapshot(),
+      sessions: this.#sessions.size,
+      ownerPassword: this.#ownerPassword,
+      tokens: this.#tokens,
     };
   }
 
@@ -389,7 +428,7 @@ export class MockAdminApi {
       const body = this.#json(req);
       if (!body.ok) return body.res;
       const login = LoginRequest.safeParse(body.value);
-      if (!login.success || login.data.email !== MOCK_OWNER.email || login.data.password !== MOCK_OWNER.password) {
+      if (!login.success || login.data.email !== MOCK_OWNER.email || login.data.password !== this.#ownerPassword) {
         return ApiErr(401, 'unauthorized', 'Login failed');
       }
       const token = randomBytes(24).toString('base64url');
@@ -438,9 +477,45 @@ export class MockAdminApi {
         return this.#settingsRoute(method, body.value);
       case 'tokens':
         return this.#tokensRoute(method, id, body.value);
-      default:
+      case 'me':
+        if (id === 'password' && method === 'PUT') return this.#changePassword(session, body.value);
         return ApiErr(404, 'not_found', `No route ${method} ${path}`);
+      default: {
+        const reply = this.access.route(method, segs, body.value, {
+          ownerPassword: this.#ownerPassword,
+          ownerEmail: MOCK_OWNER.email,
+        });
+        return reply ? this.#accessReply(reply) : ApiErr(404, 'not_found', `No route ${method} ${path}`);
+      }
     }
+  }
+
+  #accessReply(reply: AccessReply): MockResponse {
+    if (reply.error) return ApiErr(reply.status, reply.error.code, reply.error.message, reply.error.details);
+    if (reply.json === undefined) return { status: reply.status };
+    const schema = reply.schema ? ACCESS_SCHEMAS[reply.schema] : undefined;
+    if (!schema) throw new Error(`mock: no schema for ${reply.schema ?? '?'}`);
+    const res = this.#out(schema, reply.json, reply.status);
+    if (reply.schema === 'FollowerDataExport') {
+      res.headers = { 'content-disposition': 'attachment; filename="on-my-way-data-2026-11-20.json"' };
+    }
+    return res;
+  }
+
+  /** PUT /me/password: every other session ends; app tokens too when asked (never backend ones). */
+  #changePassword(session: string, body: unknown): MockResponse {
+    const reply = this.access.changePassword(body, {
+      ownerPassword: this.#ownerPassword,
+      ownerEmail: MOCK_OWNER.email,
+    });
+    if (reply.error) return ApiErr(reply.status, reply.error.code, reply.error.message);
+    if (reply.newPassword) this.#ownerPassword = reply.newPassword;
+    for (const other of [...this.#sessions]) if (other !== session) this.#sessions.delete(other);
+    if (reply.revokeAppTokens) {
+      const at = new Date(this.now()).toISOString();
+      for (const t of this.#tokens) if (t.kind === 'app' && t.revokedAt === null) t.revokedAt = at;
+    }
+    return { status: 204 };
   }
 
   #invalid(error: z.ZodError): MockResponse {
@@ -480,6 +555,7 @@ export class MockAdminApi {
       lastSeenAt,
       publish: this.#publish ? [this.#publish] : [],
       alerts: this.#alerts,
+      access: this.access.summary(),
     });
   }
 

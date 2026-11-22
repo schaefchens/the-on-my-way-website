@@ -34,7 +34,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
 import { Annotation, Day, Post, Trip, withSettingsDefaults } from '@omw/contracts/api';
 import type { LocaleCode } from '@omw/contracts/i18n';
-import { publicIdForSourceKey, waSourceKey } from '@omw/contracts/ids';
+import { publicIdForSourceKey, publishedPostIdFromSha256Hex, waSourceKey } from '@omw/contracts/ids';
 import {
   effectiveCaptureVisibility,
   effectiveLocalDate,
@@ -407,6 +407,11 @@ async function captureEntry(c: Capture, ann: Annotation | undefined, tz: string)
   }
 }
 
+/** The published id of an owner post, as the generator writes it (hashed: the ULID never leaks). */
+function publishedPostIdOf(publicId: string): string {
+  return publishedPostIdFromSha256Hex(createHash('sha256').update(`post:${publicId}`).digest('hex'));
+}
+
 function postEntry(post: Post, tz: string): Entry | null {
   const locales = Object.keys(post.content) as LocaleCode[];
   if (post.kind === 'note') {
@@ -415,7 +420,7 @@ function postEntry(post: Post, tz: string): Entry | null {
       const body = post.content[l]?.body;
       if (body) note[l] = body;
     }
-    return { id: post.publicId, kind: 'note', at: post.occurredAt, tz, note, orig: post.origLocale };
+    return { id: publishedPostIdOf(post.publicId), kind: 'note', at: post.occurredAt, tz, note, orig: post.origLocale };
   }
   // Story titles are guaranteed by the contract (StoryLocaleContent); the URL is derived with
   // routePath(locale, {name: 'story', date, id}), never stored.
@@ -425,7 +430,7 @@ function postEntry(post: Post, tz: string): Entry | null {
     if (c) story[l] = { title: c.title, body: c.body };
   }
   if (Object.keys(story).length === 0) return null;
-  return { id: post.publicId, kind: 'story', at: post.occurredAt, tz, story, orig: post.origLocale };
+  return { id: publishedPostIdOf(post.publicId), kind: 'story', at: post.occurredAt, tz, story, orig: post.origLocale };
 }
 
 /**
@@ -579,8 +584,6 @@ async function build(): Promise<void> {
       ...(orig ? { orig } : {}),
       ...(od?.placeName ? { place: od.placeName } : {}),
       ...(od?.countryCode ? { country: od.countryCode } : {}),
-      ...(od?.lat != null ? { lat: od.lat } : {}),
-      ...(od?.lng != null ? { lng: od.lng } : {}),
       tz,
       ...(trip ? { trip } : {}),
       ...(prev ? { prev } : {}),

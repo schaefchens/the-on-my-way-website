@@ -101,11 +101,34 @@ export class TargetStore {
     const publicBaseUrl =
       data.publicBaseUrl === undefined ? (existing?.publicBaseUrl ?? null) : (data.publicBaseUrl ?? null);
 
+    const publish = data.publish ?? existing?.publish;
     let next: StoredTarget;
     if (data.kind === 'local') {
-      const dir = isAbsolute(data.dir) ? resolve(data.dir) : resolve(this.opts.baseDir, data.dir);
+      const abs = (p: string) => (isAbsolute(p) ? resolve(p) : resolve(this.opts.baseDir, p));
+      const dir = abs(data.dir);
       assertLocalDirAllowed(dir, this.opts.outDir, this.opts.protectedDirs);
-      next = { id: data.id, kind: 'local', enabled, publicBaseUrl, dir, createdAt, updatedAt: now };
+      const prevLocal = existing?.kind === 'local' ? existing : undefined;
+      const gateDir =
+        data.gateDir === undefined ? prevLocal?.gateDir : data.gateDir === null ? undefined : abs(data.gateDir);
+      if (gateDir) assertLocalDirAllowed(gateDir, this.opts.outDir, this.opts.protectedDirs);
+      const accessStoreDir =
+        data.accessStoreDir === undefined
+          ? prevLocal?.accessStoreDir
+          : data.accessStoreDir === null
+            ? undefined
+            : abs(data.accessStoreDir);
+      if (accessStoreDir) assertLocalDirAllowed(accessStoreDir, this.opts.outDir, this.opts.protectedDirs);
+      next = {
+        id: data.id,
+        kind: 'local',
+        enabled,
+        publicBaseUrl,
+        dir,
+        ...(gateDir ? { gateDir } : {}),
+        ...(accessStoreDir ? { accessStoreDir } : {}),
+        createdAt,
+        updatedAt: now,
+      };
     } else {
       const prev = existing?.kind === 'sftp' ? existing : undefined;
       const pick = (v: string | null | undefined, old: string | undefined) =>
@@ -141,11 +164,14 @@ export class TargetStore {
         trustOnFirstUse: data.trustOnFirstUse ?? prev?.trustOnFirstUse ?? false,
         remoteRoot: data.remoteRoot ?? prev?.remoteRoot ?? '/',
         concurrency: data.concurrency ?? prev?.concurrency ?? DEFAULT_CONCURRENCY,
+        ...pickRoot('gateRoot', data.gateRoot, prev?.gateRoot),
+        ...pickRoot('accessStoreRoot', data.accessStoreRoot, prev?.accessStoreRoot),
         createdAt,
         updatedAt: now,
       };
     }
     if (label) next.label = label;
+    if (publish !== undefined) next.publish = publish;
     const checked = StoredTarget.parse(next);
     this.write(existing ? targets.map((t) => (t.id === checked.id ? checked : t)) : [...targets, checked]);
     return structuredClone(checked);
@@ -220,6 +246,16 @@ export class TargetStore {
   }
 }
 
+/** An optional remote root of an input: absent = keep the stored one, null = remove it. */
+function pickRoot<K extends string>(
+  key: K,
+  value: string | null | undefined,
+  old: string | undefined,
+): Partial<Record<K, string>> {
+  const v = value === undefined ? old : (value ?? undefined);
+  return v ? ({ [key]: v } as Record<K, string>) : {};
+}
+
 /** " (line 3 column 14)" / " (position 52)" from a JSON.parse error, without any file content. */
 function jsonErrorPosition(err: unknown): string {
   const msg = err instanceof Error ? err.message : '';
@@ -289,12 +325,15 @@ export function toPublic(t: StoredTarget, status: TargetStatusPublic = EMPTY_STA
     id: t.id,
     label: t.label ?? null,
     enabled: t.enabled,
+    publish: t.publish !== false,
     publicBaseUrl: t.publicBaseUrl,
     createdAt: t.createdAt,
     updatedAt: t.updatedAt,
     status,
   };
-  if (t.kind === 'local') return { ...base, kind: 'local', dir: t.dir };
+  if (t.kind === 'local') {
+    return { ...base, kind: 'local', dir: t.dir, gateDir: t.gateDir ?? null, accessStoreDir: t.accessStoreDir ?? null };
+  }
   const hasKey = Boolean(t.privateKey || t.privateKeyPath);
   return {
     ...base,
@@ -311,7 +350,29 @@ export function toPublic(t: StoredTarget, status: TargetStatusPublic = EMPTY_STA
     trustOnFirstUse: t.trustOnFirstUse,
     remoteRoot: t.remoteRoot,
     concurrency: t.concurrency,
+    gateRoot: t.gateRoot ?? null,
+    accessStoreRoot: t.accessStoreRoot ?? null,
   };
+}
+
+/**
+ * Gate mode (spec-wave5 §5.6.1): why `t` cannot carry the gate, or null. A publishing target needs
+ * gateRoot/gateDir, and its content root must be gateRoot/<secret> (dir = gateDir/<secret>).
+ */
+export function gateTargetProblem(t: StoredTarget, secret: string): string | null {
+  if (t.publish === false) return null;
+  if (t.kind === 'sftp') {
+    if (!t.gateRoot) return `target ${t.id}: gate mode needs gateRoot (the web root, usually "/")`;
+    const expected = t.gateRoot === '/' ? `/${secret}` : `${t.gateRoot}/${secret}`;
+    if (t.remoteRoot !== expected)
+      return `target ${t.id}: remoteRoot must be ${expected} (gateRoot + "/" + the content folder)`;
+    return null;
+  }
+  if (!t.gateDir) return `target ${t.id}: gate mode needs gateDir (the local web root)`;
+  if (resolve(t.dir) !== resolve(t.gateDir, secret)) {
+    return `target ${t.id}: dir must be ${resolve(t.gateDir, secret)} (gateDir + "/" + the content folder)`;
+  }
+  return null;
 }
 
 /** Identity of the place a target writes to; a change invalidates the deployed state. */

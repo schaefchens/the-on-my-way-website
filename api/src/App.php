@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Omw\Api;
 
 use DI\ContainerBuilder;
+use Omw\Api\Domain\Access\GateProbe;
+use Omw\Api\Domain\Access\OwnerNotices;
+use Omw\Api\Domain\Access\StoreApplier;
 use Omw\Api\Domain\Alerts\AlertEngine;
 use Omw\Api\Domain\Alerts\ChannelNotifier;
 use Omw\Api\Domain\Alerts\Notifier;
@@ -13,6 +16,7 @@ use Omw\Api\Domain\Auth\LoginThrottle;
 use Omw\Api\Domain\Auth\Sessions;
 use Omw\Api\Domain\ChangeLog;
 use Omw\Api\Http\JsonErrorHandler;
+use Omw\Api\Http\Public\PublicSupport;
 use Omw\Api\Http\Middleware\AutoSetup;
 use Omw\Api\Http\Middleware\SecurityHeaders;
 use Omw\Api\Http\Routes;
@@ -147,6 +151,10 @@ final class App
             ChannelNotifier::class => \DI\autowire()->constructorParameter('logger', \DI\get(LoggerInterface::class)),
             AlertEngine::class => \DI\autowire()->constructorParameter('logger', \DI\get(LoggerInterface::class)),
             CronRunner::class => \DI\autowire()->constructorParameter('logger', \DI\get(LoggerInterface::class)),
+            StoreApplier::class => \DI\autowire()->constructorParameter('logger', \DI\get(LoggerInterface::class)),
+            OwnerNotices::class => \DI\autowire()->constructorParameter('logger', \DI\get(LoggerInterface::class)),
+            GateProbe::class => \DI\autowire()->constructorParameter('logger', \DI\get(LoggerInterface::class)),
+            PublicSupport::class => \DI\autowire()->constructorParameter('logger', \DI\get(LoggerInterface::class)),
         ]);
 
         return $builder->build();

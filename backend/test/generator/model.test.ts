@@ -5,7 +5,16 @@ import { DayDetail, SiteProfile, TripDetail } from '@omw/contracts/site';
 import { localDateFor } from '@omw/contracts/time';
 import { describe, expect, it } from 'vitest';
 import { contentHash } from '../../src/generator/hash.js';
-import { buildSiteModel, type ModelInputs, type PortraitCrop, portraitSourceFor } from '../../src/generator/model.js';
+import {
+  buildSiteModel,
+  coarsenDayEntries,
+  currentStay,
+  decidePortrait,
+  type ModelInputs,
+  type PortraitCrop,
+  portraitSourceFor,
+  publishedPostIdOf,
+} from '../../src/generator/model.js';
 import type { CaptureRow, ProcessedVariant } from '../../src/store/index.js';
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -174,7 +183,7 @@ describe('visibility policy (D11)', () => {
     const m = buildSiteModel(
       inputs({ posts: [post('p_pub1', 'public'), post('p_hid1', 'hidden'), post('p_pen1', 'pending')] }),
     );
-    expect(m.days[0]?.entries.map((e) => e.id)).toEqual(['p_pub1']);
+    expect(m.days[0]?.entries.map((e) => e.id)).toEqual(['p_tnlpum6pzumrqmpr']);
   });
 });
 
@@ -272,7 +281,8 @@ describe('days, covers and trips', () => {
     capture('D2', '2026-11-14T03:00:00Z'),
     capture('D3', '2026-11-15T03:00:00Z', { kind: 'video' }),
     capture('D4', '2026-11-15T04:00:00Z'),
-    capture('D5', '2026-11-20T04:00:00Z', { kind: 'voice' }),
+    // Not later than `now` (2026-11-19T12:00Z): a future-dated item waits for its time (§5.3).
+    capture('D5', '2026-11-19T04:00:00Z', { kind: 'voice' }),
   ];
   const trip: Trip = {
     slug: 'vietnam-2026',
@@ -294,8 +304,8 @@ describe('days, covers and trips', () => {
     const m = buildSiteModel(inputs({ captures: caps, trips: [trip], days }));
     expect(m.days.map((d) => [d.date, d.prev ?? null, d.next ?? null, d.trip ?? null])).toEqual([
       ['2026-11-14', null, '2026-11-15', 'vietnam-2026'],
-      ['2026-11-15', '2026-11-14', '2026-11-20', 'vietnam-2026'],
-      ['2026-11-20', '2026-11-15', null, null],
+      ['2026-11-15', '2026-11-14', '2026-11-19', 'vietnam-2026'],
+      ['2026-11-19', '2026-11-15', null, null],
     ]);
     const [d14, d15, d20] = m.summaries;
     expect(d14?.cover?.sources.webp[0]?.src).toContain(sha('D2').slice(0, 16));
@@ -352,7 +362,7 @@ describe('days, covers and trips', () => {
   });
 
   it('maps media: video poster, hasAudio, gif muted loop, voice peaks', () => {
-    const m = buildSiteModel(inputs({ captures: [...caps, capture('G1', '2026-11-20T05:00:00Z', { kind: 'gif' })] }));
+    const m = buildSiteModel(inputs({ captures: [...caps, capture('G1', '2026-11-19T05:00:00Z', { kind: 'gif' })] }));
     const entries = m.days.flatMap((d) => d.entries);
     const video = entries.find((e) => e.kind === 'video');
     const gif = entries.find((e) => e.kind === 'gif');
@@ -438,7 +448,8 @@ describe('published trips: planned trips stay off the site', () => {
     expect(slugs(review)).toEqual([[], []]);
     const published = buildSiteModel(inputs({ ...base, posts: [{ ...pendingPost, visibility: 'public' }] }));
     expect(slugs(published)).toEqual([['vietnam-2026'], ['vietnam-2026']]);
-    expect(published.tripSummaries[0]).toMatchObject({ dayCount: 1, start: '2026-11-14', end: '2026-11-16' });
+    // E8: the published end is the trip's last public day, never a planned end date ahead of it.
+    expect(published.tripSummaries[0]).toMatchObject({ dayCount: 1, start: '2026-11-14', end: '2026-11-15' });
   });
 
   it('counts a day for the trip tripForDate() picks when (forbidden) ranges overlap', () => {
@@ -642,5 +653,384 @@ describe('profile: site.author, site.intro, site.avatar', () => {
     expect(
       buildSiteModel(inputs({ captures: [other], settings: { 'site.avatar': avatarSetting } })).profile,
     ).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Wave 5 (spec-wave5 §5.2 P0 fixes, §5.3 Q1/Q2 options)
+
+describe('P0 safety fixes (§5.2)', () => {
+  const note = (publicId: string, occurredAt: string, over: Partial<Pick<Post, 'visibility'>> = {}): Post => ({
+    publicId,
+    kind: 'note',
+    occurredAt,
+    tz: 'Asia/Ho_Chi_Minh',
+    localDate: localDateFor(occurredAt, 'Asia/Ho_Chi_Minh'),
+    origLocale: 'de',
+    visibility: 'public',
+    content: { de: { body: 'Hallo' } },
+    updatedAt: '2026-11-19T00:00:00Z',
+    ...over,
+  });
+
+  it('no coordinates: the owner’s Day.lat/lng never reach a day file', () => {
+    const days = new Map<string, Day>([
+      ['2026-11-15', { localDate: '2026-11-15', lat: 15.8801, lng: 108.338, placeName: 'Hội An', updatedAt: 'x' }],
+    ] as [string, Day][]);
+    const m = buildSiteModel(inputs({ captures: [capture('L1', '2026-11-15T03:00:00Z')], days }));
+    const text = JSON.stringify({ days: m.days, timeline: m.timeline });
+    expect(text).not.toMatch(/"lat"|"lng"|15\.88|108\.33/);
+    expect(m.days[0]).not.toHaveProperty('lat');
+    expect(m.days[0]?.place).toBe('Hội An');
+  });
+
+  it('post ids are hashed: never the ULID-shaped publicId, stable, contract-valid', () => {
+    const ulid = 'p_01JD3V4K5M6N7P8Q9R0S1T2V3W';
+    const m = buildSiteModel(inputs({ posts: [note(ulid, '2026-11-15T04:00:00Z')] }));
+    const id = m.days[0]?.entries[0]?.id ?? '';
+    expect(id).toBe(publishedPostIdOf(ulid));
+    expect(id).toMatch(/^p_[a-z2-7]{16}$/);
+    expect(id).not.toMatch(/^p_[0-9A-HJKMNP-TV-Z]{26}$/);
+    expect(JSON.stringify(m)).not.toContain(ulid);
+    expect(DayDetail.safeParse(m.days[0]).success).toBe(true);
+  });
+
+  it('trip end clamp: the published end is never later than the trip’s last public day', () => {
+    const trip: Trip = {
+      slug: 'vietnam-2026',
+      title: { de: 'Vietnam' },
+      startDate: '2026-11-10',
+      endDate: '2026-12-24',
+      updatedAt: 'x',
+    };
+    const m = buildSiteModel(inputs({ captures: [capture('E1', '2026-11-15T03:00:00Z')], trips: [trip] }));
+    expect(m.trips[0]).toMatchObject({ start: '2026-11-10', end: '2026-11-15' });
+    expect(m.tripSummaries[0]).toMatchObject({ start: '2026-11-10', end: '2026-11-15' });
+    expect(JSON.stringify(m)).not.toContain('2026-12-24');
+    // Always min(planned end, last public day): a last public day on the planned end keeps it.
+    const past = buildSiteModel(
+      inputs({ captures: [capture('E2', '2026-11-12T03:00:00Z')], trips: [{ ...trip, endDate: '2026-11-13' }] }),
+    );
+    expect(past.trips[0]?.end).toBe('2026-11-12');
+    const onEnd = buildSiteModel(
+      inputs({ captures: [capture('E3', '2026-11-13T03:00:00Z')], trips: [{ ...trip, endDate: '2026-11-13' }] }),
+    );
+    expect(onEnd.trips[0]?.end).toBe('2026-11-13');
+  });
+
+  describe('time buckets (site.time_precision)', () => {
+    // Asia/Ho_Chi_Minh is UTC+7: 03:10Z = 10:10 local (bucket 09:00), 03:40Z = 10:40, 05:05Z = 12:05.
+    const caps = [
+      capture('B1', '2026-11-15T03:10:12.345Z'),
+      capture('B2', '2026-11-15T03:40:00Z'),
+      capture('B3', '2026-11-15T05:05:00Z'),
+    ];
+
+    it('exact (default) keeps the captured times', () => {
+      const m = buildSiteModel(inputs({ captures: caps }));
+      expect(m.days[0]?.entries.map((e) => e.at)).toEqual([
+        '2026-11-15T03:10:12.345Z',
+        '2026-11-15T03:40:00.000Z',
+        '2026-11-15T05:05:00.000Z',
+      ]);
+      expect(m.timePrecision).toBe('exact');
+    });
+
+    it('part_of_day coarsens to the bucket start + index seconds; firstAt/lastAt follow', () => {
+      const m = buildSiteModel(inputs({ captures: caps, settings: { 'site.time_precision': 'part_of_day' } }));
+      expect(m.timePrecision).toBe('part_of_day');
+      expect(m.days[0]?.entries.map((e) => e.at)).toEqual([
+        '2026-11-15T02:00:00.000Z', // 09:00 local, index 0
+        '2026-11-15T02:00:01.000Z', // same bucket, index 1
+        '2026-11-15T05:00:00.000Z', // 12:00 local
+      ]);
+      expect(m.summaries[0]).toMatchObject({ firstAt: '2026-11-15T02:00:00.000Z', lastAt: '2026-11-15T05:00:00.000Z' });
+      expect(JSON.stringify(m.days)).not.toMatch(/03:10|03:40|05:05/);
+    });
+
+    it('mixed zones in one day still give a chronological day', () => {
+      const entries = buildSiteModel(
+        inputs({
+          captures: [
+            capture('Z1', '2026-11-15T03:10:00Z', { tz: 'Asia/Kolkata' }), // 08:40 local → 06:00 = 00:30Z
+            capture('Z2', '2026-11-15T03:20:00Z', { tz: 'Asia/Ho_Chi_Minh' }), // 10:20 local → 09:00 = 02:00Z
+          ],
+          annotations: new Map([ann('wa:Z1', { localDateOverride: '2026-11-15' })]),
+          settings: { 'site.time_precision': 'part_of_day' },
+        }),
+      ).days[0]?.entries;
+      const ats = (entries ?? []).map((e) => Date.parse(e.at));
+      expect(ats).toEqual([...ats].sort((a, b) => a - b));
+      expect(coarsenDayEntries([])).toEqual([]);
+    });
+  });
+
+  describe('the portrait respects the delay (E17)', () => {
+    const photo = (id: string, at: string) => capture(id, at);
+    const cropFor = (sourceKey: string): PortraitCrop => ({
+      sourceKey,
+      image: {
+        w: 96,
+        h: 96,
+        color: '#c1b2a3',
+        thumbhash: 'BBBB',
+        sources: {
+          avif: [{ w: 96, src: `media/aa/${sourceKey.slice(3).padEnd(16, '0')}_avatar_0123abcd_s96.avif` }],
+          webp: [{ w: 96, src: `media/aa/${sourceKey.slice(3).padEnd(16, '0')}_avatar_0123abcd_s96.webp` }],
+        },
+      },
+    });
+    const delayed = {
+      'publish.mode': 'delayed',
+      'publish.delay_minutes': 120,
+      'publish.mode_since': '2026-01-01T00:00:00.000Z',
+    } as const;
+    const old = photo('OLD', '2026-11-10T03:00:00Z');
+    const fresh = photo('NEW', '2026-11-19T11:00:00Z'); // released at 13:00Z, now is 12:00Z
+
+    it('waits for its photo’s release; the previously published portrait stays meanwhile', () => {
+      const base = {
+        captures: [old, fresh],
+        settings: { ...delayed, 'site.avatar': { sourceKey: 'wa:NEW' } },
+        previousPortrait: { sourceKey: 'wa:OLD' },
+      };
+      expect(decidePortrait(inputs(base))).toEqual({
+        setting: { sourceKey: 'wa:OLD' },
+        pendingAt: '2026-11-19T13:00:00.000Z',
+        problem: null,
+      });
+      const m = buildSiteModel(inputs({ ...base, portraitCrop: cropFor('wa:OLD') }));
+      expect(m.profile?.avatar?.sources.webp[0]?.src).toContain('OLD');
+      expect(m.nextPublishAt).toBe('2026-11-19T13:00:00.000Z');
+      // The new photo's crop is never used before its release.
+      const early = buildSiteModel(inputs({ ...base, portraitCrop: cropFor('wa:NEW') }));
+      expect(JSON.stringify(early.timeline)).not.toContain('NEW');
+      // Released: the new one.
+      const later = inputs({ ...base, now: new Date('2026-11-19T13:00:00Z'), portraitCrop: cropFor('wa:NEW') });
+      expect(decidePortrait(later).setting).toEqual({ sourceKey: 'wa:NEW' });
+      expect(buildSiteModel(later).profile?.avatar?.sources.webp[0]?.src).toContain('NEW');
+    });
+
+    it('no previous portrait (or one that is no longer valid): none until the release', () => {
+      const none = decidePortrait(
+        inputs({ captures: [fresh], settings: { ...delayed, 'site.avatar': { sourceKey: 'wa:NEW' } } }),
+      );
+      expect(none).toEqual({ setting: null, pendingAt: '2026-11-19T13:00:00.000Z', problem: null });
+      const gone = decidePortrait(
+        inputs({
+          captures: [fresh],
+          settings: { ...delayed, 'site.avatar': { sourceKey: 'wa:NEW' } },
+          previousPortrait: { sourceKey: 'wa:GONE' },
+        }),
+      );
+      expect(gone.setting).toBeNull();
+    });
+
+    it('review mode: the pick is the review; a pending override never publishes it', () => {
+      const review = { 'publish.mode': 'review', 'publish.mode_since': '2026-01-01T00:00:00.000Z' } as const;
+      expect(
+        decidePortrait(inputs({ captures: [fresh], settings: { ...review, 'site.avatar': { sourceKey: 'wa:NEW' } } }))
+          .setting,
+      ).toEqual({ sourceKey: 'wa:NEW' });
+      const pending = buildSiteModel(
+        inputs({
+          captures: [fresh],
+          annotations: new Map([ann('wa:NEW', { visibility: 'pending' })]),
+          settings: { 'site.avatar': { sourceKey: 'wa:NEW' } },
+          portraitCrop: cropFor('wa:NEW'),
+        }),
+      );
+      expect(pending.profile).toBeNull();
+      expect(pending.warnings.some((w) => /not released by itself/.test(w))).toBe(true);
+    });
+  });
+});
+
+describe('release slots and the departure hold (§5.3)', () => {
+  const now = new Date('2026-11-19T12:00:00Z'); // 13:00 in Berlin
+  const slots = { enabled: true, times: ['08:00', '20:00'] };
+  const at = (iso: string, id: string) => capture(id, iso, { tz: 'Europe/Berlin' });
+
+  it('off by default: everything public up to now is emitted at once', () => {
+    const m = buildSiteModel(inputs({ captures: [at('2026-11-19T11:59:00Z', 'S1')], now }));
+    expect(m.days.flatMap((d) => d.entries)).toHaveLength(1);
+    expect(m.nextPublishAt).toBeNull();
+  });
+
+  it('a future-dated item waits for its time (releaseAt = publishAt)', () => {
+    const m = buildSiteModel(inputs({ captures: [at('2026-11-19T12:30:00Z', 'F1')], now }));
+    expect(m.days).toEqual([]);
+    expect(m.nextPublishAt).toBe('2026-11-19T12:30:00.000Z');
+  });
+
+  it('slots: an item waits for the next slot in timezone.current; nextPublishAt is that slot', () => {
+    const inp = (n: Date) =>
+      inputs({
+        captures: [at('2026-11-19T06:00:00Z', 'S0'), at('2026-11-19T11:00:00Z', 'S2')],
+        settings: { 'publish.release_slots': slots, 'timezone.current': 'Europe/Berlin' },
+        now: n,
+      });
+    const m = buildSiteModel(inp(now));
+    // 07:00 Berlin → the 08:00 slot (07:00Z) has passed; 12:00 Berlin → 20:00 Berlin (19:00Z).
+    expect(m.days.flatMap((d) => d.entries).map((e) => e.at)).toEqual(['2026-11-19T06:00:00.000Z']);
+    expect(m.nextPublishAt).toBe('2026-11-19T19:00:00.000Z');
+    expect(m.stats.pending).toBe(1);
+    expect(buildSiteModel(inp(new Date('2026-11-19T19:00:00Z'))).days.flatMap((d) => d.entries)).toHaveLength(2);
+  });
+
+  it('slots also delay posts and pending delayed captures (after their delay)', () => {
+    const m = buildSiteModel(
+      inputs({
+        captures: [at('2026-11-19T11:30:00Z', 'D1')],
+        posts: [
+          {
+            publicId: 'p_slot0001',
+            kind: 'note',
+            occurredAt: '2026-11-19T11:00:00Z',
+            tz: 'Europe/Berlin',
+            localDate: '2026-11-19',
+            origLocale: 'de',
+            visibility: 'public',
+            content: { de: { body: 'x' } },
+            updatedAt: 'x',
+          },
+        ],
+        settings: {
+          'publish.release_slots': slots,
+          'timezone.current': 'Europe/Berlin',
+          'publish.mode': 'delayed',
+          'publish.delay_minutes': 60,
+          'publish.mode_since': '2026-01-01T00:00:00.000Z',
+        },
+        now,
+      }),
+    );
+    expect(m.days).toEqual([]);
+    expect(m.nextPublishAt).toBe('2026-11-19T19:00:00.000Z');
+  });
+
+  describe('departure hold', () => {
+    const day = (localDate: string, placeName?: string): [string, Day] => [
+      localDate,
+      { localDate, ...(placeName ? { placeName } : {}), updatedAt: 'x' } as Day,
+    ];
+    const hold = { 'publish.departure_hold': { enabled: true, maxDays: 7 } };
+
+    it('holds entries at a place until a later day elsewhere starts', () => {
+      const days = new Map([day('2026-11-17', 'Hội An'), day('2026-11-18', 'hội an '), day('2026-11-19', 'Huế')]);
+      const caps = [
+        at('2026-11-17T08:00:00Z', 'H1'),
+        at('2026-11-18T08:00:00Z', 'H2'),
+        at('2026-11-19T09:00:00Z', 'H3'), // first item in Huế: releases Hội An
+      ];
+      const m = buildSiteModel(inputs({ captures: caps, days, settings: hold, now }));
+      expect(m.days.map((d) => d.date)).toEqual(['2026-11-17', '2026-11-18']);
+      // Huế itself waits (no later place yet): up to maxDays.
+      expect(m.nextPublishAt).toBe('2026-11-26T09:00:00.000Z');
+      // Pending and hidden items still count as "she is there" (a held day can end a hold).
+      const hiddenHue = buildSiteModel(
+        inputs({
+          captures: caps,
+          days,
+          annotations: new Map([ann('wa:H3', { visibility: 'hidden' })]),
+          settings: hold,
+          now,
+        }),
+      );
+      expect(hiddenHue.days.map((d) => d.date)).toEqual(['2026-11-17', '2026-11-18']);
+    });
+
+    it('the cap (maxDays) and the "moved on" tap end it; moved_on_at before an entry does not', () => {
+      const days = new Map([day('2026-11-15', 'Hội An')]);
+      const caps = [at('2026-11-15T08:00:00Z', 'M1'), at('2026-11-19T08:00:00Z', 'M2')];
+      const capped = buildSiteModel(
+        inputs({ captures: caps, days, settings: { 'publish.departure_hold': { enabled: true, maxDays: 3 } }, now }),
+      );
+      expect(capped.days.flatMap((d) => d.entries)).toHaveLength(1); // M1 + 3 days < now
+      expect(capped.nextPublishAt).toBe('2026-11-22T08:00:00.000Z');
+      const moved = buildSiteModel(
+        inputs({ captures: caps, days, settings: { ...hold, 'publish.moved_on_at': '2026-11-19T10:00:00.000Z' }, now }),
+      );
+      expect(moved.days.flatMap((d) => d.entries)).toHaveLength(2);
+      const before = buildSiteModel(
+        inputs({ captures: caps, days, settings: { ...hold, 'publish.moved_on_at': '2026-11-16T10:00:00.000Z' }, now }),
+      );
+      // M1 released by the tap; M2 (after the tap) waits for its own cap.
+      expect(before.days.flatMap((d) => d.entries)).toHaveLength(1);
+    });
+
+    it('with the hold on, city_badge is emitted as city', () => {
+      const m = buildSiteModel(inputs({ captures: [at('2026-11-10T08:00:00Z', 'C1')], settings: hold, now }));
+      expect(m.hereNow).toBe('city');
+    });
+  });
+});
+
+describe('here-now (site.here_now, §5.3 step 4)', () => {
+  const day = (localDate: string, placeName: string | null, countryCode: string): [string, Day] => [
+    localDate,
+    { localDate, ...(placeName ? { placeName } : {}), countryCode, updatedAt: 'x' } as Day,
+  ];
+  const days = new Map([
+    day('2026-11-14', 'Hà Nội', 'VN'),
+    day('2026-11-15', 'Hội An', 'VN'),
+    day('2026-11-16', 'Hội An', 'VN'),
+  ]);
+  const caps = [
+    capture('N1', '2026-11-14T03:00:00Z'),
+    capture('N2', '2026-11-15T03:00:00Z'),
+    capture('N3', '2026-11-16T03:00:00Z'),
+  ];
+  const run = (hereNow: Settings['site.here_now']) =>
+    buildSiteModel(inputs({ captures: caps, days, settings: { 'site.here_now': hereNow } }));
+  const places = (m: ReturnType<typeof buildSiteModel>) =>
+    m.summaries.map((s) => [s.date, s.place ?? null, s.country ?? null]);
+
+  it('city_badge (default) and city keep the data', () => {
+    for (const mode of ['city_badge', 'city'] as const) {
+      const m = run(mode);
+      expect(m.hereNow).toBe(mode);
+      expect(places(m)).toEqual([
+        ['2026-11-14', 'Hà Nội', 'VN'],
+        ['2026-11-15', 'Hội An', 'VN'],
+        ['2026-11-16', 'Hội An', 'VN'],
+      ]);
+    }
+  });
+
+  it('country strips the place of the whole current stay (days and day files), country kept', () => {
+    const m = run('country');
+    expect(places(m)).toEqual([
+      ['2026-11-14', 'Hà Nội', 'VN'],
+      ['2026-11-15', null, 'VN'],
+      ['2026-11-16', null, 'VN'],
+    ]);
+    expect(m.days.map((d) => d.place ?? null)).toEqual(['Hà Nội', null, null]);
+    // The day hashes cover the stripped fields.
+    expect(m.days[2]?.v).not.toBe(run('city_badge').days[2]?.v);
+  });
+
+  it('none strips place and country of the current stay', () => {
+    const m = run('none');
+    expect(places(m)).toEqual([
+      ['2026-11-14', 'Hà Nội', 'VN'],
+      ['2026-11-15', null, null],
+      ['2026-11-16', null, null],
+    ]);
+    expect(m.days.map((d) => d.country ?? null)).toEqual(['VN', null, null]);
+  });
+
+  it('the current stay is the trailing run at the newest day’s place (just that day without a place)', () => {
+    const place: Record<string, string | null> = {
+      a: 'Hà Nội',
+      b: 'Hội An',
+      c: null,
+      d: 'hội an',
+      e: 'Hội  An ',
+    };
+    expect([...currentStay(['a', 'b', 'd', 'e'], (d) => place[d])]).toEqual(['e', 'd', 'b']);
+    expect([...currentStay(['a', 'b', 'c', 'd', 'e'], (d) => place[d])]).toEqual(['e', 'd']);
+    expect([...currentStay(['a', 'c'], (d) => place[d])]).toEqual(['c']);
+    expect([...currentStay([], () => null)]).toEqual([]);
   });
 });

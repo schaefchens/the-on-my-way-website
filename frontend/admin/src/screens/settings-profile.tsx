@@ -9,16 +9,20 @@ import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { Settings } from '@omw/contracts/api';
 import { LOCALES, type LocaleCode } from '@omw/contracts/i18n';
+import { portraitReleaseAt } from '@omw/contracts/policy';
+import { formatDateTime } from '@omw/ui/locale';
 import { useQuery } from '@tanstack/react-query';
 import { type ReactNode, useEffect, useState } from 'react';
-import { captureQuery } from '../api/queries';
+import { captureQuery, daysQuery } from '../api/queries';
 import { CharRing } from '../components/char-ring';
-import { AlertIcon, EyeOffIcon, HeartIcon, ImageIcon, TrashIcon } from '../components/icons';
+import { AlertIcon, ClockIcon, EyeOffIcon, HeartIcon, ImageIcon, TrashIcon } from '../components/icons';
 import { PortraitPicker, PortraitPreview, useSetPortrait } from '../components/portrait';
 import { Button, Field, LocaleTabs, Section, TextArea, TextInput } from '../components/ui';
 import { ADMIN_LOCALES } from '../i18n';
 import { filledLocales } from '../lib/forms';
-import { useLocale, useNotifyWrite, useServerForm, useWrite } from '../lib/hooks';
+import { holdEndFor } from '../lib/held-days';
+import { useLocale, useNotifyWrite, useNow, useServerForm, useWrite } from '../lib/hooks';
+import { deviceTimeZone } from '../lib/places';
 import {
   AUTHOR_MAX,
   authorTooLong,
@@ -147,8 +151,22 @@ export function AboutYouSection({ settings }: { settings: Settings }) {
   const capture = useQuery({ ...captureQuery(avatar?.sourceKey ?? '-'), enabled: !!avatar });
   const c = avatar ? capture.data : undefined;
   const [picking, setPicking] = useState(false);
-  const notInTimeline = !!c && c.effectiveVisibility !== 'public';
+  const days = useQuery({ ...daysQuery(), enabled: !!avatar && settings['publish.departure_hold'].enabled });
+  const now = useNow(60_000);
   const gone = !!c && (c.mediaState === 'lost' || (!!c.revokedAt && settings['ingest.on_revoke'] === 'hide'));
+  // P0 (wave 5): the portrait never appears before its photo could be published (delay, review,
+  // release times, departure hold). null = not by itself (the photo waits in the inbox).
+  const releaseAt = c
+    ? portraitReleaseAt(
+        c,
+        c.annotation,
+        settings,
+        holdEndFor(c.occurredAt, c.effectiveLocalDate, days.data?.items, settings),
+      )
+    : null;
+  const waiting = !!c && !gone && (releaseAt === null || Date.parse(releaseAt) > Math.max(now, Date.now()));
+  const expectedAt = releaseAt ? formatDateTime(releaseAt, deviceTimeZone(), uiLocale) : null;
+  const notInTimeline = !!c && !waiting && c.effectiveVisibility === 'hidden';
 
   /** "At most 60 characters" (one message for both limits). */
   const atMost = (max: number) => t`At most ${max} characters`;
@@ -295,6 +313,23 @@ export function AboutYouSection({ settings }: { settings: Settings }) {
             </div>
           </div>
         </div>
+        {waiting && (
+          <p
+            data-testid="portrait-release-hint"
+            className="mt-3 flex items-start gap-2 rounded-tile bg-lilac px-3 py-2 text-sm text-ink"
+          >
+            <ClockIcon className="size-4 translate-y-0.5 text-violet" />
+            <span>
+              <Trans>The portrait appears only once the photo is published (delay/review).</Trans>
+              {expectedAt && (
+                <>
+                  {' '}
+                  <Trans>Expected: {expectedAt}</Trans>
+                </>
+              )}
+            </span>
+          </p>
+        )}
         {notInTimeline && !gone && (
           <p
             data-testid="portrait-hidden-hint"

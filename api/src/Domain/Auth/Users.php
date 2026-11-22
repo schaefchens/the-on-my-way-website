@@ -22,6 +22,13 @@ final class Users
         return $row === null ? null : ['id' => (int) $row['id'], 'email' => (string) $row['email'], 'role' => (string) $row['role']];
     }
 
+    public function passwordHash(int $userId): ?string
+    {
+        $hash = $this->db->scalar('SELECT password_hash FROM users WHERE id = ?', [$userId]);
+
+        return is_string($hash) ? $hash : null;
+    }
+
     public function count(): int
     {
         return (int) $this->db->scalar('SELECT COUNT(*) FROM users');
@@ -44,18 +51,31 @@ final class Users
     }
 
     /**
-     * Sets a new password and revokes the user's sessions.
+     * Sets a new password and revokes the user's session tokens, except $keepTokenId (the session
+     * that changed the password, spec-wave5 §3.12). With $revokeAppTokens the user's app tokens
+     * (kind "app", admin scope) are revoked too. Backend tokens are never touched: they belong to
+     * the Mac and revoking them would stop publishing.
      */
-    public function setPassword(int $userId, string $passwordHash): void
+    public function setPassword(int $userId, string $passwordHash, ?int $keepTokenId = null, bool $revokeAppTokens = false): void
     {
         $now = Clock::nowIso();
-        $this->db->write(function () use ($userId, $passwordHash, $now): void {
+        $this->db->write(function () use ($userId, $passwordHash, $now, $keepTokenId, $revokeAppTokens): void {
             $this->db->exec('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?', [$passwordHash, $now, $userId]);
+            $kinds = $revokeAppTokens ? "'session', 'app'" : "'session'";
             $this->db->exec(
-                "UPDATE api_tokens SET revoked_at = ? WHERE user_id = ? AND kind = 'session' AND revoked_at IS NULL",
-                [$now, $userId],
+                "UPDATE api_tokens SET revoked_at = ? WHERE user_id = ? AND kind IN ($kinds) AND revoked_at IS NULL AND id IS NOT ?",
+                [$now, $userId, $keepTokenId],
             );
         });
+    }
+
+    /** True when the user has app tokens that are still valid (the admin then offers to end them). */
+    public function hasAppTokens(int $userId): bool
+    {
+        return $this->db->scalar(
+            "SELECT 1 FROM api_tokens WHERE user_id = ? AND kind = 'app' AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?) LIMIT 1",
+            [$userId, Clock::nowIso()],
+        ) !== null;
     }
 
     /**

@@ -11,6 +11,8 @@
  * formatted at UTC midnight, wall-clock times in the entry's zone).
  */
 import { LOCALES, type LocaleCode, textDirection } from '@omw/contracts/i18n';
+import type { TimePrecision } from '@omw/contracts/site';
+import { type PartOfDay, timeBucket } from '@omw/contracts/time';
 
 export interface PageStrings {
   /** Shown under the site title on the home page. */
@@ -45,6 +47,13 @@ export interface PageStrings {
   tripDescription(title: string, range: string): string;
   /** og:locale value. */
   ogLocale: string;
+  /**
+   * og:title and meta description of every page (spec-wave5 §5.2 E10): a link preview never
+   * shows the site's title, a place, a date or a picture.
+   */
+  privateTitle: string;
+  /** Time labels with site.time_precision = part_of_day (time.ts timeBucket). */
+  partOfDay: Record<PartOfDay, string>;
   /**
    * Strings of the first-screen twin (twin.ts), copied verbatim from the SPA's Lingui catalogs
    * (frontend/site/src/locales/<locale>/messages.po) so the swap to React changes no text.
@@ -118,6 +127,8 @@ const de: PageStrings = {
   homeDescription: (title) => `${title}: Reisetagebuch mit Fotos, Videos und Geschichten von unterwegs.`,
   tripDescription: (title, range) => `${title} (${range})`,
   ogLocale: 'de_DE',
+  privateTitle: 'Privat',
+  partOfDay: { night: 'Nachts', morning: 'Morgens', midday: 'Mittags', afternoon: 'Nachmittags', evening: 'Abends' },
   spa: {
     tagline: 'Momente von unterwegs',
     nowIn: 'Gerade in',
@@ -178,6 +189,8 @@ const en: PageStrings = {
   homeDescription: (title) => `${title}: a travel diary with photos, videos and stories from the road.`,
   tripDescription: (title, range) => `${title} (${range})`,
   ogLocale: 'en_GB',
+  privateTitle: 'Private',
+  partOfDay: { night: 'Night', morning: 'Morning', midday: 'Midday', afternoon: 'Afternoon', evening: 'Evening' },
   spa: {
     tagline: 'Moments from the road',
     nowIn: 'Now in',
@@ -275,6 +288,20 @@ export function formatDateRange(start: string, end: string, locale: LocaleCode):
 /** Wall-clock time of an instant in the traveler's zone ("08:40"). */
 export function formatTime(isoUtc: string, tz: string, locale: LocaleCode): string {
   return dtf(locale, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: tz }).format(new Date(isoUtc));
+}
+
+/**
+ * Time label of an entry: the wall-clock time, or with site.time_precision = part_of_day the
+ * part of the day (the coarsened minutes are not a real time and are never shown).
+ */
+export function formatEntryTime(
+  isoUtc: string,
+  tz: string,
+  locale: LocaleCode,
+  precision: TimePrecision | undefined,
+): string {
+  if (precision === 'part_of_day') return stringsFor(locale).partOfDay[timeBucket(isoUtc, tz).partOfDay];
+  return formatTime(isoUtc, tz, locale);
 }
 
 const RELATIVE_UNITS: ReadonlyArray<[Intl.RelativeTimeFormatUnit, number]> = [

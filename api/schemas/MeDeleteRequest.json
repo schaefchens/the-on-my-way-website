@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/MeDeleteRequest.json",
+  "title": "MeDeleteRequest",
+  "additionalProperties": false,
+  "properties": {
+    "confirm": {
+      "const": "delete-all-my-data",
+      "type": "string"
+    },
+    "k": {
+      "pattern": "^[A-Za-z0-9_-]{43}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "k",
+    "confirm"
+  ],
+  "type": "object"
+}

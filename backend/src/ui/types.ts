@@ -58,6 +58,8 @@ export interface AppStatus {
   build: BuildStatus;
   publish: PublishStatus;
   site: { publicUrl: string | null; outDir: string };
+  /** Access gate (spec-wave5 §5.6.6); absent in open mode / older backends. */
+  access?: { mode: 'open' | 'gate'; writer: string | null };
 }
 
 export interface ActionResult {
@@ -101,4 +103,6 @@ export interface ControlBackend {
   /** Restarts the WhatsApp helper (if the source supports it). */
   restartWa(): Promise<ActionResult>;
   quarantined(limit?: number): QuarantinedItem[];
+  /** "Website sperren": writes the store's `locked` file over the store target (optional). */
+  lockSite?(): Promise<ActionResult>;
 }
