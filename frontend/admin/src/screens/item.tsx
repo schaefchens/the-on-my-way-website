@@ -18,6 +18,7 @@ import { createPortal } from 'react-dom';
 import { cachedDayTz } from '../api/cache';
 import { captureQuery, daysQuery, settingsQuery } from '../api/queries';
 import { type AnnotationFields, writeBase } from '../api/types';
+import { AppOriginNote, isAppCapture } from '../components/app-badge';
 import { CaptureVisual } from '../components/capture';
 import {
   CalendarIcon,
@@ -434,11 +435,15 @@ export function ItemSheetScreen() {
               )}
             </figcaption>
           </figure>
-          <p className="flex items-start gap-2 px-2 text-xs text-muted">
-            <InfoIcon className="size-4" />
-            <Trans>The caption comes from WhatsApp and cannot be changed here.</Trans>
-          </p>
-          {c.revokedAt && (
+          {isAppCapture(c) ? (
+            <AppOriginNote capture={c} />
+          ) : (
+            <p className="flex items-start gap-2 px-2 text-xs text-muted">
+              <InfoIcon className="size-4" />
+              <Trans>The caption comes from WhatsApp and cannot be changed here.</Trans>
+            </p>
+          )}
+          {c.revokedAt && !isAppCapture(c) && (
             <p className="rounded-tile bg-surface-2 px-3 py-2 text-sm">
               <Trans>You deleted this status on WhatsApp.</Trans>
             </p>

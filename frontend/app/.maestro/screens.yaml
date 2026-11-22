@@ -1,0 +1,219 @@
+# Screenshot tour of the v0.5 screens for one language and theme (not part of the default run).
+#   maestro test -e UI_LANG=de -e SHOT=de-dusk .maestro/screens.yaml
+# The theme follows the system (adb shell cmd uimode night yes|no before the run). Needs the three
+# sample photos in the emulator's gallery (Pictures/harbour.jpg, ricefields.jpg, lanterns.jpg).
+appId: app.omw.traveler
+name: Screens tour
+tags:
+  - screens
+---
+- runFlow: subflows/fresh-start.yaml
+- tapOn:
+    id: settings-button
+- scrollUntilVisible:
+    element:
+      id: locale-${UI_LANG}
+    direction: DOWN
+- tapOn:
+    id: locale-${UI_LANG}
+- tapOn:
+    id: settings-back
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-01-today-empty
+
+# Gallery: three photos in posting order, one of them from an earlier day.
+- tapOn:
+    id: gallery-button
+- extendedWaitUntil:
+    visible:
+      text: "Photos"
+    timeout: 10000
+- tapOn:
+    point: "16%,31%"
+- tapOn:
+    point: "83%,31%"
+- tapOn:
+    point: "50%,31%"
+- tapOn:
+    text: "Add.*"
+- extendedWaitUntil:
+    visible:
+      id: compose-item-2
+    timeout: 20000
+# The day chip belongs to the photo from an earlier day: find it in the strip.
+- runFlow:
+    when:
+      notVisible:
+        id: day-chip
+    commands:
+      - tapOn:
+          id: compose-item-1
+- runFlow:
+    when:
+      notVisible:
+        id: day-chip
+    commands:
+      - tapOn:
+          id: compose-item-2
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-02-compose-batch
+- tapOn:
+    id: day-chip
+- tapOn:
+    id: caption-input
+- inputText: "Golden hour"
+- hideKeyboard
+- tapOn:
+    id: publish-line
+- extendedWaitUntil:
+    visible:
+      id: publish-sheet
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-03-publish-sheet
+- tapOn:
+    id: publish-share
+- extendedWaitUntil:
+    visible:
+      id: today-strip
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: ${SHOT}-04-today-shared
+- tapOn:
+    id: sync-pill
+- extendedWaitUntil:
+    visible:
+      id: queue-sheet
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-05-queue
+- tapOn:
+    id: queue-sheet-close
+
+# Text status
+- tapOn:
+    id: text-button
+- extendedWaitUntil:
+    visible:
+      id: text-screen
+    timeout: 10000
+- tapOn:
+    id: text-input
+- inputText: "Xin chao from the old town"
+- hideKeyboard
+- tapOn:
+    id: text-palette
+- tapOn:
+    id: swatch-lagoon
+- tapOn:
+    id: sheet-font-FB_SCRIPT
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-07-text-palette
+- tapOn:
+    id: palette-sheet-close
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-06-text
+- tapOn:
+    id: text-close
+
+# Camera, then voice from the mode rail
+- tapOn:
+    id: capture-button
+- extendedWaitUntil:
+    visible:
+      id: camera-view
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: ${SHOT}-08-camera
+- tapOn:
+    id: mode-voice
+- extendedWaitUntil:
+    visible:
+      id: voice-screen
+    timeout: 10000
+- tapOn:
+    id: voice-mic
+- waitForAnimationToEnd:
+    timeout: 2500
+- takeScreenshot: ${SHOT}-09-voice-recording
+- tapOn:
+    id: voice-mic
+- extendedWaitUntil:
+    visible:
+      id: voice-play
+    timeout: 10000
+- takeScreenshot: ${SHOT}-10-voice-done
+- tapOn:
+    id: voice-close
+
+# Video with the trim bar
+- tapOn:
+    id: capture-button
+- extendedWaitUntil:
+    visible:
+      id: camera-view
+    timeout: 15000
+- tapOn:
+    id: mode-video
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: shutter
+- extendedWaitUntil:
+    visible:
+      id: record-timer
+    timeout: 10000
+- takeScreenshot: ${SHOT}-11-camera-recording
+- tapOn:
+    id: shutter
+- extendedWaitUntil:
+    visible:
+      id: trim-bar
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: ${SHOT}-12-compose-video
+- tapOn:
+    id: compose-back
+
+# Drafts, Settings, pairing
+- extendedWaitUntil:
+    visible:
+      id: drafts-line
+    timeout: 10000
+- tapOn:
+    id: drafts-line
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-13-drafts
+- tapOn:
+    id: drafts-sheet-close
+- tapOn:
+    id: settings-button
+- waitForAnimationToEnd
+- takeScreenshot: ${SHOT}-14-settings
+- scrollUntilVisible:
+    element:
+      id: settings-oem-card
+    direction: DOWN
+- takeScreenshot: ${SHOT}-15-settings-more
+- tapOn:
+    id: settings-back
+- tapOn:
+    id: pair-open
+- extendedWaitUntil:
+    visible:
+      id: pair-screen
+    timeout: 10000
+- tapOn:
+    id: pair-code
+- inputText: "k7q2m9px"
+- hideKeyboard
+- takeScreenshot: ${SHOT}-16-pair
+- tapOn:
+    id: pair-back

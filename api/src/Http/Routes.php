@@ -12,6 +12,7 @@ use Omw\Api\Http\Admin\SettingsController;
 use Omw\Api\Http\Admin\StatusController;
 use Omw\Api\Http\Admin\TokenController;
 use Omw\Api\Http\Admin\TripController;
+use Omw\Api\Http\App\AppRoutes;
 use Omw\Api\Http\Backend\BackendController;
 use Omw\Api\Http\Middleware\AdminAuth;
 use Omw\Api\Http\Middleware\BackendAuth;
@@ -119,6 +120,8 @@ final class Routes
                 $g->options('/{path:.+}', fn ($request, ResponseInterface $response): ResponseInterface => $response->withStatus(204))
                     ->setName('public.preflight');
             })->add(Cors::class);
+
+            AppRoutes::register($v1); // traveler app: /app/*, /backend/app/*, /admin/app-* (Http\App\AppRoutes)
         });
     }
 }

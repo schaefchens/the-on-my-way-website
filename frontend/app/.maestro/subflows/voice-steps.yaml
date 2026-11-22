@@ -1,0 +1,41 @@
+# Records a voice note hands-free (tap the microphone, tap again), listens, shares. Starts and
+# ends on Today. The emulator's microphone records silence. Used by voice.yaml and the e2e run.
+appId: app.omw.traveler
+---
+- tapOn:
+    id: capture-button
+- extendedWaitUntil:
+    visible:
+      id: camera-screen
+    timeout: 15000
+- runFlow: allow-camera.yaml
+- tapOn:
+    id: mode-voice
+- extendedWaitUntil:
+    visible:
+      id: voice-screen
+    timeout: 10000
+- tapOn:
+    id: voice-mic
+# (Maestro grants the microphone at launch; on a phone the system asks once here.)
+- assertVisible:
+    id: voice-time
+# The live meter keeps the screen moving, so this waits the full 3 s (a few seconds of voice).
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: voice-mic
+- extendedWaitUntil:
+    visible:
+      id: voice-play
+    timeout: 10000
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: today-item-0
+    timeout: 10000

@@ -48,6 +48,8 @@ import {
   TripListResponse,
   TripUpsert,
 } from '@omw/contracts/api';
+import { AppPairingCreated } from '@omw/contracts/app';
+import { AppPhoneListResponse } from '@omw/contracts/app-inbox';
 import { publicIdFromSha256Hex } from '@omw/contracts/ids';
 import {
   effectiveCaptureVisibility,
@@ -438,6 +440,26 @@ export class MockAdminApi {
         return this.#settingsRoute(method, body.value);
       case 'tokens':
         return this.#tokensRoute(method, id, body.value);
+      // Traveler app ("Connect a phone"): no phone in the mock, archive-only like a fresh API.
+      case 'app-phones':
+        if (method !== 'GET' || id) return ApiErr(404, 'not_found', 'No such phone');
+        return this.#out(AppPhoneListResponse, {
+          items: [],
+          openPairing: null,
+          inbox: { usedBytes: 0, maxBytes: 1024 * 1024 * 1024 },
+          archiveOnly: true,
+        });
+      case 'app-pairings':
+        if (method !== 'POST') return ApiErr(405, 'method_not_allowed', 'POST only');
+        return this.#out(
+          AppPairingCreated,
+          {
+            link: 'omw://pair#01JD3ZQ8X4V7N2K5M9P0R6S8TW',
+            typedCode: 'ABCD-EFGH',
+            expiresAt: new Date(this.now() + 3_600_000).toISOString(),
+          },
+          201,
+        );
       default:
         return ApiErr(404, 'not_found', `No route ${method} ${path}`);
     }

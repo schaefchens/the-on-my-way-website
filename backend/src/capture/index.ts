@@ -21,6 +21,22 @@ import { HelperSource, type HelperSourceOptions } from './helper.js';
 import { CaptureIngest, type IngestOptions } from './ingest.js';
 import type { Ingest, WaSource } from './types.js';
 
+export {
+  type AppArchiveRecord,
+  appPipelineInput,
+  appRecordRelPath,
+  isAppRecordPath,
+  listAppRecords,
+  readAppRecord,
+} from './app-archive.js';
+export {
+  AppSource,
+  type AppSourceDeps,
+  type AppSourceOptions,
+  type AppSourceStatus,
+  createAppSource,
+  newCaptureFromApp,
+} from './app-source.js';
 export type { ArchiveOriginal, ArchiveRecord } from './archive.js';
 export { archiveRecordRelPath, listArchiveRecords, readArchiveRecord } from './archive.js';
 export { FixtureSource, type FixtureSourceOptions } from './fixture.js';

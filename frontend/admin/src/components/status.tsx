@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { settingsQuery, statusQuery } from '../api/queries';
 import { usePendingWrites } from '../lib/hooks';
 import { capturePublishInput, type ItemState, itemState } from '../lib/publish';
+import { AppArchiveOnlyChip, useAppArchiveOnly } from './app-badge';
 import { CheckIcon, ClockIcon, CloudOffIcon, EyeOffIcon } from './icons';
 import { VISIBILITY_LABEL } from './labels';
 import { Badge, Spinner } from './ui';
@@ -58,6 +59,9 @@ export function ItemPublishChip({ item, entity }: { item: PublishStateInput; ent
 /** Publish chip of a captured status (knows when delayed publishing makes it public). */
 export function CapturePublishChip({ capture }: { capture: CaptureListItem }) {
   const settings = useQuery(settingsQuery());
+  // Traveler app, archive-only mode (Q8 a): never "Live", whatever the visibility says.
+  const archiveOnly = useAppArchiveOnly(capture);
+  if (archiveOnly) return <AppArchiveOnlyChip />;
   return <ItemPublishChip item={capturePublishInput(capture, settings.data)} entity={`capture:${capture.sourceKey}`} />;
 }
 

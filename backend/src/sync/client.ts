@@ -13,6 +13,7 @@
  *     invalid_response                         2xx with an unparseable body: transient
  */
 import type { CaptureMirror, CaptureRevoke, Heartbeat, PreviewRole, PublishedReport } from '@omw/contracts/api';
+import type { AppInboxAck, AppInboxReject } from '@omw/contracts/app-inbox';
 
 export type ApiErrorKind = 'network' | 'timeout' | 'aborted' | 'http' | 'invalid_response';
 export type ApiErrorClass = 'transient' | 'auth' | 'ordering' | 'feed_reset' | 'permanent' | 'aborted';
@@ -154,6 +155,98 @@ export class ApiClient {
 
   async published(body: PublishedReport): Promise<void> {
     await this.request('POST', '/api/v1/backend/published', { json: body });
+  }
+
+  // -------------------------------------------------------------------------------------------
+  // Traveler app inbox (contracts ./app-inbox; capture/app-source.ts). 410 gone, 409 and 416 are
+  // "permanent" for this request; 503 transfer_busy is transient with Retry-After.
+
+  /** GET /backend/app/entries: raw AppInboxResponse (app-source.ts validates items one by one). */
+  async appInbox(archiveOnly: boolean, limit?: number): Promise<unknown> {
+    const query = new URLSearchParams({ archiveOnly: archiveOnly ? '1' : '0' });
+    if (limit !== undefined) query.set('limit', String(limit));
+    const res = await this.request('GET', `/api/v1/backend/app/entries?${query.toString()}`, {});
+    if (res.body === undefined) {
+      throw new ApiRequestError('App inbox answered without a JSON body', { kind: 'invalid_response' });
+    }
+    return res.body;
+  }
+
+  /**
+   * GET /backend/app/uploads/{uploadId}/content from byte `start` (Range: bytes=start-; 206) and
+   * hands every chunk of the body to `write`. The whole download, body included, must finish
+   * within `timeoutMs`. Returns whether the server sent a range and the sha256 it announced.
+   */
+  async appContent(
+    uploadId: string,
+    start: number,
+    write: (chunk: Uint8Array) => Promise<void>,
+    timeoutMs = 30 * 60_000,
+  ): Promise<{ partial: boolean; sha256: string | null }> {
+    const path = `/api/v1/backend/app/uploads/${encodeURIComponent(uploadId)}/content`;
+    const headers: Record<string, string> = { authorization: `Bearer ${this.token}`, 'user-agent': this.userAgent };
+    if (start > 0) headers.range = `bytes=${start}-`;
+    if (this.lifetime.signal.aborted) throw new ApiRequestError(`GET ${path}: aborted`, { kind: 'aborted' });
+    const timeout = AbortSignal.timeout(timeoutMs);
+    const signal = AbortSignal.any([timeout, this.lifetime.signal]);
+    const fail = (err: unknown): never => {
+      if (this.lifetime.signal.aborted) throw new ApiRequestError(`GET ${path}: aborted`, { kind: 'aborted' });
+      if (timeout.aborted) throw new ApiRequestError(`GET ${path}: timed out`, { kind: 'timeout' });
+      if (err instanceof ApiRequestError) throw err;
+      const cause = err instanceof Error ? (err.cause instanceof Error ? err.cause.message : err.message) : String(err);
+      throw new ApiRequestError(`GET ${path}: ${cause}`, { kind: 'network' });
+    };
+    let res: Response;
+    try {
+      res = await this.fetchImpl(`${this.baseUrl}${path}`, { method: 'GET', headers, signal });
+    } catch (err) {
+      return fail(err);
+    }
+    if (!res.ok) {
+      let parsed: unknown;
+      const text = await res.text().catch(() => '');
+      try {
+        parsed = text ? JSON.parse(text) : undefined;
+      } catch {
+        parsed = undefined;
+      }
+      const { code, message } = errorCodeOf(parsed);
+      throw new ApiRequestError(
+        `GET ${path}: HTTP ${res.status}${code ? ` ${code}` : ''}: ${message ?? res.statusText}`,
+        {
+          kind: 'http',
+          status: res.status,
+          code,
+          retryAfterMs: parseRetryAfter(res.headers.get('retry-after'), Date.now()),
+        },
+      );
+    }
+    const partial = res.status === 206;
+    if (start > 0 && !partial) {
+      await res.body?.cancel().catch(() => {});
+      throw new ApiRequestError(`GET ${path}: the server ignored the Range header`, {
+        kind: 'invalid_response',
+        status: res.status,
+      });
+    }
+    try {
+      if (res.body) {
+        for await (const chunk of res.body as unknown as AsyncIterable<Uint8Array>) await write(chunk);
+      }
+    } catch (err) {
+      return fail(err);
+    }
+    return { partial, sha256: res.headers.get('x-omw-sha256') };
+  }
+
+  /** POST /backend/app/entries/{entryId}/ack (AppInboxAck). */
+  async appAck(entryId: string, body: AppInboxAck): Promise<void> {
+    await this.request('POST', `/api/v1/backend/app/entries/${encodeURIComponent(entryId)}/ack`, { json: body });
+  }
+
+  /** POST /backend/app/entries/{entryId}/reject (AppInboxReject). */
+  async appReject(entryId: string, body: AppInboxReject): Promise<void> {
+    await this.request('POST', `/api/v1/backend/app/entries/${encodeURIComponent(entryId)}/reject`, { json: body });
   }
 
   /** GET /api/v1/health (no auth needed; used by "test API connection"). */

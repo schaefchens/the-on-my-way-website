@@ -1,0 +1,36 @@
+# End-to-end run: "Upload now" in the queue sheet sends the waiting moment; then "Upload
+# automatically" goes back on.
+appId: app.omw.traveler
+name: e2e - Upload now
+tags:
+  - e2e
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 60000
+- tapOn:
+    id: sync-pill
+- extendedWaitUntil:
+    visible:
+      text: Ready to upload
+    timeout: 15000
+- tapOn:
+    id: upload-now-all
+- extendedWaitUntil:
+    notVisible:
+      text: Ready to upload
+    timeout: 60000
+- tapOn:
+    id: queue-sheet-close
+- tapOn:
+    id: settings-button
+- tapOn:
+    id: setting-auto
+- assertVisible:
+    id: setting-auto
+    checked: true
+- tapOn:
+    id: settings-back

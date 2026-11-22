@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- omw-native's own texts (notifications). Warm and short; German in res/values-de. -->
+<resources>
+  <string name="omw_app_name">On My Way</string>
+  <string name="omw_channel_uploads">Uploads</string>
+  <string name="omw_channel_uploads_description">Quiet progress while your moments are on their way</string>
+  <plurals name="omw_uploading">
+    <item quantity="one">Uploading 1 moment · %2$d %%</item>
+    <item quantity="other">Uploading %1$d moments · %2$d %%</item>
+  </plurals>
+  <string name="omw_upload_waiting">Your moments are waiting for the next connection</string>
+  <string name="omw_channel_export">Preparing</string>
+  <string name="omw_channel_export_description">Quiet progress while a video is being prepared</string>
+  <string name="omw_exporting">Preparing your video… %1$d %%</string>
+  <string name="omw_exporting_photo">Preparing your photo…</string>
+</resources>

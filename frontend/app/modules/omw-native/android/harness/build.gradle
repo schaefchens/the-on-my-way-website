@@ -1,0 +1,16 @@
+// The same plugin versions as the app build (AGP 9.2.1 from react-native 0.88, Kotlin 2.2.10 from
+// Expo 58), so nothing new is downloaded and both builds compile the sources alike.
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:9.2.1'
+    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10'
+  }
+}
+
+// Keep every output of the harness out of the source tree.
+def omwRoot = file(findProperty('omwRoot') ?: '../../../../../..')
+layout.buildDirectory = new File(omwRoot, '.cache/omw-native-harness/root')

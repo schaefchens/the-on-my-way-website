@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AppVisibilityRequest.json",
+  "title": "AppVisibilityRequest",
+  "additionalProperties": false,
+  "properties": {
+    "visibility": {
+      "enum": [
+        "pending",
+        "hidden"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "visibility"
+  ],
+  "type": "object"
+}

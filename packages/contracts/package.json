@@ -26,6 +26,16 @@
       "types": "./dist/api.d.ts",
       "default": "./dist/api.js"
     },
+    "./app": {
+      "@omw/source": "./src/app.ts",
+      "types": "./dist/app.d.ts",
+      "default": "./dist/app.js"
+    },
+    "./app-inbox": {
+      "@omw/source": "./src/app-inbox.ts",
+      "types": "./dist/app-inbox.d.ts",
+      "default": "./dist/app-inbox.js"
+    },
     "./policy": {
       "@omw/source": "./src/policy.ts",
       "types": "./dist/policy.d.ts",
@@ -57,7 +67,9 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "schemas": "TSX_DISABLE_CACHE=1 node --import tsx scripts/export-schemas.ts",
-    "schemas:check": "TSX_DISABLE_CACHE=1 node --import tsx scripts/export-schemas.ts --check"
+    "schemas:check": "TSX_DISABLE_CACHE=1 node --import tsx scripts/export-schemas.ts --check",
+    "vectors:app": "TSX_DISABLE_CACHE=1 node --import tsx scripts/app-vectors.ts",
+    "vectors:app:check": "TSX_DISABLE_CACHE=1 node --import tsx scripts/app-vectors.ts --check"
   },
   "dependencies": {
     "zod": "4.6.7"

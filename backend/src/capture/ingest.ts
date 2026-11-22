@@ -53,6 +53,7 @@ import { exists } from '../pipeline/files.js';
 import type { ImageEncodeOptions } from '../pipeline/image.js';
 import { type ProcessOutput, processOriginal } from '../pipeline/index.js';
 import { type CaptureRow, newCaptureFromInbox, type Store } from '../store/index.js';
+import { appPipelineInput, isAppRecordPath } from './app-archive.js';
 import {
   ArchiveIntegrityError,
   type ArchiveOriginal,
@@ -778,6 +779,9 @@ export class CaptureIngest implements Ingest {
 
   /** received -> archived: copy the original (verified) and write the archive record. */
   private async archiveStep(row: CaptureRow): Promise<CaptureRow> {
+    // App entries are archived by capture/app-source.ts and inserted already archived.
+    if (row.source === 'app')
+      throw new ArchiveIntegrityError(`${row.sourceKey}: app entries are archived by the app source`);
     const msgId = this.msgIdOf(row);
     const res = await readInboxMeta(this.paths.inbox, msgId);
     let meta: InboxMeta;
@@ -905,6 +909,20 @@ export class CaptureIngest implements Ingest {
 
   private async processStep(row: CaptureRow, signal: AbortSignal): Promise<ProcessOutput> {
     if (!row.archivePath) throw new Error('capture has no archive record');
+    const pipeline = {
+      mediaDir: this.config.dirs.media,
+      tools: this.tools,
+      encode: this.options.encode,
+      x264Preset: this.options.x264Preset,
+    };
+    if (isAppRecordPath(row.archivePath)) {
+      // Traveler app entry (capture/app-archive.ts): the media artifact, never the private original.
+      const app = await appPipelineInput(this.config.dirs.archive, row);
+      return processOriginal(
+        { kind: row.kind, file: app.file, sha256: app.sha256, media: row.media, signal },
+        pipeline,
+      );
+    }
     const record = await readArchiveRecord(this.config.dirs.archive, row.archivePath);
     const file = archivedOriginalPath(this.config.dirs.archive, row.archivePath, record);
     if (isMediaKind(row.kind) && !file) throw new Error('archive record has no original');

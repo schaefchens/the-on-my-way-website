@@ -1,0 +1,1922 @@
+{
+  "description": "AppEntryCreate bodies (packages/contracts/src/app.ts). stage \"schema\": api/schemas/AppEntryCreate.json rejects the body; stage \"rules\": the schema accepts it and appEntryProblems() rejects it at `paths` (dot-joined, relative to entry).",
+  "cases": [
+    {
+      "name": "photo with caption, alt, preview and HEIC original",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": true
+    },
+    {
+      "name": "video, held back, mp4 original",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 1920,
+            "seconds": 42.5
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 24567890,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/mp4",
+              "bytes": 734003200,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "pending"
+        }
+      },
+      "valid": true
+    },
+    {
+      "name": "text status",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "text",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Europe/Berlin",
+          "text": {
+            "body": "Xin chào Việt Nam! 🍜",
+            "bgArgb": 4290660980,
+            "textArgb": 4294967295,
+            "font": "CALISTOGA_REGULAR"
+          },
+          "files": [],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": true
+    },
+    {
+      "name": "voice on an earlier day",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "voice",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "seconds": 12,
+            "ptt": true
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "audio/mp4",
+              "bytes": 98765,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "localDate": "2026-11-19"
+        }
+      },
+      "valid": true
+    },
+    {
+      "name": "photo without preview or original",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": true
+    },
+    {
+      "name": "video exactly 60 s, muted export, hidden",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 1920,
+            "seconds": 60
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 24567890,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/mp4",
+              "bytes": 734003200,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "hidden"
+        }
+      },
+      "valid": true
+    },
+    {
+      "name": "unknown kind gif",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "gif",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "source must be app",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "whatsapp",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "lowercase ULID",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01jd3zq8x4v7n2k5m9p0r6s8tw",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "ULID with I",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TI",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "offset instead of UTC",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T16:15:00+07:00",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "translucent text background",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "text",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Europe/Berlin",
+          "text": {
+            "body": "Xin chào Việt Nam! 🍜",
+            "bgArgb": 2148676694,
+            "textArgb": 4294967295,
+            "font": "CALISTOGA_REGULAR"
+          },
+          "files": [],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "unknown font",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "text",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Europe/Berlin",
+          "text": {
+            "body": "Xin chào Việt Nam! 🍜",
+            "bgArgb": 4290660980,
+            "textArgb": 4294967295,
+            "font": "COMIC_SANS"
+          },
+          "files": [],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "text body too long (701)",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "text",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Europe/Berlin",
+          "text": {
+            "body": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "bgArgb": 4290660980,
+            "textArgb": 4294967295,
+            "font": "CALISTOGA_REGULAR"
+          },
+          "files": [],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "empty text body",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "text",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Europe/Berlin",
+          "text": {
+            "body": "",
+            "bgArgb": 4290660980,
+            "textArgb": 4294967295,
+            "font": "CALISTOGA_REGULAR"
+          },
+          "files": [],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "caption too long (1025)",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "coordinates are not part of the contract",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "location": {
+            "lat": 15.88,
+            "lon": 108.33
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema",
+      "note": "unknown key: rejected by the JSON Schema, stripped by zod"
+    },
+    {
+      "name": "visibility public is not an app choice",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "public"
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "four files",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            },
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "uppercase sha256",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "zero-byte file",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 0,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "missing client",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        }
+      },
+      "valid": false,
+      "stage": "schema"
+    },
+    {
+      "name": "unknown time zone",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Mars/Olympus_Mons",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "schema",
+      "note": "IANA zone rule (not expressible in JSON Schema)"
+    },
+    {
+      "name": "text kind without text",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "text",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Europe/Berlin",
+          "files": [],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "text"
+      ]
+    },
+    {
+      "name": "photo carrying text",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "text": {
+            "body": "Xin chào Việt Nam! 🍜",
+            "bgArgb": 4290660980,
+            "textArgb": 4294967295,
+            "font": "CALISTOGA_REGULAR"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "text"
+      ]
+    },
+    {
+      "name": "text status with a caption and a file",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "text",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Europe/Berlin",
+          "text": {
+            "body": "Xin chào Việt Nam! 🍜",
+            "bgArgb": 4290660980,
+            "textArgb": 4294967295,
+            "font": "CALISTOGA_REGULAR"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 1,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "caption": "hi"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "caption",
+        "files.0"
+      ]
+    },
+    {
+      "name": "voice with a caption",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "voice",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "seconds": 12,
+            "ptt": true
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "audio/mp4",
+              "bytes": 98765,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "localDate": "2026-11-19",
+          "caption": "listen"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "caption"
+      ]
+    },
+    {
+      "name": "photo without media facts",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media"
+      ]
+    },
+    {
+      "name": "photo without height",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media"
+      ]
+    },
+    {
+      "name": "photo too large (1601 short side)",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1601,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media"
+      ]
+    },
+    {
+      "name": "video longer than 60 s",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 1920,
+            "seconds": 60.5
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 24567890,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/mp4",
+              "bytes": 734003200,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "pending"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media.seconds"
+      ]
+    },
+    {
+      "name": "video without seconds",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 1920
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 24567890,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/mp4",
+              "bytes": 734003200,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "pending"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media.seconds"
+      ]
+    },
+    {
+      "name": "video above 1920 px",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 2160,
+            "seconds": 42.5
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 24567890,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/mp4",
+              "bytes": 734003200,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "pending"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media"
+      ]
+    },
+    {
+      "name": "voice with alt text",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "voice",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "seconds": 12,
+            "ptt": true,
+            "accessibilityLabel": "a voice note"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "audio/mp4",
+              "bytes": 98765,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "localDate": "2026-11-19"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media.accessibilityLabel"
+      ]
+    },
+    {
+      "name": "ptt on a photo",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An",
+            "ptt": true
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "media.ptt"
+      ]
+    },
+    {
+      "name": "photo published as PNG",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/png",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.0.mimetype"
+      ]
+    },
+    {
+      "name": "voice as OGG/Opus (the app records AAC)",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "voice",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "seconds": 12,
+            "ptt": true
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "audio/ogg",
+              "bytes": 98765,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "localDate": "2026-11-19"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.0.mimetype"
+      ]
+    },
+    {
+      "name": "two media files",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "voice",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "seconds": 12,
+            "ptt": true
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "audio/mp4",
+              "bytes": 98765,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "media",
+              "mimetype": "audio/mp4",
+              "bytes": 98765,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "localDate": "2026-11-19"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.1.role"
+      ]
+    },
+    {
+      "name": "photo without a media file",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 48210,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files"
+      ]
+    },
+    {
+      "name": "media file above 100 MiB",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 1920,
+            "seconds": 42.5
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 104857601,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/mp4",
+              "bytes": 734003200,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "pending"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.0.bytes"
+      ]
+    },
+    {
+      "name": "preview above 512 KiB",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "photo",
+          "occurredAt": "2026-11-20T09:15:00.000Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "caption": "Lanterns in Hội An 🏮",
+          "media": {
+            "width": 1600,
+            "height": 2880,
+            "accessibilityLabel": "Text on image: Hội An"
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "image/jpeg",
+              "bytes": 812345,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "preview",
+              "mimetype": "image/jpeg",
+              "bytes": 524289,
+              "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            {
+              "role": "original",
+              "mimetype": "image/heic",
+              "bytes": 3456789,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          }
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.1.bytes"
+      ]
+    },
+    {
+      "name": "voice with an original",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "voice",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "seconds": 12,
+            "ptt": true
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "audio/mp4",
+              "bytes": 98765,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "audio/ogg",
+              "bytes": 5,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "localDate": "2026-11-19"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.1.role"
+      ]
+    },
+    {
+      "name": "video original as MKV",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 1920,
+            "seconds": 42.5
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 24567890,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/x-matroska",
+              "bytes": 734003200,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "pending"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.1.mimetype"
+      ]
+    },
+    {
+      "name": "original above 4 GiB",
+      "body": {
+        "contractVersion": 1,
+        "clientNow": "2026-11-20T09:15:02.000Z",
+        "entry": {
+          "schema": 1,
+          "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+          "source": "app",
+          "kind": "video",
+          "occurredAt": "2026-11-20T09:15:00Z",
+          "tz": "Asia/Ho_Chi_Minh",
+          "media": {
+            "width": 1080,
+            "height": 1920,
+            "seconds": 42.5
+          },
+          "files": [
+            {
+              "role": "media",
+              "mimetype": "video/mp4",
+              "bytes": 24567890,
+              "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "role": "original",
+              "mimetype": "video/mp4",
+              "bytes": 4294967297,
+              "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ],
+          "client": {
+            "app": "2026.11.20-1a2b3c4",
+            "platform": "android",
+            "os": "16"
+          },
+          "visibility": "pending"
+        }
+      },
+      "valid": false,
+      "stage": "rules",
+      "paths": [
+        "files.1.bytes"
+      ]
+    }
+  ]
+}

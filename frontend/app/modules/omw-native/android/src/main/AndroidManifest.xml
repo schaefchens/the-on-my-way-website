@@ -1,0 +1,27 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Network state for the A4 upload rules (unmetered = Wi-Fi, roaming, validated). -->
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <!-- The uploader: a user-initiated data transfer job on API 34+, persisted across reboots
+       (WorkManager declares its own boot receiver for API 29–33). -->
+  <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <!-- The silent progress notifications; the app asks for it at the first upload (API 33+). -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <!-- The export foreground service, started at Share while the app is visible:
+       mediaProcessing on API 35+, dataSync on 29–34. Declare both types in the Play Console. -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING" />
+
+  <application>
+    <service
+      android:name="app.omw.omwnative.UploadJobService"
+      android:exported="false"
+      android:permission="android.permission.BIND_JOB_SERVICE" />
+    <service
+      android:name="app.omw.omwnative.MediaExportService"
+      android:exported="false"
+      android:foregroundServiceType="dataSync|mediaProcessing" />
+  </application>
+</manifest>

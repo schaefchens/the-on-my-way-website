@@ -1,0 +1,27 @@
+# End-to-end run, step 2: a photo, a text status, a voice note and a trimmed, muted video, shared
+# one after the other (on mobile data with "Wi-Fi only" on, so they wait). The video is recorded
+# for ~20 s, so its original (~3 MB from the virtual camera) is still on its way while the run
+# kills the app and switches the network. Never force-stops the app (that would cancel its
+# upload jobs): launchApp with stopApp false.
+appId: app.omw.traveler
+name: e2e - capture all four kinds
+tags:
+  - e2e
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 60000
+- runFlow: ../subflows/capture-photo-steps.yaml
+- runFlow:
+    file: ../subflows/text-steps.yaml
+    env:
+      TEXT: Day three, still smiling
+- runFlow: ../subflows/voice-steps.yaml
+- runFlow:
+    file: ../subflows/video-steps.yaml
+    env:
+      REC_WAITS: 7
+- takeScreenshot: e2e-02-captured

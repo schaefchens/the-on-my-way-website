@@ -1,0 +1,52 @@
+// Dependencies, test source sets and test options of omw-native, shared by the Expo build
+// (build.gradle, inside the app's generated android/ project) and the standalone harness
+// (harness/, which builds the same sources without React Native for the JVM and emulator tests).
+//
+// Media3 is pinned to 1.9.1 for every androidx.media3 artifact: the version expo-video 58 builds
+// against, so the app never carries two Media3 versions. OkHttp 4.12.0 is the newest 4.x and
+// API-compatible with the 4.9.2 that react-android 0.88 asks for.
+def omwModuleDir = buildscript.sourceFile.parentFile
+def omwMedia3 = '1.9.1'
+def omwOkHttp = '4.12.0'
+def omwWork = '2.11.2'
+def omwAndroidTest = '1.7.0'
+
+android {
+  defaultConfig {
+    testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+  }
+  sourceSets {
+    test.java.srcDir new File(omwModuleDir, 'src/sharedTest/java')
+    androidTest.java.srcDir new File(omwModuleDir, 'src/sharedTest/java')
+  }
+  testOptions {
+    unitTests.returnDefaultValues = true
+    unitTests.all {
+      // The contract's shared vectors (fixtures/vectors/app-chunks.json).
+      systemProperty 'omw.fixtures', new File(omwModuleDir, '../../../../../fixtures').canonicalPath
+    }
+  }
+}
+
+dependencies {
+  implementation 'androidx.core:core-ktx:1.17.0'
+  implementation "com.squareup.okhttp3:okhttp:$omwOkHttp"
+  implementation "androidx.work:work-runtime:$omwWork"
+  implementation 'androidx.exifinterface:exifinterface:1.3.6'
+  implementation "androidx.media3:media3-common:$omwMedia3"
+  implementation "androidx.media3:media3-transformer:$omwMedia3"
+  implementation "androidx.media3:media3-effect:$omwMedia3"
+  implementation "androidx.media3:media3-muxer:$omwMedia3"
+
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation "com.squareup.okhttp3:mockwebserver:$omwOkHttp"
+  // A real org.json on the JVM (android.jar only has stubs there).
+  testImplementation 'org.json:json:20250517'
+
+  androidTestImplementation 'junit:junit:4.13.2'
+  androidTestImplementation "androidx.test:runner:$omwAndroidTest"
+  androidTestImplementation "androidx.test:core:$omwAndroidTest"
+  androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+  androidTestImplementation "com.squareup.okhttp3:mockwebserver:$omwOkHttp"
+  androidTestImplementation "androidx.work:work-testing:$omwWork"
+}

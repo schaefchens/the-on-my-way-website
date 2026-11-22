@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AppPairRequest.json",
+  "title": "AppPairRequest",
+  "additionalProperties": false,
+  "properties": {
+    "appVersion": {
+      "maxLength": 40,
+      "minLength": 1,
+      "type": "string"
+    },
+    "code": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+          "type": "string"
+        },
+        {
+          "pattern": "^[0-9A-HJKMNP-TV-Z]{8}$",
+          "type": "string"
+        }
+      ]
+    },
+    "contractVersion": {
+      "const": 1,
+      "type": "number"
+    },
+    "deviceName": {
+      "maxLength": 100,
+      "minLength": 1,
+      "type": "string"
+    },
+    "installId": {
+      "pattern": "^[A-Za-z0-9_-]{22,64}$",
+      "type": "string"
+    },
+    "platform": {
+      "enum": [
+        "android",
+        "ios"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "contractVersion",
+    "code",
+    "deviceName",
+    "platform",
+    "appVersion"
+  ],
+  "type": "object"
+}

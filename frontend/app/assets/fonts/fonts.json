@@ -1,0 +1,129 @@
+{
+  "calistoga_400": {
+    "axes": {},
+    "bytes": 196636,
+    "family": "Calistoga",
+    "license": "licenses/calistoga-OFL.txt",
+    "sha256": "226b48c618b55f665dca851bc46f454030f158047031937f1c61d476c5f64044",
+    "sources": {
+      "frontend/shared/node_modules/@fontsource/calistoga/files/calistoga-latin-400-normal.woff2": "5b0f44a30de7995469b97343d22c34cafadbd5a1dc0d9cc7b9c399be5ac92057",
+      "frontend/shared/node_modules/@fontsource/calistoga/files/calistoga-latin-ext-400-normal.woff2": "c6e040e78df35a7aef681f99af28aae0f45ef79d99bbb2b3cff1ea70d0dd7cd8",
+      "frontend/shared/node_modules/@fontsource/calistoga/files/calistoga-vietnamese-400-normal.woff2": "e4990cdfa4d48e285b4111ef6beb10b075bee2646db9f335591a6db48f6022e1"
+    },
+    "weight": 400
+  },
+  "courier_prime_700": {
+    "axes": {},
+    "bytes": 65712,
+    "family": "Courier Prime",
+    "license": "licenses/courier-prime-OFL.txt",
+    "sha256": "1ba332ec49136b7e6682522178950a46202f1d04c6722c2d4d54b506ec2d56b6",
+    "sources": {
+      "frontend/shared/node_modules/@fontsource/courier-prime/files/courier-prime-latin-700-normal.woff2": "5c7ae1cc9aae183453565c836b74a1b988f5f2e52b65098decb909b3930957ec",
+      "frontend/shared/node_modules/@fontsource/courier-prime/files/courier-prime-latin-ext-700-normal.woff2": "b7ce6854b9082533919ab47566fc92e9dac95d9a9cc209f5ee1922faa6a19ea9"
+    },
+    "weight": 700
+  },
+  "exo2_800": {
+    "axes": {
+      "wght": 800
+    },
+    "bytes": 88828,
+    "family": "Exo 2",
+    "license": "licenses/exo-2-OFL.txt",
+    "sha256": "5dd4d0ee3e93ac0750e303ccfa834a0111ff16a87f3ce27cb27de52c73ab09fa",
+    "sources": {
+      "frontend/shared/node_modules/@fontsource-variable/exo-2/files/exo-2-latin-ext-wght-normal.woff2": "a3b66800e9aa36bd8f3cc59f29024c9e063a2ac607d955dd27e149c29cac8410",
+      "frontend/shared/node_modules/@fontsource-variable/exo-2/files/exo-2-latin-wght-normal.woff2": "4a259dde317e08aa5d37e6eb684e222ae833516b2a0fccba36ee5e36224f16be",
+      "frontend/shared/node_modules/@fontsource-variable/exo-2/files/exo-2-vietnamese-wght-normal.woff2": "d9b823830add55511fb4381f43a752b7a682af0df7542931d89c0c10c86af087"
+    },
+    "weight": 800
+  },
+  "fraunces_600": {
+    "axes": {
+      "SOFT": 100,
+      "wght": 600
+    },
+    "bytes": 89696,
+    "family": "Fraunces",
+    "license": "licenses/fraunces-OFL.txt",
+    "sha256": "b4d49159091456924e9965058468a583f5fafc52e17ed2ab23a19cae87b01c68",
+    "sources": {
+      "frontend/shared/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-soft-normal.woff2": "3b9385a63af00a9ad448c95894502090e7db5f13c860cc433580e8e44d1e521f",
+      "frontend/shared/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-soft-normal.woff2": "9fc3a8586b9152f25ffb3627789e5b1b4a9437b2bf67fb1bee275833bf05fcaa",
+      "frontend/shared/node_modules/@fontsource-variable/fraunces/files/fraunces-vietnamese-soft-normal.woff2": "d31fcf6fc02b90a5871a5d6880aaaca5fc217a44a0966eb8e6ced11b86a52fdd"
+    },
+    "weight": 600
+  },
+  "nunito_400": {
+    "axes": {
+      "wght": 400
+    },
+    "bytes": 95268,
+    "family": "Nunito",
+    "license": "licenses/nunito-OFL.txt",
+    "sha256": "fc0fd8387dd76f86eba99af056b21477cafeb49470d23b58b3971286200e9fc5",
+    "sources": {
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-latin-ext-wght-normal.woff2": "2c8d792869818ecb253a46bc3c63c7013df7aac2f69291c3c85e5cdc94160960",
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-latin-wght-normal.woff2": "ba344451eab25b217a165363b1982048a5e5830a0daf36577973955a04cac793",
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-vietnamese-wght-normal.woff2": "61e5958cf3c731423456b31739aa454317ea3bdcb205dd87090e94f632c3642b"
+    },
+    "weight": 400
+  },
+  "nunito_700": {
+    "axes": {
+      "wght": 700
+    },
+    "bytes": 95372,
+    "family": "Nunito",
+    "license": "licenses/nunito-OFL.txt",
+    "sha256": "8196231891265809a736e99b9f74ae2f8ea7adbf810a57c8521910d143860e49",
+    "sources": {
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-latin-ext-wght-normal.woff2": "2c8d792869818ecb253a46bc3c63c7013df7aac2f69291c3c85e5cdc94160960",
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-latin-wght-normal.woff2": "ba344451eab25b217a165363b1982048a5e5830a0daf36577973955a04cac793",
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-vietnamese-wght-normal.woff2": "61e5958cf3c731423456b31739aa454317ea3bdcb205dd87090e94f632c3642b"
+    },
+    "weight": 700
+  },
+  "nunito_800": {
+    "axes": {
+      "wght": 800
+    },
+    "bytes": 95404,
+    "family": "Nunito",
+    "license": "licenses/nunito-OFL.txt",
+    "sha256": "b8a0396797ccdc2ed67ec91b4ea57a31a2438a726bf1712edf66ed87203719dc",
+    "sources": {
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-latin-ext-wght-normal.woff2": "2c8d792869818ecb253a46bc3c63c7013df7aac2f69291c3c85e5cdc94160960",
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-latin-wght-normal.woff2": "ba344451eab25b217a165363b1982048a5e5830a0daf36577973955a04cac793",
+      "frontend/shared/node_modules/@fontsource-variable/nunito/files/nunito-vietnamese-wght-normal.woff2": "61e5958cf3c731423456b31739aa454317ea3bdcb205dd87090e94f632c3642b"
+    },
+    "weight": 800
+  },
+  "playpen_sans_400": {
+    "axes": {},
+    "bytes": 106312,
+    "family": "Playpen Sans",
+    "license": "licenses/playpen-sans-OFL.txt",
+    "sha256": "5da89873c47c594a6ba55d2c484020aa4ccd3fbca5bdf6d07bbccdaa65ae5566",
+    "sources": {
+      "frontend/shared/fonts/playpen-sans/playpen-sans-latin-400.woff2": "0a4cf644fb6772ed6616259071c1fa60203049063c1e408a5c4af42b73055794",
+      "frontend/shared/fonts/playpen-sans/playpen-sans-latin-ext-400.woff2": "6166a3b4846aff22797ec932b4b40f8924009a9ca5489b4dc6756efd8af1709d",
+      "frontend/shared/fonts/playpen-sans/playpen-sans-vietnamese-400.woff2": "bbac8d6b3b67d4b14d28ecc42abbc1cc2f8434cfdf910c5ae2bea87f2d7616af"
+    },
+    "weight": 400
+  },
+  "playpen_sans_500": {
+    "axes": {},
+    "bytes": 106412,
+    "family": "Playpen Sans",
+    "license": "licenses/playpen-sans-OFL.txt",
+    "sha256": "b73317be437d600f8d85686be6873473624bb81030e9a3423998d9acbc1881cd",
+    "sources": {
+      "frontend/shared/fonts/playpen-sans/playpen-sans-latin-500.woff2": "5d96d8a6b4ca988b14322262637e31f34ad75a79c6ea222b2ce1dc95dde0a1a7",
+      "frontend/shared/fonts/playpen-sans/playpen-sans-latin-ext-500.woff2": "ff0a323e44bdeebbe60663afed4d5820851da969f8ceed0bebf8bda6168dd7be",
+      "frontend/shared/fonts/playpen-sans/playpen-sans-vietnamese-500.woff2": "1444ddba64a05c37c5851d7140765ad2c9db09c985372bbc145036b6125d4f66"
+    },
+    "weight": 500
+  }
+}

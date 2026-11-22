@@ -1,0 +1,45 @@
+// omw-native without the Expo bridges (src/expo/java). See ../settings.gradle.
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+def moduleDir = file('../..')
+def omwRoot = file(findProperty('omwRoot') ?: '../../../../../../..')
+
+layout.buildDirectory = new File(omwRoot, '.cache/omw-native-harness/core')
+
+android {
+  namespace 'app.omw.omwnative'
+  compileSdk 37
+  defaultConfig {
+    minSdk 29
+    targetSdk 36
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+  sourceSets {
+    main {
+      manifest.srcFile new File(moduleDir, 'src/main/AndroidManifest.xml')
+      java.srcDirs = [new File(moduleDir, 'src/main/java')]
+      res.srcDirs = [new File(moduleDir, 'src/main/res')]
+    }
+    test {
+      java.srcDirs = [new File(moduleDir, 'src/test/java')]
+    }
+    androidTest {
+      manifest.srcFile new File(moduleDir, 'src/androidTest/AndroidManifest.xml')
+      java.srcDirs = [new File(moduleDir, 'src/androidTest/java')]
+    }
+  }
+  testOptions {
+    // The instrumented tests flip Wi-Fi and mobile data; never run two test classes at once.
+    animationsDisabled = true
+  }
+}
+
+kotlin {
+  jvmToolchain(17)
+}
+
+apply from: new File(moduleDir, 'omw-native.gradle')

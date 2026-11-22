@@ -1,0 +1,89 @@
+{
+  "description": "normalizeAppPairingCode(), appPairingCodeFromLink() (only omw://pair#<26-char code>; a link never sets the API base) and formatAppTypedPairingCode().",
+  "normalize": [
+    {
+      "input": "ABCD-EFGH",
+      "expected": "ABCDEFGH"
+    },
+    {
+      "input": " abcd efgh ",
+      "expected": "ABCDEFGH"
+    },
+    {
+      "input": "abcd efgh",
+      "expected": "ABCDEFGH"
+    },
+    {
+      "input": "O0IL-1234",
+      "expected": "00111234"
+    },
+    {
+      "input": "ABCD-EFGU",
+      "expected": null
+    },
+    {
+      "input": "ABCDEFG",
+      "expected": null
+    },
+    {
+      "input": "ABCDEFGHJ",
+      "expected": null
+    },
+    {
+      "input": "01jd3zq8x4v7n2k5m9p0r6s8tw",
+      "expected": "01JD3ZQ8X4V7N2K5M9P0R6S8TW"
+    },
+    {
+      "input": "ÄBCDEFGH",
+      "expected": null
+    },
+    {
+      "input": "",
+      "expected": null
+    }
+  ],
+  "link": [
+    {
+      "url": "omw://pair#01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+      "expected": "01JD3ZQ8X4V7N2K5M9P0R6S8TW"
+    },
+    {
+      "url": "omw://pair/#01jd3zq8x4v7n2k5m9p0r6s8tw",
+      "expected": "01JD3ZQ8X4V7N2K5M9P0R6S8TW"
+    },
+    {
+      "url": "OMW://PAIR#01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+      "expected": "01JD3ZQ8X4V7N2K5M9P0R6S8TW"
+    },
+    {
+      "url": "omw://pair#ABCD-EFGH",
+      "expected": null
+    },
+    {
+      "url": "omw://pair?api=https://evil.example#01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+      "expected": null
+    },
+    {
+      "url": "https://example.org/pair#01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+      "expected": null
+    },
+    {
+      "url": "omw://pair#",
+      "expected": null
+    },
+    {
+      "url": "omw://pair#%E0%A4%A",
+      "expected": null
+    }
+  ],
+  "format": [
+    {
+      "code": "ABCDEFGH",
+      "expected": "ABCD-EFGH"
+    },
+    {
+      "code": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+      "expected": "01JD3ZQ8X4V7N2K5M9P0R6S8TW"
+    }
+  ]
+}

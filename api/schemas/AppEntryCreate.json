@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AppEntryCreate.json",
+  "title": "AppEntryCreate",
+  "additionalProperties": false,
+  "properties": {
+    "clientNow": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+      "type": "string"
+    },
+    "contractVersion": {
+      "const": 1,
+      "type": "number"
+    },
+    "entry": {
+      "additionalProperties": false,
+      "properties": {
+        "caption": {
+          "maxLength": 1024,
+          "minLength": 1,
+          "type": "string"
+        },
+        "client": {
+          "additionalProperties": false,
+          "properties": {
+            "app": {
+              "maxLength": 40,
+              "minLength": 1,
+              "type": "string"
+            },
+            "os": {
+              "maxLength": 32,
+              "type": "string"
+            },
+            "platform": {
+              "enum": [
+                "android",
+                "ios"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "app",
+            "platform"
+          ],
+          "type": "object"
+        },
+        "entryId": {
+          "pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "type": "string"
+        },
+        "files": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "bytes": {
+                "maximum": 9007199254740991,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "mimetype": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "media",
+                  "preview",
+                  "original"
+                ],
+                "type": "string"
+              },
+              "sha256Hex": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "role",
+              "mimetype",
+              "bytes",
+              "sha256Hex"
+            ],
+            "type": "object"
+          },
+          "maxItems": 3,
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "photo",
+            "video",
+            "text",
+            "voice"
+          ],
+          "type": "string"
+        },
+        "localDate": {
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+          "type": "string"
+        },
+        "media": {
+          "additionalProperties": false,
+          "properties": {
+            "accessibilityLabel": {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "height": {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "ptt": {
+              "type": "boolean"
+            },
+            "seconds": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "width": {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "occurredAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+          "type": "string"
+        },
+        "schema": {
+          "const": 1,
+          "type": "number"
+        },
+        "source": {
+          "const": "app",
+          "type": "string"
+        },
+        "text": {
+          "additionalProperties": false,
+          "properties": {
+            "bgArgb": {
+              "maximum": 4294967295,
+              "minimum": 4278190080,
+              "type": "integer"
+            },
+            "body": {
+              "maxLength": 700,
+              "minLength": 1,
+              "type": "string"
+            },
+            "font": {
+              "enum": [
+                "SYSTEM",
+                "SYSTEM_TEXT",
+                "FB_SCRIPT",
+                "SYSTEM_BOLD",
+                "MORNINGBREEZE_REGULAR",
+                "CALISTOGA_REGULAR",
+                "EXO2_EXTRABOLD",
+                "COURIERPRIME_BOLD"
+              ],
+              "type": "string"
+            },
+            "textArgb": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "body",
+            "bgArgb",
+            "textArgb",
+            "font"
+          ],
+          "type": "object"
+        },
+        "tz": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_+\\-/]*$",
+          "type": "string"
+        },
+        "visibility": {
+          "enum": [
+            "pending",
+            "hidden"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "entryId",
+        "source",
+        "kind",
+        "occurredAt",
+        "tz",
+        "files",
+        "client"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "contractVersion",
+    "clientNow",
+    "entry"
+  ],
+  "type": "object"
+}

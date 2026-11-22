@@ -1,0 +1,16 @@
+# A fresh install state: no data, Today on screen, the one-time cards answered.
+appId: app.omw.traveler
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 180000
+- runFlow:
+    when:
+      visible:
+        id: oem-done
+    commands:
+      - tapOn:
+          id: oem-done

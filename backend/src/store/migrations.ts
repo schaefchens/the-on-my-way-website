@@ -194,6 +194,58 @@ export const MIGRATIONS: readonly Migration[] = [
       `);
     },
   },
+  {
+    // The traveler app (app-plan §3.7): captures.source also allows 'app' (sourceKey "app:<ULID>",
+    // capture/app-source.ts). SQLite cannot change a CHECK in place, so captures is rebuilt with
+    // the same columns and indexes (no foreign key references it). Nothing else changes.
+    version: 2,
+    name: 'captures.source app',
+    up(db) {
+      db.exec(`
+        CREATE TABLE captures_v2 (
+          source_key          TEXT PRIMARY KEY,
+          public_id           TEXT NOT NULL UNIQUE,
+          msg_id              TEXT,
+          source              TEXT NOT NULL CHECK (source IN ('live', 'history', 'fixture', 'app')),
+          kind                TEXT NOT NULL
+                              CHECK (kind IN ('photo', 'video', 'gif', 'voice', 'text', 'unsupported')),
+          occurred_at         TEXT NOT NULL,
+          received_at         TEXT,
+          tz                  TEXT NOT NULL,
+          local_date          TEXT NOT NULL,
+          caption             TEXT,
+          text_json           TEXT,
+          media_json          TEXT,
+          sender_json         TEXT,
+          state               TEXT NOT NULL DEFAULT 'received'
+                              CHECK (state IN ('awaiting_media', 'received', 'archived', 'processed', 'ready',
+                                               'failed', 'media_lost')),
+          download_state      TEXT NOT NULL DEFAULT 'not_applicable'
+                              CHECK (download_state IN ('pending', 'retrying', 'ok', 'failed', 'not_applicable')),
+          download_reason     TEXT,
+          download_permanent  INTEGER CHECK (download_permanent IN (0, 1)),
+          attempts            INTEGER NOT NULL DEFAULT 0,
+          next_attempt_at     TEXT,
+          last_error          TEXT,
+          archive_path        TEXT,
+          original_sha256     TEXT,
+          variants_json       TEXT,
+          processed_meta_json TEXT,
+          revoked_at          TEXT,
+          created_at          TEXT NOT NULL,
+          updated_at          TEXT NOT NULL,
+          CHECK (source <> 'app' OR (source_key GLOB 'app:*' AND msg_id IS NULL))
+        );
+        INSERT INTO captures_v2 SELECT * FROM captures;
+        DROP TABLE captures;
+        ALTER TABLE captures_v2 RENAME TO captures;
+        CREATE UNIQUE INDEX captures_msg_id ON captures (msg_id) WHERE msg_id IS NOT NULL;
+        CREATE INDEX captures_local_date ON captures (local_date, occurred_at);
+        CREATE INDEX captures_occurred_at ON captures (occurred_at);
+        CREATE INDEX captures_due ON captures (state, next_attempt_at);
+      `);
+    },
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.reduce((max, m) => Math.max(max, m.version), 0);

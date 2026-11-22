@@ -14,7 +14,11 @@
       "!backend/wa-helper",
       "!fixtures/generated",
       "!fixtures/vectors",
-      "!scripts/composer"
+      "!scripts/composer",
+      "!frontend/shared/src/styles/fonts.css",
+      "!frontend/app/android",
+      "!frontend/app/ios",
+      "!frontend/app/modules/*/android/build"
     ]
   },
   "formatter": {
@@ -22,6 +26,11 @@
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 120
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
   },
   "javascript": {
     "formatter": {

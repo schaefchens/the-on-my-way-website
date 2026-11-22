@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AppCommitRequest.json",
+  "title": "AppCommitRequest",
+  "additionalProperties": false,
+  "properties": {
+    "roles": {
+      "items": {
+        "enum": [
+          "media",
+          "preview",
+          "original"
+        ],
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 1,
+      "type": "array"
+    }
+  },
+  "required": [
+    "roles"
+  ],
+  "type": "object"
+}

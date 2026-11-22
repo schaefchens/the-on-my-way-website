@@ -12,6 +12,13 @@ import {
 } from '@omw/contracts/wa';
 import { z } from 'zod';
 
+/**
+ * Where a stored capture came from: WhatsApp's StatusSource (live, history, fixture) or the
+ * traveler app ("app", sourceKey "app:<ULID>", capture/app-source.ts; store migration v2).
+ */
+export const CaptureSource = z.enum([...StatusSource.options, 'app']);
+export type CaptureSource = z.infer<typeof CaptureSource>;
+
 /** Injected clock (tests pass a fixed one). */
 export type Clock = () => Date;
 export const systemClock: Clock = () => new Date();
@@ -66,7 +73,7 @@ export interface CaptureRow {
   sourceKey: string;
   publicId: string;
   msgId: string | null;
-  source: StatusSource;
+  source: CaptureSource;
   kind: CaptureKind;
   occurredAt: string;
   receivedAt: string | null;
@@ -96,7 +103,7 @@ export const NewCapture = z.object({
   sourceKey: SourceKey,
   publicId: CapturePublicId,
   msgId: z.string().nullable(),
-  source: StatusSource,
+  source: CaptureSource,
   kind: CaptureKind,
   occurredAt: z.string(),
   receivedAt: z.string().nullable().optional(),

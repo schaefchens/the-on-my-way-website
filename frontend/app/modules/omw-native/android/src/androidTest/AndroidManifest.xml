@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+  <!-- The fake API runs on 127.0.0.1 inside the test (MockWebServer). -->
+  <application android:usesCleartextTraffic="true">
+    <!-- Makes the app visible, which Android requires to schedule a UIDT job. -->
+    <activity
+      android:name="app.omw.omwnative.TestHostActivity"
+      android:exported="false" />
+    <!-- The uploader runs in its own process here, so a test can kill it mid-upload and watch
+         JobScheduler bring it back, while the test (and the fake API) live on. -->
+    <service
+      android:name="app.omw.omwnative.UploadJobService"
+      android:process=":upload"
+      tools:node="merge" />
+  </application>
+</manifest>

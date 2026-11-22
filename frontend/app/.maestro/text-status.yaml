@@ -1,0 +1,67 @@
+# A WhatsApp-compatible text status: type, another background (swipe, and the palette sheet),
+# another font (Aa, and the sheet), share -> it waits in the queue.
+appId: app.omw.traveler
+name: Text status - make and share
+tags:
+  - main
+---
+- runFlow: subflows/fresh-start.yaml
+- tapOn:
+    id: text-button
+- extendedWaitUntil:
+    visible:
+      id: text-screen
+    timeout: 10000
+- tapOn:
+    id: text-input
+- inputText: "Xin chao Vietnam"
+- hideKeyboard
+# Swipe = next background (the visible way is the palette sheet below).
+- swipe:
+    direction: LEFT
+    duration: 300
+- tapOn:
+    id: text-font
+- tapOn:
+    id: text-palette
+- extendedWaitUntil:
+    visible:
+      id: palette-sheet
+    timeout: 5000
+- tapOn:
+    id: swatch-ocean
+- assertVisible:
+    id: swatch-ocean
+    selected: true
+- tapOn:
+    id: sheet-font-CALISTOGA_REGULAR
+- tapOn:
+    id: palette-sheet-close
+- tapOn:
+    id: publish-line
+- extendedWaitUntil:
+    visible:
+      id: publish-sheet
+    timeout: 5000
+- assertVisible:
+    id: publish-archive-note
+- tapOn:
+    id: publish-option-pending
+- tapOn:
+    id: publish-share
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: today-item-0
+    timeout: 10000
+- tapOn:
+    id: sync-pill
+- extendedWaitUntil:
+    visible:
+      id: queue-sheet
+    timeout: 5000
+- assertVisible:
+    id: queue-row-status

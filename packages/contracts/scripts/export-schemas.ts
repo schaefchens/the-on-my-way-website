@@ -10,7 +10,7 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildApiJsonSchemas, SCHEMA_ID_PREFIX } from '../src/json-schema.js';
+import { buildAllJsonSchemas, SCHEMA_ID_PREFIX } from '../src/json-schema.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const outDir = resolve(here, '../../../api/schemas');
@@ -26,7 +26,7 @@ function isGenerated(file: string): boolean {
 }
 
 const files = new Map<string, string>();
-const schemas = buildApiJsonSchemas();
+const schemas = buildAllJsonSchemas();
 for (const [name, schema] of Object.entries(schemas)) {
   files.set(`${name}.json`, `${JSON.stringify(schema, null, 2)}\n`);
 }

@@ -1,0 +1,41 @@
+# Pairing with a typed one-time code against the LOCAL dev API (scripts/app/dev-api.sh, never a
+# live host): the moments shared before go on by themselves.
+#   CODE="$(scripts/app/dev-api.sh … --pair)"  ->  maestro test -e CODE=WVGM-YBDH .maestro/pair-code.yaml
+# Needs `adb reverse tcp:8080 tcp:8080`. Not part of the default run (tag "stack").
+appId: app.omw.traveler
+name: Pairing - typed code
+tags:
+  - stack
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 180000
+- tapOn:
+    id: pair-open
+- extendedWaitUntil:
+    visible:
+      id: pair-screen
+    timeout: 10000
+- tapOn:
+    id: pair-code
+- inputText: ${CODE}
+- hideKeyboard
+- assertVisible:
+    id: pair-connect
+    enabled: true
+- tapOn:
+    id: pair-connect
+- extendedWaitUntil:
+    visible:
+      id: pair-done
+    timeout: 20000
+- tapOn:
+    id: pair-start
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 10000
+- assertNotVisible:
+    id: pair-card

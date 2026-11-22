@@ -5,6 +5,7 @@
 | `@omw/ui` | `shared/` | Design tokens (Tailwind v4 theme, dawn/dusk), fonts, Motion presets, locale helpers, `<Picture>`. See [shared/README.md](shared/README.md). |
 | `@omw/site` | `site/` | Public timeline SPA: Vite base `./`, built into the backend image; the generator copies it to `/assets/`. |
 | `@omw/admin` | `admin/` | Admin PWA under `/admin/`, built into `api/public/admin` and deployed with the PHP API. |
+| `@omw/app` | `app/` | The traveler app (Expo SDK 58, React Native, Android first). No `build` script; see [app/README.md](app/README.md). Its stack differs from the table below. |
 
 Stack (versions pinned in each `package.json`): React 19.3, Vite 8.3 (Rolldown), TypeScript 7, Tailwind CSS 4.3 (`@tailwindcss/vite`), TanStack Router 1.170 (code-based routes) and Query 5, Motion 14 (`motion/react`, `LazyMotion`), Lingui 6.12, vite-plugin-pwa 2 (admin), Vitest 5.
 

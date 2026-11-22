@@ -58,14 +58,14 @@ describe('Store (in-memory)', () => {
 
   describe('migrations and meta', () => {
     it('migrates a fresh database to the latest version', () => {
-      expect(store.migration).toEqual({ from: 0, to: LATEST_SCHEMA_VERSION, applied: [1] });
+      expect(store.migration).toEqual({ from: 0, to: LATEST_SCHEMA_VERSION, applied: [1, 2] });
       expect(store.meta.schemaVersion()).toBe(LATEST_SCHEMA_VERSION);
       expect(store.db.pragma('foreign_keys', { simple: true })).toBe(1);
       expect(store.db.pragma('busy_timeout', { simple: true })).toBe(5000);
     });
 
     it('is idempotent', () => {
-      expect(migrate(store.db)).toEqual({ from: 1, to: 1, applied: [] });
+      expect(migrate(store.db)).toEqual({ from: LATEST_SCHEMA_VERSION, to: LATEST_SCHEMA_VERSION, applied: [] });
     });
 
     it('refuses databases from a newer backend', () => {
@@ -78,7 +78,7 @@ describe('Store (in-memory)', () => {
       const broken = [
         ...MIGRATIONS,
         {
-          version: 2,
+          version: MIGRATIONS.length + 1,
           name: 'broken',
           up(d: typeof db) {
             d.exec('CREATE TABLE half_done (x INTEGER)');
@@ -89,7 +89,9 @@ describe('Store (in-memory)', () => {
       expect(() => migrate(db, broken)).toThrow('boom');
       const tables = db.prepare("SELECT name FROM sqlite_master WHERE name = 'half_done'").all();
       expect(tables).toEqual([]);
-      expect(db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get()).toEqual({ value: '1' });
+      expect(db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get()).toEqual({
+        value: String(MIGRATIONS.length),
+      });
       db.close();
     });
 

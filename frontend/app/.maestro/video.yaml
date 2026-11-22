@@ -1,0 +1,60 @@
+# A short video from the virtual camera: Video mode, tap to start, tap to stop, then the trim bar
+# and "sound off" on the compose screen, share -> the phone exports it (MediaExport) and queues it.
+appId: app.omw.traveler
+name: Video - record, trim UI, mute, share
+tags:
+  - main
+---
+- runFlow: subflows/fresh-start.yaml
+- tapOn:
+    id: capture-button
+- extendedWaitUntil:
+    visible:
+      id: camera-view
+    timeout: 15000
+- tapOn:
+    id: mode-video
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: shutter
+- extendedWaitUntil:
+    visible:
+      id: record-timer
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: shutter
+- extendedWaitUntil:
+    visible:
+      id: compose-screen
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: trim-bar
+    timeout: 10000
+- assertVisible:
+    id: trim-start
+- assertVisible:
+    id: trim-end
+- tapOn:
+    id: compose-mute
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: today-item-0
+    timeout: 10000
+- tapOn:
+    id: sync-pill
+- extendedWaitUntil:
+    visible:
+      id: queue-sheet
+    timeout: 5000
+- assertVisible:
+    id: queue-row-status

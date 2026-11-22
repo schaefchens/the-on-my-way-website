@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AppInboxReject.json",
+  "title": "AppInboxReject",
+  "additionalProperties": false,
+  "properties": {
+    "reason": {
+      "maxLength": 200,
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "reason"
+  ],
+  "type": "object"
+}

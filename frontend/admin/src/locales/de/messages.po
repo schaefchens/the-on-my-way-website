@@ -53,6 +53,12 @@ msgstr "{0, plural, one {# wartet} other {# warten}}"
 msgid "{0} · it is {1} there"
 msgstr "{0} · dort ist es {1}"
 
+#. placeholder {0}: phone.entries.total
+#. placeholder {1}: phone.entries.inInbox
+#: src/screens/settings-phones.tsx
+msgid "{0} moments, {1} on the way"
+msgstr "{0} Momente, {1} unterwegs"
+
 #: src/components/conflict-dialog.tsx
 msgid "{autoMerged, plural, one {# other change of yours does not collide and is kept.} other {# other changes of yours do not collide and are kept.}}"
 msgstr "{autoMerged, plural, one {# weitere Änderung von dir kollidiert nicht und bleibt erhalten.} other {# weitere Änderungen von dir kollidieren nicht und bleiben erhalten.}}"
@@ -150,9 +156,17 @@ msgstr "{your} vom {when}"
 msgid "0 to 8760 hours"
 msgstr "0 bis 8760 Stunden"
 
+#: src/screens/settings-phones.tsx
+msgid "1 hour"
+msgstr "1 Stunde"
+
 #: src/screens/settings.tsx
 msgid "1 to 10080 minutes"
 msgstr "1 bis 10080 Minuten"
+
+#: src/screens/settings-phones.tsx
+msgid "24 hours"
+msgstr "24 Stunden"
 
 #: src/screens/trips.tsx
 msgid "a new chapter"
@@ -230,6 +244,11 @@ msgstr "Alle Status"
 msgid "Already captured statuses keep their day; fix single days in the day editor."
 msgstr "Bereits erfasste Status behalten ihren Tag; einzelne Tage korrigierst du im Tag-Editor."
 
+#. placeholder {0}: formatDateTime(data.openPairing.expiresAt, deviceTimeZone(), locale)
+#: src/screens/settings-phones.tsx
+msgid "An unused code is valid until {0}."
+msgstr "Ein unbenutzter Code gilt bis {0}."
+
 #: src/screens/trips.tsx
 msgid "Another trip already uses this address."
 msgstr "Diese Adresse hat schon eine andere Reise."
@@ -238,6 +257,7 @@ msgstr "Diese Adresse hat schon eine andere Reise."
 msgid "API tokens"
 msgstr "API-Tokens"
 
+#: src/components/app-badge.tsx
 #: src/screens/settings.tsx
 msgid "App"
 msgstr "App"
@@ -266,6 +286,10 @@ msgstr "Gilt für Status seit {0}. Alles vorher Veröffentlichte bleibt online."
 #: src/screens/settings.tsx
 msgid "Apply"
 msgstr "Übernehmen"
+
+#: src/screens/settings-phones.tsx
+msgid "Archive only"
+msgstr "Nur Archiv"
 
 #: src/screens/inbox.tsx
 msgid "As soon as you post a WhatsApp status, it shows up here."
@@ -372,10 +396,15 @@ msgstr "Ausgewählt aus den Titelbildern der Reisetage."
 #: src/components/unsaved.tsx
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
+#: src/screens/settings-phones.tsx
 #: src/screens/settings.tsx
 #: src/screens/trips.tsx
 msgid "Close"
 msgstr "Schließen"
+
+#: src/screens/settings-phones.tsx
+msgid "Code valid for"
+msgstr "Code gültig für"
 
 #: src/screens/home.tsx
 #: src/screens/settings.tsx
@@ -386,9 +415,18 @@ msgstr "Rechner zu Hause"
 msgid "Computer at home (sync)"
 msgstr "Rechner zu Hause (Synchronisation)"
 
+#: src/screens/settings-phones.tsx
+msgid "Connect a phone"
+msgstr "Handy verbinden"
+
 #: src/components/labels.ts
 msgid "Connected"
 msgstr "Verbunden"
+
+#. placeholder {0}: formatRelative(phone.createdAt, locale)
+#: src/screens/settings-phones.tsx
+msgid "connected {0}"
+msgstr "verbunden {0}"
 
 #: src/components/labels.ts
 msgid "Connecting…"
@@ -398,6 +436,7 @@ msgstr "Verbindet…"
 msgid "Coordinates (optional)"
 msgstr "Koordinaten (optional)"
 
+#: src/screens/settings-phones.tsx
 #: src/screens/settings.tsx
 msgid "Copied"
 msgstr "Kopiert"
@@ -405,6 +444,10 @@ msgstr "Kopiert"
 #: src/screens/settings.tsx
 msgid "Copy"
 msgstr "Kopieren"
+
+#: src/screens/settings-phones.tsx
+msgid "Copy the link"
+msgstr "Link kopieren"
 
 #: src/components/ui.tsx
 msgid "Could not load this."
@@ -446,6 +489,10 @@ msgstr "Titelbild (automatisch)"
 #: src/screens/inbox.tsx
 msgid "Cover removed"
 msgstr "Titelbild entfernt"
+
+#: src/screens/settings-phones.tsx
+msgid "Create code"
+msgstr "Code erstellen"
 
 #: src/screens/settings.tsx
 msgid "Create token"
@@ -582,13 +629,36 @@ msgstr "Entwurf verwerfen"
 msgid "Discard my change"
 msgstr "Meine Änderung verwerfen"
 
+#: src/screens/settings-phones.tsx
+msgid "Disconnect"
+msgstr "Trennen"
+
+#. placeholder {0}: disconnecting?.name
+#: src/screens/settings-phones.tsx
+msgid "Disconnect “{0}”?"
+msgstr "„{0}“ trennen?"
+
+#. placeholder {0}: phone.name
+#: src/screens/settings-phones.tsx
+msgid "Disconnect {0}"
+msgstr "{0} trennen"
+
 #: src/components/labels.ts
 msgid "Disconnected"
 msgstr "Getrennt"
 
+#. placeholder {0}: formatRelative(phone.revokedAt ?? phone.createdAt, locale)
+#: src/screens/settings-phones.tsx
+msgid "disconnected {0}"
+msgstr "getrennt {0}"
+
 #: src/components/feedback.tsx
 msgid "Dismiss"
 msgstr "Ausblenden"
+
+#: src/screens/settings-phones.tsx
+msgid "Done"
+msgstr "Fertig"
 
 #: src/screens/settings.tsx
 msgid "Done, I saved it"
@@ -836,6 +906,12 @@ msgstr "Wurden Einträge dieses Tages mit der falschen Zeitzone einsortiert, wä
 msgid "Inbox"
 msgstr "Eingang"
 
+#. placeholder {0}: megabytes(data.inbox.usedBytes, locale)
+#. placeholder {1}: megabytes(data.inbox.maxBytes, locale)
+#: src/screens/settings-phones.tsx
+msgid "Inbox on the server: {0} of {1} MB in use."
+msgstr "Eingang auf dem Server: {0} von {1} MB belegt."
+
 #: src/components/install.tsx
 msgid "Install as an app"
 msgstr "Als App installieren"
@@ -843,6 +919,10 @@ msgstr "Als App installieren"
 #: src/components/labels.ts
 msgid "Instantly"
 msgstr "Sofort"
+
+#: src/components/app-badge.tsx
+msgid "It arrived more than 30 days after it was shared, so it waits for your release (Hold back)."
+msgstr "Er kam mehr als 30 Tage nach dem Teilen an und wartet deshalb auf deine Freigabe (Zurückhalten)."
 
 #: src/screens/composer.tsx
 msgid "It disappears from the site with the next publish. This cannot be undone."
@@ -866,6 +946,10 @@ msgstr "Kurz warten – gerade zu viele Anfragen"
 #: src/screens/trips.tsx
 msgid "Keep"
 msgstr "Behalten"
+
+#: src/screens/settings-phones.tsx
+msgid "Keep connected"
+msgstr "Verbunden lassen"
 
 #: src/components/unsaved.tsx
 msgid "Keep editing"
@@ -931,6 +1015,11 @@ msgstr "Zuletzt bekannte Veröffentlichung {knownAt}."
 msgid "Last published {lastAt}."
 msgstr "Zuletzt veröffentlicht {lastAt}."
 
+#. placeholder {0}: formatRelative(phone.lastUsedAt, locale)
+#: src/screens/settings-phones.tsx
+msgid "last seen {0}"
+msgstr "zuletzt aktiv {0}"
+
 #: src/screens/home.tsx
 msgid "Last status {lastStatus}"
 msgstr "Letzter Status {lastStatus}"
@@ -992,6 +1081,10 @@ msgstr "Medien verloren"
 msgid "Merged with a newer version from another device."
 msgstr "Mit einer neueren Version von einem anderen Gerät zusammengeführt."
 
+#: src/screens/settings-phones.tsx
+msgid "Moments from the app go to the archive at home. Nothing from the app is published yet."
+msgstr "Momente aus der App landen im Archiv zu Hause. Noch wird nichts aus der App veröffentlicht."
+
 #: src/screens/item.tsx
 msgid "Move"
 msgstr "Verschieben"
@@ -1036,6 +1129,10 @@ msgstr "nie benutzt"
 #: src/screens/inbox.tsx
 msgid "new"
 msgstr "neu"
+
+#: src/screens/settings-phones.tsx
+msgid "New code"
+msgstr "Neuer Code"
 
 #: src/screens/layout.tsx
 msgid "New entry"
@@ -1116,6 +1213,10 @@ msgstr "Noch keine Beschreibung"
 #: src/screens/home.tsx
 msgid "No news from your computer at home yet"
 msgstr "Noch keine Nachricht von zu Hause"
+
+#: src/screens/settings-phones.tsx
+msgid "No phone connected yet."
+msgstr "Noch kein Handy verbunden."
 
 #: src/components/portrait.tsx
 msgid "No photos yet"
@@ -1236,6 +1337,10 @@ msgstr "Jetzt dein Porträt"
 msgid "Off: only people with the link find the site."
 msgstr "Aus: Nur wer den Link hat, findet die Seite."
 
+#: src/screens/settings-phones.tsx
+msgid "On the phone, open On My Way and type this code:"
+msgstr "Öffne On My Way auf dem Handy und gib diesen Code ein:"
+
 #: src/screens/days.tsx
 msgid "On this day"
 msgstr "An diesem Tag"
@@ -1276,6 +1381,10 @@ msgstr "Tag öffnen"
 msgid "Open this page in Safari and tap <0/> <1>Share</1>."
 msgstr "Öffne diese Seite in Safari und tippe auf <0/> <1>Teilen</1>."
 
+#: src/screens/settings-phones.tsx
+msgid "Or send this link to the phone (it opens the app):"
+msgstr "Oder schick diesen Link ans Handy (er öffnet die App):"
+
 #: src/screens/composer.tsx
 #: src/screens/days.tsx
 #: src/screens/item.tsx
@@ -1307,6 +1416,10 @@ msgstr "Koppeln…"
 #: src/screens/login.tsx
 msgid "Password"
 msgstr "Passwort"
+
+#: src/screens/settings-phones.tsx
+msgid "Phone disconnected"
+msgstr "Handy getrennt"
 
 #: src/components/labels.ts
 msgid "Photo"
@@ -1579,6 +1692,24 @@ msgctxt "tab bar, keep short"
 msgid "Settings"
 msgstr "Einstellungen"
 
+#: src/screens/settings-phones.tsx
+msgid "Share the link"
+msgstr "Link teilen"
+
+#. placeholder {0}: info.phone.name
+#. placeholder {1}: formatDateTime(info.receivedAt, deviceTimeZone(), locale)
+#: src/components/app-badge.tsx
+msgid "Shared from the app on “{0}”, received {1}. The caption comes from the app and cannot be changed here."
+msgstr "Aus der App auf „{0}“ geteilt, angekommen {1}. Die Bildunterschrift kommt aus der App und lässt sich hier nicht ändern."
+
+#: src/components/app-badge.tsx
+msgid "Shared from the app. The caption comes from the app and cannot be changed here."
+msgstr "Aus der App geteilt. Die Bildunterschrift kommt aus der App und lässt sich hier nicht ändern."
+
+#: src/components/app-badge.tsx
+msgid "Shared from the On My Way app"
+msgstr "Aus der On-My-Way-App geteilt"
+
 #: src/screens/inbox.tsx
 msgid "Show"
 msgstr "Zeigen"
@@ -1739,6 +1870,14 @@ msgstr "Die Tage und ihre Momente bleiben. Nur das Reisekapitel und seine Seite 
 msgid "The end must not be before the start."
 msgstr "Das Ende darf nicht vor dem Anfang liegen."
 
+#: src/components/app-badge.tsx
+msgid "The full-quality original has not reached the archive yet (it follows on Wi-Fi)."
+msgstr "Das Original in voller Qualität ist noch nicht im Archiv (es folgt im WLAN)."
+
+#: src/components/app-badge.tsx
+msgid "The full-quality original is safe in the archive at home."
+msgstr "Das Original in voller Qualität liegt sicher im Archiv zu Hause."
+
 #: src/screens/days.tsx
 msgid "The items of this day were sorted in by the time zone set when they were captured ({capturedLabels}). If that was wrong (a flight, a forgotten setting), choose the right zone: they are re-dated and may move to the day before or after."
 msgstr "Die Einträge dieses Tages wurden nach der Zeitzone einsortiert, die beim Erfassen eingestellt war ({capturedLabels}). War das falsch (ein Flug, eine vergessene Einstellung), wähle die richtige Zone: Die Einträge werden neu datiert und rutschen eventuell auf den Tag davor oder danach."
@@ -1747,9 +1886,21 @@ msgstr "Die Einträge dieses Tages wurden nach der Zeitzone einsortiert, die bei
 msgid "The media could not be downloaded from WhatsApp."
 msgstr "Die Medien konnten nicht von WhatsApp geladen werden."
 
+#: src/screens/settings-phones.tsx
+msgid "The On My Way app sends moments here, also when WhatsApp is not used. A connected phone can only share and hide its own moments."
+msgstr "Die On-My-Way-App schickt Momente hierher, auch ohne WhatsApp. Ein verbundenes Handy kann nur seine eigenen Momente teilen und verstecken."
+
 #: src/screens/item.tsx
 msgid "The other language is shown as a translation."
 msgstr "Die andere Sprache wird als Übersetzung gezeigt."
+
+#: src/screens/settings-phones.tsx
+msgid "The phone can no longer send or hide anything. What it already sent stays. Moments still waiting on the phone go out once you connect it again with a new code."
+msgstr "Das Handy kann dann nichts mehr schicken oder verstecken. Was schon angekommen ist, bleibt. Was noch auf dem Handy wartet, geht raus, sobald du es mit einem neuen Code wieder verbindest."
+
+#: src/components/app-badge.tsx
+msgid "The phone's clock was off, so the time it arrived is used."
+msgstr "Die Uhr des Handys ging falsch, deshalb zählt die Ankunftszeit."
 
 #: src/lib/errors.ts
 msgid "The server did not accept this"
@@ -2065,6 +2216,11 @@ msgstr "Während du bearbeitet hast, wurde <0/> woanders geändert. Wähle, welc
 msgid "While you were editing, <0/> was deleted (maybe on another device)."
 msgstr "Während du bearbeitet hast, wurde <0/> gelöscht (vielleicht auf einem anderen Gerät)."
 
+#. placeholder {0}: formatDateTime(code.expiresAt, deviceTimeZone(), locale)
+#: src/screens/settings-phones.tsx
+msgid "Works once, until {0}. Anyone with the code can connect a phone, so only send it to the phone you mean."
+msgstr "Gilt einmal, bis {0}. Wer den Code hat, kann ein Handy verbinden – schick ihn nur ans richtige Handy."
+
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
 msgid "Write"
@@ -2107,6 +2263,10 @@ msgstr "Du hast hier etwas geändert und noch nicht gespeichert."
 #: src/screens/item.tsx
 msgid "You deleted this status on WhatsApp."
 msgstr "Du hast diesen Status auf WhatsApp gelöscht."
+
+#: src/components/app-badge.tsx
+msgid "You withdrew this moment in the app."
+msgstr "Du hast diesen Moment in der App zurückgezogen."
 
 #: src/components/conflict-dialog.tsx
 msgid "Your change"

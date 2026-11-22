@@ -1,0 +1,111 @@
+{
+  "description": "nextChunkBytes() (adaptive chunk size, default bounds 256 KiB–8 MiB, 15 s target, 64 KiB steps) and the Upload-Checksum header format.",
+  "next": [
+    {
+      "name": "fast link doubles",
+      "current": 1048576,
+      "outcome": {
+        "ok": true,
+        "bytes": 1048576,
+        "ms": 500
+      },
+      "expected": 2097152
+    },
+    {
+      "name": "doubling stops at 8 MiB",
+      "current": 8388608,
+      "outcome": {
+        "ok": true,
+        "bytes": 8388608,
+        "ms": 1000
+      },
+      "expected": 8388608
+    },
+    {
+      "name": "64 kbit/s link: 15 s worth (120000 B) rounds down, then clamps to 256 KiB",
+      "current": 1048576,
+      "outcome": {
+        "ok": true,
+        "bytes": 1048576,
+        "ms": 131072
+      },
+      "expected": 262144
+    },
+    {
+      "name": "1 Mbit/s: 15 s worth = 1875024 B, rounded down to 64 KiB steps",
+      "current": 2097152,
+      "outcome": {
+        "ok": true,
+        "bytes": 2097152,
+        "ms": 16777
+      },
+      "expected": 1835008
+    },
+    {
+      "name": "failure halves",
+      "current": 2097152,
+      "outcome": {
+        "ok": false
+      },
+      "expected": 1048576
+    },
+    {
+      "name": "failure at the floor stays at 256 KiB",
+      "current": 262144,
+      "outcome": {
+        "ok": false
+      },
+      "expected": 262144
+    },
+    {
+      "name": "odd size halves to a 64 KiB step",
+      "current": 1024000,
+      "outcome": {
+        "ok": false
+      },
+      "expected": 458752
+    },
+    {
+      "name": "zero ms counts as fast",
+      "current": 4194304,
+      "outcome": {
+        "ok": true,
+        "bytes": 4194304,
+        "ms": 0
+      },
+      "expected": 8388608
+    },
+    {
+      "name": "tighter server bounds win",
+      "current": 1048576,
+      "outcome": {
+        "ok": true,
+        "bytes": 1048576,
+        "ms": 100
+      },
+      "bounds": {
+        "minBytes": 524288,
+        "maxBytes": 1572864
+      },
+      "expected": 1572864
+    }
+  ],
+  "checksum": [
+    {
+      "name": "sha256 of the empty string",
+      "hex": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "header": "sha256 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    },
+    {
+      "name": "sha256 of \"abc\"",
+      "hex": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+      "header": "sha256 ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0="
+    }
+  ],
+  "badHeaders": [
+    "md5 1B2M2Y8AsgTpgAmY7PhCfg==",
+    "sha256 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU",
+    "sha256 xyz",
+    ""
+  ]
+}

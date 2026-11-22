@@ -8,6 +8,7 @@ use DI\ContainerBuilder;
 use Omw\Api\Domain\Alerts\AlertEngine;
 use Omw\Api\Domain\Alerts\ChannelNotifier;
 use Omw\Api\Domain\Alerts\Notifier;
+use Omw\Api\Domain\App\AppInboxConfig;
 use Omw\Api\Domain\Auth\ApiTokens;
 use Omw\Api\Domain\Auth\LoginThrottle;
 use Omw\Api\Domain\Auth\Sessions;
@@ -131,6 +132,7 @@ final class App
         $builder->addDefinitions([
             Config::class => $config,
             Paths::class => static fn (Config $c): Paths => new Paths($c),
+            AppInboxConfig::class => static fn (Config $c): AppInboxConfig => AppInboxConfig::fromEnvironment($c),
             LoggerInterface::class => static fn (Config $c): LoggerInterface => LoggerFactory::create($c, $logChannel),
             Db::class => static fn (Config $c, LoggerInterface $log): Db => Db::fromConfig($c, $log),
             Migrator::class => static fn (Db $db, Config $c): Migrator => new Migrator($db, $c->migrationsDir()),

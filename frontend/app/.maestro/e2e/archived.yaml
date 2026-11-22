@@ -1,0 +1,29 @@
+# End-to-end run, last step: after the home backend archived everything, the app says so: the
+# pill reads "All safe" and the queue sheet is empty, with today's moments safe at home.
+appId: app.omw.traveler
+name: e2e - archived
+tags:
+  - e2e
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 60000
+- tapOn:
+    id: sync-pill
+- extendedWaitUntil:
+    visible:
+      id: queue-empty
+    timeout: 90000
+- assertVisible:
+    text: ".*Safe at home today.*"
+- takeScreenshot: e2e-08-archived
+- tapOn:
+    id: queue-sheet-close
+- extendedWaitUntil:
+    visible:
+      text: All safe
+    timeout: 10000
+- takeScreenshot: e2e-09-all-safe

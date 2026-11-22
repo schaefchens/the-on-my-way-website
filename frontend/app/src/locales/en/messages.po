@@ -1,0 +1,1227 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-11-20 14:34+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+
+#. placeholder {0}: Math.ceil(left / 1000)
+#. placeholder {0}: Math.ceil(remaining / 1000)
+#: src/app/camera.tsx
+#: src/app/voice.tsx
+msgid " · {0} s left"
+msgstr " · {0} s left"
+
+#: src/app/voice.tsx
+msgid "‹ Slide left to cancel"
+msgstr "‹ Slide left to cancel"
+
+#. placeholder {0}: drafts.length
+#: src/app/index.tsx
+msgid "{0, plural, one {# draft} other {# drafts}}"
+msgstr "{0, plural, one {# draft} other {# drafts}}"
+
+#. placeholder {0}: pill.count
+#: src/app/index.tsx
+msgid "{0, plural, one {# needs you} other {# need you}}"
+msgstr "{0, plural, one {# needs you} other {# need you}}"
+
+#. placeholder {0}: pill.count
+#: src/app/index.tsx
+msgid "{0, plural, one {# on its way} other {# on their way}}"
+msgstr "{0, plural, one {# on its way} other {# on their way}}"
+
+#. placeholder {0}: pill.count
+#: src/app/index.tsx
+msgid "{0, plural, one {# ready to upload} other {# ready to upload}}"
+msgstr "{0, plural, one {# ready to upload} other {# ready to upload}}"
+
+#. placeholder {0}: pill.count
+#: src/app/index.tsx
+msgid "{0, plural, one {# waits for Wi-Fi} other {# wait for Wi-Fi}}"
+msgstr "{0, plural, one {# waits for Wi-Fi} other {# wait for Wi-Fi}}"
+
+#. placeholder {0}: safeToday.length
+#: src/ui/queue-sheet.tsx
+msgid "{0, plural, one {Safe at home today: # moment} other {Safe at home today: # moments}}"
+msgstr "{0, plural, one {Safe at home today: # moment} other {Safe at home today: # moments}}"
+
+#. placeholder {0}: items.length
+#: src/app/compose.tsx
+msgid "{0, plural, one {Share this moment} other {Share # moments}}"
+msgstr "{0, plural, one {Share this moment} other {Share # moments}}"
+
+#. placeholder {0}: ids.length
+#: src/outbox/use-share.ts
+msgid "{0} moments shared"
+msgstr "{0} moments shared"
+
+#. placeholder {0}: d.count
+#. placeholder {1}: d.label
+#: src/ui/publish-sheet.tsx
+msgid "{0} photos are from {1}"
+msgstr "{0} photos are from {1}"
+
+#. placeholder {0}: currentSuggestion.count
+#. placeholder {1}: currentSuggestion.label
+#: src/app/compose.tsx
+msgid "{0} photos are from {1}. Put them on that day?"
+msgstr "{0} photos are from {1}. Put them on that day?"
+
+#: src/ui/publish-sheet.tsx
+msgid "{count, plural, one {Only for this moment.} other {Only for these # moments.}}"
+msgstr "{count, plural, one {Only for this moment.} other {Only for these # moments.}}"
+
+#: src/ui/publish-sheet.tsx
+msgid "{count, plural, one {Share # moment} other {Share # moments}}"
+msgstr "{count, plural, one {Share # moment} other {Share # moments}}"
+
+#: src/app/settings.tsx
+msgid "{kept, plural, one {# moment} other {# moments}}"
+msgstr "{kept, plural, one {# moment} other {# moments}}"
+
+#: src/app/settings.tsx
+msgid "{pending, plural, one {# moment is not uploaded yet. It stays on this phone and goes once you connect again.} other {# moments are not uploaded yet. They stay on this phone and go once you connect again.}}"
+msgstr "{pending, plural, one {# moment is not uploaded yet. It stays on this phone and goes once you connect again.} other {# moments are not uploaded yet. They stay on this phone and go once you connect again.}}"
+
+#: src/app/text.tsx
+msgid "{remaining} left"
+msgstr "{remaining} left"
+
+#: src/ui/status.tsx
+msgid "{size} · goes on Wi-Fi"
+msgstr "{size} · goes on Wi-Fi"
+
+#: src/ui/status.tsx
+msgid "{size} · this Wi-Fi is metered, so it counts as mobile data"
+msgstr "{size} · this Wi-Fi is metered, so it counts as mobile data"
+
+#. placeholder {0}: rows.length
+#: src/ui/queue-sheet.tsx
+msgid "{uploaded} of {0} uploaded"
+msgstr "{uploaded} of {0} uploaded"
+
+#: src/ui/trim-bar.tsx
+msgid "60 s max"
+msgstr "60 s max"
+
+#: src/app/pair.tsx
+msgid "8 letters and numbers from the admin"
+msgstr "8 letters and numbers from the admin"
+
+#: src/app/pair.tsx
+msgid "A connection link was opened"
+msgstr "A connection link was opened"
+
+#: src/app/settings.tsx
+msgid "About"
+msgstr "About"
+
+#: src/app/compose.tsx
+msgid "Add a caption…"
+msgstr "Add a caption…"
+
+#: src/app/settings.tsx
+msgid "After 1 min"
+msgstr "After 1 min"
+
+#: src/app/settings.tsx
+msgid "After 5 min"
+msgstr "After 5 min"
+
+#: src/app/index.tsx
+msgid "All safe"
+msgstr "All safe"
+
+#. placeholder {0}: props.carrier
+#: src/ui/queue-sheet.tsx
+msgid "Allow on {0}"
+msgstr "Allow on {0}"
+
+#: src/ui/queue-sheet.tsx
+msgid "Allow on this SIM"
+msgstr "Allow on this SIM"
+
+#: src/app/camera.tsx
+msgid "Allow the camera"
+msgstr "Allow the camera"
+
+#: src/app/settings.tsx
+msgid "Allowed while roaming:"
+msgstr "Allowed while roaming:"
+
+#: src/app/settings.tsx
+msgid "Also while roaming"
+msgstr "Also while roaming"
+
+#: src/app/settings.tsx
+msgid "App lock"
+msgstr "App lock"
+
+#. placeholder {0}: Math.round(settings.hints?.delayHours ?? 0)
+#: src/ui/publish-sheet.tsx
+msgid "Appears in about {0} h"
+msgstr "Appears in about {0} h"
+
+#: src/ui/status.tsx
+msgid "Appears later"
+msgstr "Appears later"
+
+#: src/app/index.tsx
+msgid "Archive mode"
+msgstr "Archive mode"
+
+#: src/ui/publish-sheet.tsx
+msgid "Archive mode: nothing goes public yet. Your moments go safely to the archive at home, and this choice counts once publishing starts."
+msgstr "Archive mode: nothing goes public yet. Your moments go safely to the archive at home, and this choice counts once publishing starts."
+
+#: src/app/settings.tsx
+msgid "Archive mode: nothing is published yet"
+msgstr "Archive mode: nothing is published yet"
+
+#: src/ui/status.tsx
+msgid "Archived ✓"
+msgstr "Archived ✓"
+
+#: src/ui/publish-sheet.tsx
+msgid "As usual, once publishing starts"
+msgstr "As usual, once publishing starts"
+
+#: src/ui/publish-sheet.tsx
+msgid "As usual: appears in about {delay} h"
+msgstr "As usual: appears in about {delay} h"
+
+#: src/ui/publish-sheet.tsx
+msgid "As usual: on the site in about a minute"
+msgstr "As usual: on the site in about a minute"
+
+#: src/app/compose.tsx
+#: src/app/pair.tsx
+#: src/app/settings.tsx
+msgid "Back"
+msgstr "Back"
+
+#: src/app/compose.tsx
+msgid "Back, keep as a draft"
+msgstr "Back, keep as a draft"
+
+#: src/app/settings.tsx
+msgid "Background uploads"
+msgstr "Background uploads"
+
+#: src/ui/text-names.tsx
+msgid "Berry"
+msgstr "Berry"
+
+#: src/ui/text-names.tsx
+msgid "Bold"
+msgstr "Bold"
+
+#: src/ui/text-names.tsx
+msgid "Calistoga"
+msgstr "Calistoga"
+
+#: src/app/settings.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/app/compose.tsx
+msgid "Caption"
+msgstr "Caption"
+
+#: src/app/index.tsx
+msgid "Capture"
+msgstr "Capture"
+
+#: src/app/text.tsx
+msgid "Choose font"
+msgstr "Choose font"
+
+#: src/ui/trim-bar.tsx
+msgid "Choose the best 60 seconds"
+msgstr "Choose the best 60 seconds"
+
+#: src/app/compose.tsx
+msgid "Choose when it appears"
+msgstr "Choose when it appears"
+
+#: src/ui/sheet.tsx
+msgid "Close"
+msgstr "Close"
+
+#: src/app/camera.tsx
+msgid "Close the camera"
+msgstr "Close the camera"
+
+#: src/app/text.tsx
+#: src/app/voice.tsx
+msgid "Close, keep as a draft"
+msgstr "Close, keep as a draft"
+
+#. placeholder {0}: colorIndex + 1
+#. placeholder {1}: TEXT_STATUS_COLORS.length
+#: src/app/text.tsx
+msgid "Colour {0} of {1}"
+msgstr "Colour {0} of {1}"
+
+#: src/app/text.tsx
+msgid "Colour and font"
+msgstr "Colour and font"
+
+#: src/app/text.tsx
+msgid "Colours"
+msgstr "Colours"
+
+#: src/app/index.tsx
+#: src/app/pair.tsx
+#: src/app/settings.tsx
+#: src/ui/queue-sheet.tsx
+msgid "Connect"
+msgstr "Connect"
+
+#: src/ui/status.tsx
+msgid "Connect this phone to your website first. Until then it waits here, safely."
+msgstr "Connect this phone to your website first. Until then it waits here, safely."
+
+#: src/app/pair.tsx
+msgid "Connect this phone with it? Only do this with a link from your own admin."
+msgstr "Connect this phone with it? Only do this with a link from your own admin."
+
+#: src/app/index.tsx
+#: src/app/pair.tsx
+msgid "Connect to your website"
+msgstr "Connect to your website"
+
+#: src/app/settings.tsx
+msgid "Connected"
+msgstr "Connected"
+
+#: src/app/pair.tsx
+msgid "Connected ✓"
+msgstr "Connected ✓"
+
+#. placeholder {0}: app.pairing.deviceName
+#: src/app/settings.tsx
+msgid "Connected as “{0}”"
+msgstr "Connected as “{0}”"
+
+#: src/app/pair.tsx
+msgid "Connecting…"
+msgstr "Connecting…"
+
+#: src/app/pair.tsx
+msgid "Connection code"
+msgstr "Connection code"
+
+#: src/app/index.tsx
+msgid "Copying into your outbox…"
+msgstr "Copying into your outbox…"
+
+#: src/ui/text-names.tsx
+msgid "Deep rose"
+msgstr "Deep rose"
+
+#: src/app/index.tsx
+msgid "Discard draft"
+msgstr "Discard draft"
+
+#: src/app/settings.tsx
+msgid "Disconnect"
+msgstr "Disconnect"
+
+#: src/app/settings.tsx
+msgid "Disconnect this phone"
+msgstr "Disconnect this phone"
+
+#: src/app/settings.tsx
+msgid "Disconnect this phone?"
+msgstr "Disconnect this phone?"
+
+#: src/ui/oem-card.tsx
+msgid "Done"
+msgstr "Done"
+
+#: src/app/camera.tsx
+msgid "Double-tap and hold for a video"
+msgstr "Double-tap and hold for a video"
+
+#: src/app/index.tsx
+msgid "Draft discarded"
+msgstr "Draft discarded"
+
+#: src/app/index.tsx
+msgid "Drafts"
+msgstr "Drafts"
+
+#: src/ui/trim-bar.tsx
+msgid "End of the clip"
+msgstr "End of the clip"
+
+#: src/ui/queue-sheet.tsx
+msgid "Everything is safe. Nothing is waiting."
+msgstr "Everything is safe. Nothing is waiting."
+
+#: src/app/settings.tsx
+msgid "Everything you capture waits safely on this phone until then."
+msgstr "Everything you capture waits safely on this phone until then."
+
+#: src/ui/text-names.tsx
+msgid "Exo"
+msgstr "Exo"
+
+#: src/app/settings.tsx
+msgid "Feel"
+msgstr "Feel"
+
+#: src/app/settings.tsx
+msgid "Fingerprint, face or PIN before sharing, the queue and Settings. Taking photos always works."
+msgstr "Fingerprint, face or PIN before sharing, the queue and Settings. Taking photos always works."
+
+#: src/app/camera.tsx
+msgid "Flash: auto"
+msgstr "Flash: auto"
+
+#: src/app/camera.tsx
+msgid "Flash: off"
+msgstr "Flash: off"
+
+#: src/app/camera.tsx
+msgid "Flash: on"
+msgstr "Flash: on"
+
+#: src/ui/text-names.tsx
+msgid "Forest"
+msgstr "Forest"
+
+#: src/app/camera.tsx
+#: src/app/index.tsx
+msgid "Gallery"
+msgstr "Gallery"
+
+#: src/ui/status.tsx
+msgid "Goes on Wi-Fi"
+msgstr "Goes on Wi-Fi"
+
+#: src/app/index.tsx
+msgid "Good evening"
+msgstr "Good evening"
+
+#: src/app/index.tsx
+msgid "Good morning"
+msgstr "Good morning"
+
+#: src/app/index.tsx
+msgid "Good night"
+msgstr "Good night"
+
+#: src/ui/publish-sheet.tsx
+msgid "Held back"
+msgstr "Held back"
+
+#: src/app/index.tsx
+msgid "Hello"
+msgstr "Hello"
+
+#: src/ui/publish-sheet.tsx
+msgid "Hold back"
+msgstr "Hold back"
+
+#: src/app/text.tsx
+msgid "Hold for all fonts"
+msgstr "Hold for all fonts"
+
+#: src/app/voice.tsx
+msgid "Hold to record, or tap to start"
+msgstr "Hold to record, or tap to start"
+
+#: src/ui/publish-sheet.tsx
+msgid "I’ll release it later."
+msgstr "I’ll release it later."
+
+#: src/app/settings.tsx
+msgid "Immediately"
+msgstr "Immediately"
+
+#: src/app/pair.tsx
+msgid "In the admin: Settings › “Connect a phone”. Then type the code, or open its link on this phone."
+msgstr "In the admin: Settings › “Connect a phone”. Then type the code, or open its link on this phone."
+
+#: src/ui/queue-sheet.tsx
+msgid "It isn’t home yet. It will be deleted from your phone."
+msgstr "It isn’t home yet. It will be deleted from your phone."
+
+#: src/ui/queue-sheet.tsx
+msgid "Keep it"
+msgstr "Keep it"
+
+#: src/app/settings.tsx
+msgid "Kept here until the archive at home has them. Freeing up space comes later."
+msgstr "Kept here until the archive at home has them. Freeing up space comes later."
+
+#: src/ui/publish-sheet.tsx
+msgid "Kept in the archive, never shown."
+msgstr "Kept in the archive, never shown."
+
+#: src/ui/text-names.tsx
+msgid "Lagoon"
+msgstr "Lagoon"
+
+#: src/app/settings.tsx
+msgid "Language"
+msgstr "Language"
+
+#: src/ui/text-names.tsx
+msgid "Lavender dusk"
+msgstr "Lavender dusk"
+
+#: src/app/voice.tsx
+msgid "Let go to cancel"
+msgstr "Let go to cancel"
+
+#: src/ui/oem-card.tsx
+msgid "Let uploads run in the background"
+msgstr "Let uploads run in the background"
+
+#: src/app/settings.tsx
+msgid "Light taps for your own touches. The phone’s own setting still applies."
+msgstr "Light taps for your own touches. The phone’s own setting still applies."
+
+#: src/app/settings.tsx
+msgid "Like the phone"
+msgstr "Like the phone"
+
+#: src/ui/status.tsx
+msgid "Live ✓"
+msgstr "Live ✓"
+
+#: src/app/text.tsx
+msgid "Looks like each phone’s own font."
+msgstr "Looks like each phone’s own font."
+
+#: src/ui/text-names.tsx
+msgid "Mauve"
+msgstr "Mauve"
+
+#: src/app/settings.tsx
+msgid "Mobile data"
+msgstr "Mobile data"
+
+#. placeholder {0}: i + 1
+#. placeholder {1}: items.length
+#: src/app/compose.tsx
+msgid "Moment {0} of {1}"
+msgstr "Moment {0} of {1}"
+
+#: src/app/settings.tsx
+msgid "Native module missing: settings are read-only in this build."
+msgstr "Native module missing: settings are read-only in this build."
+
+#: src/ui/status.tsx
+msgid "Needs you"
+msgstr "Needs you"
+
+#: src/app/settings.tsx
+msgid "Never on mobile data. A phone hotspot counts as mobile data."
+msgstr "Never on mobile data. A phone hotspot counts as mobile data."
+
+#. placeholder {0}: fontNames[nextFont(draft.font)]
+#: src/app/text.tsx
+msgid "Next font: {0}"
+msgstr "Next font: {0}"
+
+#: src/ui/text-names.tsx
+msgid "Night"
+msgstr "Night"
+
+#: src/app/index.tsx
+msgid "No"
+msgstr "No"
+
+#: src/app/pair.tsx
+msgid "No connection to your website right now. Try again later."
+msgstr "No connection to your website right now. Try again later."
+
+#: src/app/settings.tsx
+msgid "no internet yet"
+msgstr "no internet yet"
+
+#: src/ui/queue-sheet.tsx
+msgid "Not connected to your website yet. Your moments wait here, safely."
+msgstr "Not connected to your website yet. Your moments wait here, safely."
+
+#: src/app/settings.tsx
+msgid "Not connected yet"
+msgstr "Not connected yet"
+
+#: src/state/lock.tsx
+msgid "Not now"
+msgstr "Not now"
+
+#: src/app/compose.tsx
+msgid "Nothing to share here."
+msgstr "Nothing to share here."
+
+#: src/app/index.tsx
+msgid "Nothing yet today. The first moment goes here."
+msgstr "Nothing yet today. The first moment goes here."
+
+#: src/ui/text-names.tsx
+msgid "Ocean"
+msgstr "Ocean"
+
+#: src/app/settings.tsx
+msgid "Off: moments wait on your phone until you tap “Upload now”."
+msgstr "Off: moments wait on your phone until you tap “Upload now”."
+
+#: src/app/settings.tsx
+msgid "Offline"
+msgstr "Offline"
+
+#. placeholder {0}: currentSuggestion.label
+#: src/app/compose.tsx
+msgid "On {0} ✓"
+msgstr "On {0} ✓"
+
+#: src/app/settings.tsx
+msgid "On every SIM abroad."
+msgstr "On every SIM abroad."
+
+#: src/ui/queue-sheet.tsx
+msgid "On its way"
+msgstr "On its way"
+
+#: src/ui/publish-sheet.tsx
+msgid "On the site in about a minute"
+msgstr "On the site in about a minute"
+
+#: src/app/settings.tsx
+msgid "On this phone"
+msgstr "On this phone"
+
+#: src/ui/publish-sheet.tsx
+msgid "Only for me"
+msgstr "Only for me"
+
+#: src/ui/status.tsx
+msgid "Only for you"
+msgstr "Only for you"
+
+#: src/app/settings.tsx
+msgid "Only matters when mobile data is allowed."
+msgstr "Only matters when mobile data is allowed."
+
+#: src/app/settings.tsx
+msgid "Only on Wi-Fi"
+msgstr "Only on Wi-Fi"
+
+#: src/app/index.tsx
+msgid "Only photos, text and voice"
+msgstr "Only photos, text and voice"
+
+#: src/app/camera.tsx
+#: src/app/voice.tsx
+#: src/ui/oem-card.tsx
+msgid "Open settings"
+msgstr "Open settings"
+
+#: src/app/index.tsx
+msgid "Opens the camera. Hold to start a video."
+msgstr "Opens the camera. Hold to start a video."
+
+#. placeholder {0}: line.percent
+#: src/ui/status.tsx
+msgid "Original for your archive · {0} %"
+msgstr "Original for your archive · {0} %"
+
+#: src/ui/status.tsx
+msgid "Original for your archive comes next · {size}"
+msgstr "Original for your archive comes next · {size}"
+
+#: src/ui/status.tsx
+msgid "Original for your archive waits for a connection · {size}"
+msgstr "Original for your archive waits for a connection · {size}"
+
+#: src/ui/status.tsx
+msgid "Original for your archive waits for Wi-Fi · {size}"
+msgstr "Original for your archive waits for Wi-Fi · {size}"
+
+#: src/app/settings.tsx
+msgid "Originals for your archive always wait for Wi-Fi."
+msgstr "Originals for your archive always wait for Wi-Fi."
+
+#: src/app/voice.tsx
+msgid "Pause"
+msgstr "Pause"
+
+#: src/ui/text-names.tsx
+msgid "Phone font"
+msgstr "Phone font"
+
+#: src/app/camera.tsx
+#: src/app/index.tsx
+msgid "Photo"
+msgstr "Photo"
+
+#: src/app/settings.tsx
+msgid "Photos, text and voice also on mobile data"
+msgstr "Photos, text and voice also on mobile data"
+
+#: src/app/voice.tsx
+msgid "Play"
+msgstr "Play"
+
+#: src/ui/text-names.tsx
+msgid "Plum"
+msgstr "Plum"
+
+#: src/ui/status.tsx
+msgid "Preparing…"
+msgstr "Preparing…"
+
+#: src/app/settings.tsx
+msgid "Privacy"
+msgstr "Privacy"
+
+#: src/app/settings.tsx
+msgid "Pseudo (RTL test)"
+msgstr "Pseudo (RTL test)"
+
+#. placeholder {0}: Math.round(app.hints?.delayHours ?? 0)
+#: src/app/settings.tsx
+msgid "Published with a delay of about {0} h"
+msgstr "Published with a delay of about {0} h"
+
+#: src/app/settings.tsx
+msgid "Published within about a minute"
+msgstr "Published within about a minute"
+
+#: src/app/settings.tsx
+msgid "Publishing"
+msgstr "Publishing"
+
+#: src/ui/status.tsx
+msgid "Publishing…"
+msgstr "Publishing…"
+
+#. placeholder {0}: d.label
+#: src/ui/publish-sheet.tsx
+msgid "Put it on {0}"
+msgstr "Put it on {0}"
+
+#: src/ui/publish-sheet.tsx
+msgid "Put it on that day?"
+msgstr "Put it on that day?"
+
+#: src/ui/status.tsx
+msgid "Ready to upload"
+msgstr "Ready to upload"
+
+#: src/app/voice.tsx
+msgid "Record again"
+msgstr "Record again"
+
+#: src/app/voice.tsx
+msgid "Recording"
+msgstr "Recording"
+
+#: src/ui/queue-sheet.tsx
+msgid "Remove"
+msgstr "Remove"
+
+#: src/app/settings.tsx
+msgid "Remove {sim}"
+msgstr "Remove {sim}"
+
+#: src/ui/queue-sheet.tsx
+msgid "Remove this moment?"
+msgstr "Remove this moment?"
+
+#: src/app/settings.tsx
+msgid "Restart the app to switch the text direction."
+msgstr "Restart the app to switch the text direction."
+
+#: src/app/settings.tsx
+msgid "Right now: {networkLine}"
+msgstr "Right now: {networkLine}"
+
+#: src/app/settings.tsx
+msgid "roaming"
+msgstr "roaming"
+
+#: src/ui/status.tsx
+msgid "Roaming abroad"
+msgstr "Roaming abroad"
+
+#. placeholder {0}: network.simOperatorName
+#: src/app/settings.tsx
+msgid "roaming on {0}"
+msgstr "roaming on {0}"
+
+#: src/ui/status.tsx
+msgid "Roaming on {carrier}"
+msgstr "Roaming on {carrier}"
+
+#: src/ui/text-names.tsx
+msgid "Rose"
+msgstr "Rose"
+
+#: src/ui/text-names.tsx
+msgid "Rounded"
+msgstr "Rounded"
+
+#: src/ui/status.tsx
+msgid "Safe in your archive at home"
+msgstr "Safe in your archive at home"
+
+#: src/app/compose.tsx
+#: src/app/text.tsx
+#: src/app/voice.tsx
+msgid "Saved as a draft"
+msgstr "Saved as a draft"
+
+#: src/ui/text-names.tsx
+msgid "Script"
+msgstr "Script"
+
+#: src/ui/text-names.tsx
+msgid "Serif"
+msgstr "Serif"
+
+#: src/app/settings.tsx
+msgid "Set a screen lock on your phone first. Until then the app stays open."
+msgstr "Set a screen lock on your phone first. Until then the app stays open."
+
+#: src/app/index.tsx
+#: src/app/settings.tsx
+msgid "Settings"
+msgstr "Settings"
+
+#: src/ui/oem-card.tsx
+msgid "Settings › Apps › On My Way › App battery usage › Unrestricted"
+msgstr "Settings › Apps › On My Way › App battery usage › Unrestricted"
+
+#: src/ui/oem-card.tsx
+msgid "Settings › Apps › On My Way › Battery › Unrestricted"
+msgstr "Settings › Apps › On My Way › Battery › Unrestricted"
+
+#: src/ui/oem-card.tsx
+msgid "Settings › Apps › On My Way › Battery saver › No restrictions, and switch on Autostart"
+msgstr "Settings › Apps › On My Way › Battery saver › No restrictions, and switch on Autostart"
+
+#: src/ui/oem-card.tsx
+msgid "Settings › Apps › On My Way › Battery usage › Allow background activity"
+msgstr "Settings › Apps › On My Way › Battery usage › Allow background activity"
+
+#: src/ui/oem-card.tsx
+msgid "Settings › Battery › App launch › On My Way › Manage manually (all three on)"
+msgstr "Settings › Battery › App launch › On My Way › Manage manually (all three on)"
+
+#: src/app/text.tsx
+#: src/app/voice.tsx
+#: src/ui/publish-sheet.tsx
+msgid "Share"
+msgstr "Share"
+
+#: src/outbox/use-share.ts
+msgid "Shared"
+msgstr "Shared"
+
+#: src/app/index.tsx
+msgid "Shows what is on its way"
+msgstr "Shows what is on its way"
+
+#. placeholder {0}: new Intl.DateTimeFormat(intlLocale(i18n.locale), { day: 'numeric', month: 'long' }).format(new Date(app.pairing.pairedAt))
+#: src/app/settings.tsx
+msgid "Since {0}"
+msgstr "Since {0}"
+
+#: src/app/voice.tsx
+msgid "Slide right to cancel ›"
+msgstr "Slide right to cancel ›"
+
+#: src/ui/oem-card.tsx
+msgid "Some phones stop apps to save battery. So your moments keep travelling home while the phone sleeps:"
+msgstr "Some phones stop apps to save battery. So your moments keep travelling home while the phone sleeps:"
+
+#: src/ui/status.tsx
+msgid "Something went wrong. Try again."
+msgstr "Something went wrong. Try again."
+
+#: src/app/compose.tsx
+msgid "Sound off"
+msgstr "Sound off"
+
+#: src/app/compose.tsx
+msgid "Sound on"
+msgstr "Sound on"
+
+#: src/app/pair.tsx
+msgid "Start"
+msgstr "Start"
+
+#: src/app/index.tsx
+msgid "Start a video"
+msgstr "Start a video"
+
+#: src/ui/trim-bar.tsx
+msgid "Start of the clip"
+msgstr "Start of the clip"
+
+#: src/app/voice.tsx
+msgid "Start recording"
+msgstr "Start recording"
+
+#: src/app/camera.tsx
+msgid "Start video"
+msgstr "Start video"
+
+#: src/app/settings.tsx
+msgid "Starts by itself when the connection allows it."
+msgstr "Starts by itself when the connection allows it."
+
+#: src/app/camera.tsx
+#: src/app/voice.tsx
+msgid "Stop recording"
+msgstr "Stop recording"
+
+#: src/app/text.tsx
+msgid "Swipe sideways for another background colour"
+msgstr "Swipe sideways for another background colour"
+
+#: src/app/camera.tsx
+msgid "Switch camera"
+msgstr "Switch camera"
+
+#: src/app/camera.tsx
+msgid "Take photo"
+msgstr "Take photo"
+
+#: src/app/index.tsx
+msgid "Tap for a photo, hold for a video"
+msgstr "Tap for a photo, hold for a video"
+
+#: src/app/voice.tsx
+msgid "Tap to stop"
+msgstr "Tap to stop"
+
+#: src/ui/text-names.tsx
+msgid "Terracotta"
+msgstr "Terracotta"
+
+#: src/app/camera.tsx
+#: src/app/index.tsx
+msgid "Text"
+msgstr "Text"
+
+#: src/app/camera.tsx
+msgid "Text, voice and the gallery work without it."
+msgstr "Text, voice and the gallery work without it."
+
+#: src/outbox/use-share.ts
+msgid "That didn’t work. It’s still here as a draft."
+msgstr "That didn’t work. It’s still here as a draft."
+
+#: src/app/pair.tsx
+msgid "That didn’t work. Try again with a new code from the admin."
+msgstr "That didn’t work. Try again with a new code from the admin."
+
+#: src/app/index.tsx
+msgid "That didn’t work. Your phone may be full."
+msgstr "That didn’t work. Your phone may be full."
+
+#: src/app/camera.tsx
+msgid "The camera is off for On My Way."
+msgstr "The camera is off for On My Way."
+
+#: src/ui/status.tsx
+msgid "The original could not be sent. It stays on your phone."
+msgstr "The original could not be sent. It stays on your phone."
+
+#: src/app/pair.tsx
+msgid "The phone gets a key that can only add your own moments. You can disconnect it in the admin at any time."
+msgstr "The phone gets a key that can only add your own moments. You can disconnect it in the admin at any time."
+
+#: src/ui/status.tsx
+msgid "The server is busy. It tries again by itself."
+msgstr "The server is busy. It tries again by itself."
+
+#: src/ui/status.tsx
+msgid "The video step comes with the next app update. It’s safe on your phone."
+msgstr "The video step comes with the next app update. It’s safe on your phone."
+
+#: src/ui/publish-sheet.tsx
+msgid "The website’s delay and rules apply."
+msgstr "The website’s delay and rules apply."
+
+#: src/app/pair.tsx
+msgid "This code doesn’t work. Check it, or show a new one in the admin."
+msgstr "This code doesn’t work. Check it, or show a new one in the admin."
+
+#: src/app/pair.tsx
+msgid "This code has expired. Show a new one in the admin."
+msgstr "This code has expired. Show a new one in the admin."
+
+#: src/app/settings.tsx
+msgid "This is set in the admin."
+msgstr "This is set in the admin."
+
+#: src/ui/status.tsx
+msgid "This network has no internet yet (a login page?)"
+msgstr "This network has no internet yet (a login page?)"
+
+#: src/ui/status.tsx
+msgid "This phone was disconnected. Connect it again."
+msgstr "This phone was disconnected. Connect it again."
+
+#. placeholder {0}: d.label
+#: src/ui/publish-sheet.tsx
+msgid "This photo is from {0}"
+msgstr "This photo is from {0}"
+
+#. placeholder {0}: currentSuggestion.label
+#: src/app/compose.tsx
+msgid "This photo is from {0}. Put it on that day?"
+msgstr "This photo is from {0}. Put it on that day?"
+
+#: src/app/index.tsx
+msgid "this SIM"
+msgstr "this SIM"
+
+#: src/ui/status.tsx
+msgid "This Wi-Fi is metered, so it counts as mobile data"
+msgstr "This Wi-Fi is metered, so it counts as mobile data"
+
+#: src/app/voice.tsx
+msgid "To record, On My Way needs the microphone."
+msgstr "To record, On My Way needs the microphone."
+
+#: src/app/camera.tsx
+msgid "To take photos, On My Way needs the camera."
+msgstr "To take photos, On My Way needs the camera."
+
+#: src/ui/publish-sheet.tsx
+msgid "To your archive"
+msgstr "To your archive"
+
+#: src/app/index.tsx
+#: src/ui/publish-sheet.tsx
+msgid "Today"
+msgstr "Today"
+
+#: src/app/pair.tsx
+msgid "Too many tries. Wait a minute, then try again."
+msgstr "Too many tries. Wait a minute, then try again."
+
+#: src/ui/queue-sheet.tsx
+msgid "Try again"
+msgstr "Try again"
+
+#: src/app/text.tsx
+msgid "Type something…"
+msgstr "Type something…"
+
+#: src/ui/text-names.tsx
+msgid "Typewriter"
+msgstr "Typewriter"
+
+#: src/app/index.tsx
+#: src/outbox/use-share.ts
+msgid "Undo"
+msgstr "Undo"
+
+#: src/state/lock.tsx
+msgid "Unlock On My Way"
+msgstr "Unlock On My Way"
+
+#: src/app/index.tsx
+msgid "Unlock to open Settings"
+msgstr "Unlock to open Settings"
+
+#: src/app/index.tsx
+msgid "Unlock to see your uploads"
+msgstr "Unlock to see your uploads"
+
+#: src/outbox/use-share.ts
+msgid "Unlock to share"
+msgstr "Unlock to share"
+
+#: src/app/index.tsx
+msgid "Until then your moments wait safely on this phone."
+msgstr "Until then your moments wait safely on this phone."
+
+#: src/ui/queue-sheet.tsx
+msgid "Upload"
+msgstr "Upload"
+
+#: src/ui/queue-sheet.tsx
+msgid "Upload {size} anyway?"
+msgstr "Upload {size} anyway?"
+
+#: src/ui/queue-sheet.tsx
+msgid "Upload anyway"
+msgstr "Upload anyway"
+
+#: src/app/settings.tsx
+#: src/ui/publish-sheet.tsx
+msgid "Upload automatically"
+msgstr "Upload automatically"
+
+#: src/ui/queue-sheet.tsx
+msgid "Upload now"
+msgstr "Upload now"
+
+#: src/ui/publish-sheet.tsx
+msgid "Upload: automatically"
+msgstr "Upload: automatically"
+
+#: src/ui/publish-sheet.tsx
+msgid "Upload: automatically, on Wi-Fi"
+msgstr "Upload: automatically, on Wi-Fi"
+
+#: src/ui/publish-sheet.tsx
+msgid "Upload: when I tap “Upload now”"
+msgstr "Upload: when I tap “Upload now”"
+
+#: src/ui/status.tsx
+msgid "Uploaded"
+msgstr "Uploaded"
+
+#: src/ui/status.tsx
+msgid "Uploading · {percent} %"
+msgstr "Uploading · {percent} %"
+
+#: src/app/settings.tsx
+msgid "Uploads"
+msgstr "Uploads"
+
+#: src/app/pair.tsx
+msgid "Use another code"
+msgstr "Use another code"
+
+#: src/app/settings.tsx
+msgid "Vibration feedback"
+msgstr "Vibration feedback"
+
+#: src/app/camera.tsx
+#: src/app/index.tsx
+msgid "Video"
+msgstr "Video"
+
+#: src/app/settings.tsx
+msgid "Videos still wait for Wi-Fi."
+msgstr "Videos still wait for Wi-Fi."
+
+#: src/ui/text-names.tsx
+msgid "Violet"
+msgstr "Violet"
+
+#: src/app/camera.tsx
+msgid "Voice"
+msgstr "Voice"
+
+#: src/app/index.tsx
+msgid "Voice note"
+msgstr "Voice note"
+
+#: src/ui/queue-sheet.tsx
+msgid "Wait for Wi-Fi"
+msgstr "Wait for Wi-Fi"
+
+#: src/ui/status.tsx
+msgid "Waiting for network"
+msgstr "Waiting for network"
+
+#: src/ui/status.tsx
+msgid "Waiting for the computer at home"
+msgstr "Waiting for the computer at home"
+
+#: src/ui/status.tsx
+msgid "Waiting for Wi-Fi"
+msgstr "Waiting for Wi-Fi"
+
+#: src/ui/status.tsx
+msgid "Waiting for Wi-Fi (roaming)"
+msgstr "Waiting for Wi-Fi (roaming)"
+
+#: src/ui/status.tsx
+msgid "Waiting for your release"
+msgstr "Waiting for your release"
+
+#: src/ui/publish-sheet.tsx
+msgid "waits for “Upload now”"
+msgstr "waits for “Upload now”"
+
+#: src/ui/status.tsx
+msgid "Waits for “Upload now”"
+msgstr "Waits for “Upload now”"
+
+#: src/ui/status.tsx
+msgid "Waits on this phone"
+msgstr "Waits on this phone"
+
+#: src/ui/publish-sheet.tsx
+msgid "When should it appear?"
+msgstr "When should it appear?"
+
+#: src/app/settings.tsx
+msgid "Wi-Fi"
+msgstr "Wi-Fi"
+
+#: src/app/settings.tsx
+msgid "Wi-Fi with a data limit (counts as mobile data)"
+msgstr "Wi-Fi with a data limit (counts as mobile data)"
+
+#: src/app/index.tsx
+msgid "Yes"
+msgstr "Yes"
+
+#: src/app/settings.tsx
+msgid "You can connect it again with a new code from the admin."
+msgstr "You can connect it again with a new code from the admin."
+
+#: src/ui/queue-sheet.tsx
+msgid "You’re on mobile data"
+msgstr "You’re on mobile data"
+
+#: src/app/index.tsx
+msgid "You’re using {carrier} abroad. Upload on it?"
+msgstr "You’re using {carrier} abroad. Upload on it?"
+
+#: src/ui/status.tsx
+msgid "Your computer at home picks it up once it’s back online. It’s safe."
+msgstr "Your computer at home picks it up once it’s back online. It’s safe."
+
+#: src/app/index.tsx
+msgid "Your moments go safely to the archive at home. Nothing is published yet."
+msgstr "Your moments go safely to the archive at home. Nothing is published yet."
+
+#: src/app/pair.tsx
+msgid "Your moments now travel home to your archive. Nothing is published yet."
+msgstr "Your moments now travel home to your archive. Nothing is published yet."
+
+#: src/app/compose.tsx
+msgid "Your photo"
+msgstr "Your photo"
+
+#: src/app/text.tsx
+msgid "Your text"
+msgstr "Your text"
+
+#: src/app/compose.tsx
+msgid "Your video"
+msgstr "Your video"
+
+#: src/app/voice.tsx
+msgid "Your voice note"
+msgstr "Your voice note"
+
+#: src/app/settings.tsx
+msgid "Your website"
+msgstr "Your website"
+
+#. placeholder {0}: z.label
+#: src/app/camera.tsx
+msgid "Zoom {0}"
+msgstr "Zoom {0}"

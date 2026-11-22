@@ -1,0 +1,24 @@
+# Grants the camera (and microphone) just in time, when the app asks.
+appId: app.omw.traveler
+---
+- runFlow:
+    when:
+      visible:
+        id: camera-allow
+    commands:
+      - tapOn:
+          id: camera-allow
+- runFlow:
+    when:
+      visible:
+        text: "While using the app"
+    commands:
+      - tapOn:
+          text: "While using the app"
+- runFlow:
+    when:
+      visible:
+        text: "Bei Nutzung der App"
+    commands:
+      - tapOn:
+          text: "Bei Nutzung der App"

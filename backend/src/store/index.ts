@@ -87,6 +87,7 @@ export {
 export {
   CAPTURE_STATES,
   type CaptureRow,
+  CaptureSource,
   type CaptureState,
   type Clock,
   type NewCapture,

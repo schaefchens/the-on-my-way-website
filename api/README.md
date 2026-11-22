@@ -66,6 +66,56 @@ dev server (`pnpm --filter @omw/admin dev`, http://127.0.0.1:5174/admin/) reques
 Connect a local backend: `API_BASE_URL=http://127.0.0.1:8080 API_TOKEN=$(cat .secrets/local-api-backend-token)`
 (see [backend/README.md](../backend/README.md)).
 
+## Traveler app (app inbox)
+
+The On My Way app (`frontend/app`) talks only to this API, with a phone token of scope `capture`
+(app-plan §3.4–3.6, owner decisions Q2 c, Q4 a, Q8 a). Wire format: `packages/contracts/src/app.ts`
+(phone) and `app-inbox.ts` (admin, backend); code: `src/Domain/App/`, `src/Http/App/` (routes in
+`AppRoutes.php`, registered with one line in `Routes.php`); tables: `migrations/0050_app_inbox.sql`
+(only new `app_*` tables; numbered 0050 so it sorts after the wave-5 files and applies in either order)
+and `0051_app_phone_install.sql` (`app_phones.install_hash`).
+
+| Route | Who | What |
+|---|---|---|
+| `POST /api/v1/app/pair` | anyone (rate-limited per IP) | redeem a one-time code, get the phone token (shown once) |
+| `POST/GET/DELETE /api/v1/app/entries…`, `POST …/{id}/commit` | phone | create (idempotent per entry ULID + hash), state, withdraw, commit |
+| `HEAD/PATCH/DELETE /api/v1/app/uploads/{id}` | phone | tus 1.0 subset: chunks with `Upload-Checksum: sha256`, resumable; `POST` + `X-HTTP-Method-Override` works too |
+| `PUT /api/v1/app/visibility/{sourceKey}`, `GET /api/v1/app/hints` | phone | "Hold back"/"Only for me" on its own entries only; inbox facts |
+| `GET /api/v1/backend/app/entries`, `GET …/uploads/{id}/content` (Range), `POST …/ack`, `POST …/reject` | backend | the home computer pulls, verifies, archives and acks; the API then deletes its copy |
+| `POST /admin/app-pairings`, `GET /admin/app-phones`, `DELETE /admin/app-phones/{id}`, `GET /admin/app-entries/{key}` | admin | "Connect a phone" (code valid 1 h, at most 24 h, single use), Disconnect, the App badge |
+
+- Phone tokens live in `app_phones`, never in `api_tokens`: they cannot reach the admin or backend
+  routes. They can create, upload, withdraw and tighten the visibility of their own entries, nothing
+  else. Pairing alerts the owner through the alert channels ("A phone was connected").
+- The app sends a random install id with the pairing (`installId`, only its sha256 is stored). When
+  the same install pairs again (a Disconnect after a false alarm, a token that expired after 180
+  days), the new token takes over the install's earlier entries and the earlier connections are
+  closed, so the moments that were on their way continue (same slots, same offsets). Another
+  install, or a build without `installId`, still sees only its own entries.
+- An entry id keeps its first content for good, also once withdrawn (`409 entry_conflict`): the app
+  sends a moment that goes out again with other content (Undo, edit, Share) or after a permanent
+  refusal under a new id, and withdraws the old one.
+- Bytes wait in `var/app-inbox/<entryId>/` (denied by `var/.htaccess`) until the backend acks them.
+  `APP_INBOX_MAX_BYTES` (default 1 GiB, at most ~10 % of the account quota) caps them: media and
+  previews are reserved at create, originals count as they arrive; above it uploads get 507. One
+  file may use at most half of it (413 at create, so the phone keeps that original).
+- `APP_TRANSFER_SLOTS` (default 1) chunk uploads and backend downloads run at once (`flock`); more
+  get 503 + `Retry-After`. JSON requests never take a slot. `APP_CHUNK_MAX_BYTES` (default 8 MiB,
+  never above `post_max_size`) is the largest chunk announced to the phone.
+- Housekeeping runs with the backend's polls and creates (at most every 15 min): entries still
+  receiving whose uploads saw no request for 72 h are given up (rows, slots and bytes removed), so
+  what a reset, lost or newly connected phone left behind never keeps its reservation (a phone that
+  comes back gets 404 and sends the same create again); other partial uploads (originals) untouched
+  for 72 h start again from 0; finished entry directories are removed.
+- `AppHints.archiveOnly` is what the backend reports with every poll (`APP_PUBLISH` there); true
+  until it reported.
+
+Local development with the app on the emulator or a USB phone (no live host involved):
+`scripts/app/dev-api.sh --pair` starts this API on `127.0.0.1:8080` with its own state in
+`.cache/app-dev-api/` (`--state DIR` for a second one, `--reset` to start empty) and prints a pairing link; `scripts/app/with-emulator.sh -- adb reverse
+tcp:8080 tcp:8080` makes it reachable from the device. More codes: `php bin/app-pairing.php`
+(`--list`, `--disconnect=ID`).
+
 ## End-to-end test of the whole stack
 
 `frontend/admin/e2e/stack/` starts everything itself (fresh database, admin, backend token,

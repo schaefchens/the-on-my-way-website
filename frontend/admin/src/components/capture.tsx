@@ -8,6 +8,7 @@ import type { CaptureListItem } from '@omw/contracts/api';
 import { waFontStyle } from '@omw/ui/fonts';
 import { thumbhashToDataUrl } from '@omw/ui/thumbhash';
 import { type CSSProperties, useMemo, useState } from 'react';
+import { AppBadge } from './app-badge';
 import { AlertIcon, InfoIcon, MicIcon, PlayIcon, TextIcon } from './icons';
 import { cx, Spinner } from './ui';
 
@@ -64,6 +65,7 @@ export function CaptureVisual({
         className={cx(base, '@container grid place-items-center p-[9%] text-center', dimmed && DIM)}
         style={{ ...style, backgroundColor: text.bg, color: text.fg }}
       >
+        <AppBadge capture={capture} compact={compact} />
         <p
           data-user-text
           dir="auto"
@@ -89,6 +91,7 @@ export function CaptureVisual({
           dimmed && 'grayscale',
         )}
       >
+        <AppBadge capture={capture} compact={compact} />
         <span className="grid size-11 place-items-center rounded-pill bg-surface shadow-soft">
           <MicIcon className="size-5" />
         </span>
@@ -138,6 +141,7 @@ export function CaptureVisual({
   const showImage = src && !failed;
   return (
     <div className={cx(base, 'bg-blush')} style={style}>
+      <AppBadge capture={capture} compact={compact} />
       <div
         aria-hidden="true"
         className={cx('absolute inset-0', dimmed && DIM)}

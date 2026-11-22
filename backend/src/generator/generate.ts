@@ -34,6 +34,7 @@ import { dirname, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { CONTRACT_VERSION } from '@omw/contracts';
 import type { Settings } from '@omw/contracts/api';
+import { isAppSourceKey } from '@omw/contracts/app';
 import {
   Boot,
   DayDetail,
@@ -161,6 +162,18 @@ const json = (value: unknown) => `${JSON.stringify(value)}\n`;
  * diffed per day anyway, so changing them (e.g. the traveler's one-tap "timezone from this
  * device") must not re-check the whole site. alerts.* do not influence the output at all.
  */
+/**
+ * Owner decision Q8 a: while APP_PUBLISH is off (the default), captures from the traveler app
+ * ("app:<ULID>") are archived and processed but never published, whatever their visibility.
+ */
+export function publishableCaptures<T extends { sourceKey: string }>(
+  captures: readonly T[],
+  config: Pick<Config, 'app'>,
+): T[] {
+  if (config.app?.publish === true) return [...captures];
+  return captures.filter((c) => !isAppSourceKey(c.sourceKey));
+}
+
 function outputSettings(settings: Settings): Record<string, unknown> {
   return Object.fromEntries(Object.entries(settings).filter(([k]) => k.startsWith('site.')));
 }
@@ -272,6 +285,8 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
       };
     })
     .deferred();
+  // Q8 a archive-only: app captures stay private (also as the portrait) until APP_PUBLISH=true.
+  inputs.captures = publishableCaptures(inputs.captures, config);
   mediaAvailable = await scanMediaRoot(ctx.mediaDir);
   inputs.portraitCrop = await preparePortrait(inputs, ctx.mediaDir, mediaAvailable, log);
   const settings = inputs.settings;
@@ -293,6 +308,8 @@ export async function runGeneration(ctx: GenerationContext, opts: GenerateOption
     publicBase,
     htaccess: ctx.htaccess,
     profile: model.profile ?? undefined,
+    // Switching app publishing on or off re-checks every day (absent = the old hash).
+    appPublish: config.app?.publish === true ? true : undefined,
   });
 
   const fullReason = opts.full

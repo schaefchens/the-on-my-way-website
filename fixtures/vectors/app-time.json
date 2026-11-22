@@ -1,0 +1,135 @@
+{
+  "description": "correctAppOccurredAt(): skew correction, the 24 h clamp and the 30-day Hold back rule. Output instants use milliseconds (\"…T10:00:00.000Z\").",
+  "cases": [
+    {
+      "name": "small skew is corrected",
+      "input": {
+        "occurredAt": "2026-11-20T10:00:00Z",
+        "clientNow": "2026-11-20T10:00:05Z",
+        "serverNow": "2026-11-20T10:00:15Z"
+      },
+      "expected": {
+        "occurredAt": "2026-11-20T10:00:10.000Z",
+        "clamped": false,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "phone clock ahead by 3 minutes",
+      "input": {
+        "occurredAt": "2026-11-20T10:03:00.250Z",
+        "clientNow": "2026-11-20T10:03:01.000Z",
+        "serverNow": "2026-11-20T10:00:01.000Z"
+      },
+      "expected": {
+        "occurredAt": "2026-11-20T10:00:00.250Z",
+        "clamped": false,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "manual queue: shared 2 days ago, sent now",
+      "input": {
+        "occurredAt": "2026-11-18T08:00:00Z",
+        "clientNow": "2026-11-20T10:00:00Z",
+        "serverNow": "2026-11-20T10:00:02Z"
+      },
+      "expected": {
+        "occurredAt": "2026-11-18T08:00:02.000Z",
+        "clamped": false,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "phone set to the wrong year cannot backdate",
+      "input": {
+        "occurredAt": "2025-11-20T09:59:00Z",
+        "clientNow": "2025-11-20T10:00:00Z",
+        "serverNow": "2026-11-20T10:00:00Z"
+      },
+      "expected": {
+        "occurredAt": "2026-11-20T10:00:00.000Z",
+        "clamped": true,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "skew of exactly 24 h is still corrected",
+      "input": {
+        "occurredAt": "2026-11-19T09:00:00Z",
+        "clientNow": "2026-11-19T10:00:00Z",
+        "serverNow": "2026-11-20T10:00:00Z"
+      },
+      "expected": {
+        "occurredAt": "2026-11-20T09:00:00.000Z",
+        "clamped": false,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "skew 1 ms beyond 24 h is clamped",
+      "input": {
+        "occurredAt": "2026-11-19T09:00:00Z",
+        "clientNow": "2026-11-19T09:59:59.999Z",
+        "serverNow": "2026-11-20T10:00:00Z"
+      },
+      "expected": {
+        "occurredAt": "2026-11-20T10:00:00.000Z",
+        "clamped": true,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "occurredAt after clientNow lands in the future: clamped",
+      "input": {
+        "occurredAt": "2026-11-20T10:05:00Z",
+        "clientNow": "2026-11-20T10:00:00Z",
+        "serverNow": "2026-11-20T10:00:00Z"
+      },
+      "expected": {
+        "occurredAt": "2026-11-20T10:00:00.000Z",
+        "clamped": true,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "forgotten manual queue: 40 days old arrives as Hold back",
+      "input": {
+        "occurredAt": "2026-10-11T10:00:00Z",
+        "clientNow": "2026-11-20T10:00:00Z",
+        "serverNow": "2026-11-20T10:00:00Z"
+      },
+      "expected": {
+        "occurredAt": "2026-10-11T10:00:00.000Z",
+        "clamped": false,
+        "heldBack": true
+      }
+    },
+    {
+      "name": "exactly 30 days is not held back",
+      "input": {
+        "occurredAt": "2026-10-21T10:00:00Z",
+        "clientNow": "2026-11-20T10:00:00Z",
+        "serverNow": "2026-11-20T10:00:00Z"
+      },
+      "expected": {
+        "occurredAt": "2026-10-21T10:00:00.000Z",
+        "clamped": false,
+        "heldBack": false
+      }
+    },
+    {
+      "name": "30 days and 1 ms is held back",
+      "input": {
+        "occurredAt": "2026-10-21T09:59:59.999Z",
+        "clientNow": "2026-11-20T10:00:00Z",
+        "serverNow": "2026-11-20T10:00:00Z"
+      },
+      "expected": {
+        "occurredAt": "2026-10-21T09:59:59.999Z",
+        "clamped": false,
+        "heldBack": true
+      }
+    }
+  ]
+}

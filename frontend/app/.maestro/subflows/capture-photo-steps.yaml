@@ -1,0 +1,42 @@
+# Takes a photo with the (virtual) camera, adds a caption and shares it. Starts and ends on Today.
+# Used by capture-photo.yaml (fresh install) and the end-to-end run (e2e/capture-all.yaml).
+appId: app.omw.traveler
+---
+- tapOn:
+    id: capture-button
+- extendedWaitUntil:
+    visible:
+      id: camera-screen
+    timeout: 15000
+- runFlow: allow-camera.yaml
+- extendedWaitUntil:
+    visible:
+      id: camera-view
+    timeout: 15000
+# CameraX needs a moment to bind the virtual camera.
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: shutter
+- extendedWaitUntil:
+    visible:
+      id: compose-screen
+    timeout: 20000
+- assertVisible:
+    id: compose-photo
+- tapOn:
+    id: caption-input
+- inputText: "Harbour at dusk"
+- hideKeyboard
+- assertVisible:
+    id: publish-line
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: today-item-0
+    timeout: 10000

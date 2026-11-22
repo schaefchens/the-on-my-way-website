@@ -11,5 +11,8 @@ export default defineConfig({
     include: ['test/**/*.test.ts'],
     environment: 'node',
     pool: 'forks',
+    // Some generator tests run several full site generations (1–3 s each); 5 s timed out while
+    // an emulator and Gradle shared the machine (load average ~15).
+    testTimeout: 20_000,
   },
 });

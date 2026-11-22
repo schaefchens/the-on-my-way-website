@@ -18,7 +18,7 @@ WaSource (helper | fixtures) ─▶ Ingest (inbox → archive → media pipeline
 |---|---|---|
 | App / orchestrator | `src/app.ts` | Wires everything, debounced generate, single-flight publish with retry, delayed-publish timer, graceful shutdown, process lock |
 | CLI / entry | `src/cli.ts`, `src/main.ts` | `backend <command>`; `main.ts` = `backend start` |
-| Capture | `src/capture/` | WaSource (Go helper supervisor or fixture replay) and Ingest |
+| Capture | `src/capture/` | WaSource (Go helper supervisor or fixture replay) and Ingest; `app-source.ts` pulls the traveler app's entries from the API inbox (archive: `app-archive.ts`) |
 | Pipeline | `src/pipeline/` | sharp / ffmpeg media variants; the portrait's round crop (`avatar.ts`, made by the generator run) |
 | Store | `src/store/` | SQLite (WAL): captures, owner mirror, outbox, sync state, deploy manifests, events |
 | Generator | `src/generator/` | store → `OUT_DIR` (HTML per route, JSON, media links, site assets) |
@@ -99,6 +99,8 @@ Validated by `src/config.ts` (zod); invalid values stop the backend with a clear
 | `SITE_DIST_DIR` | `frontend/site/dist` | Vite build of `@omw/site` |
 | `OMW_VERSION` | `package.json` version | reported in heartbeat and UI |
 | `SFTP_HOST`, `SFTP_USER`, `SFTP_PASSWORD`, `SFTP_PORT`, `SITE_BASE_URL`, … | – | bootstrap ONE sftp target when `CONFIG_DIR/targets.json` does not exist (see `src/publisher/targets.ts`) |
+| `APP_PUBLISH` | `false` | traveler app entries may be published; off = archive-only (owner decision Q8 a): they are archived, processed and shown in the admin, but no `app:` capture reaches the site |
+| `APP_INBOX_POLL_SECONDS` | `60` | how often the API's app inbox is asked for new entries (again within seconds while there is work; only with an API) |
 
 ## CLI
 
@@ -219,6 +221,28 @@ owns the owner content).
 When the API was unreachable (network error, timeout, 502/503/504), the first successful request
 afterwards makes every push that failed during the outage due at once, so the capture mirror and
 publish reports catch up within seconds instead of after their backoff (up to 15 min).
+
+## Traveler app entries (`src/capture/app-source.ts`)
+
+With an API configured, the backend polls `GET /backend/app/entries` and reconciles every item with
+the archive and the store, so a crash just repeats a step: committed files are downloaded with Range
+resume into `DATA_DIR/inbox-app/`, sha256-checked, copied into
+`ARCHIVE_DIR/app/YYYY/MM/DD/app-<ULID>.{json,jpg|mp4|m4a,preview.jpg,original.<ext>}` (record type
+`omw.app-entry`; the original of photos and videos too, Q2 c), inserted as the capture
+`app:<ULID>` (source `app`, store migration v2) and acked, after which the API deletes its copy.
+The ingest's workers then run the usual pipeline on the media file (EXIF/GPS stripped, variants,
+admin preview); `reprocess` works from the record. A withdrawal she makes after the archive sets
+`revokedAt` (`ingest.on_revoke` applies). A file that never matches its sha256 (3 downloads)
+rejects the entry. Records missing from the store are restored at start. While `APP_PUBLISH` is
+off, the generator leaves every `app:` capture out (also as the portrait); the switch is reported
+with every poll, so the app shows "Archived ✓" and the admin's chip says "Archive only". The
+generator has one output for all targets, so the local preview leaves them out too; set
+`APP_PUBLISH=true` on a local backend to see them rendered.
+
+`test/capture/app-source.test.ts` runs the source against a fake inbox;
+`test/capture/app-stack.test.ts` runs it against the real PHP API (`scripts/app/dev-api.sh` on a
+free port with a throwaway state, a scripted phone using the tus subset). It is skipped without
+`php` 8.3+ or `api/vendor`.
 
 ## Tests
 

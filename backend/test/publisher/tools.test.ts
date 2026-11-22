@@ -134,7 +134,8 @@ describe('self test', () => {
     const fetch = async (url: string) => {
       const path = new URL(url).pathname.replace(/^\/site/, '/www');
       const body = server.files.get(path);
-      return body ? new Response(body) : new Response('nope', { status: 404 });
+      // A copy (Uint8Array<ArrayBuffer>) is a valid body under both Node's and DOM's BodyInit.
+      return body ? new Response(new Uint8Array(body)) : new Response('nope', { status: 404 });
     };
     const report = await runSelftest({
       target: sftpTarget('live', { remoteRoot: '/www', publicBaseUrl: 'https://example.test/site/' }),

@@ -1,0 +1,37 @@
+# Makes a text status (type, another background from the palette sheet, Calistoga) and shares it
+# with the send button. Starts and ends on Today. The caller passes TEXT (runFlow env); a default
+# here would win over the caller's value in Maestro 2.12.
+appId: app.omw.traveler
+---
+- tapOn:
+    id: text-button
+- extendedWaitUntil:
+    visible:
+      id: text-screen
+    timeout: 10000
+- tapOn:
+    id: text-input
+- inputText: ${TEXT}
+- hideKeyboard
+- tapOn:
+    id: text-palette
+- extendedWaitUntil:
+    visible:
+      id: palette-sheet
+    timeout: 5000
+- tapOn:
+    id: swatch-ocean
+- tapOn:
+    id: sheet-font-CALISTOGA_REGULAR
+- tapOn:
+    id: palette-sheet-close
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: today-item-0
+    timeout: 10000

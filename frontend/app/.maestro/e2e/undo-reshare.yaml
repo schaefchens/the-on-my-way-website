@@ -1,0 +1,69 @@
+# End-to-end run (review R2, R4): a text status shared on Wi-Fi goes up at once; "Undo" a few
+# seconds later (after the API has it) turns it back into a draft; she fixes the typo and shares
+# again. -e TYPO=<first text> -e FIXED=<second text>. Starts and ends on Today.
+appId: app.omw.traveler
+name: e2e - undo, edit, share again
+tags:
+  - e2e
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 60000
+- tapOn:
+    id: text-button
+- extendedWaitUntil:
+    visible:
+      id: text-screen
+    timeout: 10000
+- tapOn:
+    id: text-input
+- inputText: ${TYPO}
+- hideKeyboard
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: toast-undo
+    timeout: 15000
+# Let the uploader send it first (a text status is up in well under a second on Wi-Fi); the
+# toast stays 8 s.
+- evalScript: ${ (function () { var t = Date.now(); while (Date.now() - t < 3000) {} })() }
+- tapOn:
+    id: toast-undo
+- extendedWaitUntil:
+    visible:
+      id: drafts-line
+    timeout: 10000
+- takeScreenshot: e2e-07-undone-draft
+- tapOn:
+    id: drafts-line
+- extendedWaitUntil:
+    visible:
+      id: drafts-sheet
+    timeout: 5000
+- tapOn:
+    id: draft-.*
+- extendedWaitUntil:
+    visible:
+      id: text-screen
+    timeout: 10000
+# The tap puts the cursor where it lands, so some of the old text may stay around FIXED; the e2e
+# check looks for FIXED in the shared-again status.
+- tapOn:
+    id: text-input
+- eraseText: 80
+- inputText: ${FIXED}
+- hideKeyboard
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: today-item-0
+    timeout: 10000

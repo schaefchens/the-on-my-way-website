@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="omw_channel_uploads">Uploads</string>
+  <string name="omw_channel_uploads_description">Leiser Fortschritt, während deine Momente unterwegs sind</string>
+  <plurals name="omw_uploading">
+    <item quantity="one">1 Moment wird hochgeladen · %2$d %%</item>
+    <item quantity="other">%1$d Momente werden hochgeladen · %2$d %%</item>
+  </plurals>
+  <string name="omw_upload_waiting">Deine Momente warten auf die nächste Verbindung</string>
+  <string name="omw_channel_export">Vorbereiten</string>
+  <string name="omw_channel_export_description">Leiser Fortschritt, während ein Video vorbereitet wird</string>
+  <string name="omw_exporting">Dein Video wird vorbereitet… %1$d %%</string>
+  <string name="omw_exporting_photo">Dein Foto wird vorbereitet…</string>
+</resources>

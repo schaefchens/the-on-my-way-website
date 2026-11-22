@@ -1,0 +1,25 @@
+// Local Expo module of the traveler app (autolinked from frontend/app/modules).
+// Sources: src/main/java (plain Android: uploader, media export, token vault, haptics map),
+// src/expo/java (the five Expo bridges Omw*Module, the only files that import expo.*).
+// Dependencies and test setup live in omw-native.gradle, shared with the standalone test harness
+// (harness/), which builds src/main without React Native for the JVM and emulator tests.
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'app.omw'
+version = '0.1.0'
+
+android {
+  namespace "app.omw.omwnative"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+  sourceSets {
+    main.java.srcDir 'src/expo/java'
+  }
+}
+
+apply from: 'omw-native.gradle'

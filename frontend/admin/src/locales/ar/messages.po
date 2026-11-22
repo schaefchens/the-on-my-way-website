@@ -53,6 +53,12 @@ msgstr ""
 msgid "{0} · it is {1} there"
 msgstr ""
 
+#. placeholder {0}: phone.entries.total
+#. placeholder {1}: phone.entries.inInbox
+#: src/screens/settings-phones.tsx
+msgid "{0} moments, {1} on the way"
+msgstr ""
+
 #: src/components/conflict-dialog.tsx
 msgid "{autoMerged, plural, one {# other change of yours does not collide and is kept.} other {# other changes of yours do not collide and are kept.}}"
 msgstr ""
@@ -150,8 +156,16 @@ msgstr ""
 msgid "0 to 8760 hours"
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "1 hour"
+msgstr ""
+
 #: src/screens/settings.tsx
 msgid "1 to 10080 minutes"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "24 hours"
 msgstr ""
 
 #: src/screens/trips.tsx
@@ -230,6 +244,11 @@ msgstr ""
 msgid "Already captured statuses keep their day; fix single days in the day editor."
 msgstr ""
 
+#. placeholder {0}: formatDateTime(data.openPairing.expiresAt, deviceTimeZone(), locale)
+#: src/screens/settings-phones.tsx
+msgid "An unused code is valid until {0}."
+msgstr ""
+
 #: src/screens/trips.tsx
 msgid "Another trip already uses this address."
 msgstr ""
@@ -238,6 +257,7 @@ msgstr ""
 msgid "API tokens"
 msgstr ""
 
+#: src/components/app-badge.tsx
 #: src/screens/settings.tsx
 msgid "App"
 msgstr ""
@@ -265,6 +285,10 @@ msgstr ""
 
 #: src/screens/settings.tsx
 msgid "Apply"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "Archive only"
 msgstr ""
 
 #: src/screens/inbox.tsx
@@ -372,9 +396,14 @@ msgstr ""
 #: src/components/unsaved.tsx
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
+#: src/screens/settings-phones.tsx
 #: src/screens/settings.tsx
 #: src/screens/trips.tsx
 msgid "Close"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "Code valid for"
 msgstr ""
 
 #: src/screens/home.tsx
@@ -386,8 +415,17 @@ msgstr ""
 msgid "Computer at home (sync)"
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "Connect a phone"
+msgstr ""
+
 #: src/components/labels.ts
 msgid "Connected"
+msgstr ""
+
+#. placeholder {0}: formatRelative(phone.createdAt, locale)
+#: src/screens/settings-phones.tsx
+msgid "connected {0}"
 msgstr ""
 
 #: src/components/labels.ts
@@ -398,12 +436,17 @@ msgstr ""
 msgid "Coordinates (optional)"
 msgstr ""
 
+#: src/screens/settings-phones.tsx
 #: src/screens/settings.tsx
 msgid "Copied"
 msgstr ""
 
 #: src/screens/settings.tsx
 msgid "Copy"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "Copy the link"
 msgstr ""
 
 #: src/components/ui.tsx
@@ -445,6 +488,10 @@ msgstr ""
 
 #: src/screens/inbox.tsx
 msgid "Cover removed"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "Create code"
 msgstr ""
 
 #: src/screens/settings.tsx
@@ -582,12 +629,35 @@ msgstr ""
 msgid "Discard my change"
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "Disconnect"
+msgstr ""
+
+#. placeholder {0}: disconnecting?.name
+#: src/screens/settings-phones.tsx
+msgid "Disconnect “{0}”?"
+msgstr ""
+
+#. placeholder {0}: phone.name
+#: src/screens/settings-phones.tsx
+msgid "Disconnect {0}"
+msgstr ""
+
 #: src/components/labels.ts
 msgid "Disconnected"
 msgstr ""
 
+#. placeholder {0}: formatRelative(phone.revokedAt ?? phone.createdAt, locale)
+#: src/screens/settings-phones.tsx
+msgid "disconnected {0}"
+msgstr ""
+
 #: src/components/feedback.tsx
 msgid "Dismiss"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "Done"
 msgstr ""
 
 #: src/screens/settings.tsx
@@ -836,12 +906,22 @@ msgstr ""
 msgid "Inbox"
 msgstr ""
 
+#. placeholder {0}: megabytes(data.inbox.usedBytes, locale)
+#. placeholder {1}: megabytes(data.inbox.maxBytes, locale)
+#: src/screens/settings-phones.tsx
+msgid "Inbox on the server: {0} of {1} MB in use."
+msgstr ""
+
 #: src/components/install.tsx
 msgid "Install as an app"
 msgstr ""
 
 #: src/components/labels.ts
 msgid "Instantly"
+msgstr ""
+
+#: src/components/app-badge.tsx
+msgid "It arrived more than 30 days after it was shared, so it waits for your release (Hold back)."
 msgstr ""
 
 #: src/screens/composer.tsx
@@ -865,6 +945,10 @@ msgstr ""
 #: src/screens/settings.tsx
 #: src/screens/trips.tsx
 msgid "Keep"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "Keep connected"
 msgstr ""
 
 #: src/components/unsaved.tsx
@@ -931,6 +1015,11 @@ msgstr ""
 msgid "Last published {lastAt}."
 msgstr ""
 
+#. placeholder {0}: formatRelative(phone.lastUsedAt, locale)
+#: src/screens/settings-phones.tsx
+msgid "last seen {0}"
+msgstr ""
+
 #: src/screens/home.tsx
 msgid "Last status {lastStatus}"
 msgstr ""
@@ -992,6 +1081,10 @@ msgstr ""
 msgid "Merged with a newer version from another device."
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "Moments from the app go to the archive at home. Nothing from the app is published yet."
+msgstr ""
+
 #: src/screens/item.tsx
 msgid "Move"
 msgstr ""
@@ -1035,6 +1128,10 @@ msgstr ""
 
 #: src/screens/inbox.tsx
 msgid "new"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "New code"
 msgstr ""
 
 #: src/screens/layout.tsx
@@ -1115,6 +1212,10 @@ msgstr ""
 
 #: src/screens/home.tsx
 msgid "No news from your computer at home yet"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "No phone connected yet."
 msgstr ""
 
 #: src/components/portrait.tsx
@@ -1236,6 +1337,10 @@ msgstr ""
 msgid "Off: only people with the link find the site."
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "On the phone, open On My Way and type this code:"
+msgstr ""
+
 #: src/screens/days.tsx
 msgid "On this day"
 msgstr ""
@@ -1276,6 +1381,10 @@ msgstr ""
 msgid "Open this page in Safari and tap <0/> <1>Share</1>."
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "Or send this link to the phone (it opens the app):"
+msgstr ""
+
 #: src/screens/composer.tsx
 #: src/screens/days.tsx
 #: src/screens/item.tsx
@@ -1306,6 +1415,10 @@ msgstr ""
 
 #: src/screens/login.tsx
 msgid "Password"
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "Phone disconnected"
 msgstr ""
 
 #: src/components/labels.ts
@@ -1579,6 +1692,24 @@ msgctxt "tab bar, keep short"
 msgid "Settings"
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "Share the link"
+msgstr ""
+
+#. placeholder {0}: info.phone.name
+#. placeholder {1}: formatDateTime(info.receivedAt, deviceTimeZone(), locale)
+#: src/components/app-badge.tsx
+msgid "Shared from the app on “{0}”, received {1}. The caption comes from the app and cannot be changed here."
+msgstr ""
+
+#: src/components/app-badge.tsx
+msgid "Shared from the app. The caption comes from the app and cannot be changed here."
+msgstr ""
+
+#: src/components/app-badge.tsx
+msgid "Shared from the On My Way app"
+msgstr ""
+
 #: src/screens/inbox.tsx
 msgid "Show"
 msgstr ""
@@ -1739,6 +1870,14 @@ msgstr ""
 msgid "The end must not be before the start."
 msgstr ""
 
+#: src/components/app-badge.tsx
+msgid "The full-quality original has not reached the archive yet (it follows on Wi-Fi)."
+msgstr ""
+
+#: src/components/app-badge.tsx
+msgid "The full-quality original is safe in the archive at home."
+msgstr ""
+
 #: src/screens/days.tsx
 msgid "The items of this day were sorted in by the time zone set when they were captured ({capturedLabels}). If that was wrong (a flight, a forgotten setting), choose the right zone: they are re-dated and may move to the day before or after."
 msgstr ""
@@ -1747,8 +1886,20 @@ msgstr ""
 msgid "The media could not be downloaded from WhatsApp."
 msgstr ""
 
+#: src/screens/settings-phones.tsx
+msgid "The On My Way app sends moments here, also when WhatsApp is not used. A connected phone can only share and hide its own moments."
+msgstr ""
+
 #: src/screens/item.tsx
 msgid "The other language is shown as a translation."
+msgstr ""
+
+#: src/screens/settings-phones.tsx
+msgid "The phone can no longer send or hide anything. What it already sent stays. Moments still waiting on the phone go out once you connect it again with a new code."
+msgstr ""
+
+#: src/components/app-badge.tsx
+msgid "The phone's clock was off, so the time it arrived is used."
 msgstr ""
 
 #: src/lib/errors.ts
@@ -2065,6 +2216,11 @@ msgstr ""
 msgid "While you were editing, <0/> was deleted (maybe on another device)."
 msgstr ""
 
+#. placeholder {0}: formatDateTime(code.expiresAt, deviceTimeZone(), locale)
+#: src/screens/settings-phones.tsx
+msgid "Works once, until {0}. Anyone with the code can connect a phone, so only send it to the phone you mean."
+msgstr ""
+
 #: src/screens/composer.tsx
 #: src/screens/layout.tsx
 msgid "Write"
@@ -2106,6 +2262,10 @@ msgstr ""
 
 #: src/screens/item.tsx
 msgid "You deleted this status on WhatsApp."
+msgstr ""
+
+#: src/components/app-badge.tsx
+msgid "You withdrew this moment in the app."
 msgstr ""
 
 #: src/components/conflict-dialog.tsx

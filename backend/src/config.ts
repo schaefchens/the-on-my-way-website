@@ -29,6 +29,8 @@
  * | MEDIA_DIR           | backend/data/media               | same                   |
  * | SITE_DIST_DIR       | frontend/site/dist               | same                   |
  * | OMW_VERSION         | backend/package.json version     | (Docker build arg)     |
+ * | APP_PUBLISH         | false (archive-only, Q8 a)       | false                  |
+ * | APP_INBOX_POLL_SECONDS | 60                            | 60                     |
  *
  * Relative paths are resolved against backend/. DEFAULT_TIMEZONE is used until the mirrored
  * setting "timezone.current" arrives from the API.
@@ -56,6 +58,12 @@
  * loopback host (127.0.0.0/8, ::1, localhost: an API on the same machine or behind a local tunnel).
  * API_BACKUP_KEEP: how many daily API database backups (GET /backend/backup/latest) are kept in
  * DATA_DIR/api-backups (sync/backup.ts).
+ *
+ * APP_PUBLISH: whether entries from the traveler app may be published (capture/app-source.ts). Off
+ * (the default) is the archive-only mode of owner decision Q8 a: app entries reach the home
+ * archive, the pipeline and the admin, but the generator leaves every "app:" capture out until the
+ * owner switches it on (after the wave-5 follower gate). APP_INBOX_POLL_SECONDS: how often the
+ * API's app inbox is asked for new entries (only with an API).
  *
  * TRAVELER_LID: the traveler's WhatsApp LID (digits). Normally learned by the helper (`traveler`
  * event), persisted by Node and passed to the helper as -traveler-lid; set it only to override.
@@ -133,6 +141,8 @@ const EnvSchema = z.object({
   MEDIA_DIR: optionalString,
   SITE_DIST_DIR: optionalString,
   OMW_VERSION: optionalString,
+  APP_PUBLISH: booleanFlag,
+  APP_INBOX_POLL_SECONDS: z.preprocess(emptyToUndefined, z.coerce.number().int().min(10).max(3600).default(60)),
 });
 
 export type WaMode = 'observer' | 'self' | 'fixture';
@@ -169,6 +179,11 @@ export interface Config {
   siteDistDir?: string;
   /** Extra Host names for the control UI (CONTROL_ALLOWED_HOSTS), lowercase. */
   controlAllowedHosts?: string[];
+  /**
+   * Traveler app (APP_PUBLISH, APP_INBOX_POLL_SECONDS). Optional for hand-built configs: absent
+   * means archive-only (app entries are never published) and a 60 s poll.
+   */
+  app?: { publish: boolean; pollSeconds: number };
 }
 
 /** backend/package.json version ("0.0.0" if unreadable). */
@@ -283,6 +298,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     version: e.OMW_VERSION ?? packageVersion(),
     siteDistDir: resolvePath(e.SITE_DIST_DIR, join(REPO_ROOT, 'frontend', 'site', 'dist')),
     controlAllowedHosts,
+    app: { publish: e.APP_PUBLISH, pollSeconds: e.APP_INBOX_POLL_SECONDS },
   };
 }
 

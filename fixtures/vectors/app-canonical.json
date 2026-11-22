@@ -1,0 +1,230 @@
+{
+  "description": "appCanonicalJson() and appEntryHash() = sha256 hex of the canonical JSON (idempotent POST /app/entries). PHP: decode objects as objects (an empty {} must stay {}), sort keys recursively (ksort SORT_STRING), json_encode(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS).",
+  "cases": [
+    {
+      "name": "keys sorted, no whitespace",
+      "value": {
+        "b": 1,
+        "a": [
+          true,
+          null
+        ],
+        "c": "x"
+      },
+      "canonical": "{\"a\":[true,null],\"b\":1,\"c\":\"x\"}",
+      "sha256Hex": "95ddef1fa055f0787ba699befb36e2d863bb69d1868ea5018d4178a5a2c1a8cf"
+    },
+    {
+      "name": "nested objects sorted",
+      "value": {
+        "z": {
+          "y": 2,
+          "x": 1
+        },
+        "a": {}
+      },
+      "canonical": "{\"a\":{},\"z\":{\"x\":1,\"y\":2}}",
+      "sha256Hex": "3c361537a59c39846ddd3648c07a92cee752a34687dfb8a15b4e9b7d07a03cb4"
+    },
+    {
+      "name": "uppercase sorts before lowercase",
+      "value": {
+        "b": 1,
+        "B": 2,
+        "a": 3
+      },
+      "canonical": "{\"B\":2,\"a\":3,\"b\":1}",
+      "sha256Hex": "0580bc1640daec7baf353ff20a7b0744024e9a0164a6927f492e882b8e3d43bb"
+    },
+    {
+      "name": "numbers",
+      "value": {
+        "i": 42,
+        "f": 12.5,
+        "z": 0,
+        "n": -3,
+        "big": 4294967295
+      },
+      "canonical": "{\"big\":4294967295,\"f\":12.5,\"i\":42,\"n\":-3,\"z\":0}",
+      "sha256Hex": "de97490c2f9a5bfa0bfb6038fa1486b6b89a1efa981d1e00e45cddec15fc2f6e"
+    },
+    {
+      "name": "integral float has no fraction",
+      "value": {
+        "s": 12
+      },
+      "canonical": "{\"s\":12}",
+      "sha256Hex": "1801e123dc07e140e03e392e4cfb25fabe4b31489f09d3f3d4f2e9d9858826cd"
+    },
+    {
+      "name": "unicode stays raw, slashes unescaped",
+      "value": {
+        "t": "Hội An 🏮 a/b"
+      },
+      "canonical": "{\"t\":\"Hội An 🏮 a/b\"}",
+      "sha256Hex": "d8d90d4a1862362fb446aff0b0aae1ef236b6072cbcdda3e60b0d31049f115f9"
+    },
+    {
+      "name": "control characters and quotes",
+      "value": {
+        "t": "a\"b\\c\nd\te\u0001\u001f"
+      },
+      "canonical": "{\"t\":\"a\\\"b\\\\c\\nd\\te\\u0001\\u001f\"}",
+      "sha256Hex": "c6db9166dcae6b83213e755036f48ba12c31023189f5407a98b6387409f32ee6"
+    },
+    {
+      "name": "line and paragraph separators stay raw",
+      "value": {
+        "t": "x y z"
+      },
+      "canonical": "{\"t\":\"x y z\"}",
+      "sha256Hex": "add6739d839b1508c30f353e30b85d9e5b6da58d2430c502968c054f27d58033"
+    },
+    {
+      "name": "DEL and NBSP stay raw",
+      "value": {
+        "t": " "
+      },
+      "canonical": "{\"t\":\" \"}",
+      "sha256Hex": "b7a5e2ceecd7dea0c3887512d12ea296c66dcb0de19ff0879d2fa8084a75788b"
+    },
+    {
+      "name": "entry hash: photo",
+      "value": {
+        "schema": 1,
+        "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+        "source": "app",
+        "kind": "photo",
+        "occurredAt": "2026-11-20T09:15:00.000Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "caption": "Lanterns in Hội An 🏮",
+        "media": {
+          "width": 1600,
+          "height": 2880,
+          "accessibilityLabel": "Text on image: Hội An"
+        },
+        "files": [
+          {
+            "role": "media",
+            "mimetype": "image/jpeg",
+            "bytes": 812345,
+            "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "role": "preview",
+            "mimetype": "image/jpeg",
+            "bytes": 48210,
+            "sha256Hex": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          {
+            "role": "original",
+            "mimetype": "image/heic",
+            "bytes": 3456789,
+            "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          }
+        ],
+        "client": {
+          "app": "2026.11.20-1a2b3c4",
+          "platform": "android",
+          "os": "16"
+        }
+      },
+      "canonical": "{\"caption\":\"Lanterns in Hội An 🏮\",\"client\":{\"app\":\"2026.11.20-1a2b3c4\",\"os\":\"16\",\"platform\":\"android\"},\"entryId\":\"01JD3ZQ8X4V7N2K5M9P0R6S8TW\",\"files\":[{\"bytes\":812345,\"mimetype\":\"image/jpeg\",\"role\":\"media\",\"sha256Hex\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},{\"bytes\":48210,\"mimetype\":\"image/jpeg\",\"role\":\"preview\",\"sha256Hex\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"bytes\":3456789,\"mimetype\":\"image/heic\",\"role\":\"original\",\"sha256Hex\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"}],\"kind\":\"photo\",\"media\":{\"accessibilityLabel\":\"Text on image: Hội An\",\"height\":2880,\"width\":1600},\"occurredAt\":\"2026-11-20T09:15:00.000Z\",\"schema\":1,\"source\":\"app\",\"tz\":\"Asia/Ho_Chi_Minh\"}",
+      "sha256Hex": "86bfee3f08975b4c691d120dbeda85c51d5a0b6e6670f4b576c4986ca904230d"
+    },
+    {
+      "name": "entry hash: video",
+      "value": {
+        "schema": 1,
+        "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+        "source": "app",
+        "kind": "video",
+        "occurredAt": "2026-11-20T09:15:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "media": {
+          "width": 1080,
+          "height": 1920,
+          "seconds": 42.5
+        },
+        "files": [
+          {
+            "role": "media",
+            "mimetype": "video/mp4",
+            "bytes": 24567890,
+            "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "role": "original",
+            "mimetype": "video/mp4",
+            "bytes": 734003200,
+            "sha256Hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          }
+        ],
+        "client": {
+          "app": "2026.11.20-1a2b3c4",
+          "platform": "android",
+          "os": "16"
+        },
+        "visibility": "pending"
+      },
+      "canonical": "{\"client\":{\"app\":\"2026.11.20-1a2b3c4\",\"os\":\"16\",\"platform\":\"android\"},\"entryId\":\"01JD3ZQ8X4V7N2K5M9P0R6S8TW\",\"files\":[{\"bytes\":24567890,\"mimetype\":\"video/mp4\",\"role\":\"media\",\"sha256Hex\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},{\"bytes\":734003200,\"mimetype\":\"video/mp4\",\"role\":\"original\",\"sha256Hex\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"}],\"kind\":\"video\",\"media\":{\"height\":1920,\"seconds\":42.5,\"width\":1080},\"occurredAt\":\"2026-11-20T09:15:00Z\",\"schema\":1,\"source\":\"app\",\"tz\":\"Asia/Ho_Chi_Minh\",\"visibility\":\"pending\"}",
+      "sha256Hex": "17f58f39665b04c1c466b2c63f2d56c7c0652c2feadf7c83b2ef651b84c67887"
+    },
+    {
+      "name": "entry hash: text",
+      "value": {
+        "schema": 1,
+        "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+        "source": "app",
+        "kind": "text",
+        "occurredAt": "2026-11-20T09:15:00Z",
+        "tz": "Europe/Berlin",
+        "text": {
+          "body": "Xin chào Việt Nam! 🍜",
+          "bgArgb": 4290660980,
+          "textArgb": 4294967295,
+          "font": "CALISTOGA_REGULAR"
+        },
+        "files": [],
+        "client": {
+          "app": "2026.11.20-1a2b3c4",
+          "platform": "android",
+          "os": "16"
+        }
+      },
+      "canonical": "{\"client\":{\"app\":\"2026.11.20-1a2b3c4\",\"os\":\"16\",\"platform\":\"android\"},\"entryId\":\"01JD3ZQ8X4V7N2K5M9P0R6S8TW\",\"files\":[],\"kind\":\"text\",\"occurredAt\":\"2026-11-20T09:15:00Z\",\"schema\":1,\"source\":\"app\",\"text\":{\"bgArgb\":4290660980,\"body\":\"Xin chào Việt Nam! 🍜\",\"font\":\"CALISTOGA_REGULAR\",\"textArgb\":4294967295},\"tz\":\"Europe/Berlin\"}",
+      "sha256Hex": "5073543dc169bef6792fb1a173a9f4e5a381d4d7043f741cf16bf31c945a38f3"
+    },
+    {
+      "name": "entry hash: voice",
+      "value": {
+        "schema": 1,
+        "entryId": "01JD3ZQ8X4V7N2K5M9P0R6S8TW",
+        "source": "app",
+        "kind": "voice",
+        "occurredAt": "2026-11-20T09:15:00Z",
+        "tz": "Asia/Ho_Chi_Minh",
+        "media": {
+          "seconds": 12,
+          "ptt": true
+        },
+        "files": [
+          {
+            "role": "media",
+            "mimetype": "audio/mp4",
+            "bytes": 98765,
+            "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "client": {
+          "app": "2026.11.20-1a2b3c4",
+          "platform": "android",
+          "os": "16"
+        },
+        "localDate": "2026-11-19"
+      },
+      "canonical": "{\"client\":{\"app\":\"2026.11.20-1a2b3c4\",\"os\":\"16\",\"platform\":\"android\"},\"entryId\":\"01JD3ZQ8X4V7N2K5M9P0R6S8TW\",\"files\":[{\"bytes\":98765,\"mimetype\":\"audio/mp4\",\"role\":\"media\",\"sha256Hex\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"kind\":\"voice\",\"localDate\":\"2026-11-19\",\"media\":{\"ptt\":true,\"seconds\":12},\"occurredAt\":\"2026-11-20T09:15:00Z\",\"schema\":1,\"source\":\"app\",\"tz\":\"Asia/Ho_Chi_Minh\"}",
+      "sha256Hex": "590289435b179cfa23fcebacdaeeb4c408b08df2254fd4a38ab8bb09c7e904f7"
+    }
+  ]
+}

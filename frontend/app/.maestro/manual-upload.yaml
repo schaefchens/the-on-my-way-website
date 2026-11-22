@@ -1,0 +1,62 @@
+# A4 manual mode against the LOCAL dev API: with "Upload automatically" off a new moment waits as
+# "Ready to upload" until "Upload now". Run after pair-code.yaml (the phone must be paired).
+# Leaves "Upload automatically" on again.
+appId: app.omw.traveler
+name: Manual mode - waits for Upload now
+tags:
+  - stack
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 180000
+- tapOn:
+    id: settings-button
+- assertVisible:
+    id: setting-auto
+    checked: true
+- tapOn:
+    id: setting-auto
+- assertVisible:
+    id: setting-auto
+    checked: false
+- tapOn:
+    id: settings-back
+- tapOn:
+    id: text-button
+- tapOn:
+    id: text-input
+- inputText: "Waiting for my tap"
+- hideKeyboard
+- assertVisible:
+    text: ".*Upload now.*"
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- tapOn:
+    id: sync-pill
+- extendedWaitUntil:
+    visible:
+      text: "Ready to upload"
+    timeout: 15000
+- tapOn:
+    id: upload-now-all
+- extendedWaitUntil:
+    notVisible:
+      text: "Ready to upload"
+    timeout: 30000
+- tapOn:
+    id: queue-sheet-close
+- tapOn:
+    id: settings-button
+- tapOn:
+    id: setting-auto
+- assertVisible:
+    id: setting-auto
+    checked: true
+- tapOn:
+    id: settings-back

@@ -1,0 +1,36 @@
+# The A4 upload settings are stored natively (SharedPreferences) and survive an app restart.
+# Assumes "Also while roaming" is off (the default) and leaves it off.
+appId: app.omw.traveler
+name: Upload settings persist natively
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 120000
+- tapOn:
+    id: settings-button
+- assertVisible:
+    id: setting-roaming
+    checked: false
+- tapOn:
+    id: setting-roaming
+- assertVisible:
+    id: setting-roaming
+    checked: true
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 120000
+- tapOn:
+    id: settings-button
+- assertVisible:
+    id: setting-roaming
+    checked: true
+- tapOn:
+    id: setting-roaming
+- assertVisible:
+    id: setting-roaming
+    checked: false

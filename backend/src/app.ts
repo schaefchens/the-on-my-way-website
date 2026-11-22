@@ -46,6 +46,7 @@ import {
 import { hostname } from 'node:os';
 import { dirname, join } from 'node:path';
 import { isValidLocalDate } from '@omw/contracts/time';
+import { type AppSource, type AppSourceDeps, createAppSource } from './capture/app-source.js';
 import { listArchiveRecords } from './capture/archive.js';
 import type { Ingest, IngestChange, WaSource } from './capture/index.js';
 import type { Config } from './config.js';
@@ -55,6 +56,7 @@ import { mkdirWithModeSync, PRIVATE_DIR_MODE, PUBLIC_DIR_MODE, restrictTree } fr
 import type { DeployOptions, DeployResult, Publisher } from './publisher/index.js';
 import { Store } from './store/index.js';
 import { type BackupDeps, type BackupPort, createBackupPuller } from './sync/backup.js';
+import { ApiClient } from './sync/client.js';
 import {
   createSync,
   type GenerateSnapshot,
@@ -134,6 +136,8 @@ export interface AppFactories {
   createSync?(deps: SyncDeps): Sync;
   /** API backup puller (default createBackupPuller; only with an API configured). */
   createBackup?(deps: BackupDeps): BackupPort;
+  /** Traveler app source (default createAppSource; only with an API configured). */
+  createAppSource?(deps: AppSourceDeps): Pick<AppSource, 'start' | 'stop' | 'onChange' | 'status'>;
 }
 
 export interface AppOptions {
@@ -1031,6 +1035,8 @@ export class App implements ControlBackend {
   scheduler!: BuildScheduler;
   publishRunner!: PublishRunner;
   backup: BackupPort | null = null;
+  /** The traveler app's entries from the API inbox (capture/app-source.ts); null without an API. */
+  appSource: Pick<AppSource, 'start' | 'stop' | 'onChange' | 'status'> | null = null;
   control: ControlServer | null = null;
 
   private readonly deps: AppDeps;
@@ -1124,7 +1130,11 @@ export class App implements ControlBackend {
       log,
       store: this.store,
       wa: () => this.wa.view(),
-      stats: () => this.ingest.stats(),
+      stats: () => {
+        const stats = this.ingest.stats();
+        for (const [k, v] of Object.entries(this.appSource?.status().counters ?? {})) stats[`app_${k}`] = v;
+        return stats;
+      },
       enabledTargets: () => this.enabledTargetIds(),
       now: this.now,
       ...(this.opts.sync ? { options: this.opts.sync } : {}),
@@ -1139,6 +1149,19 @@ export class App implements ControlBackend {
         sync: this.sync,
         now: this.now,
         ...(this.deps.fetch ? { fetch: this.deps.fetch } : {}),
+      });
+      const client = new ApiClient({
+        baseUrl: config.api.baseUrl,
+        token: config.api.token,
+        userAgent: `omw-backend/${config.version ?? 'dev'}`,
+        ...(this.deps.fetch ? { fetch: this.deps.fetch } : {}),
+      });
+      this.appSource = (f.createAppSource ?? createAppSource)({
+        config,
+        log,
+        store: this.store,
+        client,
+        now: this.now,
       });
     }
 
@@ -1188,6 +1211,11 @@ export class App implements ControlBackend {
       }),
       this.sync.onCaughtUp(() => this.gateMayHaveOpened()),
     );
+    if (this.appSource) {
+      this.unsubscribe.push(
+        this.appSource.onChange((c: IngestChange) => this.scheduler.request({ dates: c.localDates, reason: 'app' })),
+      );
+    }
   }
 
   /**
@@ -1274,6 +1302,7 @@ export class App implements ControlBackend {
     if (restore) this.runRestore(restore);
     await this.source.start();
     await this.sync.start();
+    await this.appSource?.start();
     this.backup?.start();
     if (this.alerts) {
       this.alertTimer = setInterval(() => void this.checkAlerts(), this.opts.alertCheckMs ?? 60_000);
@@ -1608,6 +1637,7 @@ export class App implements ControlBackend {
     if (this.control) await step('control UI', () => this.control?.close());
     if (this.store) {
       await step('WhatsApp source', () => this.source.stop());
+      if (this.appSource) await step('app source', () => this.appSource?.stop() ?? Promise.resolve());
       await step('ingest', () => this.ingest.stop());
       await step('generate', () => this.scheduler.stop());
       await step('deploy', () => this.publishRunner.stop());

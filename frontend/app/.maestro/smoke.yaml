@@ -1,0 +1,32 @@
+# Smoke: the app launches into Today, and Settings opens and closes.
+#   pnpm --filter @omw/app e2e   (Metro on 8081 for a debug build; logs in .cache/logs/maestro)
+# A debug build loads its JS from Metro (adb reverse tcp:8081 tcp:8081), so the first launch
+# waits for the bundle.
+appId: app.omw.traveler
+name: Smoke - launch shows Today
+tags:
+  - smoke
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 180000
+- assertVisible:
+    id: capture-button
+- assertVisible:
+    id: greeting
+- assertVisible:
+    id: sync-pill
+- tapOn:
+    id: settings-button
+- extendedWaitUntil:
+    visible:
+      id: settings-screen
+    timeout: 10000
+- assertVisible:
+    id: setting-wifi-only
+- tapOn:
+    id: settings-back
+- assertVisible:
+    id: today-screen

@@ -1,0 +1,12 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": [
+      "app.omw.omwnative.OmwTokenVaultModule",
+      "app.omw.omwnative.OmwMediaExportModule",
+      "app.omw.omwnative.OmwUploaderModule",
+      "app.omw.omwnative.OmwHapticsModule",
+      "app.omw.omwnative.OmwNetworkModule"
+    ]
+  }
+}

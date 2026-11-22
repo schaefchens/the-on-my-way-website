@@ -1,0 +1,61 @@
+# The main path: take a photo with the emulator's virtual camera -> caption -> share -> it shows
+# up on Today and in the queue sheet with a status from the one vocabulary.
+appId: app.omw.traveler
+name: Photo - capture, caption, share, queue
+tags:
+  - main
+---
+- runFlow: subflows/fresh-start.yaml
+- tapOn:
+    id: capture-button
+- extendedWaitUntil:
+    visible:
+      id: camera-screen
+    timeout: 15000
+- runFlow: subflows/allow-camera.yaml
+- extendedWaitUntil:
+    visible:
+      id: camera-view
+    timeout: 15000
+# CameraX needs a moment to bind the virtual camera.
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: shutter
+- extendedWaitUntil:
+    visible:
+      id: compose-screen
+    timeout: 20000
+- assertVisible:
+    id: compose-photo
+- tapOn:
+    id: caption-input
+- inputText: "Harbour at dusk"
+- hideKeyboard
+- assertVisible:
+    id: publish-line
+- tapOn:
+    id: send-button
+- extendedWaitUntil:
+    visible:
+      id: today-screen
+    timeout: 15000
+- assertVisible:
+    id: toast-undo
+- extendedWaitUntil:
+    visible:
+      id: today-item-0
+    timeout: 10000
+- tapOn:
+    id: sync-pill
+- extendedWaitUntil:
+    visible:
+      id: queue-sheet
+    timeout: 5000
+- assertVisible:
+    id: queue-row-status
+# Not paired in this flow: the moment waits safely on the phone, with a way to connect.
+- assertVisible:
+    id: queue-connect
+- tapOn:
+    id: queue-sheet-close

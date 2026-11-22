@@ -58,6 +58,7 @@ import { switchReleases, waitingToPublish } from '../lib/mode-since';
 import { notify } from '../lib/notices';
 import { deviceTimeZone, zoneChoices, zoneLabel, zoneOffset } from '../lib/places';
 import { logout } from '../session';
+import { ConnectPhoneSection } from './settings-phones';
 import { AboutYouSection } from './settings-profile';
 
 /**
@@ -932,6 +933,7 @@ export function SettingsScreen() {
               <AboutYouSection settings={q.data} />
               <SiteSection settings={q.data} />
               <AppSection />
+              <ConnectPhoneSection />
               <TokensSection />
               <AccountSection />
             </div>

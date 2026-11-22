@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AppInboxAck.json",
+  "title": "AppInboxAck",
+  "additionalProperties": false,
+  "properties": {
+    "roles": {
+      "items": {
+        "enum": [
+          "media",
+          "preview",
+          "original"
+        ],
+        "type": "string"
+      },
+      "maxItems": 3,
+      "type": "array"
+    },
+    "withdrawal": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "roles"
+  ],
+  "type": "object"
+}

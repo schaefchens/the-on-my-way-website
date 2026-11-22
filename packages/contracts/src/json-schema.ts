@@ -4,6 +4,8 @@
  */
 import { z } from 'zod';
 import { API_SCHEMAS, type ApiSchemaName } from './api.js';
+import { APP_SCHEMAS, type AppSchemaName } from './app.js';
+import { APP_INBOX_SCHEMAS, type AppInboxSchemaName } from './app-inbox.js';
 
 export const SCHEMA_ID_PREFIX = 'https://omw.invalid/schemas/';
 
@@ -23,6 +25,10 @@ function sortKeys(value: unknown): unknown {
 
 export function apiJsonSchema(name: ApiSchemaName): JsonSchema {
   const [schema, io] = API_SCHEMAS[name];
+  return toJsonSchema(name, schema, io);
+}
+
+function toJsonSchema(name: string, schema: z.ZodType, io: 'input' | 'output'): JsonSchema {
   const json = z.toJSONSchema(schema, {
     target: 'draft-2020-12',
     io,
@@ -45,6 +51,27 @@ export function apiJsonSchema(name: ApiSchemaName): JsonSchema {
     title: name,
     ...(sortKeys(rest) as JsonSchema),
   };
+}
+
+/** The traveler app's schemas (./app APP_SCHEMAS + ./app-inbox APP_INBOX_SCHEMAS), written next to the API's. */
+export function buildAppJsonSchemas(): Record<AppSchemaName | AppInboxSchemaName, JsonSchema> {
+  const registry: Record<string, readonly [z.ZodType, 'input' | 'output']> = { ...APP_SCHEMAS, ...APP_INBOX_SCHEMAS };
+  const out = {} as Record<AppSchemaName | AppInboxSchemaName, JsonSchema>;
+  for (const name of Object.keys(registry).sort() as (AppSchemaName | AppInboxSchemaName)[]) {
+    const [schema, io] = registry[name] as readonly [z.ZodType, 'input' | 'output'];
+    out[name] = toJsonSchema(name, schema, io);
+  }
+  return out;
+}
+
+/** Everything `pnpm schemas` writes to api/schemas (API + app; names must not collide). */
+export function buildAllJsonSchemas(): Record<string, JsonSchema> {
+  const api: Record<string, JsonSchema> = buildApiJsonSchemas();
+  const app: Record<string, JsonSchema> = buildAppJsonSchemas();
+  for (const name of Object.keys(app)) {
+    if (name in api) throw new Error(`Schema name ${name} is used by both API_SCHEMAS and APP_SCHEMAS`);
+  }
+  return { ...api, ...app };
 }
 
 export function buildApiJsonSchemas(): Record<ApiSchemaName, JsonSchema> {

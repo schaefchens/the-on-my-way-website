@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omw.invalid/schemas/AppPairingCreate.json",
+  "title": "AppPairingCreate",
+  "additionalProperties": false,
+  "properties": {
+    "ttlMinutes": {
+      "maximum": 1440,
+      "minimum": 5,
+      "type": "integer"
+    }
+  },
+  "type": "object"
+}
