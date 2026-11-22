@@ -1,6 +1,6 @@
 # Takes a photo with the (virtual) camera, adds a caption and shares it. Starts and ends on Today.
 # Used by capture-photo.yaml (fresh install) and the end-to-end run (e2e/capture-all.yaml).
-appId: app.omw.traveler
+appId: de.schaefchens.onmyway
 ---
 - tapOn:
     id: capture-button

@@ -19,6 +19,7 @@ import type { Store } from '../store/index.js';
 import { FixtureSource, type FixtureSourceOptions } from './fixture.js';
 import { HelperSource, type HelperSourceOptions } from './helper.js';
 import { CaptureIngest, type IngestOptions } from './ingest.js';
+import { OffSource } from './off.js';
 import type { Ingest, WaSource } from './types.js';
 
 export {
@@ -42,6 +43,7 @@ export { archiveRecordRelPath, listArchiveRecords, readArchiveRecord } from './a
 export { FixtureSource, type FixtureSourceOptions } from './fixture.js';
 export { HelperSource, type HelperSourceOptions } from './helper.js';
 export { CaptureIngest, type IngestDeps, type IngestOptions } from './ingest.js';
+export { OffSource } from './off.js';
 export {
   DEFAULT_RESTART_POLICY,
   exitMeaning,
@@ -86,9 +88,11 @@ function paceFromEnv(env: Record<string, string | undefined>): number {
 
 /**
  * WA_MODE=fixture -> FixtureSource (replays FIXTURES_DIR; WA_FIXTURE_PACE_MS > 0 paces it);
+ * off -> OffSource (no WhatsApp at all; captures only come from the traveler app);
  * observer | self -> HelperSource (spawns WA_HELPER_BIN).
  */
 export function createWaSource(deps: WaSourceDeps): WaSource {
+  if (deps.config.wa.mode === 'off') return new OffSource({ log: deps.log });
   if (deps.config.wa.mode === 'fixture') {
     return new FixtureSource(
       { config: deps.config, log: deps.log, paths: deps.paths },

@@ -1,6 +1,6 @@
 # End-to-end run: "Upload now" in the queue sheet sends the waiting moment; then "Upload
 # automatically" goes back on.
-appId: app.omw.traveler
+appId: de.schaefchens.onmyway
 name: e2e - Upload now
 tags:
   - e2e

@@ -1,5 +1,5 @@
 # A fresh install state: no data, Today on screen, the one-time cards answered.
-appId: app.omw.traveler
+appId: de.schaefchens.onmyway
 ---
 - launchApp:
     clearState: true

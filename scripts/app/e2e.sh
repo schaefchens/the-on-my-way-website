@@ -74,7 +74,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-PKG=app.omw.traveler
+PKG=de.schaefchens.onmyway
 API_PORT=18080
 PROXY_PORT=18090
 CONTROL_PORT=18091

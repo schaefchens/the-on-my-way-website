@@ -755,7 +755,7 @@ export async function createControlServer(o: ControlServerOptions): Promise<Cont
         // Human wording and what the link page should offer (wa-monitor.ts), so an open page
         // follows the helper's lifecycle: stopped after exit 7 -> "Show a new QR code".
         label: waStateLabel(snap),
-        tone: snap.mode === 'fixture' ? 'info' : waTone(snap.state),
+        tone: snap.mode === 'fixture' || snap.mode === 'off' ? 'info' : waTone(snap.state),
         step: linkStep(snap),
         renewText: renewText(snap),
         process: snap.process,

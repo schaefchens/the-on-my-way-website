@@ -6,6 +6,7 @@
  * | NODE_ENV            | development                      |                        |
  * | LOG_LEVEL           | debug                            | info                   |
  * | WA_MODE             | fixture                          | observer               |
+ * |   (off = no WhatsApp at all: only app entries are captured; nothing to link)               |
  * | TRAVELER_PHONE      | – (required for observer mode)   |                        |
  * | TRAVELER_LID        | – (learned; overrides store meta)|                        |
  * | WA_HELPER_BIN       | backend/wa-helper/bin/wa-helper  | same                   |
@@ -121,7 +122,7 @@ const EnvSchema = z.object({
     emptyToUndefined,
     z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
   ),
-  WA_MODE: z.preprocess(emptyToUndefined, z.enum(['observer', 'self', 'fixture']).optional()),
+  WA_MODE: z.preprocess(emptyToUndefined, z.enum(['observer', 'self', 'fixture', 'off']).optional()),
   TRAVELER_LID: z.preprocess(
     emptyToUndefined,
     z
@@ -180,7 +181,7 @@ const EnvSchema = z.object({
   GATE_OUT_DIR: optionalString,
 });
 
-export type WaMode = 'observer' | 'self' | 'fixture';
+export type WaMode = 'observer' | 'self' | 'fixture' | 'off';
 export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent';
 
 export interface Config {

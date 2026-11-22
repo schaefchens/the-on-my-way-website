@@ -64,7 +64,7 @@ cd android && ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
 # run on our emulator (one emulator at a time; the script holds the lock)
 scripts/app/with-emulator.sh -- adb install -r frontend/app/android/app/build/outputs/apk/debug/app-debug.apk
 (cd frontend/app && CI=1 npx expo start --port 8081) &        # Metro for the debug build
-scripts/app/with-emulator.sh -- sh -c 'adb reverse tcp:8081 tcp:8081 && adb shell am start -n app.omw.traveler/.MainActivity'
+scripts/app/with-emulator.sh -- sh -c 'adb reverse tcp:8081 tcp:8081 && adb shell am start -n de.schaefchens.onmyway/.MainActivity'
 pnpm --filter @omw/app e2e                   # Maestro flows (needs Metro on 8081 for a debug build; logs stay in .cache)
 # one flow, or a tag:  …/maestro test --include-tags main .maestro   (screens: --include-tags screens)
 
@@ -76,7 +76,7 @@ scripts/app/e2e.sh                                                  # ~15 min, s
 Backend calls in development go to the local PHP API through `adb reverse tcp:8080 tcp:8080`
 (`OMW_API_BASE_URL`, default `http://127.0.0.1:8080`): **never** to the live hosts. A debug build
 signed with the debug key and a release build signed with the upload key can't replace each
-other: `adb uninstall app.omw.traveler` first.
+other: `adb uninstall de.schaefchens.onmyway` first.
 
 ## Release builds (`scripts/app/release.sh`)
 
@@ -130,8 +130,8 @@ this work did not open. Upload only a bundle built in step 3 below.
 
 Owner decisions Q7 a (Play internal testing; the accounts exist) and A1. Do these in order:
 
-1. **Decide the applicationId** (now the neutral `app.omw.traveler`). It can never change after the
-   first upload. To change it, build with `OMW_ANDROID_PACKAGE=<id>`.
+1. **applicationId:** decided by the owner on 2026-11-23: `de.schaefchens.onmyway` (the default).
+   It can never change after the first Play upload.
 2. **Deploy the API with the app inbox** (this branch: migration `0050_app_inbox.sql`, the
    `/api/v1/app/*` routes) with `scripts/deploy-api.ts`, and set `APP_INBOX_MAX_BYTES` to about
    10 % of the hosting quota (video originals, Q2 c), `APP_TRANSFER_SLOTS` after the worker probe.
@@ -240,5 +240,5 @@ These need her phone (or the same model) and can't be done on the emulator:
 - **Haptics** only through Android's own constants (`haptic()` in omw-native); no `VIBRATE`.
 - **Pairing links never carry the API base**: a stranger's `omw://` link must not redirect her
   uploads. The base comes from the build.
-- **applicationId** `app.omw.traveler` (neutral; `OMW_ANDROID_PACKAGE`). Decide the final id before
-  the first Play upload: it can never change afterwards.
+- **applicationId** `de.schaefchens.onmyway` (owner decision 2026-11-23; `OMW_ANDROID_PACKAGE` overrides it
+  only for experiments). It can never change after the first Play upload.

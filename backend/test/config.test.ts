@@ -115,6 +115,13 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ API_BACKUP_KEEP: '0' })).toThrow(/API_BACKUP_KEEP/);
   });
 
+  it('accepts WA_MODE=off (no WhatsApp; no TRAVELER_PHONE needed, also in production)', () => {
+    expect(loadConfig({ WA_MODE: 'off' }).wa.mode).toBe('off');
+    const prod = loadConfig({ NODE_ENV: 'production', WA_MODE: 'off', CONTROL_TOKEN: 'a-long-enough-control-token' });
+    expect(prod.wa.mode).toBe('off');
+    expect(prod.wa.travelerPhone).toBeNull();
+  });
+
   it('treats empty strings as unset', () => {
     const c = loadConfig({ API_BASE_URL: '', API_TOKEN: '', WA_MODE: '', LOG_LEVEL: '' });
     expect(c.api).toBeNull();

@@ -29,7 +29,7 @@ export function waTone(state: string): Tone {
 
 /** The WhatsApp state as a pill: human label, raw state on hover. */
 export function waBadge(wa: Pick<WaSnapshot, 'state' | 'mode'>): SafeHtml {
-  return badge(waStateLabel(wa), wa.mode === 'fixture' ? 'info' : waTone(wa.state), wa.state);
+  return badge(waStateLabel(wa), wa.mode === 'fixture' || wa.mode === 'off' ? 'info' : waTone(wa.state), wa.state);
 }
 
 const CAPTURE_STATE_LABEL: Record<string, string> = {
@@ -159,7 +159,7 @@ export function overviewFragment(
   const waCard = card(
     'WhatsApp',
     html`<p class="state">${waBadge(wa)} <span class="muted">${wa.reason ?? ''}</span></p>
-      <p class="hint">${wa.mode === 'fixture' ? 'Fixture mode: recorded statuses are replayed, nothing to link.' : (WA_HINT[wa.state] ?? '')}</p>
+      <p class="hint">${wa.mode === 'fixture' ? 'Fixture mode: recorded statuses are replayed, nothing to link.' : wa.mode === 'off' ? 'WhatsApp capture is switched off (WA_MODE=off): only the traveler app delivers moments.' : (WA_HINT[wa.state] ?? '')}</p>
       <dl>
         ${row('Mode', s.wa.mode ?? '–')}
         ${row('Linked as', wa.jid ?? '–')}
@@ -168,7 +168,7 @@ export function overviewFragment(
         ${row('Helper', html`${wa.process ?? '–'}${wa.helperVersion ? ` · ${wa.helperVersion}` : ''}${wa.restarts ? ` · ${wa.restarts} restarts` : ''}`)}
         ${row('Last event', timeTag(wa.lastEventAt, now))}
       </dl>
-      ${wa.state !== 'open' && wa.mode !== 'fixture' ? html`<p><a class="btn btn-primary" href="/link">Link WhatsApp</a></p>` : ''}`,
+      ${wa.state !== 'open' && wa.mode !== 'fixture' && wa.mode !== 'off' ? html`<p><a class="btn btn-primary" href="/link">Link WhatsApp</a></p>` : ''}`,
   );
 
   const travelerCard = card(
@@ -315,6 +315,14 @@ export async function linkPage(
 ): Promise<SafeHtml> {
   const form: PairCodeForm = typeof pair === 'string' ? { code: pair } : (pair ?? {});
   const step = linkStep(wa);
+  if (step === 'fixture' && wa.mode === 'off') {
+    return html`<h1>Link WhatsApp</h1>
+      <section class="card">
+        <h2>WhatsApp is off – nothing to link</h2>
+        <p class="state" data-wa-state>${waBadge(wa)}</p>
+        <p class="hint">This backend runs without WhatsApp (WA_MODE=off): moments only come from the traveler app. To capture WhatsApp statuses later, run it with <code>WA_MODE=observer</code> and <code>TRAVELER_PHONE</code> (see docs/OBSERVER.md).</p>
+      </section>`;
+  }
   if (step === 'fixture') {
     return html`<h1>Link WhatsApp</h1>
       <section class="card">

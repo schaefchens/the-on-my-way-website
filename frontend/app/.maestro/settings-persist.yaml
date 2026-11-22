@@ -1,6 +1,6 @@
 # The A4 upload settings are stored natively (SharedPreferences) and survive an app restart.
 # Assumes "Also while roaming" is off (the default) and leaves it off.
-appId: app.omw.traveler
+appId: de.schaefchens.onmyway
 name: Upload settings persist natively
 ---
 - launchApp

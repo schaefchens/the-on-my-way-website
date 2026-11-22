@@ -1,5 +1,5 @@
 # Grants the camera (and microphone) just in time, when the app asks.
-appId: app.omw.traveler
+appId: de.schaefchens.onmyway
 ---
 - runFlow:
     when:

@@ -15,7 +15,7 @@
 #   --version-code N    default: minutes since 2026-01-01 UTC (always increasing; Play needs that)
 #   --out DIR           artifact + report folder (default: <checkout>/.cache/app-release)
 #   --keep-android      keep the generated frontend/app/android (~1.5 GB) for a quicker rebuild
-# Environment: OMW_ANDROID_PACKAGE (applicationId, default app.omw.traveler; it can never change
+# Environment: OMW_ANDROID_PACKAGE (applicationId, default de.schaefchens.onmyway; it can never change
 # after the first Play upload), OMW_UPLOAD_KEY_DIR (default <checkout>/.secrets).
 #
 # The upload key: OMW_UPLOAD_KEY_DIR/omw-upload.p12 (PKCS12, RSA 4096, valid ~27 years) and
@@ -167,7 +167,7 @@ export OMW_UPLOAD_KEYSTORE_PROPERTIES="$KEYPROPS"
 export NODE_ENV=production CI=1
 export ORG_GRADLE_PROJECT_reactNativeArchitectures="$ABIS"
 
-log "building a release $KIND: versionName $VERSION_NAME, versionCode $VERSION_CODE, ABIs $ABIS, API $API_BASE, package ${OMW_ANDROID_PACKAGE:-app.omw.traveler}"
+log "building a release $KIND: versionName $VERSION_NAME, versionCode $VERSION_CODE, ABIs $ABIS, API $API_BASE, package ${OMW_ANDROID_PACKAGE:-de.schaefchens.onmyway}"
 START=$SECONDS
 cd "$APP"
 # A clean prebuild: release artifacts come from freshly generated native sources.

@@ -281,6 +281,7 @@ const WA_LABELS: Record<WaState, string> = {
 /** "Waiting for scan" for "qr", etc.; fixture mode replays recordings and links nothing. */
 export function waStateLabel(snapshot: Pick<WaSnapshot, 'state' | 'mode'>): string {
   if (snapshot.mode === 'fixture') return 'Fixture replay';
+  if (snapshot.mode === 'off') return 'Off';
   return WA_LABELS[snapshot.state] ?? snapshot.state;
 }
 
@@ -297,7 +298,7 @@ export function waStateLabel(snapshot: Pick<WaSnapshot, 'state' | 'mode'>): stri
 export type LinkStep = 'fixture' | 'linked' | 'scan' | 'renew' | 'restarting' | 'waiting';
 
 export function linkStep(wa: WaSnapshot): LinkStep {
-  if (wa.mode === 'fixture') return 'fixture';
+  if (wa.mode === 'fixture' || wa.mode === 'off') return 'fixture';
   if (wa.state === 'open') return 'linked';
   if (wa.qr) return 'scan';
   if (wa.process === 'stopped') return 'renew';
