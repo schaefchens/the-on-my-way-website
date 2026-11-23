@@ -88,7 +88,7 @@ remove() { # path, shown as, and how to remove it if not by deleting the path
   total=$((total + ${kb:-0}))
   printf '%9.1f MB  %s\n' "$(echo "${kb:-0} / 1024" | bc -l)" "$2"
   [ $dry = 1 ] && return
-  if [ $# -gt 2 ]; then eval "$3"; else rm -rf "$1"; fi
+  if [ $# -gt 2 ]; then eval "$3"; else chmod -R u+w "$1" 2> /dev/null || true; rm -rf "$1"; fi  # Go keeps its module cache read-only
 }
 remove_ignored() { # path
   [ -e "$1" ] || return 0
