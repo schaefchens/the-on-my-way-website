@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { z } from 'zod';
 import { i18n } from '../i18n';
@@ -21,6 +22,9 @@ const STAGE_SCREENS = ['camera', 'compose', 'text', 'voice'] as const;
 
 function ThemedStack() {
   const theme = useTheme();
+  // With reduced motion (system animations off, e.g. e-ink tablets) screens switch without any
+  // transition: a native fade that never runs must not leave a new screen invisible.
+  const reduced = useReducedMotion();
   useEffect(() => {
     void SystemUI.setBackgroundColorAsync(theme.colors.bg);
   }, [theme.colors.bg]);
@@ -31,7 +35,7 @@ function ThemedStack() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: theme.colors.bg },
-          animation: 'fade_from_bottom',
+          animation: reduced ? 'none' : 'fade_from_bottom',
         }}
       >
         {STAGE_SCREENS.map((name) => (
@@ -40,7 +44,7 @@ function ThemedStack() {
             name={name}
             options={{
               // The camera's own circular reveal (or a crossfade) does the motion.
-              animation: name === 'camera' ? 'none' : 'fade',
+              animation: reduced || name === 'camera' ? 'none' : 'fade',
               contentStyle: { backgroundColor: '#120c17' },
               statusBarStyle: 'light',
             }}

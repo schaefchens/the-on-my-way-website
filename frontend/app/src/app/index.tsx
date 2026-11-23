@@ -140,7 +140,16 @@ export default function Today() {
   const openCamera = useCallback(
     (params?: { start?: 'video' }) => {
       if (!settings.coachSeen) update({ coachSeen: true });
-      const go = () => router.push({ pathname: '/camera', params: params ?? {} });
+      // The camera opens exactly once, whether or not the reveal reports "finished": some devices
+      // (e-ink tablets with animations off) never finish it, and a tap must never be lost.
+      let went = false;
+      const go = () => {
+        if (went) return;
+        went = true;
+        clearTimeout(fallback);
+        router.push({ pathname: '/camera', params: params ?? {} });
+      };
+      const fallback = setTimeout(go, reduced ? 250 : 900);
       const node = captureRef.current;
       if (!node) {
         go();
@@ -149,9 +158,9 @@ export default function Today() {
       node.measureInWindow((x, y, w, h) => {
         setRevealAt({ x: x + w / 2, y: y + h / 2 });
         reveal.value = 0;
-        const done = (finished?: boolean) => {
+        const done = () => {
           'worklet';
-          if (finished) scheduleOnRN(go);
+          scheduleOnRN(go);
         };
         reveal.value = reduced
           ? withTiming(1, REDUCED_FADE, done)
@@ -211,9 +220,12 @@ export default function Today() {
             to: { x: x + w / 2, y: y + h / 2 },
           });
           flight.value = 0;
-          const land = (finished?: boolean) => {
+          // Cleared whether or not the flight reports "finished" (and after 1.5 s at the latest).
+          const landed = setTimeout(() => setFlying(null), 1500);
+          const land = () => {
             'worklet';
-            if (finished) scheduleOnRN(setFlying, null);
+            scheduleOnRN(setFlying, null);
+            scheduleOnRN(clearTimeout, landed);
           };
           flight.value = reduced
             ? withTiming(1, REDUCED_FADE, land)

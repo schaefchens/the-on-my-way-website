@@ -67,6 +67,11 @@ export function Sheet({
         shown.value = withTiming(0, { duration: 200 });
         y.value = withTiming(height, { duration: 220 }, done);
       }
+      // A closed sheet must never stay mounted: its invisible scrim would swallow every tap on
+      // devices whose animations never report "finished" (e-ink tablets with animations off).
+      // Re-opening runs this effect's cleanup first, so a sheet coming back is never removed.
+      const fallback = setTimeout(() => setMounted(false), 450);
+      return () => clearTimeout(fallback);
     }
   }, [open, mounted, reduced, height, shown, y]);
 

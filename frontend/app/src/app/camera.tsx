@@ -323,7 +323,8 @@ export default function CameraScreen() {
   }));
   const dimStyle = useAnimatedStyle(() => ({ opacity: dim.value }));
   const ringProps = useAnimatedProps(() => ({ strokeDashoffset: RING_LEN * (1 - ring.value) }));
-  const contentIn = useSharedValue(0);
+  // Visible at once with reduced motion (some devices never run the fade-in).
+  const contentIn = useSharedValue(reduced ? 1 : 0);
   useEffect(() => {
     contentIn.value = withTiming(1, { duration: reduced ? 120 : 220 });
   }, [contentIn, reduced]);
